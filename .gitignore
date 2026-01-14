@@ -1,0 +1,22 @@
+# Secrets
+.streamlit/secrets.toml
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+
+# Screenshots (local only)
+*.png
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
