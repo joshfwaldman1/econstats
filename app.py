@@ -51,7 +51,7 @@ RECESSIONS = [
     {'start': '2020-02-01', 'end': '2020-04-01'},
 ]
 
-# Series database with proper economist intuitions
+# Series database with rich economist-style descriptions (CEA/Brookings/Zandi tone)
 SERIES_DB = {
     # Employment - Establishment Survey (CES)
     'PAYEMS': {
@@ -59,9 +59,11 @@ SERIES_DB = {
         'unit': 'Thousands of Persons',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
         'bullets': [
-            'THE jobs number. Monthly change is what makes headlines. From the establishment survey (asks employers).',
-            'A gain of 150,000+ jobs/month is needed to keep pace with population growth. Above 200,000 = strong hiring.'
+            'The single most important monthly indicator of labor market health. This is the "jobs number" that moves markets on the first Friday of each month. It counts every worker on a U.S. business payroll outside of farming.',
+            'Context matters: The economy needs roughly 100,000-150,000 new jobs per month just to absorb population growth. Gains above 200,000 signal robust hiring; below 100,000 suggests softening. During recessions, this figure turns sharply negative—the economy lost 800,000+ jobs monthly at the depths of the 2008-09 crisis.'
         ]
     },
     'CES0500000003': {
@@ -69,10 +71,12 @@ SERIES_DB = {
         'unit': 'Dollars per Hour',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
         'can_inflate_adjust': True,
         'bullets': [
-            'What American workers earn per hour. When wages grow faster than inflation, workers gain purchasing power.',
-            'The Fed watches wage growth closely: too-fast increases can fuel inflation, but stagnant wages hurt spending.'
+            'Measures the average hourly pay for private-sector workers—a key indicator of whether economic gains are reaching American households. When wage growth outpaces inflation, workers see real improvements in living standards.',
+            'The Federal Reserve watches wage growth closely as part of its inflation mandate. Wage growth of 3-3.5% is generally consistent with the Fed\'s 2% inflation target (accounting for productivity growth). Sustained wage growth above 4-5% can signal inflationary pressure, while stagnant wages—even with low unemployment—suggest workers lack bargaining power.'
         ]
     },
 
@@ -82,9 +86,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
         'bullets': [
-            'The headline unemployment rate. From the household survey (asks people). Below 4% = "full employment."',
-            'Only counts people actively looking for work. The broader U-6 measure is typically 3-4 points higher.'
+            'The headline unemployment rate measures the share of Americans who are actively looking for work but cannot find it. This is the figure cited in news reports and used to gauge the health of the labor market.',
+            'Historical context: Rates below 4% are historically rare and typically signal a very tight labor market. The rate peaked at 10% during the Great Recession and briefly hit 14.7% in April 2020 during COVID lockdowns. Important caveat: This measure excludes "discouraged workers" who\'ve stopped looking and part-time workers who want full-time jobs. The broader U-6 measure captures these groups and typically runs 3-4 percentage points higher.'
         ]
     },
     'LNS12300060': {
@@ -92,9 +98,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
         'bullets': [
-            'Many economists consider this THE best measure of labor market health. Avoids distortions from retirees/students.',
-            'Shows what % of prime-age Americans (25-54) have jobs. Pre-pandemic peak was 80.4% in early 2020.'
+            'Many economists consider this the single best measure of labor market health. It shows the share of Americans aged 25-54 who are employed—avoiding distortions from retiring Baby Boomers and students staying in school longer.',
+            'This measure tells us whether the economy is actually putting working-age Americans into jobs. The pre-pandemic peak was 80.4% in January 2020. Unlike the unemployment rate, this metric captures people who\'ve left the workforce entirely. A rising prime-age employment ratio alongside falling unemployment is the clearest sign of genuine labor market improvement.'
         ]
     },
     'LNS11300000': {
@@ -102,9 +110,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
         'bullets': [
-            'Share of working-age Americans either employed or actively job-hunting. Peaked at 67% in 2000.',
-            'Decline reflects Boomers retiring, more students, and some prime-age workers dropping out.'
+            'Measures the share of the adult population either working or actively seeking work. This indicator reveals whether Americans are engaged in the labor market or sitting on the sidelines.',
+            'The participation rate rose steadily for decades as women entered the workforce, peaking at 67.3% in 2000. It has since declined due to population aging, rising disability rates, and more young adults pursuing education. The COVID pandemic caused a sharp drop as workers—particularly women with caregiving responsibilities—left the labor force.'
         ]
     },
     'LNS11300060': {
@@ -112,9 +122,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
         'bullets': [
-            'Participation rate for 25-54 year olds. Removes demographic effects of aging population.',
-            'Better than overall participation for tracking whether working-age people are engaged in the labor market.'
+            'Focuses on workers in their prime earning years (25-54), filtering out demographic effects from an aging population. This is a cleaner measure of whether working-age Americans are engaged with the labor market.',
+            'The U.S. has seen a notable decline in prime-age male participation over recent decades—a trend that concerns economists as it suggests some working-age men have disconnected from the labor force entirely. Potential causes include disability, opioid addiction, declining job opportunities for non-college workers, and criminal records limiting employment options.'
         ]
     },
 
@@ -124,9 +136,11 @@ SERIES_DB = {
         'unit': 'Thousands',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
         'bullets': [
-            'Counts unfilled job positions. Key indicator of labor demand.',
-            'The ratio of job openings to unemployed workers measures labor market "tightness."'
+            'Counts the number of unfilled job positions across the economy. High job openings signal strong labor demand—employers are actively trying to hire. This data comes from the Job Openings and Labor Turnover Survey (JOLTS).',
+            'The ratio of job openings to unemployed workers is a key measure of labor market "tightness." In a balanced market, this ratio is around 1.0. When it rises well above 1.0 (as it did in 2021-22, reaching nearly 2.0), workers have significant bargaining power and can command higher wages. Below 1.0 suggests slack in the labor market.'
         ]
     },
 
@@ -136,12 +150,14 @@ SERIES_DB = {
         'unit': 'Index 1982-84=100',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'CPI Inflation Rate (Headline)',
         'yoy_unit': 'Percent Change (Year-over-Year)',
         'bullets': [
-            'THE inflation number for most purposes. What consumers actually experience. Used for Social Security adjustments.',
-            'At 2%, prices double every 35 years. At 7%, they double in 10 years.'
+            'The Consumer Price Index is the most widely cited measure of inflation in the United States. It tracks the prices urban consumers pay for a basket of goods and services—everything from rent and groceries to gasoline and healthcare.',
+            'Why it matters to households: CPI directly affects Americans\' purchasing power. It\'s also used to adjust Social Security benefits, income tax brackets, and TIPS bond returns. The Federal Reserve targets 2% annual inflation; rates persistently above this level erode household budgets and can force the Fed to raise interest rates, slowing economic growth.'
         ]
     },
     'CPILFESL': {
@@ -149,12 +165,14 @@ SERIES_DB = {
         'unit': 'Index 1982-84=100',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'Core CPI Inflation Rate',
         'yoy_unit': 'Percent Change (Year-over-Year)',
         'bullets': [
-            'Strips out volatile food and energy to show underlying inflation trend.',
-            'Economists prefer core because it\'s "stickier" and harder to reverse once embedded.'
+            'Core inflation strips out volatile food and energy prices to reveal the underlying trend in prices. While headline inflation captures what consumers actually pay, core inflation better reflects persistent price pressures that monetary policy can address.',
+            'Economists focus on core inflation because food and energy prices swing wildly based on weather, geopolitics, and speculation—factors largely outside the Fed\'s control. When core inflation is elevated, it typically signals that price pressures have become "sticky" and embedded in the economy through wages, rents, and services. This is much harder to reverse than a temporary oil price spike.'
         ]
     },
     'CUSR0000SAH1': {
@@ -162,12 +180,14 @@ SERIES_DB = {
         'unit': 'Index 1982-84=100',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'Shelter Inflation Rate',
         'yoy_unit': 'Percent Change (Year-over-Year)',
         'bullets': [
-            'Housing costs are ~1/3 of CPI. When shelter surges, it pushes overall inflation higher.',
-            'IMPORTANT: CPI shelter lags market rents by ~12 months due to how it\'s measured.'
+            'Housing costs (rent and owners\' equivalent rent) make up roughly one-third of the CPI basket—the largest single component. When shelter inflation surges, it pulls overall inflation higher and is felt acutely by household budgets.',
+            'Critical caveat: CPI shelter lags actual market rents by approximately 12 months due to how the BLS measures it (surveying existing leases that turn over slowly). This means market rent declines won\'t show up in CPI shelter for many months. Economists watching for inflation to ease look at private rent indexes like Zillow or Apartment List for leading signals.'
         ]
     },
 
@@ -177,12 +197,14 @@ SERIES_DB = {
         'unit': 'Index 2017=100',
         'source': 'U.S. Bureau of Economic Analysis',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'PCE Inflation Rate',
         'yoy_unit': 'Percent Change (Year-over-Year)',
         'bullets': [
-            'The Federal Reserve\'s preferred inflation measure. When the Fed says "2% target," this is what they mean.',
-            'Typically runs 0.3-0.5 points below CPI because it accounts for consumers switching to cheaper alternatives.'
+            'The Personal Consumption Expenditures price index is the Federal Reserve\'s preferred measure of inflation. When Fed officials say they target "2% inflation," they mean PCE. It\'s broader than CPI and better captures how consumers actually spend.',
+            'PCE differs from CPI in important ways: it includes spending by employers and government on behalf of households (like employer-provided health insurance), and it adjusts for consumers substituting cheaper alternatives when prices rise. PCE inflation typically runs 0.3-0.5 percentage points below CPI.'
         ]
     },
     'PCEPILFE': {
@@ -190,12 +212,14 @@ SERIES_DB = {
         'unit': 'Index 2017=100',
         'source': 'U.S. Bureau of Economic Analysis',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'Core PCE Inflation Rate',
         'yoy_unit': 'Percent Change (Year-over-Year)',
         'bullets': [
-            'THE number the Fed watches most closely. The explicit target is 2.0% year-over-year.',
-            'When discussing Fed policy or interest rate decisions, this is the inflation measure that matters.'
+            'This is the single most important inflation measure for monetary policy. The Federal Reserve\'s explicit inflation target is 2% on core PCE. Every FOMC statement, press conference, and Summary of Economic Projections references this metric.',
+            'When core PCE runs persistently above 2%, the Fed faces pressure to raise interest rates to cool demand. When it runs below 2%, the Fed has room to keep rates low to support employment. Core PCE running at 4-5% in 2022-23 drove the most aggressive Fed rate-hiking cycle in four decades.'
         ]
     },
 
@@ -205,9 +229,11 @@ SERIES_DB = {
         'unit': 'Billions of Chained 2017 Dollars',
         'source': 'U.S. Bureau of Economic Analysis',
         'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'level',
         'bullets': [
-            'Total value of everything America produces, adjusted for inflation ("real"). Always use real, not nominal GDP.',
-            'Two consecutive quarters of negative growth is the rule-of-thumb for recession (but NBER officially decides).'
+            'Real GDP is the broadest measure of economic output—the total value of all goods and services produced in the United States, adjusted for inflation. It\'s the definitive measure of whether the economy is growing or shrinking.',
+            'The "real" distinction matters enormously: nominal GDP can rise simply because prices are rising, not because the economy is producing more. Real GDP strips out inflation to show actual output growth. Two consecutive quarters of declining real GDP is often cited as a recession rule-of-thumb, though the official arbiter (NBER) considers multiple factors.'
         ]
     },
     'A191RL1Q225SBEA': {
@@ -215,9 +241,11 @@ SERIES_DB = {
         'unit': 'Percent Change (Quarterly, Annualized)',
         'source': 'U.S. Bureau of Economic Analysis',
         'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'growth_rate',
         'bullets': [
-            'How fast the economy is growing. Healthy growth is 2-3% annually. "Annualized" = if pace continued for full year.',
-            'Consumer spending drives ~70% of GDP. Released quarterly, revised twice.'
+            'This measures how fast the economy is expanding or contracting, expressed as an annualized rate (what growth would be if the quarterly pace continued for a full year). It\'s the headline GDP number reported in the news.',
+            'Historical context: Trend U.S. growth is around 2% annually. Growth above 3% is considered robust; above 4% is a boom. Negative growth signals contraction. Consumer spending drives roughly 70% of GDP, so consumer health is paramount. Note: GDP is released in three estimates (advance, second, third) and can be significantly revised.'
         ]
     },
 
@@ -227,9 +255,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'Board of Governors of the Federal Reserve System',
         'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
         'bullets': [
-            'THE interest rate the Fed controls. All other rates (mortgages, car loans, credit cards) move with it.',
-            'Near 0% = emergency stimulus mode. 5%+ = inflation-fighting mode.'
+            'The federal funds rate is the most important interest rate in the world. It\'s the rate banks charge each other for overnight loans, and it\'s the primary tool the Federal Reserve uses to influence the economy. Nearly every other interest rate in the U.S. economy moves with it.',
+            'How it affects you: When the Fed raises this rate, borrowing becomes more expensive across the board—mortgages, car loans, credit cards, business loans. This slows spending and investment, cooling inflation but also slowing growth. Near 0% signals emergency stimulus mode (as during 2008-2015 and 2020-2022); rates above 5% signal aggressive inflation-fighting.'
         ]
     },
     'DGS10': {
@@ -237,9 +267,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'Board of Governors of the Federal Reserve System',
         'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
         'bullets': [
-            'The benchmark rate for the economy. Mortgage rates and corporate bonds key off this.',
-            'Set by market forces (not the Fed directly). Reflects expectations for growth and inflation over 10 years.'
+            'The 10-year Treasury yield is the benchmark interest rate for the U.S. economy. It\'s what the government pays to borrow for 10 years, and it serves as the foundation for mortgage rates, corporate bond yields, and long-term financial planning.',
+            'Unlike the fed funds rate, the 10-year yield is set by market forces—it reflects investor expectations about future growth, inflation, and Fed policy over the next decade. When the 10-year yield rises sharply, it increases borrowing costs across the economy even if the Fed hasn\'t moved. Mortgage rates typically run about 1.5-2.5 percentage points above the 10-year yield.'
         ]
     },
     'DGS2': {
@@ -247,19 +279,23 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'Board of Governors of the Federal Reserve System',
         'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
         'bullets': [
-            'The market\'s best guess about where the Fed will set rates over the next two years.',
-            'When 2-year exceeds 10-year ("inverted yield curve"), recession has historically followed.'
+            'The 2-year Treasury yield is the market\'s best real-time estimate of where the Fed will set interest rates over the next two years. It moves quickly in response to Fed communications and economic data.',
+            'Bond traders watch the 2-year closely to gauge expectations for Fed policy. When the 2-year yield rises above the 10-year yield (an "inverted yield curve"), it\'s historically been one of the most reliable recession warning signals—this inversion has preceded every U.S. recession since the 1970s, typically by 12-18 months.'
         ]
     },
     'T10Y2Y': {
-        'name': '10-Year Minus 2-Year Treasury (Yield Curve)',
+        'name': '10-Year Minus 2-Year Treasury Spread',
         'unit': 'Percent',
         'source': 'Board of Governors of the Federal Reserve System',
         'sa': False,
+        'frequency': 'daily',
+        'data_type': 'spread',
         'bullets': [
-            'Most reliable recession warning signal. Normally positive. When negative ("inverted"), trouble usually follows.',
-            'Has preceded every U.S. recession since 1970, typically by 12-18 months.'
+            'The yield curve spread measures the difference between long-term and short-term interest rates. Normally positive (investors demand more to lend for longer), this spread turns negative ("inverts") when markets expect economic trouble ahead.',
+            'An inverted yield curve has predicted every U.S. recession since 1970 with remarkable accuracy. The logic: investors accept lower long-term rates because they expect the Fed will need to cut rates to fight a recession. The spread was deeply inverted through much of 2023, though the lag between inversion and recession varies from several months to two years.'
         ]
     },
     'MORTGAGE30US': {
@@ -267,9 +303,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'Freddie Mac',
         'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'rate',
         'bullets': [
-            'What homebuyers actually pay. At 3%, a $400K house = $1,686/month. At 7%, same house = $2,661/month.',
-            'Roughly equals 10-year Treasury + 1.5-2.5% spread for risk.'
+            'The 30-year fixed mortgage rate determines the monthly cost of homeownership for millions of Americans. Small changes in this rate translate to large differences in affordability—at 3%, a $400,000 home costs $1,686/month in principal and interest; at 7%, the same home costs $2,661/month.',
+            'This rate generally tracks the 10-year Treasury yield plus a spread for risk (typically 1.5-2.5 percentage points). When rates rose from 3% to 7% in 2022-23, it effectively priced many buyers out of the market and froze existing homeowners in place (the "lock-in effect"), dramatically reducing housing market activity.'
         ]
     },
 
@@ -279,9 +317,11 @@ SERIES_DB = {
         'unit': 'Index Jan 2000=100',
         'source': 'S&P Dow Jones Indices LLC',
         'sa': False,
+        'frequency': 'monthly',
+        'data_type': 'index',
         'bullets': [
-            'The gold standard for home prices. Uses "repeat sales" to track same homes over time. Index 300 = tripled since 2000.',
-            'Home equity is the largest source of wealth for most American families. Lags real-time by ~2 months.'
+            'The Case-Shiller index is the gold standard for tracking U.S. home prices. It uses a "repeat sales" methodology—tracking the same homes over time—to provide the cleanest measure of actual price changes. An index value of 300 means prices have tripled since January 2000.',
+            'Housing wealth matters enormously to household finances: home equity is the largest source of wealth for most American families. Rising home prices increase consumer spending through wealth effects, while falling prices can devastate household balance sheets—as the 2008 financial crisis demonstrated.'
         ]
     },
     'HOUST': {
@@ -289,9 +329,11 @@ SERIES_DB = {
         'unit': 'Thousands of Units (Annual Rate)',
         'source': 'U.S. Census Bureau',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
         'bullets': [
-            'New construction projects breaking ground. Leading indicator—builders only start when confident.',
-            'Healthy range: 1.2-1.6 million annually. The U.S. is estimated 3-5 million homes short of demand.'
+            'Housing starts counts new residential construction projects breaking ground. It\'s a leading indicator—homebuilders only begin projects when they\'re confident about future demand, so starts often signal the economy\'s direction.',
+            'The U.S. faces a structural housing shortage estimated at 3-5 million units, built up over a decade of underbuilding following the 2008 crash. Healthy starts typically run 1.2-1.6 million annually. During the housing bust of 2009, starts collapsed to just 478,000—a level that contributed to years of housing undersupply.'
         ]
     },
 
@@ -301,9 +343,11 @@ SERIES_DB = {
         'unit': 'Index 1966:Q1=100',
         'source': 'University of Michigan',
         'sa': False,
+        'frequency': 'monthly',
+        'data_type': 'index',
         'bullets': [
-            'How optimistic Americans feel about the economy. Consumer spending is ~70% of GDP, so sentiment matters.',
-            'Index ~100 is neutral. Below 70 is deeply pessimistic.'
+            'Consumer sentiment measures how optimistic Americans feel about their personal finances and the broader economy. Since consumer spending drives roughly 70% of GDP, sentiment is a leading indicator of future spending patterns.',
+            'Index interpretation: A reading around 100 is neutral (matching the 1966 baseline). Above 100 signals optimism; below 100 signals pessimism. The index hit historic lows around 50 during the 2022 inflation surge, even as unemployment remained near historic lows—reflecting the real pain of rising prices for household budgets.'
         ]
     },
     'RSXFS': {
@@ -311,10 +355,12 @@ SERIES_DB = {
         'unit': 'Millions of Dollars',
         'source': 'U.S. Census Bureau',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
         'can_inflate_adjust': True,
         'bullets': [
-            'Monthly pulse of consumer spending at stores and online. Strong sales = confident consumers.',
-            'Highly volatile month-to-month. Watch the 3-month trend, not single months.'
+            'Retail sales measures consumer spending at stores and online—a real-time pulse on the American consumer. Strong retail sales signal confident households; weakness can foreshadow broader economic trouble.',
+            'Important caveats: This series is highly volatile month-to-month and subject to significant revisions. Look at 3-month trends rather than single months. Also note this is nominal (not inflation-adjusted), so real spending growth requires comparing against price increases.'
         ]
     },
 
@@ -324,9 +370,11 @@ SERIES_DB = {
         'unit': 'Index',
         'source': 'S&P Dow Jones Indices LLC',
         'sa': False,
+        'frequency': 'daily',
+        'data_type': 'index',
         'bullets': [
-            'The closest thing to "the stock market." 500 largest U.S. companies, ~$40 trillion in wealth.',
-            'Long-term average return: ~10% annually (7% after inflation).'
+            'The S&P 500 is the most widely followed stock market index in the world—the closest thing to a single number for "the stock market." It tracks 500 of the largest U.S. companies, representing roughly $40 trillion in market value and about 80% of total U.S. stock market capitalization.',
+            'Stock prices are forward-looking, reflecting expectations about future corporate profits. The long-term average return is roughly 10% annually (7% after inflation), but with significant volatility. Stock wealth affects consumer spending: rising markets create a "wealth effect" that boosts confidence and spending, while crashes do the opposite.'
         ]
     },
 
@@ -336,9 +384,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
         'bullets': [
-            'Unemployment for women 16+. COVID recession hit women harder initially ("she-cession").',
-            'Women\'s unemployment fell below men\'s in 2022 for the first time in decades.'
+            'Tracks unemployment specifically for women aged 16 and over. Gender-specific labor data helps identify whether economic gains and losses are shared broadly or concentrated in particular groups.',
+            'The COVID-19 recession was initially labeled a "she-cession" because women—concentrated in hard-hit service industries and bearing disproportionate childcare burdens—saw sharper job losses than men. Remarkably, women\'s unemployment fell below men\'s in 2022 for the first time in decades, reflecting strong recovery in service-sector employment.'
         ]
     },
     'LNS12300062': {
@@ -346,9 +396,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
         'bullets': [
-            'Best measure of women\'s labor market success. Hit all-time high of 75.3% in 2024.',
-            'Avoids distortions from students and retirees.'
+            'The share of women aged 25-54 who are employed—the single best measure of women\'s labor market progress. By focusing on prime working years, it avoids distortions from education and retirement patterns.',
+            'This metric hit an all-time high of 75.3% in 2024, finally surpassing the previous peak from 2000. The rise reflects both cyclical recovery and structural changes in women\'s workforce attachment. However, the U.S. still lags peer countries like Canada and Germany in prime-age women\'s employment, partly due to limited paid family leave and childcare support.'
         ]
     },
     'LNS11300002': {
@@ -356,9 +408,11 @@ SERIES_DB = {
         'unit': 'Percent',
         'source': 'U.S. Bureau of Labor Statistics',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
         'bullets': [
-            'Rose from 34% in 1950 to 60% in 2000—one of the most significant economic shifts in history.',
-            'U.S. lags other developed countries, partly due to lack of paid family leave.'
+            'One of the most dramatic economic transformations of the 20th century: women\'s labor force participation rose from 34% in 1950 to peak at 60% in 2000. This massive increase in the workforce powered decades of economic growth.',
+            'After 2000, participation plateaued and slightly declined—unlike in peer countries where it continued rising. Researchers point to the U.S. lack of paid family leave, affordable childcare, and workplace flexibility policies that other developed nations provide. COVID caused a sharp drop as women absorbed caregiving responsibilities, though most of this decline has since reversed.'
         ]
     },
 
@@ -368,9 +422,11 @@ SERIES_DB = {
         'unit': 'Dollars per Barrel',
         'source': 'Federal Reserve Bank of St. Louis',
         'sa': False,
+        'frequency': 'daily',
+        'data_type': 'price',
         'bullets': [
-            'West Texas Intermediate—the U.S. benchmark for oil prices.',
-            'Directly affects gas prices, transportation costs, and inflation.'
+            'West Texas Intermediate (WTI) is the U.S. benchmark for crude oil prices. Oil is the lifeblood of the global economy—it powers transportation, heats homes, and serves as feedstock for countless products from plastics to pharmaceuticals.',
+            'Oil prices directly affect consumers through gasoline costs and ripple through the economy via transportation and production costs. Sharp price increases act like a tax on consumers and businesses, often tipping economies into recession. The U.S. shale revolution has made America the world\'s largest oil producer, reducing (but not eliminating) vulnerability to global supply disruptions.'
         ]
     },
     'IMPCH': {
@@ -378,9 +434,11 @@ SERIES_DB = {
         'unit': 'Millions of Dollars',
         'source': 'U.S. Census Bureau',
         'sa': False,
+        'frequency': 'monthly',
+        'data_type': 'level',
         'bullets': [
-            'Total goods imported from China. Reflects trade policy and supply chain shifts.',
-            'Note: Some goods may be re-exports (passing through other countries).'
+            'Measures the total value of goods shipped from China to the United States. China has been America\'s largest source of imports for decades, though trade tensions and supply chain diversification have begun shifting patterns.',
+            'Trade data reflects both economic conditions (imports rise when U.S. consumers are spending freely) and policy choices (tariffs reduce imports). Some goods recorded as imports from other countries like Vietnam or Mexico may actually be Chinese goods re-routed to avoid tariffs—a pattern called "transshipment" that complicates the data.'
         ]
     },
     'BOPGSTB': {
@@ -388,9 +446,11 @@ SERIES_DB = {
         'unit': 'Millions of Dollars',
         'source': 'U.S. Bureau of Economic Analysis',
         'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
         'bullets': [
-            'Exports minus imports. Negative = trade deficit. U.S. has run deficits since the 1970s.',
-            'Deficits aren\'t inherently bad—partly reflect strong consumer demand and dollar\'s reserve currency role.'
+            'The trade balance measures exports minus imports. A negative number (deficit) means the U.S. buys more from abroad than it sells. The U.S. has run persistent trade deficits since the 1970s, currently in the range of $60-80 billion monthly.',
+            'Despite political rhetoric, trade deficits aren\'t inherently bad. They partly reflect strong U.S. consumer demand, the dollar\'s role as the global reserve currency, and America\'s relative attractiveness for foreign investment. Economists generally focus more on whether trade is balanced over time and whether it supports productive economic activity.'
         ]
     },
 }
@@ -917,57 +977,61 @@ def main():
     st.markdown("<p class='subtitle'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
     st.markdown("<div class='header-divider'></div>", unsafe_allow_html=True)
 
+    # Use session state for query persistence and follow-ups
+    if 'last_query' not in st.session_state:
+        st.session_state.last_query = ''
+    if 'last_results' not in st.session_state:
+        st.session_state.last_results = None
+
     col1, col2 = st.columns([5, 1])
     with col1:
         query = st.text_input(
             "Search",
             placeholder="Ask: How is the economy? What is inflation? Is the labor market tight?",
             label_visibility="collapsed",
+            key="search_input"
         )
     with col2:
         search_clicked = st.button("Search", type="primary", use_container_width=True)
 
-    # Quick search buttons in two rows of 4
+    # Quick search buttons - use session state to handle clicks
     col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
-    quick_items = list(QUICK_SEARCHES.items())
 
     with col1:
-        if st.button("Jobs", use_container_width=True):
-            query = "job market"
-            search_clicked = True
+        if st.button("Jobs", use_container_width=True, key="btn_jobs"):
+            st.session_state.pending_query = "job market"
     with col2:
-        if st.button("Inflation", use_container_width=True):
-            query = "inflation"
-            search_clicked = True
+        if st.button("Inflation", use_container_width=True, key="btn_inflation"):
+            st.session_state.pending_query = "inflation"
     with col3:
-        if st.button("GDP", use_container_width=True):
-            query = "gdp growth"
-            search_clicked = True
+        if st.button("GDP", use_container_width=True, key="btn_gdp"):
+            st.session_state.pending_query = "gdp growth"
     with col4:
-        if st.button("Rates", use_container_width=True):
-            query = "interest rates"
-            search_clicked = True
+        if st.button("Rates", use_container_width=True, key="btn_rates"):
+            st.session_state.pending_query = "interest rates"
     with col5:
         time_period = st.selectbox("Timeframe", list(TIME_PERIODS.keys()), index=3, label_visibility="collapsed")
         years = TIME_PERIODS[time_period]
 
     col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
     with col1:
-        if st.button("Housing", use_container_width=True):
-            query = "housing"
-            search_clicked = True
+        if st.button("Housing", use_container_width=True, key="btn_housing"):
+            st.session_state.pending_query = "housing"
     with col2:
-        if st.button("Women", use_container_width=True):
-            query = "women labor"
-            search_clicked = True
+        if st.button("Women", use_container_width=True, key="btn_women"):
+            st.session_state.pending_query = "women labor"
     with col3:
-        if st.button("Oil", use_container_width=True):
-            query = "oil prices"
-            search_clicked = True
+        if st.button("Oil", use_container_width=True, key="btn_oil"):
+            st.session_state.pending_query = "oil prices"
     with col4:
-        if st.button("China", use_container_width=True):
-            query = "china trade"
-            search_clicked = True
+        if st.button("China", use_container_width=True, key="btn_china"):
+            st.session_state.pending_query = "china trade"
+
+    # Handle pending query from button clicks
+    if 'pending_query' in st.session_state and st.session_state.pending_query:
+        query = st.session_state.pending_query
+        search_clicked = True
+        st.session_state.pending_query = None  # Clear it
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -1068,6 +1132,38 @@ def main():
             direction_class = 'up' if pct_change >= 0 else 'down'
             sign = '+' if pct_change >= 0 else ''
 
+            # Get data type info from SERIES_DB
+            db_info = SERIES_DB.get(series_id, {})
+            data_type = db_info.get('data_type', 'level')
+            frequency = db_info.get('frequency', 'monthly')
+
+            # Format the date based on frequency
+            latest_date_obj = datetime.strptime(dates[-1], '%Y-%m-%d')
+            first_date_obj = datetime.strptime(dates[0], '%Y-%m-%d')
+
+            if frequency == 'quarterly':
+                quarter = (latest_date_obj.month - 1) // 3 + 1
+                latest_date_str = f"Q{quarter} {latest_date_obj.year}"
+                first_quarter = (first_date_obj.month - 1) // 3 + 1
+                first_date_str = f"Q{first_quarter} {first_date_obj.year}"
+            else:
+                latest_date_str = latest_date_obj.strftime('%b %Y')
+                first_date_str = first_date_obj.strftime('%b %Y')
+
+            # Build context-aware description based on data type
+            if data_type == 'growth_rate':
+                value_desc = f"<strong>{latest:.1f}%</strong> (annualized quarterly rate)"
+            elif data_type == 'rate':
+                value_desc = f"<strong>{latest:.1f}%</strong>"
+            elif data_type == 'index' and info.get('is_yoy'):
+                value_desc = f"<strong>{latest:.1f}%</strong> year-over-year"
+            elif data_type == 'spread':
+                value_desc = f"<strong>{latest:.2f} percentage points</strong>"
+            elif data_type == 'price':
+                value_desc = f"<strong>${latest:.2f}</strong> per barrel"
+            else:
+                value_desc = f"<strong>{format_number(latest)}</strong> {unit}"
+
             # Pre-COVID comparison (Feb 2020)
             covid_text = ""
             try:
@@ -1076,15 +1172,23 @@ def main():
                 vs_covid = ((latest - pre_covid) / abs(pre_covid)) * 100 if pre_covid != 0 else 0
                 covid_class = 'up' if vs_covid >= 0 else 'down'
                 covid_sign = '+' if vs_covid >= 0 else ''
-                covid_text = f" Compared to Feb 2020 (pre-pandemic): <span class='{covid_class}'>{covid_sign}{vs_covid:.1f}%</span>."
+                covid_text = f" vs. Feb 2020 (pre-pandemic): <span class='{covid_class}'>{covid_sign}{vs_covid:.1f}%</span>."
             except (StopIteration, IndexError):
                 pass
 
-            latest_date = datetime.strptime(dates[-1], '%Y-%m-%d').strftime('%b %Y')
+            # Build the narrative with clear data references
+            if data_type == 'growth_rate':
+                trend_text = f"This compares to {first:.1f}% in {first_date_str}."
+            elif data_type in ['rate', 'spread'] or info.get('is_yoy'):
+                if pct_change >= 0:
+                    trend_text = f"Up from {first:.1f}% in {first_date_str} (<span class='{direction_class}'>{sign}{abs(change):.1f} pp</span>)."
+                else:
+                    trend_text = f"Down from {first:.1f}% in {first_date_str} (<span class='{direction_class}'>{change:.1f} pp</span>)."
+            else:
+                trend_text = f"{period_text.capitalize()}: <span class='{direction_class}'>{sign}{pct_change:.1f}%</span> from {format_number(first)} ({first_date_str})."
 
             narrative = f"""
-            <p><span class='highlight'>{name}</span> is at <strong>{format_number(latest)}</strong> {unit} ({latest_date}).
-            {period_text.capitalize()}, <span class='{direction_class}'>{sign}{pct_change:.1f}%</span> from {format_number(first)}.{covid_text}</p>
+            <p><span class='highlight'>{name}</span> as of {latest_date_str}: {value_desc}. {trend_text}{covid_text}</p>
             """
             st.markdown(narrative, unsafe_allow_html=True)
 
