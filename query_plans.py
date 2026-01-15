@@ -530,7 +530,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": False,
     "combine_chart": True,
-    "explanation": "Prime-age (25-54) employment-population ratio is THE best measure of labor market health - it excludes retirement/education distortions. Combined with prime-age labor force participation to show both employment strength and worker engagement. These are the gold standard metrics economists use to assess true labor market conditions."
+    "explanation": "Prime-age (25-54) employment-population ratio is THE best measure of labor market health - it excludes retirement/education distortions. Combined with prime-age labor force participation to show both employment strength and worker engagement. These are the gold standard metrics economists use to assess True labor market conditions."
   },
   "employment to population ratio": {
     "series": [
@@ -548,7 +548,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": False,
     "combine_chart": True,
-    "explanation": "U6RATE is the definitive underemployment measure - it includes unemployed, marginally attached workers, and those working part-time for economic reasons. Comparing it to the headline unemployment rate (UNRATE) shows the gap between official unemployment and true labor underutilization. The spread between U6 and U3 widens during recessions when underemployment becomes more prevalent."
+    "explanation": "U6RATE is the definitive underemployment measure - it includes unemployed, marginally attached workers, and those working part-time for economic reasons. Comparing it to the headline unemployment rate (UNRATE) shows the gap between official unemployment and True labor underutilization. The spread between U6 and U3 widens during recessions when underemployment becomes more prevalent."
   },
   "u6 unemployment": {
     "series": [
@@ -1866,7 +1866,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": True,
     "combine_chart": False,
-    "explanation": "Real interest rates are nominal rates adjusted for inflation. I'm showing the federal funds rate (nominal policy rate) alongside CPI inflation (year-over-year). The real fed funds rate is approximately the nominal rate minus the inflation rate. When inflation exceeds the fed funds rate, real rates are negative, which is highly stimulative. Real rates are crucial for understanding the true cost of borrowing and Fed policy stance."
+    "explanation": "Real interest rates are nominal rates adjusted for inflation. I'm showing the federal funds rate (nominal policy rate) alongside CPI inflation (year-over-year). The real fed funds rate is approximately the nominal rate minus the inflation rate. When inflation exceeds the fed funds rate, real rates are negative, which is highly stimulative. Real rates are crucial for understanding the True cost of borrowing and Fed policy stance."
   },
   "neutral rate": {
     "series": [
@@ -2269,9 +2269,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three metrics provide the definitive assessment of overall economic conditions that any Chair of the Council of Economic Advisers would present."
@@ -2283,9 +2283,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "This is the holy trinity of economic assessment that every CEA uses: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI year-over-year inflation reveals price stability. Together, these three metrics provide the complete picture of economic performance that policymakers and economists rely on."
@@ -2297,9 +2297,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "This is the Holy Trinity of economic assessment that every CEA briefing starts with: Real GDP growth shows whether the economy is expanding, unemployment rate indicates labor market health, and year-over-year CPI inflation reveals price stability. These three metrics capture the fundamental dimensions of economic performance and provide a comprehensive snapshot of current economic conditions."
@@ -2311,9 +2311,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The state of the economy is best captured by the holy trinity of economic indicators: Real GDP growth shows whether the economy is expanding or contracting, unemployment rate reveals labor market health and job availability, and CPI inflation (year-over-year) indicates price stability and purchasing power. Together, these three metrics provide the comprehensive snapshot that economists and policymakers use to assess overall economic performance."
@@ -2325,9 +2325,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "To assess whether the economy is 'good,' we need the Holy Trinity of economic indicators: Real GDP growth shows if the economy is expanding, unemployment rate reveals job market health, and CPI inflation (year-over-year) indicates price stability. These three core metrics provide the definitive answer to overall economic performance - positive GDP growth, low unemployment, and controlled inflation signal a healthy economy."
@@ -2339,9 +2339,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "To assess if the economy is 'bad,' we need the Holy Trinity: Real GDP growth shows if the economy is expanding or contracting, unemployment rate indicates job market health, and CPI inflation (year-over-year) reveals price stability. Positive GDP growth, low unemployment, and moderate inflation suggest a healthy economy, while negative growth, high unemployment, and extreme inflation levels indicate problems."
@@ -2353,9 +2353,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The Holy Trinity of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These three metrics provide the complete picture of current economic conditions that any economist or policymaker uses to assess 'how the economy is doing today.'"
@@ -2367,9 +2367,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The holy trinity of economic assessment: Real GDP growth shows the economy's pace of expansion, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price stability. These three indicators provide the complete picture of current economic conditions that any economist or policymaker would reference first."
@@ -2381,9 +2381,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "Economic health is best assessed through the holy trinity of economic indicators: GDP growth shows if the economy is expanding, unemployment reveals labor market strength, and inflation (year-over-year) indicates price stability. Together, these three metrics provide the comprehensive picture that economists and policymakers use to evaluate overall economic performance."
@@ -2395,9 +2395,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The Holy Trinity of economic health: Real GDP growth shows if the economy is expanding, unemployment rate reveals job market strength, and CPI inflation (year-over-year) indicates price stability. These three metrics provide the comprehensive snapshot that economists use to assess overall economic performance."
@@ -2409,9 +2409,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The holy trinity of economic assessment for 2024: Real GDP growth shows the economy's expansion pace, unemployment rate reveals labor market health, and CPI year-over-year inflation indicates price stability. These three indicators provide the comprehensive snapshot that defines overall economic performance."
@@ -2423,9 +2423,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "These are the three fundamental indicators that define economic health: GDP growth shows if the economy is expanding, unemployment reveals labor market strength, and CPI inflation indicates price stability. Together, they provide the complete picture of where the economy stands heading into 2025."
@@ -2437,9 +2437,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The holy trinity of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These three indicators provide the essential snapshot any economist would use to assess overall economic performance."
@@ -2451,9 +2451,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three metrics provide the comprehensive overview that economists use to assess overall economic conditions."
@@ -2535,9 +2535,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "A 'soft landing' means the Fed successfully slows inflation without causing a recession. These three series show the key evidence: GDP growth staying positive (avoiding recession), unemployment remaining low (no major job losses), and inflation declining back toward target. This is the textbook definition of whether we're achieving the soft landing the Fed is attempting."
@@ -2559,9 +2559,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "Economic conditions are best assessed through the holy trinity: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price stability. These three core indicators provide a comprehensive snapshot of current economic conditions."
@@ -2573,9 +2573,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "These are the three pillars of macroeconomic assessment: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price stability. Together, these metrics provide the essential picture of current macroeconomic conditions that policymakers and economists monitor most closely."
@@ -2587,9 +2587,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The holy trinity of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price stability. These three metrics provide the comprehensive overview that any Chair of the Council of Economic Advisers would present when asked about the overall state of the economy."
@@ -2601,9 +2601,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The big picture economy is captured by the Holy Trinity: Real GDP growth shows if we're expanding or contracting, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These three metrics provide the comprehensive economic snapshot that policymakers and analysts rely on for assessing overall economic performance."
@@ -2615,9 +2615,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The Holy Trinity of economic health: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three core indicators provide the essential economic summary that captures growth, employment, and inflation - the fundamental pillars any Chair of the Council of Economic Advisers would present for an economy overview."
@@ -2629,9 +2629,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The economic dashboard requires the Holy Trinity: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price pressures. These three indicators provide a comprehensive snapshot of economic performance that any CEA would present to assess overall economic conditions."
@@ -2643,9 +2643,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The three pillars of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These are the key indicators every economist looks at first to understand the economy's current state and trajectory."
@@ -2657,9 +2657,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "These are the three main economic indicators that form the foundation of any economic assessment: Real GDP growth rate shows how fast the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) measures price stability. Together, they provide the essential picture of economic performance that policymakers, businesses, and markets watch most closely."
@@ -2671,9 +2671,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The economy at a glance requires the Holy Trinity: Real GDP growth shows if we're expanding or contracting, unemployment rate reveals labor market health, and year-over-year CPI inflation indicates price pressures. These three indicators provide the essential snapshot that any Chair of the CEA would lead with in an economic briefing."
@@ -2685,9 +2685,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate reveals labor market strength, and CPI inflation (year-over-year) indicates price stability. These three metrics provide the essential economic snapshot that captures growth momentum, employment conditions, and inflationary pressures - the core indicators any Chair of the Council of Economic Advisers would present for a comprehensive economic overview."
@@ -2699,9 +2699,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three indicators give you the complete economic picture that any Chair of the Council of Economic Advisers would present."
@@ -2713,9 +2713,9 @@ QUERY_PLANS = {
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
-      false,
-      true
+      False,
+      False,
+      True
     ],
     "combine_chart": False,
     "explanation": "The economic status is best assessed through the Holy Trinity: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price pressures. These three core indicators provide the definitive picture of where the economy stands."
