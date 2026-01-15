@@ -1552,11 +1552,15 @@ def main():
             else:
                 value_desc = f"<strong>{format_number(latest)}</strong>"
 
-            # Find year-ago value for comparison
-            yoy_text = ""
+            # Build prose narrative with full sentences
+            sentences = []
+
+            # Sentence 1: Current value
+            sentences.append(f"<span class='highlight'>{name}</span> is {value_desc} as of {latest_date_str}.")
+
+            # Sentence 2: Year-over-year comparison with actual values
             try:
                 target_date = latest_date_obj - timedelta(days=365)
-                # Find closest date to one year ago
                 year_ago_idx = None
                 for i, d in enumerate(dates):
                     d_obj = datetime.strptime(d, '%Y-%m-%d')
@@ -1565,77 +1569,83 @@ def main():
                         break
                 if year_ago_idx is not None:
                     year_ago_val = values[year_ago_idx]
+                    year_ago_date = datetime.strptime(dates[year_ago_idx], '%Y-%m-%d').strftime('%b %Y')
                     if data_type in ['rate', 'spread'] or info.get('is_yoy') or info.get('is_mom'):
-                        # For rates, show percentage point change
                         change = latest - year_ago_val
                         direction = 'up' if change >= 0 else 'down'
-                        sign = '+' if change >= 0 else ''
-                        yoy_text = f"<span class='{direction}'>{sign}{change:.1f} pp</span> from a year ago."
+                        css_class = 'up' if change >= 0 else 'down'
+                        sentences.append(f"That's <span class='{css_class}'>{direction} {abs(change):.1f} percentage points</span> from a year ago ({year_ago_val:.1f}% in {year_ago_date}).")
                     elif year_ago_val != 0:
-                        # For levels, show percent change
                         pct = ((latest - year_ago_val) / abs(year_ago_val)) * 100
                         direction = 'up' if pct >= 0 else 'down'
-                        sign = '+' if pct >= 0 else ''
-                        yoy_text = f"<span class='{direction}'>{sign}{pct:.1f}%</span> from a year ago."
+                        css_class = 'up' if pct >= 0 else 'down'
+                        if data_type == 'price':
+                            sentences.append(f"That's <span class='{css_class}'>{direction} {abs(pct):.1f}%</span> from a year ago (${year_ago_val:.2f} in {year_ago_date}).")
+                        else:
+                            sentences.append(f"That's <span class='{css_class}'>{direction} {abs(pct):.1f}%</span> from a year ago ({format_number(year_ago_val)} in {year_ago_date}).")
             except:
                 pass
 
-            # Pre-COVID comparison (Feb 2020)
-            covid_text = ""
-            try:
-                covid_idx = next(i for i, d in enumerate(dates) if d >= '2020-02-01')
-                pre_covid = values[covid_idx]
-                if data_type in ['rate', 'spread']:
-                    change = latest - pre_covid
-                    covid_class = 'up' if change >= 0 else 'down'
-                    covid_sign = '+' if change >= 0 else ''
-                    covid_text = f" vs. Feb 2020: <span class='{covid_class}'>{covid_sign}{change:.1f} pp</span>."
-                elif pre_covid != 0:
-                    vs_covid = ((latest - pre_covid) / abs(pre_covid)) * 100
-                    covid_class = 'up' if vs_covid >= 0 else 'down'
-                    covid_sign = '+' if vs_covid >= 0 else ''
-                    covid_text = f" vs. Feb 2020: <span class='{covid_class}'>{covid_sign}{vs_covid:.1f}%</span>."
-            except (StopIteration, IndexError):
-                pass
+            # Sentence 3: Pre-COVID comparison (Feb 2020) for seasonally adjusted data
+            if db_info.get('sa', False):
+                try:
+                    covid_idx = next(i for i, d in enumerate(dates) if d >= '2020-02-01')
+                    pre_covid = values[covid_idx]
+                    if data_type in ['rate', 'spread']:
+                        diff = latest - pre_covid
+                        if abs(diff) >= 0.2:
+                            if diff > 0.2:
+                                sentences.append(f"This is above the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
+                            elif diff < -0.2:
+                                sentences.append(f"This is below the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
+                    elif pre_covid != 0:
+                        pct_diff = ((latest - pre_covid) / abs(pre_covid)) * 100
+                        if abs(pct_diff) >= 3:
+                            if pct_diff > 3:
+                                if data_type == 'price':
+                                    sentences.append(f"This is {pct_diff:.0f}% above the ${pre_covid:.2f} level from February 2020, just before the pandemic.")
+                                else:
+                                    sentences.append(f"This is {pct_diff:.0f}% above the {format_number(pre_covid)} level from February 2020, just before the pandemic.")
+                            elif pct_diff < -3:
+                                if data_type == 'price':
+                                    sentences.append(f"This is {abs(pct_diff):.0f}% below the ${pre_covid:.2f} level from February 2020, just before the pandemic.")
+                                else:
+                                    sentences.append(f"This is {abs(pct_diff):.0f}% below the {format_number(pre_covid)} level from February 2020, just before the pandemic.")
+                except (StopIteration, IndexError):
+                    pass
 
-            # Generate smart historical context
+            # Sentence 4: Historical context (trend, highs/lows)
             smart_context = generate_narrative_context(dates, values, data_type)
-            context_parts = []
+            context_sentence_parts = []
 
-            # Add vs 2019 average (pre-COVID baseline) - more useful than Feb 2020 snapshot
-            if 'vs_2019' in smart_context:
-                context_parts.append(smart_context['vs_2019'])
-
-            # Add vs prior year average (e.g., "0.3 pp above 2024 avg")
-            if 'vs_prior_year' in smart_context:
-                context_parts.append(smart_context['vs_prior_year'])
-
-            # Add historical position (at/near high or low)
-            if 'at_high' in smart_context:
-                context_parts.append(smart_context['at_high'])
-            elif 'near_high' in smart_context:
-                context_parts.append(smart_context['near_high'])
-            elif 'at_low' in smart_context:
-                context_parts.append(smart_context['at_low'])
-            elif 'near_low' in smart_context:
-                context_parts.append(smart_context['near_low'])
-
-            # Add trend if present (e.g., "up 5 consecutive months")
+            # Trend
             if 'trend' in smart_context:
-                context_parts.append(smart_context['trend'])
+                context_sentence_parts.append(f"has been {smart_context['trend']}")
 
-            context_text = ""
-            if context_parts:
-                context_text = " <span style='color:#666;'>(" + ", ".join(context_parts) + ")</span>"
+            # Historical position
+            if 'at_high' in smart_context:
+                context_sentence_parts.append(f"is at a {smart_context['at_high']}")
+            elif 'near_high' in smart_context:
+                context_sentence_parts.append(f"is {smart_context['near_high']}")
+            elif 'at_low' in smart_context:
+                context_sentence_parts.append(f"is at a {smart_context['at_low']}")
+            elif 'near_low' in smart_context:
+                context_sentence_parts.append(f"is {smart_context['near_low']}")
 
-            # Include Feb 2020 comparison for seasonally adjusted data
-            feb2020_text = ""
-            if db_info.get('sa', False) and covid_text:
-                feb2020_text = covid_text
+            # vs 2019 average
+            if 'vs_2019' in smart_context:
+                context_sentence_parts.append(f"is {smart_context['vs_2019']}")
 
-            narrative = f"""
-            <p><span class='highlight'>{name}</span> as of {latest_date_str}: {value_desc}. {yoy_text}{feb2020_text}{context_text}</p>
-            """
+            if context_sentence_parts:
+                # Join with "and" for readability
+                if len(context_sentence_parts) == 1:
+                    sentences.append(f"The current reading {context_sentence_parts[0]}.")
+                elif len(context_sentence_parts) == 2:
+                    sentences.append(f"The current reading {context_sentence_parts[0]} and {context_sentence_parts[1]}.")
+                else:
+                    sentences.append(f"The current reading {', '.join(context_sentence_parts[:-1])}, and {context_sentence_parts[-1]}.")
+
+            narrative = f"<p>{' '.join(sentences)}</p>"
             st.markdown(narrative, unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
