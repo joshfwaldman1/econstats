@@ -101,9 +101,48 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
     context = {}
     latest = values[-1]
     latest_date = dates[-1]
+    current_year = datetime.now().year
 
     try:
-        # 1. Historical high/low with dates (last 10 years or available data)
+        # Helper: calculate average for a given year
+        def year_average(year):
+            year_vals = [v for d, v in zip(dates, values)
+                        if d.startswith(str(year))]
+            return sum(year_vals) / len(year_vals) if year_vals else None
+
+        # 1. Compare to 2019 average (pre-COVID baseline)
+        avg_2019 = year_average(2019)
+        if avg_2019 is not None:
+            if data_type in ['rate', 'spread']:
+                diff = latest - avg_2019
+                if abs(diff) >= 0.3:  # Meaningful difference for rates
+                    direction = "above" if diff > 0 else "below"
+                    context['vs_2019'] = f"{abs(diff):.1f} pp {direction} 2019 avg"
+            elif avg_2019 != 0:
+                pct_diff = ((latest - avg_2019) / abs(avg_2019)) * 100
+                if abs(pct_diff) >= 3:  # Meaningful difference for levels
+                    direction = "above" if pct_diff > 0 else "below"
+                    context['vs_2019'] = f"{abs(pct_diff):.0f}% {direction} 2019 avg"
+
+        # 2. Compare to prior full year average (e.g., 2024 if we're in 2025)
+        prior_year = current_year - 1
+        # Only use prior year if we have enough data from current year (at least 2 months in)
+        latest_date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
+        if latest_date_obj.year == current_year and latest_date_obj.month >= 3:
+            avg_prior = year_average(prior_year)
+            if avg_prior is not None:
+                if data_type in ['rate', 'spread']:
+                    diff = latest - avg_prior
+                    if abs(diff) >= 0.2:
+                        direction = "above" if diff > 0 else "below"
+                        context['vs_prior_year'] = f"{abs(diff):.1f} pp {direction} {prior_year} avg"
+                elif avg_prior != 0:
+                    pct_diff = ((latest - avg_prior) / abs(avg_prior)) * 100
+                    if abs(pct_diff) >= 2:
+                        direction = "above" if pct_diff > 0 else "below"
+                        context['vs_prior_year'] = f"{abs(pct_diff):.0f}% {direction} {prior_year} avg"
+
+        # 3. Historical high/low with dates (last 10 years or available data)
         ten_years_ago = (datetime.now() - timedelta(days=3650)).strftime('%Y-%m-%d')
         recent_start_idx = next((i for i, d in enumerate(dates) if d >= ten_years_ago), 0)
         recent_values = values[recent_start_idx:]
@@ -117,32 +156,32 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
             max_date = datetime.strptime(recent_dates[max_idx], '%Y-%m-%d').strftime('%b %Y')
             min_date = datetime.strptime(recent_dates[min_idx], '%Y-%m-%d').strftime('%b %Y')
 
-            # Only mention if current is near high/low (within 5%)
+            # Only mention if current is near high/low
             if max_val > 0:
                 pct_from_high = (max_val - latest) / max_val * 100
                 if pct_from_high <= 2:
-                    context['at_high'] = f"at 10-year high"
+                    context['at_high'] = f"10-year high"
                 elif pct_from_high <= 10:
                     context['near_high'] = f"near 10-year high ({max_date})"
 
-            if min_val != max_val:  # Avoid division issues
-                pct_from_low = (latest - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+            if min_val != max_val:
                 if data_type in ['rate', 'spread']:
                     diff_from_low = latest - min_val
-                    if diff_from_low <= 0.3:  # Within 0.3 pp of low
-                        context['at_low'] = f"at 10-year low"
+                    if diff_from_low <= 0.3:
+                        context['at_low'] = f"10-year low"
                     elif diff_from_low <= 1.0:
                         context['near_low'] = f"near 10-year low ({min_date})"
-                elif pct_from_low <= 5:
-                    context['at_low'] = f"at 10-year low"
-                elif pct_from_low <= 15:
-                    context['near_low'] = f"near 10-year low ({min_date})"
+                else:
+                    pct_from_low = (latest - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+                    if pct_from_low <= 5:
+                        context['at_low'] = f"10-year low"
+                    elif pct_from_low <= 15:
+                        context['near_low'] = f"near 10-year low ({min_date})"
 
-        # 2. Trend direction (consecutive months in same direction)
+        # 4. Trend direction (consecutive months in same direction)
         if len(values) >= 4:
             changes = [values[i] - values[i-1] for i in range(-1, -min(13, len(values)), -1)]
 
-            # Count consecutive increases
             consec_up = 0
             for c in changes:
                 if c > 0:
@@ -150,7 +189,6 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                 else:
                     break
 
-            # Count consecutive decreases
             consec_down = 0
             for c in changes:
                 if c < 0:
@@ -162,41 +200,6 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                 context['trend'] = f"up {consec_up} consecutive months"
             elif consec_down >= 3:
                 context['trend'] = f"down {consec_down} consecutive months"
-
-        # 3. 10-year average comparison
-        if len(recent_values) >= 24:  # At least 2 years of data
-            avg_10yr = sum(recent_values) / len(recent_values)
-            if avg_10yr != 0:
-                if data_type in ['rate', 'spread']:
-                    diff = latest - avg_10yr
-                    if abs(diff) >= 0.5:  # Only mention if meaningful difference
-                        direction = "above" if diff > 0 else "below"
-                        context['vs_avg'] = f"{abs(diff):.1f} pp {direction} 10-year average"
-                else:
-                    pct_diff = ((latest - avg_10yr) / abs(avg_10yr)) * 100
-                    if abs(pct_diff) >= 5:  # Only mention if meaningful difference
-                        direction = "above" if pct_diff > 0 else "below"
-                        context['vs_avg'] = f"{abs(pct_diff):.0f}% {direction} 10-year average"
-
-        # 4. "Highest/lowest since X" for notable moves
-        if len(values) >= 24:
-            # Find when we last saw this level
-            for i in range(len(values) - 2, -1, -1):
-                if data_type in ['rate', 'spread']:
-                    # For rates, find when we were last at or above/below this level
-                    if values[i] >= latest and i < len(values) - 3:
-                        since_date = datetime.strptime(dates[i], '%Y-%m-%d')
-                        months_ago = (datetime.strptime(latest_date, '%Y-%m-%d') - since_date).days // 30
-                        if months_ago >= 12:
-                            context['highest_since'] = since_date.strftime('%b %Y')
-                        break
-                else:
-                    if values[i] >= latest and i < len(values) - 3:
-                        since_date = datetime.strptime(dates[i], '%Y-%m-%d')
-                        months_ago = (datetime.strptime(latest_date, '%Y-%m-%d') - since_date).days // 30
-                        if months_ago >= 12:
-                            context['highest_since'] = since_date.strftime('%b %Y')
-                        break
 
     except Exception as e:
         pass  # Fail silently, narrative context is supplementary
@@ -1599,9 +1602,13 @@ def main():
             smart_context = generate_narrative_context(dates, values, data_type)
             context_parts = []
 
-            # Add trend if present (e.g., "up 5 consecutive months")
-            if 'trend' in smart_context:
-                context_parts.append(smart_context['trend'])
+            # Add vs 2019 average (pre-COVID baseline) - more useful than Feb 2020 snapshot
+            if 'vs_2019' in smart_context:
+                context_parts.append(smart_context['vs_2019'])
+
+            # Add vs prior year average (e.g., "0.3 pp above 2024 avg")
+            if 'vs_prior_year' in smart_context:
+                context_parts.append(smart_context['vs_prior_year'])
 
             # Add historical position (at/near high or low)
             if 'at_high' in smart_context:
@@ -1613,16 +1620,21 @@ def main():
             elif 'near_low' in smart_context:
                 context_parts.append(smart_context['near_low'])
 
-            # Add vs 10-year average
-            if 'vs_avg' in smart_context:
-                context_parts.append(smart_context['vs_avg'])
+            # Add trend if present (e.g., "up 5 consecutive months")
+            if 'trend' in smart_context:
+                context_parts.append(smart_context['trend'])
 
             context_text = ""
             if context_parts:
                 context_text = " <span style='color:#666;'>(" + ", ".join(context_parts) + ")</span>"
 
+            # Include Feb 2020 comparison for seasonally adjusted data
+            feb2020_text = ""
+            if db_info.get('sa', False) and covid_text:
+                feb2020_text = covid_text
+
             narrative = f"""
-            <p><span class='highlight'>{name}</span> as of {latest_date_str}: {value_desc}. {yoy_text}{covid_text}{context_text}</p>
+            <p><span class='highlight'>{name}</span> as of {latest_date_str}: {value_desc}. {yoy_text}{feb2020_text}{context_text}</p>
             """
             st.markdown(narrative, unsafe_allow_html=True)
 
