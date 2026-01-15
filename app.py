@@ -625,6 +625,27 @@ IMPORTANT: For ANY topic you don't have memorized series IDs for, ALWAYS provide
 - GASREGW = Regular gas price
 - PPIACO = Producer price index commodities
 
+### Demographics - Women
+- LNS14000002 = Unemployment rate for women
+- LNS12300062 = Prime-age employment-population ratio for women (25-54) - BEST measure
+- LNS11300002 = Labor force participation rate for women
+
+### Demographics - Men
+- LNS14000001 = Unemployment rate for men
+- LNS12300061 = Prime-age employment-population ratio for men (25-54)
+- LNS11300001 = Labor force participation rate for men
+
+### Demographics - By Race
+- LNS14000006 = Unemployment rate - Black or African American
+- LNS14000009 = Unemployment rate - Hispanic or Latino
+- LNS14000003 = Unemployment rate - White
+
+## CRITICAL RULE FOR DEMOGRAPHIC QUESTIONS
+When asked about a specific demographic group (women, men, Black workers, Hispanic workers, etc.), NEVER use aggregate series like PAYEMS (total nonfarm payrolls) or UNRATE (overall unemployment). These tell you nothing about that specific group. Instead, use the demographic-specific series listed above. For example:
+- "How are women doing?" → Use LNS14000002, LNS12300062, LNS11300002 (women-specific series)
+- "Black unemployment" → Use LNS14000006 (Black unemployment rate)
+- Do NOT mix in PAYEMS or other aggregate measures that don't break down by demographic.
+
 ## FOR UNKNOWN TOPICS
 If the user asks about something not listed above (e.g., "semiconductor production", "restaurant sales", "California unemployment", "auto manufacturing"), provide search_terms like:
 - "semiconductor production index"
