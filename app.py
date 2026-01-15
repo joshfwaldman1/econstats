@@ -2070,6 +2070,19 @@ def main():
         csv = df.to_csv(index=False)
         st.download_button("Download CSV", csv, "econstats_data.csv", "text/csv")
 
+        # Follow-up suggestions
+        st.markdown("---")
+        st.markdown("**Try a follow-up:**")
+        suggestions = []
+        if len(series_data) > 1:
+            suggestions.append('"combine" - overlay on one chart')
+            suggestions.append('"normalize" - index to 100 for comparison')
+        suggestions.append('"year over year" - show % change')
+        suggestions.append('"last 5 years" - zoom to recent data')
+        suggestions.append('"add unemployment" - add another series')
+        suggestions.append('"bar chart" - switch visualization')
+        st.markdown('<span style="color: #666; font-size: 0.9em;">' + ' &bull; '.join(suggestions[:4]) + '</span>', unsafe_allow_html=True)
+
         # Feedback section
         st.markdown("---")
         st.markdown("**Was this helpful?**")
