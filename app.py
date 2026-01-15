@@ -1268,6 +1268,27 @@ def main():
     st.markdown("<p class='subtitle'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
     st.markdown("<div class='header-divider'></div>", unsafe_allow_html=True)
 
+    # About section in sidebar
+    with st.sidebar:
+        st.markdown("### About EconStats.org")
+        st.markdown("""
+        EconStats was founded on the belief that more people should be able to make insights
+        on the economy directly by engaging with economic data. While government economic
+        data sets are free, it is too hard for most people to access and understand it.
+        Our goal is to leverage AI tools to make it more accessible.
+
+        We are starting out by leveraging FRED's API to develop a first version of this
+        web tool and are working to add significant additional data sources — from
+        productivity data sources that are available in the dense back pages of the
+        Bureau of Labor Statistics' website to the average prices of specific items to
+        consumer credit data and beyond.
+
+        **In short, this is just the beginning.**
+
+        Please contact [waldman1@stanford.edu](mailto:waldman1@stanford.edu) with any
+        feedback or ideas.
+        """)
+
     # Use session state for query persistence and follow-ups
     if 'last_query' not in st.session_state:
         st.session_state.last_query = ''
