@@ -142,6 +142,15 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
             'explanation': 'Switching to line chart.',
         }
 
+    # Area chart
+    elif re.search(r'\b(area\s+chart|show\s+as\s+area|switch\s+to\s+area|filled\s+chart)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'chart_type': 'area',
+            'explanation': 'Switching to area chart.',
+        }
+
     # === ADD SERIES (common keywords) ===
     # Quick keyword matches for adding common series
     add_match = re.search(r'\b(add|include|overlay|compare\s+(?:to|with)|what\s+about)\s+(.+?)(?:\s+to\s+(?:this|the\s+chart))?[?.!]?\s*$', q)
@@ -150,23 +159,46 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
         # Map common terms to series
         series_map = {
             'inflation': ['CPIAUCSL'],
+            'cpi': ['CPIAUCSL'],
             'core inflation': ['CPILFESL'],
+            'core cpi': ['CPILFESL'],
+            'pce': ['PCEPI'],
+            'core pce': ['PCEPILFE'],
             'unemployment': ['UNRATE'],
             'jobs': ['PAYEMS'],
             'payrolls': ['PAYEMS'],
+            'job openings': ['JTSJOL'],
             'gdp': ['A191RL1Q225SBEA'],
             'fed funds': ['FEDFUNDS'],
             'rates': ['FEDFUNDS'],
+            'interest rates': ['FEDFUNDS'],
+            '10 year': ['DGS10'],
+            '2 year': ['DGS2'],
+            'yield curve': ['T10Y2Y'],
             'mortgage': ['MORTGAGE30US'],
+            'mortgage rates': ['MORTGAGE30US'],
             'wages': ['CES0500000003'],
+            'wage growth': ['CES0500000003'],
             'oil': ['DCOILWTICO'],
+            'oil prices': ['DCOILWTICO'],
             'gas': ['GASREGW'],
+            'gas prices': ['GASREGW'],
             'housing': ['CSUSHPINSA'],
             'home prices': ['CSUSHPINSA'],
+            'house prices': ['CSUSHPINSA'],
+            'housing starts': ['HOUST'],
+            'building permits': ['PERMIT'],
             'sentiment': ['UMCSENT'],
             'consumer sentiment': ['UMCSENT'],
+            'confidence': ['UMCSENT'],
             'retail': ['RSXFS'],
             'retail sales': ['RSXFS'],
+            'industrial production': ['INDPRO'],
+            'consumer spending': ['PCE'],
+            'personal income': ['PI'],
+            'savings rate': ['PSAVERT'],
+            'claims': ['ICSA'],
+            'jobless claims': ['ICSA'],
         }
 
         for keyword, series_ids in series_map.items():
@@ -1322,7 +1354,7 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
     Args:
         series_data: List of (series_id, dates, values, info) tuples
         combine: Whether to combine all series on one chart
-        chart_type: 'line' or 'bar'
+        chart_type: 'line', 'bar', or 'area'
     """
     colors = ['#0066cc', '#cc3300', '#009933', '#9933cc']
 
@@ -1345,6 +1377,19 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                     x=dates, y=values,
                     name=name,
                     marker_color=colors[i % len(colors)],
+                    hovertemplate=f"<b>{name}</b><br>%{{x|%b %Y}}<br>%{{y:,.2f}}<extra></extra>"
+                ))
+            elif chart_type == 'area':
+                # Convert hex to rgba for fill
+                hex_color = colors[i % len(colors)]
+                r, g, b = int(hex_color[1:3], 16), int(hex_color[3:5], 16), int(hex_color[5:7], 16)
+                fill_color = f'rgba({r}, {g}, {b}, 0.3)'
+                fig.add_trace(go.Scatter(
+                    x=dates, y=values, mode='lines',
+                    name=name,
+                    fill='tozeroy',
+                    line=dict(color=hex_color, width=2),
+                    fillcolor=fill_color,
                     hovertemplate=f"<b>{name}</b><br>%{{x|%b %Y}}<br>%{{y:,.2f}}<extra></extra>"
                 ))
             else:  # line (default)
@@ -1385,6 +1430,18 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                     x=dates, y=values,
                     name=name[:40],
                     marker_color=colors[i % len(colors)],
+                    hovertemplate=f"<b>{name[:40]}</b><br>%{{x|%b %Y}}<br>%{{y:,.2f}}<extra></extra>"
+                )
+            elif chart_type == 'area':
+                hex_color = colors[i % len(colors)]
+                r, g, b = int(hex_color[1:3], 16), int(hex_color[3:5], 16), int(hex_color[5:7], 16)
+                fill_color = f'rgba({r}, {g}, {b}, 0.3)'
+                trace = go.Scatter(
+                    x=dates, y=values, mode='lines',
+                    name=name[:40],
+                    fill='tozeroy',
+                    line=dict(color=hex_color, width=2),
+                    fillcolor=fill_color,
                     hovertemplate=f"<b>{name[:40]}</b><br>%{{x|%b %Y}}<br>%{{y:,.2f}}<extra></extra>"
                 )
             else:  # line
