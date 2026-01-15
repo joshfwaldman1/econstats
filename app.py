@@ -7,6 +7,7 @@ Incorporates economist intuitions for proper data selection and presentation.
 
 import json
 import os
+import re
 from datetime import datetime, timedelta
 from urllib.request import urlopen, Request
 from urllib.parse import urlencode
@@ -16,6 +17,182 @@ import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
+
+
+def parse_followup_command(query: str, previous_series: list = None) -> dict:
+    """
+    Parse common follow-up commands locally without calling Claude API.
+
+    Returns dict with interpretation if recognized, or None if needs Claude.
+    Handles: transformations, time ranges, chart types, combine/separate.
+    """
+    q = query.lower().strip()
+    result = None
+
+    # === TRANSFORMATION COMMANDS ===
+    # Year-over-year
+    if re.search(r'\b(yoy|year[\s-]*over[\s-]*year|yearly\s+change|annual\s+(%\s+)?change)\b', q):
+        result = {
+            'show_yoy': True,
+            'show_mom': False,
+            'show_avg_annual': False,
+            'is_followup': True,
+            'keep_previous_series': True,
+            'explanation': 'Showing year-over-year percent change.',
+        }
+
+    # Month-over-month
+    elif re.search(r'\b(mom|month[\s-]*over[\s-]*month|monthly\s+change)\b', q):
+        result = {
+            'show_yoy': False,
+            'show_mom': True,
+            'show_avg_annual': False,
+            'is_followup': True,
+            'keep_previous_series': True,
+            'explanation': 'Showing month-over-month percent change.',
+        }
+
+    # Annual average
+    elif re.search(r'\b(annual\s+average|yearly\s+average|average\s+annual|avg\s+annual|switch\s+to\s+(annual|yearly)|show\s+(annual|yearly))\b', q):
+        result = {
+            'show_yoy': False,
+            'show_mom': False,
+            'show_avg_annual': True,
+            'is_followup': True,
+            'keep_previous_series': True,
+            'explanation': 'Showing annual averages.',
+        }
+
+    # Back to raw/original
+    elif re.search(r'\b(raw\s+data|original|actual\s+(data|values)|back\s+to\s+(level|normal)|remove\s+transformation)\b', q):
+        result = {
+            'show_yoy': False,
+            'show_mom': False,
+            'show_avg_annual': False,
+            'is_followup': True,
+            'keep_previous_series': True,
+            'explanation': 'Showing original values.',
+        }
+
+    # === TIME RANGE COMMANDS ===
+    # "last N years" or "zoom to N years"
+    elif match := re.search(r'\b(last|past|zoom\s+to|show)\s+(\d+)\s+years?\b', q):
+        years = int(match.group(2))
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'years_override': years,
+            'explanation': f'Showing last {years} years.',
+        }
+
+    # "since YYYY"
+    elif match := re.search(r'\bsince\s+(\d{4})\b', q):
+        start_year = int(match.group(1))
+        years = datetime.now().year - start_year + 1
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'years_override': years,
+            'explanation': f'Showing data since {start_year}.',
+        }
+
+    # "all data" / "all time"
+    elif re.search(r'\b(all\s+(available\s+)?(data|time|history)|full\s+history)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'years_override': None,  # None means all
+            'explanation': 'Showing all available data.',
+        }
+
+    # === CHART COMMANDS ===
+    # Combine charts
+    elif re.search(r'\b(combine|single\s+chart|one\s+chart|same\s+chart|overlay)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'combine_chart': True,
+            'explanation': 'Combining series on one chart.',
+        }
+
+    # Separate charts
+    elif re.search(r'\b(separate|split|individual\s+chart)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'combine_chart': False,
+            'explanation': 'Showing series on separate charts.',
+        }
+
+    # Bar chart
+    elif re.search(r'\b(bar\s+chart|show\s+as\s+bar|switch\s+to\s+bar)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'chart_type': 'bar',
+            'explanation': 'Switching to bar chart.',
+        }
+
+    # Line chart
+    elif re.search(r'\b(line\s+chart|show\s+as\s+line|switch\s+to\s+line)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'chart_type': 'line',
+            'explanation': 'Switching to line chart.',
+        }
+
+    # === ADD SERIES (common keywords) ===
+    # Quick keyword matches for adding common series
+    add_match = re.search(r'\b(add|include|overlay|compare\s+(?:to|with)|what\s+about)\s+(.+?)(?:\s+to\s+(?:this|the\s+chart))?[?.!]?\s*$', q)
+    if add_match and not result:
+        hint = add_match.group(2).strip()
+        # Map common terms to series
+        series_map = {
+            'inflation': ['CPIAUCSL'],
+            'core inflation': ['CPILFESL'],
+            'unemployment': ['UNRATE'],
+            'jobs': ['PAYEMS'],
+            'payrolls': ['PAYEMS'],
+            'gdp': ['A191RL1Q225SBEA'],
+            'fed funds': ['FEDFUNDS'],
+            'rates': ['FEDFUNDS'],
+            'mortgage': ['MORTGAGE30US'],
+            'wages': ['CES0500000003'],
+            'oil': ['DCOILWTICO'],
+            'gas': ['GASREGW'],
+            'housing': ['CSUSHPINSA'],
+            'home prices': ['CSUSHPINSA'],
+            'sentiment': ['UMCSENT'],
+            'consumer sentiment': ['UMCSENT'],
+            'retail': ['RSXFS'],
+            'retail sales': ['RSXFS'],
+        }
+
+        for keyword, series_ids in series_map.items():
+            if keyword in hint:
+                result = {
+                    'series': series_ids,
+                    'is_followup': True,
+                    'add_to_previous': True,
+                    'combine_chart': True,
+                    'explanation': f'Adding {keyword} to the chart.',
+                }
+                break
+
+    # If we got a result, add the previous series if needed
+    if result and previous_series:
+        if result.get('keep_previous_series') and 'series' not in result:
+            result['series'] = previous_series
+        elif result.get('add_to_previous') and 'series' in result:
+            # Combine with previous, avoiding duplicates
+            combined = list(previous_series)
+            for s in result['series']:
+                if s not in combined:
+                    combined.append(s)
+            result['series'] = combined[:4]  # Max 4 series
+
+    return result
 
 # Import pre-computed query plans (314 common queries)
 try:
@@ -1139,8 +1316,14 @@ def add_recession_shapes(fig, min_date: str, max_date: str):
             )
 
 
-def create_chart(series_data: list, combine: bool = False) -> go.Figure:
-    """Create a Plotly chart with recession shading."""
+def create_chart(series_data: list, combine: bool = False, chart_type: str = 'line') -> go.Figure:
+    """Create a Plotly chart with recession shading.
+
+    Args:
+        series_data: List of (series_id, dates, values, info) tuples
+        combine: Whether to combine all series on one chart
+        chart_type: 'line' or 'bar'
+    """
     colors = ['#0066cc', '#cc3300', '#009933', '#9933cc']
 
     all_dates = []
@@ -1156,12 +1339,21 @@ def create_chart(series_data: list, combine: bool = False) -> go.Figure:
             name = info.get('name', info.get('title', series_id))
             if len(name) > 50:
                 name = name[:47] + "..."
-            fig.add_trace(go.Scatter(
-                x=dates, y=values, mode='lines',
-                name=name,
-                line=dict(color=colors[i % len(colors)], width=2),
-                hovertemplate=f"<b>{name}</b><br>%{{x|%b %Y}}<br>%{{y:,.2f}}<extra></extra>"
-            ))
+
+            if chart_type == 'bar':
+                fig.add_trace(go.Bar(
+                    x=dates, y=values,
+                    name=name,
+                    marker_color=colors[i % len(colors)],
+                    hovertemplate=f"<b>{name}</b><br>%{{x|%b %Y}}<br>%{{y:,.2f}}<extra></extra>"
+                ))
+            else:  # line (default)
+                fig.add_trace(go.Scatter(
+                    x=dates, y=values, mode='lines',
+                    name=name,
+                    line=dict(color=colors[i % len(colors)], width=2),
+                    hovertemplate=f"<b>{name}</b><br>%{{x|%b %Y}}<br>%{{y:,.2f}}<extra></extra>"
+                ))
 
         add_recession_shapes(fig, min_date, max_date)
 
@@ -1187,15 +1379,23 @@ def create_chart(series_data: list, combine: bool = False) -> go.Figure:
         for i, (series_id, dates, values, info) in enumerate(series_data):
             name = info.get('name', info.get('title', series_id))
             unit = info.get('unit', info.get('units', ''))
-            fig.add_trace(
-                go.Scatter(
+
+            if chart_type == 'bar':
+                trace = go.Bar(
+                    x=dates, y=values,
+                    name=name[:40],
+                    marker_color=colors[i % len(colors)],
+                    hovertemplate=f"<b>{name[:40]}</b><br>%{{x|%b %Y}}<br>%{{y:,.2f}}<extra></extra>"
+                )
+            else:  # line
+                trace = go.Scatter(
                     x=dates, y=values, mode='lines',
                     name=name[:40],
                     line=dict(color=colors[i % len(colors)], width=2),
                     hovertemplate=f"<b>{name[:40]}</b><br>%{{x|%b %Y}}<br>%{{y:,.2f}}<extra></extra>"
-                ),
-                row=i + 1, col=1
-            )
+                )
+
+            fig.add_trace(trace, row=i + 1, col=1)
             fig.update_yaxes(title_text=unit[:20] if len(unit) > 20 else unit, row=i + 1, col=1)
 
         for i in range(len(series_data)):
@@ -1387,6 +1587,24 @@ def main():
                 'search_terms': [],
                 'used_precomputed': True
             }
+        elif previous_context and (local_parsed := parse_followup_command(query, st.session_state.last_series)):
+            # Try local parser for common follow-up commands (no API call needed)
+            interpretation = {
+                'series': local_parsed.get('series', []),
+                'explanation': local_parsed.get('explanation', ''),
+                'show_yoy': local_parsed.get('show_yoy', False),
+                'show_mom': local_parsed.get('show_mom', False),
+                'show_avg_annual': local_parsed.get('show_avg_annual', False),
+                'combine_chart': local_parsed.get('combine_chart', False),
+                'is_followup': local_parsed.get('is_followup', True),
+                'add_to_previous': local_parsed.get('add_to_previous', False),
+                'keep_previous_series': local_parsed.get('keep_previous_series', False),
+                'search_terms': [],
+                'used_precomputed': False,
+                'used_local_parser': True,
+                'years_override': local_parsed.get('years_override'),
+                'chart_type': local_parsed.get('chart_type'),
+            }
         else:
             # Fall back to Claude for unknown queries or follow-ups
             with st.spinner("Analyzing your question with AI economist..."):
@@ -1402,6 +1620,15 @@ def main():
         is_followup = interpretation.get('is_followup', False)
         add_to_previous = interpretation.get('add_to_previous', False)
         keep_previous_series = interpretation.get('keep_previous_series', False)
+
+        # Handle years override from follow-up commands (e.g., "show last 5 years")
+        if 'years_override' in interpretation and interpretation['years_override'] is not None:
+            years = interpretation['years_override']
+        elif 'years_override' in interpretation and interpretation['years_override'] is None:
+            years = None  # Show all data
+
+        # Handle chart type from follow-up commands (e.g., "bar chart")
+        chart_type = interpretation.get('chart_type', 'line')
 
         # Handle follow-up that keeps/adds to previous series
         if is_followup and (keep_previous_series or add_to_previous):
@@ -1688,7 +1915,7 @@ def main():
             </div>
             """, unsafe_allow_html=True)
 
-            fig = create_chart(series_data, combine=True)
+            fig = create_chart(series_data, combine=True, chart_type=chart_type)
             st.plotly_chart(fig, use_container_width=True)
 
             source = series_data[0][3].get('source', 'FRED')
@@ -1720,7 +1947,7 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
 
-                fig = create_chart([(series_id, dates, values, info)], combine=False)
+                fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                 st.plotly_chart(fig, use_container_width=True)
 
                 st.markdown(f"<div class='source-line'>Source: {source}. {sa_note}{transform_note} Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
