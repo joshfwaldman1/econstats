@@ -552,7 +552,7 @@ TIME_PERIODS = {
 }
 
 # Comprehensive economist prompt with intuitions
-ECONOMIST_PROMPT = """You are an expert economist helping interpret economic data questions for the FRED (Federal Reserve Economic Data) database. Think like Jason Furman or a top policy economist.
+ECONOMIST_PROMPT_BASE = """You are an expert economist helping interpret economic data questions for the FRED (Federal Reserve Economic Data) database. Think like Jason Furman or a top policy economist.
 
 ## YOUR JOB
 Interpret the user's question and return EITHER:
@@ -646,25 +646,99 @@ Return JSON only:
 
 CRITICAL: If you're not 100% sure of exact series IDs, ALWAYS include search_terms. It's better to search than guess wrong.
 
+## RESPONSE FORMAT
+Return JSON only:
+{
+  "series": ["SERIES_ID1", "SERIES_ID2"],
+  "search_terms": ["specific search term 1", "specific search term 2"],
+  "explanation": "Brief explanation of why these series answer the question",
+  "show_yoy": false,
+  "show_mom": false,
+  "show_avg_annual": false,
+  "combine_chart": false,
+  "is_followup": false,
+  "add_to_previous": false
+}
+
 USER QUESTION: """
 
+# Follow-up prompt that includes context
+FOLLOWUP_PROMPT = """You are an expert economist helping with a FOLLOW-UP question about economic data.
 
-def call_claude(query: str) -> dict:
-    """Call Claude API to interpret the economic question."""
+## PREVIOUS CONTEXT
+The user previously asked: "{previous_query}"
+We showed them these series: {previous_series}
+Series names: {series_names}
+
+## FOLLOW-UP INTERPRETATION
+The user is now asking a follow-up. Common follow-up requests include:
+- "Show me year-over-year" → set show_yoy: true, keep same series
+- "Show month-over-month" → set show_mom: true, keep same series
+- "Add unemployment to this" → set add_to_previous: true, add new series
+- "Compare this to housing" → might want new chart or combined
+- "What about for women?" → might want demographic breakdown
+- "Average annual change" → set show_avg_annual: true
+- "Go back further" or "show 20 years" → same series, different time range
+- "Combine these" → set combine_chart: true
+
+## RESPONSE FORMAT
+Return JSON only:
+{{
+  "series": ["SERIES_ID1"],  // New series to add, or same series if just changing view
+  "search_terms": [],
+  "explanation": "What we're showing and why",
+  "show_yoy": false,  // Year-over-year percent change
+  "show_mom": false,  // Month-over-month percent change
+  "show_avg_annual": false,  // Average annual values
+  "combine_chart": false,  // Combine all series on one chart
+  "is_followup": true,
+  "add_to_previous": false,  // true = add new series to previous results
+  "keep_previous_series": true  // false = replace previous series entirely
+}}
+
+If the user's question is NOT a follow-up (completely new topic), set is_followup: false.
+
+USER FOLLOW-UP: """
+
+
+def call_claude(query: str, previous_context: dict = None) -> dict:
+    """Call Claude API to interpret the economic question.
+
+    Args:
+        query: The user's question
+        previous_context: Dict with 'query', 'series', 'series_names' for follow-ups
+    """
+    default_response = {
+        'series': [],
+        'search_terms': [query],
+        'explanation': '',
+        'show_yoy': False,
+        'show_mom': False,
+        'show_avg_annual': False,
+        'combine_chart': False,
+        'is_followup': False,
+        'add_to_previous': False,
+        'keep_previous_series': False
+    }
+
     if not ANTHROPIC_API_KEY:
-        return {
-            'series': [],
-            'search_terms': [query],
-            'explanation': '',
-            'show_yoy': False,
-            'combine_chart': False
-        }
+        return default_response
+
+    # Build prompt based on whether this is a follow-up
+    if previous_context and previous_context.get('series'):
+        prompt = FOLLOWUP_PROMPT.format(
+            previous_query=previous_context.get('query', ''),
+            previous_series=previous_context.get('series', []),
+            series_names=previous_context.get('series_names', [])
+        ) + query
+    else:
+        prompt = ECONOMIST_PROMPT_BASE + query
 
     url = 'https://api.anthropic.com/v1/messages'
     payload = {
         'model': 'claude-sonnet-4-20250514',
         'max_tokens': 1024,
-        'messages': [{'role': 'user', 'content': ECONOMIST_PROMPT + query}]
+        'messages': [{'role': 'user', 'content': prompt}]
     }
     headers = {
         'Content-Type': 'application/json',
@@ -681,15 +755,14 @@ def call_claude(query: str) -> dict:
                 content = content.split('```json')[1].split('```')[0]
             elif '```' in content:
                 content = content.split('```')[1].split('```')[0]
-            return json.loads(content.strip())
+            parsed = json.loads(content.strip())
+            # Ensure all expected keys exist
+            for key in default_response:
+                if key not in parsed:
+                    parsed[key] = default_response[key]
+            return parsed
     except Exception as e:
-        return {
-            'series': [],
-            'search_terms': [query],
-            'explanation': '',
-            'show_yoy': False,
-            'combine_chart': False
-        }
+        return default_response
 
 
 def fred_request(endpoint: str, params: dict) -> dict:
@@ -800,6 +873,47 @@ def calculate_yoy(dates: list, values: list) -> tuple:
                 break
 
     return yoy_dates, yoy_values
+
+
+def calculate_mom(dates: list, values: list) -> tuple:
+    """Calculate month-over-month percent change."""
+    if len(dates) < 2:
+        return dates, values
+
+    mom_dates, mom_values = [], []
+
+    for i in range(1, len(dates)):
+        if values[i - 1] != 0:
+            mom = ((values[i] - values[i - 1]) / abs(values[i - 1])) * 100
+            mom_dates.append(dates[i])
+            mom_values.append(mom)
+
+    return mom_dates, mom_values
+
+
+def calculate_avg_annual(dates: list, values: list) -> tuple:
+    """Calculate average annual values."""
+    if not dates or not values:
+        return dates, values
+
+    # Group by year
+    yearly_data = {}
+    for date_str, value in zip(dates, values):
+        year = date_str[:4]
+        if year not in yearly_data:
+            yearly_data[year] = []
+        yearly_data[year].append(value)
+
+    # Calculate averages
+    avg_dates, avg_values = [], []
+    for year in sorted(yearly_data.keys()):
+        vals = yearly_data[year]
+        avg = sum(vals) / len(vals)
+        # Use mid-year date for plotting
+        avg_dates.append(f"{year}-07-01")
+        avg_values.append(avg)
+
+    return avg_dates, avg_values
 
 
 def find_local_series(query: str) -> dict:
@@ -980,14 +1094,23 @@ def main():
     # Use session state for query persistence and follow-ups
     if 'last_query' not in st.session_state:
         st.session_state.last_query = ''
-    if 'last_results' not in st.session_state:
-        st.session_state.last_results = None
+    if 'last_series' not in st.session_state:
+        st.session_state.last_series = []
+    if 'last_series_names' not in st.session_state:
+        st.session_state.last_series_names = []
+    if 'last_series_data' not in st.session_state:
+        st.session_state.last_series_data = []
+
+    # Show hint about follow-ups if there's previous context
+    if st.session_state.last_query:
+        st.markdown(f"<p style='font-size: 0.85rem; color: #666; margin-bottom: 5px;'>Last query: \"{st.session_state.last_query}\" — ask a follow-up like \"show me YoY\" or \"add unemployment\"</p>", unsafe_allow_html=True)
 
     col1, col2 = st.columns([5, 1])
     with col1:
+        placeholder_text = "Ask a follow-up or try: How is the economy?" if st.session_state.last_query else "Ask: How is the economy? What is inflation? Is the labor market tight?"
         query = st.text_input(
             "Search",
-            placeholder="Ask: How is the economy? What is inflation? Is the labor market tight?",
+            placeholder=placeholder_text,
             label_visibility="collapsed",
             key="search_input"
         )
@@ -1036,14 +1159,40 @@ def main():
     st.markdown("<br>", unsafe_allow_html=True)
 
     if query and search_clicked:
+        # Build context from previous query for follow-up detection
+        previous_context = None
+        if st.session_state.last_query and st.session_state.last_series:
+            previous_context = {
+                'query': st.session_state.last_query,
+                'series': st.session_state.last_series,
+                'series_names': st.session_state.last_series_names
+            }
+
         # ALWAYS use Claude to interpret the query
         with st.spinner("Analyzing your question with AI economist..."):
-            interpretation = call_claude(query)
+            interpretation = call_claude(query, previous_context)
 
         ai_explanation = interpretation.get('explanation', '')
         series_to_fetch = list(interpretation.get('series', []))  # Copy the list
         combine = interpretation.get('combine_chart', False)
         show_yoy = interpretation.get('show_yoy', False)
+        show_mom = interpretation.get('show_mom', False)
+        show_avg_annual = interpretation.get('show_avg_annual', False)
+        is_followup = interpretation.get('is_followup', False)
+        add_to_previous = interpretation.get('add_to_previous', False)
+        keep_previous_series = interpretation.get('keep_previous_series', False)
+
+        # Handle follow-up that keeps/adds to previous series
+        if is_followup and (keep_previous_series or add_to_previous):
+            if keep_previous_series and not series_to_fetch:
+                # Just apply transformation to previous series
+                series_to_fetch = st.session_state.last_series.copy()
+            elif add_to_previous:
+                # Add new series to previous ones
+                previous_series = st.session_state.last_series.copy()
+                for sid in previous_series:
+                    if sid not in series_to_fetch:
+                        series_to_fetch.insert(0, sid)
 
         # If Claude provided search_terms, ALWAYS search FRED (even if we have some series)
         search_terms = interpretation.get('search_terms', [])
@@ -1084,19 +1233,62 @@ def main():
             st.write("**Claude's interpretation:**")
             st.json(interpretation)
             st.write(f"**Series to fetch:** {series_to_fetch}")
+            if is_followup:
+                st.write("**This was detected as a follow-up question**")
+                st.write(f"Previous query: {st.session_state.last_query}")
+                st.write(f"Previous series: {st.session_state.last_series}")
 
         # Fetch data
         series_data = []
+        series_names_fetched = []
         with st.spinner("Fetching data from FRED..."):
             for series_id in series_to_fetch[:4]:
                 dates, values, info = get_observations(series_id, years)
                 if dates and values:
                     db_info = SERIES_DB.get(series_id, {})
-                    if db_info.get('show_yoy') and len(dates) > 12:
+                    series_name = info.get('name', info.get('title', series_id))
+                    series_names_fetched.append(series_name)
+
+                    # Apply transformations based on user request or series config
+                    if show_mom and len(dates) > 1:
+                        # User requested month-over-month
+                        mom_dates, mom_values = calculate_mom(dates, values)
+                        if mom_dates:
+                            info_copy = dict(info)
+                            info_copy['name'] = series_name + ' (MoM %)'
+                            info_copy['unit'] = 'Percent Change (Month-over-Month)'
+                            info_copy['is_mom'] = True
+                            series_data.append((series_id, mom_dates, mom_values, info_copy))
+                        else:
+                            series_data.append((series_id, dates, values, info))
+                    elif show_avg_annual:
+                        # User requested average annual
+                        avg_dates, avg_values = calculate_avg_annual(dates, values)
+                        if avg_dates:
+                            info_copy = dict(info)
+                            info_copy['name'] = series_name + ' (Annual Avg)'
+                            info_copy['unit'] = info.get('unit', info.get('units', '')) + ' (Annual Average)'
+                            info_copy['is_avg_annual'] = True
+                            series_data.append((series_id, avg_dates, avg_values, info_copy))
+                        else:
+                            series_data.append((series_id, dates, values, info))
+                    elif show_yoy and len(dates) > 12:
+                        # User explicitly requested YoY
                         yoy_dates, yoy_values = calculate_yoy(dates, values)
                         if yoy_dates:
                             info_copy = dict(info)
-                            info_copy['name'] = db_info.get('yoy_name', info.get('name', series_id) + ' (YoY %)')
+                            info_copy['name'] = series_name + ' (YoY %)'
+                            info_copy['unit'] = 'Percent Change (Year-over-Year)'
+                            info_copy['is_yoy'] = True
+                            series_data.append((series_id, yoy_dates, yoy_values, info_copy))
+                        else:
+                            series_data.append((series_id, dates, values, info))
+                    elif db_info.get('show_yoy') and len(dates) > 12:
+                        # Series default is to show YoY (like CPI)
+                        yoy_dates, yoy_values = calculate_yoy(dates, values)
+                        if yoy_dates:
+                            info_copy = dict(info)
+                            info_copy['name'] = db_info.get('yoy_name', series_name + ' (YoY %)')
                             info_copy['unit'] = db_info.get('yoy_unit', 'Percent Change (Year-over-Year)')
                             info_copy['is_yoy'] = True
                             series_data.append((series_id, yoy_dates, yoy_values, info_copy))
@@ -1108,6 +1300,12 @@ def main():
         if not series_data:
             st.error("No data available for the requested series.")
             st.stop()
+
+        # Store context for follow-up queries
+        st.session_state.last_query = query
+        st.session_state.last_series = series_to_fetch[:4]
+        st.session_state.last_series_names = series_names_fetched
+        st.session_state.last_series_data = series_data
 
         # Narrative summary
         st.markdown("<div class='narrative-box'>", unsafe_allow_html=True)
@@ -1222,7 +1420,13 @@ def main():
                 source = db_info.get('source', info.get('source', 'FRED'))
                 bullets = db_info.get('bullets', [f'FRED series: {series_id}', f"Unit: {info.get('unit', info.get('units', ''))}"])
                 sa_note = "Seasonally adjusted." if db_info.get('sa', False) else "Not seasonally adjusted."
-                yoy_note = " Showing year-over-year percent change." if info.get('is_yoy') else ""
+                transform_note = ""
+                if info.get('is_yoy'):
+                    transform_note = " Showing year-over-year percent change."
+                elif info.get('is_mom'):
+                    transform_note = " Showing month-over-month percent change."
+                elif info.get('is_avg_annual'):
+                    transform_note = " Showing annual averages."
 
                 st.markdown("<div class='chart-section'>", unsafe_allow_html=True)
                 st.markdown(f"""
@@ -1238,7 +1442,7 @@ def main():
                 fig = create_chart([(series_id, dates, values, info)], combine=False)
                 st.plotly_chart(fig, use_container_width=True)
 
-                st.markdown(f"<div class='source-line'>Source: {source}. {sa_note}{yoy_note} Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='source-line'>Source: {source}. {sa_note}{transform_note} Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
 
         # Download button
@@ -1265,6 +1469,13 @@ def main():
             <li>"What is inflation?" → CPI headline and core</li>
             <li>"Is the labor market tight?" → Prime-age employment ratio</li>
             <li>"What does the Fed target?" → Core PCE inflation</li>
+        </ul>
+        <p style='color: #555; margin-top: 15px;'><strong>Follow-up questions:</strong> After any query, ask things like:</p>
+        <ul style='color: #555; line-height: 1.6;'>
+            <li>"Show me year-over-year" or "show me MoM" → Transform the data</li>
+            <li>"Add unemployment to this" → Add series to your chart</li>
+            <li>"Show annual averages" → Aggregate to yearly view</li>
+            <li>"Combine these" → Put all series on one chart</li>
         </ul>
         <p style='color: #666; font-size: 0.9rem; margin-top: 15px;'>Data from the Federal Reserve Economic Data (FRED). Sources include BLS, BEA, Census Bureau, and others.</p>
         </div>
