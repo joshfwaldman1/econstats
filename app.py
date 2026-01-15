@@ -63,6 +63,24 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
             'explanation': 'Showing annual averages.',
         }
 
+    # Percent change from start of chart
+    elif re.search(r'\b(percent|%|pct)\s*(change)?\s*(from|since)\s*(start|beginning|first)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'pct_change_from_start': True,
+            'explanation': 'Showing percent change from start of chart period.',
+        }
+
+    # Cumulative change
+    elif re.search(r'\bcumulative\s*(change|growth)?\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'pct_change_from_start': True,
+            'explanation': 'Showing cumulative percent change from start.',
+        }
+
     # Back to raw/original
     elif re.search(r'\b(raw\s+data|original|actual\s+(data|values)|back\s+to\s+(level|normal)|remove\s+transformation)\b', q):
         result = {
@@ -1687,6 +1705,7 @@ def main():
                 'years_override': local_parsed.get('years_override'),
                 'chart_type': local_parsed.get('chart_type'),
                 'normalize': local_parsed.get('normalize', False),
+                'pct_change_from_start': local_parsed.get('pct_change_from_start', False),
             }
         else:
             # Fall back to Claude for unknown queries or follow-ups
@@ -1715,6 +1734,9 @@ def main():
 
         # Handle normalize from follow-up commands (e.g., "normalize", "index to 100")
         normalize = interpretation.get('normalize', False)
+
+        # Handle percent change from start (cumulative change)
+        pct_change_from_start = interpretation.get('pct_change_from_start', False)
 
         # Handle follow-up that keeps/adds to previous series
         if is_followup and (keep_previous_series or add_to_previous):
@@ -1855,6 +1877,24 @@ def main():
                 else:
                     normalized_data.append((series_id, dates, values, info))
             series_data = normalized_data
+
+        # Apply percent change from start if requested
+        if pct_change_from_start and series_data:
+            pct_data = []
+            for series_id, dates, values, info in series_data:
+                if values and len(values) > 0:
+                    base_value = values[0]
+                    if base_value != 0:
+                        pct_values = [(v - base_value) / base_value * 100 for v in values]
+                        info_copy = info.copy()
+                        info_copy['is_pct_change'] = True
+                        info_copy['unit'] = '% change from start'
+                        pct_data.append((series_id, dates, pct_values, info_copy))
+                    else:
+                        pct_data.append((series_id, dates, values, info))
+                else:
+                    pct_data.append((series_id, dates, values, info))
+            series_data = pct_data
 
         # Store context for follow-up queries
         st.session_state.last_query = query
