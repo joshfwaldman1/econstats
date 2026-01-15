@@ -1599,25 +1599,7 @@ def main():
     if 'last_series_data' not in st.session_state:
         st.session_state.last_series_data = []
 
-    # Show hint about follow-ups if there's previous context
-    if st.session_state.last_query:
-        st.markdown(f"<p style='font-size: 0.85rem; color: #666; margin-bottom: 5px;'>Last query: \"{st.session_state.last_query}\" — ask a follow-up like \"show me YoY\" or \"add unemployment\"</p>", unsafe_allow_html=True)
-
-    # Use a form so Enter key submits the query
-    with st.form(key="search_form", clear_on_submit=False):
-        col1, col2 = st.columns([5, 1])
-        with col1:
-            placeholder_text = "Ask a follow-up or try: How is the economy?" if st.session_state.last_query else "Ask: How is the economy? What is inflation? Is the labor market tight?"
-            query = st.text_input(
-                "Search",
-                placeholder=placeholder_text,
-                label_visibility="collapsed",
-                key="search_input"
-            )
-        with col2:
-            search_clicked = st.form_submit_button("Search", type="primary", use_container_width=True)
-
-    # Quick search buttons - use session state to handle clicks
+    # Quick search buttons at top
     col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
 
     with col1:
@@ -1649,16 +1631,24 @@ def main():
     with col4:
         if st.button("China", use_container_width=True, key="btn_china"):
             st.session_state.pending_query = "china trade"
+    with col5:
+        if st.button("Recession?", use_container_width=True, key="btn_recession"):
+            st.session_state.pending_query = "are we in a recession"
 
     # Handle pending query from button clicks
+    button_query = None
     if 'pending_query' in st.session_state and st.session_state.pending_query:
-        query = st.session_state.pending_query
-        search_clicked = True
+        button_query = st.session_state.pending_query
         st.session_state.pending_query = None  # Clear it
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    # Chat input at bottom of page (like Claude/ChatGPT)
+    placeholder = "Ask a follow-up..." if st.session_state.last_query else "Ask about the economy (e.g., inflation, jobs, GDP)"
+    chat_query = st.chat_input(placeholder)
 
-    if query and search_clicked:
+    # Use button query or chat query
+    query = button_query or chat_query
+
+    if query:
         # Build context from previous query for follow-up detection
         previous_context = None
         if st.session_state.last_query and st.session_state.last_series:
