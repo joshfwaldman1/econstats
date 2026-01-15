@@ -126,13 +126,14 @@ QUERY_PLANS = {
   },
   "men employment": {
     "series": [
-      "LNS12300061",
+      "LNS12000001",
+      "LNS12300001",
       "LNS14000001",
       "LNS11300001"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "For men's employment, I'm using three key demographic-specific series: LNS12300061 (employment-population ratio for prime-age men 25-54, the best measure of labor market health), LNS14000001 (unemployment rate for men 16+), and LNS11300001 (labor force participation rate for men). These provide a comprehensive view of men's employment status - how many are working relative to population, how many are unemployed, and how many are participating in the labor force."
+    "combine_chart": False,
+    "explanation": "For men's employment, LNS12000001 (Employment Level - Men) shows total employed men. LNS12300001 (Employment-Population Ratio - Men) shows what share of all men 16+ are employed. LNS14000001 (Unemployment Rate - Men) shows jobless men actively seeking work. LNS11300001 (Labor Force Participation Rate - Men) shows how many are in the labor force. These four series provide the complete picture of men's employment."
   },
   "men unemployment": {
     "series": [
@@ -304,11 +305,12 @@ QUERY_PLANS = {
     "series": [
       "LNS14000003",
       "LNS14000006",
-      "LNS14000009"
+      "LNS14000009",
+      "UNRATE"
     ],
     "show_yoy": False,
     "combine_chart": True,
-    "explanation": "To analyze the racial unemployment gap, I'm using unemployment rates for the three main racial/ethnic groups: White (LNS14000003), Black or African American (LNS14000006), and Hispanic or Latino (LNS14000009). These demographic-specific series allow direct comparison of unemployment rates across racial groups to identify disparities. The combined chart will clearly show the persistent gaps between groups, with Black unemployment typically running significantly higher than White unemployment, and Hispanic unemployment generally falling between the two. This is the standard approach for measuring racial labor market disparities."
+    "explanation": "Racial unemployment gaps are best seen by comparing rates across groups: LNS14000003 (White unemployment), LNS14000006 (Black or African American unemployment), and LNS14000009 (Hispanic or Latino unemployment). I've added UNRATE (overall unemployment rate) as a benchmark. Black unemployment typically runs about 2x the White rate - this persistent gap is one of the most studied labor market disparities. The combined chart shows all rates together for easy comparison."
   },
   "gender pay gap": {
     "series": [
@@ -586,13 +588,13 @@ QUERY_PLANS = {
   },
   "layoffs": {
     "series": [
+      "JTSLDL",
       "ICSA",
-      "CCSA",
-      "JTSQUR"
+      "CCSA"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "For layoffs, ICSA (initial jobless claims) is the most timely weekly indicator of new layoffs and job losses. CCSA (continuing claims) shows the persistence of unemployment from layoffs. JTSQUR (quits rate) provides context - when layoffs increase, quits typically decrease as workers become more cautious about leaving jobs voluntarily. These three series together give the clearest picture of layoff activity and labor market stress."
+    "explanation": "For layoffs, JTSLDL (JOLTS layoffs and discharges) is the most direct measure of employer-initiated job separations. ICSA (initial jobless claims) provides weekly timeliness on new layoff activity. CCSA (continuing claims) shows the persistence of unemployment from layoffs. Together these give the clearest picture of actual layoff activity in the economy."
   },
   "job cuts": {
     "series": [
@@ -1309,11 +1311,12 @@ QUERY_PLANS = {
   "home sales": {
     "series": [
       "EXHOSLUSM495S",
-      "HSN1F"
+      "HSN1F",
+      "NHSPSTOT"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "EXHOSLUSM495S captures existing home sales, which represent about 85-90% of the total housing market and is the primary indicator of home sales activity. HSN1F shows new single-family home sales, providing a complete picture of both existing and new home market activity. Combined, these series give the most comprehensive view of overall home sales performance."
+    "combine_chart": False,
+    "explanation": "For home sales, EXHOSLUSM495S (Existing Home Sales) captures the vast majority (85-90%) of the market. HSN1F (New Single-Family Homes Sold) shows new construction sales. NHSPSTOT (Pending Home Sales Index) is a leading indicator of future closings, as contracts are signed 1-2 months before existing sales close. Together these show current activity plus what's in the pipeline."
   },
   "existing home sales": {
     "series": [
@@ -1342,11 +1345,12 @@ QUERY_PLANS = {
   "building permits": {
     "series": [
       "PERMIT",
-      "HOUST"
+      "PERMIT1",
+      "PERMIT5"
     ],
     "show_yoy": True,
     "combine_chart": True,
-    "explanation": "Building permits (PERMIT) are the leading indicator for future construction activity, as developers must obtain permits before breaking ground. I've paired this with housing starts (HOUST) to show the complete pipeline from permits to actual construction beginning. Year-over-year growth shows the momentum in construction activity, which is important for understanding housing supply dynamics."
+    "explanation": "Building permits are the leading indicator for future construction. PERMIT shows total new privately-owned housing units authorized. PERMIT1 breaks out single-family permits (most of the market), while PERMIT5 shows multi-family (5+ units) permits which indicates apartment construction trends. Year-over-year change reveals construction momentum. This is the pure permits picture without mixing in starts data."
   },
   "housing affordability": {
     "series": [
@@ -1360,11 +1364,12 @@ QUERY_PLANS = {
   "rent prices": {
     "series": [
       "CUSR0000SEHA",
-      "CUSR0000SEHC"
+      "CPIHOSSL",
+      "CUSR0000SAH1"
     ],
     "show_yoy": True,
     "combine_chart": True,
-    "explanation": "CUSR0000SEHA (CPI rent of primary residence) tracks actual rents paid by tenants, while CUSR0000SEHC (owners' equivalent rent) measures what homeowners would pay to rent their homes. Together they provide comprehensive rent price trends. Showing year-over-year change reveals rent inflation rates, which are critical for understanding rental market pressures."
+    "explanation": "For rent prices, CUSR0000SEHA (CPI Rent of Primary Residence) tracks actual rents paid by tenants - this is the most direct measure of rent costs. CPIHOSSL (CPI Housing in urban areas) provides broader housing cost context. CUSR0000SAH1 (CPI Shelter) shows the overall shelter component which dominates CPI. Year-over-year shows rent inflation rates, which are critical for understanding rental market pressures and their impact on overall inflation."
   },
   "case shiller": {
     "series": [
@@ -1394,11 +1399,12 @@ QUERY_PLANS = {
   "housing supply": {
     "series": [
       "MSACSR",
-      "MNMFS"
+      "HOUST",
+      "PERMIT"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "Housing supply is best measured by inventory levels relative to sales pace. MSACSR (months' supply of existing homes) and MNMFS (months' supply of new homes) directly quantify how many months it would take to exhaust current inventory at the current sales rate. Lower months' supply indicates tight supply conditions, while higher levels suggest abundant supply. These are the standard metrics used by housing economists and the National Association of Realtors to assess supply constraints in housing markets."
+    "combine_chart": False,
+    "explanation": "Housing supply has three key dimensions: MSACSR (Months' Supply of Existing Homes) shows current inventory tightness - below 4 months is a seller's market, above 6 is a buyer's market. HOUST (Housing Starts) measures new supply entering the pipeline. PERMIT (Building Permits) is a leading indicator of future construction. Together these show both current supply conditions and future supply trends."
   },
   "housing demand": {
     "series": [
@@ -1613,12 +1619,12 @@ QUERY_PLANS = {
   "rate cuts": {
     "series": [
       "FEDFUNDS",
-      "DFEDTARU",
-      "DFEDTARL"
+      "DGS2",
+      "DGS10"
     ],
     "show_yoy": False,
     "combine_chart": True,
-    "explanation": "To analyze rate cuts, we need the federal funds effective rate (FEDFUNDS) which shows actual Fed policy changes, plus the target upper and lower bounds (DFEDTARU, DFEDTARL) to see the Fed's intended policy range. Rate cuts appear as downward movements in these series, showing both when cuts occurred and their magnitude."
+    "explanation": "To analyze rate cuts, FEDFUNDS (Federal Funds Effective Rate) shows the actual Fed policy rate - cuts appear as downward moves. DGS2 (2-year Treasury) reflects market expectations of near-term Fed policy, often pricing in cuts before they happen. DGS10 (10-year Treasury) shows how rate cuts affect longer-term borrowing costs. Together these show both the policy rate and how markets interpret the Fed's rate path."
   },
   "will the fed cut rates": {
     "series": [
@@ -2121,11 +2127,13 @@ QUERY_PLANS = {
   },
   "what does the fed target": {
     "series": [
-      "PCEPILFE"
+      "PCEPI",
+      "PCEPILFE",
+      "FEDFUNDS"
     ],
-    "show_yoy": True,
+    "show_yoy": [True, True, False],
     "combine_chart": False,
-    "explanation": "The Federal Reserve targets 2% annual inflation as measured by Core PCE (Personal Consumption Expenditures Price Index excluding food and energy). This is the Fed's official inflation target measure, preferred over CPI because PCE better captures substitution effects and has different weights. Core PCE strips out volatile food and energy prices to focus on underlying inflation trends that monetary policy can influence."
+    "explanation": "The Federal Reserve targets 2% annual inflation as measured by PCEPI (headline PCE Price Index) - this is the Fed's official target measure. I'm also showing PCEPILFE (Core PCE excluding food and energy) which the Fed monitors closely for underlying trends, and FEDFUNDS (the Federal Funds Rate) which is the Fed's primary policy tool for achieving this target. Headline PCE is the actual 2% target, while Core PCE helps assess whether inflation is sustainably at target."
   },
   "fed inflation target": {
     "series": [
@@ -2155,12 +2163,13 @@ QUERY_PLANS = {
   },
   "services inflation": {
     "series": [
-      "DPCERD3Q086SBEA",
+      "CUSR0000SAS",
+      "CUSR0000SASLE",
       "CUSR0000SAH1"
     ],
     "show_yoy": True,
     "combine_chart": True,
-    "explanation": "Services inflation is best measured by PCE services prices (DPCERD3Q086SBEA), which captures the broad services sector that the Fed closely monitors. I'm including CPI Shelter (CUSR0000SAH1) because housing services are the largest component of services inflation (~40% of core services) and have been a key driver of persistent inflation. Together, these show both the overall services trend and the critical shelter component that dominates services inflation dynamics."
+    "explanation": "Services inflation is best measured by CPI Services (CUSR0000SAS) which covers all services in the consumer basket. I'm including Core Services Less Shelter (CUSR0000SASLE) - the 'supercore' measure the Fed watches closely - which strips out volatile shelter costs. CPI Shelter (CUSR0000SAH1) is shown separately since housing services are the largest component (~40% of core services) and have been a key driver of persistent inflation. Together these show the full services picture."
   },
   "goods inflation": {
     "series": [
