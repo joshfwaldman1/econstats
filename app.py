@@ -105,6 +105,31 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
             'explanation': 'Showing all available data.',
         }
 
+    # "zoom in" / "zoom out"
+    elif re.search(r'\bzoom\s*(in|closer)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'years_override': 2,
+            'explanation': 'Zooming in to last 2 years.',
+        }
+    elif re.search(r'\bzoom\s*(out|back)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'years_override': 20,
+            'explanation': 'Zooming out to 20 years.',
+        }
+
+    # Normalize/index to 100 (for comparing different scales)
+    elif re.search(r'\b(normalize|index(\s+to\s+100)?|rebase|scale\s+to\s+(100|same))\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'normalize': True,
+            'explanation': 'Indexing all series to 100 at start of chart for comparison.',
+        }
+
     # === CHART COMMANDS ===
     # Combine charts
     elif re.search(r'\b(combine|single\s+chart|one\s+chart|same\s+chart|overlay)\b', q):
@@ -1661,6 +1686,7 @@ def main():
                 'used_local_parser': True,
                 'years_override': local_parsed.get('years_override'),
                 'chart_type': local_parsed.get('chart_type'),
+                'normalize': local_parsed.get('normalize', False),
             }
         else:
             # Fall back to Claude for unknown queries or follow-ups
@@ -1686,6 +1712,9 @@ def main():
 
         # Handle chart type from follow-up commands (e.g., "bar chart")
         chart_type = interpretation.get('chart_type', 'line')
+
+        # Handle normalize from follow-up commands (e.g., "normalize", "index to 100")
+        normalize = interpretation.get('normalize', False)
 
         # Handle follow-up that keeps/adds to previous series
         if is_followup and (keep_previous_series or add_to_previous):
@@ -1808,6 +1837,24 @@ def main():
         if not series_data:
             st.error("No data available for the requested series.")
             st.stop()
+
+        # Apply normalization if requested (index all series to 100 at start)
+        if normalize and series_data:
+            normalized_data = []
+            for series_id, dates, values, info in series_data:
+                if values and len(values) > 0:
+                    base_value = values[0]
+                    if base_value != 0:
+                        normalized_values = [v / base_value * 100 for v in values]
+                        info_copy = info.copy()
+                        info_copy['is_normalized'] = True
+                        info_copy['unit'] = 'Index (start = 100)'
+                        normalized_data.append((series_id, dates, normalized_values, info_copy))
+                    else:
+                        normalized_data.append((series_id, dates, values, info))
+                else:
+                    normalized_data.append((series_id, dates, values, info))
+            series_data = normalized_data
 
         # Store context for follow-up queries
         st.session_state.last_query = query
