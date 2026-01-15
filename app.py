@@ -1572,21 +1572,16 @@ def main():
     with st.sidebar:
         st.markdown("### About EconStats.org")
         st.markdown("""
-        EconStats was founded on the belief that more people should be able to make insights
-        on the economy directly by engaging with economic data. While government economic
-        data sets are free, it is too hard for most people to access and understand it.
-        Our goal is to leverage AI tools to make it more accessible.
+        Government economic data is free—but too hard for most people to access and understand.
+        EconStats uses AI to change that, helping anyone draw insights directly from the numbers.
 
-        We are starting out by leveraging FRED's API to develop a first version of this
-        web tool and are working to add significant additional data sources — from
-        productivity data sources that are available in the dense back pages of the
-        Bureau of Labor Statistics' website to the average prices of specific items to
-        consumer credit data and beyond.
+        We're starting with FRED's API and working to add more data sources: productivity
+        statistics buried in the back pages of the BLS website, prices of specific consumer
+        items, consumer credit data, and beyond.
 
-        **In short, this is just the beginning.**
+        **This is just the beginning.**
 
-        Please contact [waldman1@stanford.edu](mailto:waldman1@stanford.edu) with any
-        feedback or ideas.
+        Contact [waldman1@stanford.edu](mailto:waldman1@stanford.edu) with feedback or ideas.
         """)
 
     # Use session state for query persistence and follow-ups
