@@ -17,6 +17,12 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 
+# Import pre-computed query plans (314 common queries)
+try:
+    from query_plans import QUERY_PLANS
+except ImportError:
+    QUERY_PLANS = {}
+
 # Configuration - use Streamlit secrets for deployment, env vars for local
 def get_secret(key, default=''):
     """Get secret from Streamlit secrets or environment variable."""
@@ -1189,9 +1195,30 @@ def main():
                 'series_names': st.session_state.last_series_names
             }
 
-        # ALWAYS use Claude to interpret the query
-        with st.spinner("Analyzing your question with AI economist..."):
-            interpretation = call_claude(query, previous_context)
+        # First check pre-computed query plans (fast, no API call needed)
+        query_lower = query.lower().strip()
+        precomputed_plan = QUERY_PLANS.get(query_lower)
+
+        if precomputed_plan and not previous_context:
+            # Use pre-computed plan - instant response!
+            interpretation = {
+                'series': precomputed_plan.get('series', []),
+                'explanation': precomputed_plan.get('explanation', f'Showing data for: {query}'),
+                'show_yoy': precomputed_plan.get('show_yoy', False),
+                'combine_chart': precomputed_plan.get('combine_chart', False),
+                'show_mom': False,
+                'show_avg_annual': False,
+                'is_followup': False,
+                'add_to_previous': False,
+                'keep_previous_series': False,
+                'search_terms': [],
+                'used_precomputed': True
+            }
+        else:
+            # Fall back to Claude for unknown queries or follow-ups
+            with st.spinner("Analyzing your question with AI economist..."):
+                interpretation = call_claude(query, previous_context)
+            interpretation['used_precomputed'] = False
 
         ai_explanation = interpretation.get('explanation', '')
         series_to_fetch = list(interpretation.get('series', []))  # Copy the list
@@ -1251,7 +1278,10 @@ def main():
 
         # Debug expander to show what happened
         with st.expander("🔍 Debug: See how this query was interpreted"):
-            st.write("**Claude's interpretation:**")
+            if interpretation.get('used_precomputed'):
+                st.success("**Used pre-computed plan (instant, no API call)**")
+            else:
+                st.info("**Used Claude API**")
             st.json(interpretation)
             st.write(f"**Series to fetch:** {series_to_fetch}")
             if is_followup:
