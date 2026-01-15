@@ -23,36 +23,37 @@ try:
 except ImportError:
     QUERY_PLANS = {}
 
-# Feedback storage via Google Sheets
+# Feedback storage - logs to console (visible in Streamlit Cloud logs)
+# Optionally saves to Google Sheets if configured
 def save_feedback(query: str, series: list, vote: str, comment: str = ""):
-    """Save user feedback to Google Sheets."""
+    """Save user feedback. Always logs to console, optionally to Google Sheets."""
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    series_str = ', '.join(series) if series else ''
+
+    # Always log to console (visible in Streamlit Cloud "Manage app" → "Logs")
+    print(f"[FEEDBACK] {timestamp} | {vote.upper()} | Query: {query} | Series: {series_str} | Comment: {comment}")
+
+    # Try Google Sheets if configured
     try:
         import gspread
         from google.oauth2.service_account import Credentials
 
-        # Get credentials from Streamlit secrets
         if not hasattr(st, 'secrets') or 'gcp_service_account' not in st.secrets:
-            return False
+            return True  # Logged to console, that's enough
 
         creds_dict = dict(st.secrets['gcp_service_account'])
         scopes = ['https://www.googleapis.com/auth/spreadsheets']
         creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
         client = gspread.authorize(creds)
 
-        # Open the feedback spreadsheet
         sheet_url = st.secrets.get('FEEDBACK_SHEET_URL', '')
-        if not sheet_url:
-            return False
-
-        sheet = client.open_by_url(sheet_url).sheet1
-
-        # Append the feedback row
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        sheet.append_row([timestamp, query, ', '.join(series), vote, comment])
+        if sheet_url:
+            sheet = client.open_by_url(sheet_url).sheet1
+            sheet.append_row([timestamp, query, series_str, vote, comment])
         return True
     except Exception as e:
-        # Silently fail - don't break the app for feedback issues
-        return False
+        # Google Sheets failed, but we already logged to console
+        return True
 
 # Configuration - use Streamlit secrets for deployment, env vars for local
 def get_secret(key, default=''):
