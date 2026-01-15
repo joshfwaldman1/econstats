@@ -1282,17 +1282,19 @@ def main():
     if st.session_state.last_query:
         st.markdown(f"<p style='font-size: 0.85rem; color: #666; margin-bottom: 5px;'>Last query: \"{st.session_state.last_query}\" — ask a follow-up like \"show me YoY\" or \"add unemployment\"</p>", unsafe_allow_html=True)
 
-    col1, col2 = st.columns([5, 1])
-    with col1:
-        placeholder_text = "Ask a follow-up or try: How is the economy?" if st.session_state.last_query else "Ask: How is the economy? What is inflation? Is the labor market tight?"
-        query = st.text_input(
-            "Search",
-            placeholder=placeholder_text,
-            label_visibility="collapsed",
-            key="search_input"
-        )
-    with col2:
-        search_clicked = st.button("Search", type="primary", use_container_width=True)
+    # Use a form so Enter key submits the query
+    with st.form(key="search_form", clear_on_submit=False):
+        col1, col2 = st.columns([5, 1])
+        with col1:
+            placeholder_text = "Ask a follow-up or try: How is the economy?" if st.session_state.last_query else "Ask: How is the economy? What is inflation? Is the labor market tight?"
+            query = st.text_input(
+                "Search",
+                placeholder=placeholder_text,
+                label_visibility="collapsed",
+                key="search_input"
+            )
+        with col2:
+            search_clicked = st.form_submit_button("Search", type="primary", use_container_width=True)
 
     # Quick search buttons - use session state to handle clicks
     col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
