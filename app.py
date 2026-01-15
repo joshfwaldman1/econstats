@@ -1365,8 +1365,6 @@ def main():
         if ai_explanation:
             st.markdown(f"<div class='ai-explanation'>{ai_explanation}</div>", unsafe_allow_html=True)
 
-        period_text = f"over the past {years} years" if years else "over the available history"
-
         for series_id, dates, values, info in series_data:
             if not values:
                 continue
@@ -1374,30 +1372,19 @@ def main():
             name = info.get('name', info.get('title', series_id))
             unit = info.get('unit', info.get('units', ''))
             latest = values[-1]
-            first = values[0]
-            change = latest - first
-            pct_change = (change / abs(first)) * 100 if first != 0 else 0
-
-            direction_class = 'up' if pct_change >= 0 else 'down'
-            sign = '+' if pct_change >= 0 else ''
 
             # Get data type info from SERIES_DB
             db_info = SERIES_DB.get(series_id, {})
             data_type = db_info.get('data_type', 'level')
             frequency = db_info.get('frequency', 'monthly')
 
-            # Format the date based on frequency
+            # Format the latest date based on frequency
             latest_date_obj = datetime.strptime(dates[-1], '%Y-%m-%d')
-            first_date_obj = datetime.strptime(dates[0], '%Y-%m-%d')
-
             if frequency == 'quarterly':
                 quarter = (latest_date_obj.month - 1) // 3 + 1
                 latest_date_str = f"Q{quarter} {latest_date_obj.year}"
-                first_quarter = (first_date_obj.month - 1) // 3 + 1
-                first_date_str = f"Q{first_quarter} {first_date_obj.year}"
             else:
                 latest_date_str = latest_date_obj.strftime('%b %Y')
-                first_date_str = first_date_obj.strftime('%b %Y')
 
             # Build context-aware description based on data type
             if data_type == 'growth_rate':
@@ -1406,38 +1393,63 @@ def main():
                 value_desc = f"<strong>{latest:.1f}%</strong>"
             elif data_type == 'index' and info.get('is_yoy'):
                 value_desc = f"<strong>{latest:.1f}%</strong> year-over-year"
+            elif info.get('is_yoy') or info.get('is_mom'):
+                value_desc = f"<strong>{latest:.1f}%</strong>"
             elif data_type == 'spread':
                 value_desc = f"<strong>{latest:.2f} percentage points</strong>"
             elif data_type == 'price':
-                value_desc = f"<strong>${latest:.2f}</strong> per barrel"
+                value_desc = f"<strong>${latest:.2f}</strong>"
             else:
-                value_desc = f"<strong>{format_number(latest)}</strong> {unit}"
+                value_desc = f"<strong>{format_number(latest)}</strong>"
+
+            # Find year-ago value for comparison
+            yoy_text = ""
+            try:
+                target_date = latest_date_obj - timedelta(days=365)
+                # Find closest date to one year ago
+                year_ago_idx = None
+                for i, d in enumerate(dates):
+                    d_obj = datetime.strptime(d, '%Y-%m-%d')
+                    if d_obj >= target_date - timedelta(days=45) and d_obj <= target_date + timedelta(days=45):
+                        year_ago_idx = i
+                        break
+                if year_ago_idx is not None:
+                    year_ago_val = values[year_ago_idx]
+                    if data_type in ['rate', 'spread'] or info.get('is_yoy') or info.get('is_mom'):
+                        # For rates, show percentage point change
+                        change = latest - year_ago_val
+                        direction = 'up' if change >= 0 else 'down'
+                        sign = '+' if change >= 0 else ''
+                        yoy_text = f"<span class='{direction}'>{sign}{change:.1f} pp</span> from a year ago."
+                    elif year_ago_val != 0:
+                        # For levels, show percent change
+                        pct = ((latest - year_ago_val) / abs(year_ago_val)) * 100
+                        direction = 'up' if pct >= 0 else 'down'
+                        sign = '+' if pct >= 0 else ''
+                        yoy_text = f"<span class='{direction}'>{sign}{pct:.1f}%</span> from a year ago."
+            except:
+                pass
 
             # Pre-COVID comparison (Feb 2020)
             covid_text = ""
             try:
                 covid_idx = next(i for i, d in enumerate(dates) if d >= '2020-02-01')
                 pre_covid = values[covid_idx]
-                vs_covid = ((latest - pre_covid) / abs(pre_covid)) * 100 if pre_covid != 0 else 0
-                covid_class = 'up' if vs_covid >= 0 else 'down'
-                covid_sign = '+' if vs_covid >= 0 else ''
-                covid_text = f" vs. Feb 2020 (pre-pandemic): <span class='{covid_class}'>{covid_sign}{vs_covid:.1f}%</span>."
+                if data_type in ['rate', 'spread']:
+                    change = latest - pre_covid
+                    covid_class = 'up' if change >= 0 else 'down'
+                    covid_sign = '+' if change >= 0 else ''
+                    covid_text = f" vs. Feb 2020: <span class='{covid_class}'>{covid_sign}{change:.1f} pp</span>."
+                elif pre_covid != 0:
+                    vs_covid = ((latest - pre_covid) / abs(pre_covid)) * 100
+                    covid_class = 'up' if vs_covid >= 0 else 'down'
+                    covid_sign = '+' if vs_covid >= 0 else ''
+                    covid_text = f" vs. Feb 2020: <span class='{covid_class}'>{covid_sign}{vs_covid:.1f}%</span>."
             except (StopIteration, IndexError):
                 pass
 
-            # Build the narrative with clear data references
-            if data_type == 'growth_rate':
-                trend_text = f"This compares to {first:.1f}% in {first_date_str}."
-            elif data_type in ['rate', 'spread'] or info.get('is_yoy'):
-                if pct_change >= 0:
-                    trend_text = f"Up from {first:.1f}% in {first_date_str} (<span class='{direction_class}'>{sign}{abs(change):.1f} pp</span>)."
-                else:
-                    trend_text = f"Down from {first:.1f}% in {first_date_str} (<span class='{direction_class}'>{change:.1f} pp</span>)."
-            else:
-                trend_text = f"{period_text.capitalize()}: <span class='{direction_class}'>{sign}{pct_change:.1f}%</span> from {format_number(first)} ({first_date_str})."
-
             narrative = f"""
-            <p><span class='highlight'>{name}</span> as of {latest_date_str}: {value_desc}. {trend_text}{covid_text}</p>
+            <p><span class='highlight'>{name}</span> as of {latest_date_str}: {value_desc}. {yoy_text}{covid_text}</p>
             """
             st.markdown(narrative, unsafe_allow_html=True)
 
