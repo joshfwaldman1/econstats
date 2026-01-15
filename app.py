@@ -23,6 +23,37 @@ try:
 except ImportError:
     QUERY_PLANS = {}
 
+# Feedback storage via Google Sheets
+def save_feedback(query: str, series: list, vote: str, comment: str = ""):
+    """Save user feedback to Google Sheets."""
+    try:
+        import gspread
+        from google.oauth2.service_account import Credentials
+
+        # Get credentials from Streamlit secrets
+        if not hasattr(st, 'secrets') or 'gcp_service_account' not in st.secrets:
+            return False
+
+        creds_dict = dict(st.secrets['gcp_service_account'])
+        scopes = ['https://www.googleapis.com/auth/spreadsheets']
+        creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        client = gspread.authorize(creds)
+
+        # Open the feedback spreadsheet
+        sheet_url = st.secrets.get('FEEDBACK_SHEET_URL', '')
+        if not sheet_url:
+            return False
+
+        sheet = client.open_by_url(sheet_url).sheet1
+
+        # Append the feedback row
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        sheet.append_row([timestamp, query, ', '.join(series), vote, comment])
+        return True
+    except Exception as e:
+        # Silently fail - don't break the app for feedback issues
+        return False
+
 # Configuration - use Streamlit secrets for deployment, env vars for local
 def get_secret(key, default=''):
     """Get secret from Streamlit secrets or environment variable."""
@@ -1520,6 +1551,45 @@ def main():
         df = pd.DataFrame(list(all_data.values())).sort_values('Date')
         csv = df.to_csv(index=False)
         st.download_button("Download CSV", csv, "econstats_data.csv", "text/csv")
+
+        # Feedback section
+        st.markdown("---")
+        st.markdown("**Was this helpful?**")
+
+        # Initialize feedback state for this query
+        feedback_key = f"feedback_{hash(query)}"
+        if feedback_key not in st.session_state:
+            st.session_state[feedback_key] = {'voted': False, 'vote': None}
+
+        col1, col2, col3 = st.columns([1, 1, 4])
+
+        with col1:
+            if st.button("👍 Yes", key=f"upvote_{hash(query)}", disabled=st.session_state[feedback_key]['voted']):
+                st.session_state[feedback_key]['voted'] = True
+                st.session_state[feedback_key]['vote'] = 'upvote'
+                save_feedback(query, series_to_fetch, 'upvote')
+                st.success("Thanks!")
+
+        with col2:
+            if st.button("👎 No", key=f"downvote_{hash(query)}", disabled=st.session_state[feedback_key]['voted']):
+                st.session_state[feedback_key]['voted'] = True
+                st.session_state[feedback_key]['vote'] = 'downvote'
+                st.session_state[feedback_key]['show_comment'] = True
+
+        # Show comment box if downvoted
+        if st.session_state[feedback_key].get('show_comment') and not st.session_state[feedback_key].get('comment_submitted'):
+            comment = st.text_area(
+                "What could be better?",
+                placeholder="e.g., Wrong data series, missing context, confusing presentation...",
+                key=f"comment_{hash(query)}"
+            )
+            if st.button("Submit Feedback", key=f"submit_{hash(query)}"):
+                save_feedback(query, series_to_fetch, 'downvote', comment)
+                st.session_state[feedback_key]['comment_submitted'] = True
+                st.success("Thanks for your feedback!")
+
+        if st.session_state[feedback_key].get('comment_submitted'):
+            st.info("Feedback submitted. Thank you!")
 
     elif not query:
         st.markdown("""
