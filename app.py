@@ -1564,9 +1564,8 @@ def main():
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<h1>EconStats</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='subtitle'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
-    st.markdown("<div class='header-divider'></div>", unsafe_allow_html=True)
+    st.markdown("<h1 style='margin-bottom: 0;'>EconStats</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle' style='margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
 
     # About section in sidebar
     with st.sidebar:
@@ -1594,9 +1593,8 @@ def main():
     if 'last_series_data' not in st.session_state:
         st.session_state.last_series_data = []
 
-    # Quick search buttons at top
-    col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
-
+    # Quick search buttons - single compact row
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
     with col1:
         if st.button("Jobs", use_container_width=True, key="btn_jobs"):
             st.session_state.pending_query = "job market"
@@ -1610,25 +1608,11 @@ def main():
         if st.button("Rates", use_container_width=True, key="btn_rates"):
             st.session_state.pending_query = "interest rates"
     with col5:
-        time_period = st.selectbox("Timeframe", list(TIME_PERIODS.keys()), index=3, label_visibility="collapsed")
-        years = TIME_PERIODS[time_period]
-
-    col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
-    with col1:
-        if st.button("Housing", use_container_width=True, key="btn_housing"):
-            st.session_state.pending_query = "housing"
-    with col2:
-        if st.button("Women", use_container_width=True, key="btn_women"):
-            st.session_state.pending_query = "women labor"
-    with col3:
-        if st.button("Oil", use_container_width=True, key="btn_oil"):
-            st.session_state.pending_query = "oil prices"
-    with col4:
-        if st.button("China", use_container_width=True, key="btn_china"):
-            st.session_state.pending_query = "china trade"
-    with col5:
         if st.button("Recession?", use_container_width=True, key="btn_recession"):
             st.session_state.pending_query = "are we in a recession"
+    with col6:
+        time_period = st.selectbox("Timeframe", list(TIME_PERIODS.keys()), index=3, label_visibility="collapsed")
+        years = TIME_PERIODS[time_period]
 
     # Handle pending query from button clicks
     button_query = None
