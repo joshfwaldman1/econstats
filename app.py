@@ -1225,6 +1225,7 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
         if not values:
             continue
         name = info.get('name', info.get('title', series_id))
+        unit = info.get('unit', info.get('units', ''))
         latest = values[-1]
         latest_date = dates[-1]
 
@@ -1243,6 +1244,7 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
         summary = {
             'series_id': series_id,
             'name': name,
+            'unit': unit,  # Include unit so Claude can format properly
             'latest_value': round(latest, 2),
             'latest_date': latest_date,
             'yoy_change': round(yoy_change, 2) if yoy_change else None,
@@ -1261,11 +1263,12 @@ DATA SUMMARY:
 INITIAL EXPLANATION: {original_explanation}
 
 Write an improved explanation that:
-1. States the current values clearly with proper formatting
+1. States the current values clearly with proper formatting (IMPORTANT: if unit is "Thousands of Persons", convert to millions - e.g., 1764.6 thousands = 1.76 million)
 2. Provides meaningful context (is this high/low historically? trending up/down?)
 3. Answers the user's actual question directly
 4. Avoids jargon - write for a general audience
 5. Is factual and objective - no speculation or predictions
+6. For employment data, focus on monthly JOB GROWTH (change), not total levels - total jobs always grows with population
 
 Keep it to 2-3 concise sentences. Do not use bullet points. Just return the explanation text, nothing else."""
 
@@ -1628,21 +1631,32 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
     return fig
 
 
-def format_number(n):
-    """Format number for display."""
+def format_number(n, unit=''):
+    """Format number for display, accounting for unit multipliers."""
     if n is None or (isinstance(n, float) and (n != n)):
         return 'N/A'
-    if abs(n) >= 1e12:
-        return f"{n / 1e12:.2f} trillion"
-    if abs(n) >= 1e9:
-        return f"{n / 1e9:.2f} billion"
-    if abs(n) >= 1e6:
-        return f"{n / 1e6:.2f} million"
-    if abs(n) >= 1e3:
-        return f"{n:,.1f}"
-    if abs(n) < 10:
-        return f"{n:.2f}"
-    return f"{n:.1f}"
+
+    # Adjust for units that are already in thousands/millions/billions
+    display_n = n
+    unit_lower = unit.lower() if unit else ''
+    if 'thousands' in unit_lower:
+        display_n = n * 1000  # Convert to actual number
+    elif 'millions' in unit_lower:
+        display_n = n * 1e6
+    elif 'billions' in unit_lower:
+        display_n = n * 1e9
+
+    if abs(display_n) >= 1e12:
+        return f"{display_n / 1e12:.2f} trillion"
+    if abs(display_n) >= 1e9:
+        return f"{display_n / 1e9:.2f} billion"
+    if abs(display_n) >= 1e6:
+        return f"{display_n / 1e6:.2f} million"
+    if abs(display_n) >= 1e3:
+        return f"{display_n:,.0f}"
+    if abs(display_n) < 10:
+        return f"{display_n:.2f}"
+    return f"{display_n:.1f}"
 
 
 def main():
@@ -2040,7 +2054,7 @@ def main():
             elif data_type == 'price':
                 value_desc = f"<strong>${latest:.2f}</strong>"
             else:
-                value_desc = f"<strong>{format_number(latest)}</strong>"
+                value_desc = f"<strong>{format_number(latest, unit)}</strong>"
 
             # Build prose narrative with full sentences
             sentences = []
@@ -2072,7 +2086,7 @@ def main():
                         if data_type == 'price':
                             sentences.append(f"That's <span class='{css_class}'>{direction} {abs(pct):.1f}%</span> from a year ago (${year_ago_val:.2f} in {year_ago_date}).")
                         else:
-                            sentences.append(f"That's <span class='{css_class}'>{direction} {abs(pct):.1f}%</span> from a year ago ({format_number(year_ago_val)} in {year_ago_date}).")
+                            sentences.append(f"That's <span class='{css_class}'>{direction} {abs(pct):.1f}%</span> from a year ago ({format_number(year_ago_val, unit)} in {year_ago_date}).")
             except:
                 pass
 
@@ -2095,12 +2109,12 @@ def main():
                                 if data_type == 'price':
                                     sentences.append(f"This is {pct_diff:.0f}% above the ${pre_covid:.2f} level from February 2020, just before the pandemic.")
                                 else:
-                                    sentences.append(f"This is {pct_diff:.0f}% above the {format_number(pre_covid)} level from February 2020, just before the pandemic.")
+                                    sentences.append(f"This is {pct_diff:.0f}% above the {format_number(pre_covid, unit)} level from February 2020, just before the pandemic.")
                             elif pct_diff < -3:
                                 if data_type == 'price':
                                     sentences.append(f"This is {abs(pct_diff):.0f}% below the ${pre_covid:.2f} level from February 2020, just before the pandemic.")
                                 else:
-                                    sentences.append(f"This is {abs(pct_diff):.0f}% below the {format_number(pre_covid)} level from February 2020, just before the pandemic.")
+                                    sentences.append(f"This is {abs(pct_diff):.0f}% below the {format_number(pre_covid, unit)} level from February 2020, just before the pandemic.")
                 except (StopIteration, IndexError):
                     pass
 
