@@ -1722,6 +1722,9 @@ def main():
         st.session_state.last_chart_type = 'line'
     if 'last_combine' not in st.session_state:
         st.session_state.last_combine = False
+    # Chat history for conversation format
+    if 'messages' not in st.session_state:
+        st.session_state.messages = []
 
     # Quick search buttons - single compact row
     col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
@@ -1744,24 +1747,37 @@ def main():
         time_period = st.selectbox("Timeframe", list(TIME_PERIODS.keys()), index=3, label_visibility="collapsed")
         years = TIME_PERIODS[time_period]
 
-    # Search input
+    # Display chat history
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            if msg["role"] == "user":
+                st.write(msg["content"])
+            else:
+                # Assistant message with explanation and charts
+                if msg.get("explanation"):
+                    st.markdown(f"**{msg['explanation']}**")
+                if msg.get("charts"):
+                    for chart in msg["charts"]:
+                        st.plotly_chart(chart, use_container_width=True)
+
+    # Chat input at the bottom
     has_previous_query = st.session_state.last_query and len(st.session_state.last_query) > 0
     placeholder = "Ask a follow-up..." if has_previous_query else "Ask about the economy (e.g., inflation, jobs, GDP)"
 
-    # Use session state to preserve query across reruns
-    if 'search_query' not in st.session_state:
-        st.session_state.search_query = ""
-
-    query = st.text_input("Search", placeholder=placeholder, label_visibility="collapsed", key="search_input")
-    search_clicked = st.button("Search", type="primary", use_container_width=True)
-
     # Handle pending query from button clicks
+    query = None
     if 'pending_query' in st.session_state and st.session_state.pending_query:
         query = st.session_state.pending_query
-        search_clicked = True
         st.session_state.pending_query = None
+    else:
+        query = st.chat_input(placeholder)
 
-    if query and search_clicked:
+    if query:
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": query})
+        with st.chat_message("user"):
+            st.write(query)
+
         # Build context from previous query for follow-up detection
         previous_context = None
         if st.session_state.last_query and st.session_state.last_series:
@@ -1788,7 +1804,8 @@ def main():
                 'add_to_previous': False,
                 'keep_previous_series': False,
                 'search_terms': [],
-                'used_precomputed': True
+                'used_precomputed': True,
+                'show_payroll_changes': precomputed_plan.get('show_payroll_changes', False),
             }
         elif previous_context and (local_parsed := parse_followup_command(query, st.session_state.last_series)):
             # Try local parser for common follow-up commands (no API call needed)
@@ -1822,6 +1839,7 @@ def main():
         show_yoy = interpretation.get('show_yoy', False)
         show_mom = interpretation.get('show_mom', False)
         show_avg_annual = interpretation.get('show_avg_annual', False)
+        show_payroll_changes = interpretation.get('show_payroll_changes', False)
         is_followup = interpretation.get('is_followup', False)
         add_to_previous = interpretation.get('add_to_previous', False)
         keep_previous_series = interpretation.get('keep_previous_series', False)
@@ -1899,7 +1917,16 @@ def main():
                     series_names_fetched.append(series_name)
 
                     # Apply transformations based on user request or series config
-                    if show_mom and len(dates) > 1:
+                    if show_payroll_changes and series_id == 'PAYEMS' and len(dates) > 1:
+                        # Special handling for payrolls: show monthly job changes (not percent)
+                        change_dates = dates[1:]  # Skip first date
+                        change_values = [values[i] - values[i-1] for i in range(1, len(values))]
+                        info_copy = dict(info)
+                        info_copy['name'] = 'Monthly Job Change'
+                        info_copy['unit'] = 'Thousands of Jobs'
+                        info_copy['is_payroll_change'] = True
+                        series_data.append((series_id, change_dates, change_values, info_copy))
+                    elif show_mom and len(dates) > 1:
                         # User requested month-over-month
                         mom_dates, mom_values = calculate_mom(dates, values)
                         if mom_dates:
@@ -2010,14 +2037,16 @@ def main():
         st.session_state.last_combine = combine
         st.session_state.last_explanation = ai_explanation
 
-        # Narrative summary - only render if there's content
-        has_narrative_content = ai_explanation or any(values for _, _, values, _ in series_data)
-        if has_narrative_content:
-            st.markdown("<div class='narrative-box'>", unsafe_allow_html=True)
-            st.markdown("<h3 style='margin-top:0'>Summary</h3>", unsafe_allow_html=True)
+        # Display response in chat message format
+        with st.chat_message("assistant"):
+            # Narrative summary - only render if there's content
+            has_narrative_content = ai_explanation or any(values for _, _, values, _ in series_data)
+            if has_narrative_content:
+                st.markdown("<div class='narrative-box'>", unsafe_allow_html=True)
+                st.markdown("<h3 style='margin-top:0'>Summary</h3>", unsafe_allow_html=True)
 
-            if ai_explanation:
-                st.markdown(f"<div class='ai-explanation'>{ai_explanation}</div>", unsafe_allow_html=True)
+                if ai_explanation:
+                    st.markdown(f"<div class='ai-explanation'>{ai_explanation}</div>", unsafe_allow_html=True)
 
         for series_id, dates, values, info in series_data:
             if not values:
@@ -2039,6 +2068,52 @@ def main():
                 latest_date_str = f"Q{quarter} {latest_date_obj.year}"
             else:
                 latest_date_str = latest_date_obj.strftime('%b %Y')
+
+            # SPECIAL HANDLING: Payrolls - show monthly job changes like economists do
+            if series_id == 'PAYEMS' and info.get('is_payroll_change') and len(values) >= 3:
+                # Values are already monthly changes (in thousands)
+                monthly_changes = values
+
+                # Latest month change
+                latest_change = monthly_changes[-1] if monthly_changes else 0
+
+                # Rolling averages (3mo, 6mo, 12mo)
+                avg_3mo = sum(monthly_changes[-3:]) / min(3, len(monthly_changes)) if len(monthly_changes) >= 1 else 0
+                avg_6mo = sum(monthly_changes[-6:]) / min(6, len(monthly_changes)) if len(monthly_changes) >= 6 else avg_3mo
+                avg_12mo = sum(monthly_changes[-12:]) / min(12, len(monthly_changes)) if len(monthly_changes) >= 12 else avg_6mo
+
+                # Format change numbers (already in thousands)
+                def format_job_change(val):
+                    if abs(val) >= 1000:
+                        return f"{val/1000:.1f} million"
+                    else:
+                        return f"{val:,.0f}K"
+
+                # Build economist-style narrative for payrolls
+                sentences = []
+                direction = "added" if latest_change >= 0 else "lost"
+                sentences.append(f"<span class='highlight'>The economy {direction} {format_job_change(abs(latest_change))} jobs</span> in {latest_date_str}.")
+
+                # Moving averages
+                avg_parts = []
+                avg_parts.append(f"3-month average: {format_job_change(avg_3mo)}/month")
+                avg_parts.append(f"6-month: {format_job_change(avg_6mo)}")
+                avg_parts.append(f"12-month: {format_job_change(avg_12mo)}")
+                sentences.append(f"Job growth averages: {', '.join(avg_parts)}.")
+
+                # Context: compare to breakeven (~100-150K needed for population growth)
+                if avg_3mo > 200:
+                    sentences.append("This pace is well above the ~100-150K/month needed to absorb population growth.")
+                elif avg_3mo > 100:
+                    sentences.append("This pace is roughly in line with population growth needs (~100-150K/month).")
+                elif avg_3mo > 0:
+                    sentences.append("This pace is below the ~100-150K/month typically needed to keep up with population growth.")
+                else:
+                    sentences.append("The economy is losing jobs, which typically signals a weakening labor market.")
+
+                narrative = f"<p>{' '.join(sentences)}</p>"
+                st.markdown(narrative, unsafe_allow_html=True)
+                continue  # Skip the normal narrative for PAYEMS
 
             # Build context-aware description based on data type
             if data_type == 'growth_rate':
@@ -2219,7 +2294,9 @@ def main():
                     </div>
                     """, unsafe_allow_html=True)
 
-                fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
+                # Use bar chart automatically for payroll monthly changes
+                effective_chart_type = 'bar' if info.get('is_payroll_change') else chart_type
+                fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=effective_chart_type)
                 st.plotly_chart(fig, use_container_width=True)
 
                 st.markdown(f"<div class='source-line'>Source: {source}. {sa_note}{transform_note} Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
