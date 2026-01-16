@@ -1637,7 +1637,8 @@ def main():
         st.session_state.pending_query = None  # Clear it
 
     # Chat input at bottom of page (like Claude/ChatGPT)
-    placeholder = "Ask a follow-up..." if st.session_state.last_query else "Ask about the economy (e.g., inflation, jobs, GDP)"
+    has_previous_query = st.session_state.last_query and len(st.session_state.last_query) > 0
+    placeholder = "Ask a follow-up..." if has_previous_query else "Ask about the economy (e.g., inflation, jobs, GDP)"
     chat_query = st.chat_input(placeholder)
 
     # Use button query or chat query
