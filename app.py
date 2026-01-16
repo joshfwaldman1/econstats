@@ -1895,27 +1895,37 @@ def main():
                         else:
                             series_data.append((series_id, dates, values, info))
                     elif show_yoy and len(dates) > 12:
-                        # User explicitly requested YoY
-                        yoy_dates, yoy_values = calculate_yoy(dates, values)
-                        if yoy_dates:
-                            info_copy = dict(info)
-                            info_copy['name'] = series_name + ' (YoY %)'
-                            info_copy['unit'] = '% Change YoY'
-                            info_copy['is_yoy'] = True
-                            series_data.append((series_id, yoy_dates, yoy_values, info_copy))
-                        else:
+                        # User explicitly requested YoY - but skip for rates (already percentages)
+                        data_type = db_info.get('data_type', 'level')
+                        if data_type in ['rate', 'spread', 'growth_rate']:
+                            # Don't apply YoY to rates - show raw data instead
                             series_data.append((series_id, dates, values, info))
+                        else:
+                            yoy_dates, yoy_values = calculate_yoy(dates, values)
+                            if yoy_dates:
+                                info_copy = dict(info)
+                                info_copy['name'] = series_name + ' (YoY %)'
+                                info_copy['unit'] = '% Change YoY'
+                                info_copy['is_yoy'] = True
+                                series_data.append((series_id, yoy_dates, yoy_values, info_copy))
+                            else:
+                                series_data.append((series_id, dates, values, info))
                     elif db_info.get('show_yoy') and len(dates) > 12:
-                        # Series default is to show YoY (like CPI)
-                        yoy_dates, yoy_values = calculate_yoy(dates, values)
-                        if yoy_dates:
-                            info_copy = dict(info)
-                            info_copy['name'] = db_info.get('yoy_name', series_name + ' (YoY %)')
-                            info_copy['unit'] = db_info.get('yoy_unit', '% Change YoY')
-                            info_copy['is_yoy'] = True
-                            series_data.append((series_id, yoy_dates, yoy_values, info_copy))
-                        else:
+                        # Series default is to show YoY (like CPI) - but skip for rates
+                        data_type = db_info.get('data_type', 'level')
+                        if data_type in ['rate', 'spread', 'growth_rate']:
+                            # Don't apply YoY to rates - show raw data instead
                             series_data.append((series_id, dates, values, info))
+                        else:
+                            yoy_dates, yoy_values = calculate_yoy(dates, values)
+                            if yoy_dates:
+                                info_copy = dict(info)
+                                info_copy['name'] = db_info.get('yoy_name', series_name + ' (YoY %)')
+                                info_copy['unit'] = db_info.get('yoy_unit', '% Change YoY')
+                                info_copy['is_yoy'] = True
+                                series_data.append((series_id, yoy_dates, yoy_values, info_copy))
+                            else:
+                                series_data.append((series_id, dates, values, info))
                     else:
                         series_data.append((series_id, dates, values, info))
 
