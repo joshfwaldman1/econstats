@@ -342,6 +342,83 @@ RECESSIONS = [
 ]
 
 
+def describe_recent_trend(dates: list, values: list, data_type: str = 'level', frequency: str = 'monthly') -> str:
+    """
+    Describe what's happening in the recent data - the actual trend.
+    Returns a human-readable sentence about the recent trend.
+    """
+    if not dates or not values or len(values) < 3:
+        return ""
+
+    # Determine how many data points to look at based on frequency
+    if frequency == 'quarterly':
+        lookback = min(4, len(values) - 1)  # Last 4 quarters
+        period_name = "quarter"
+    else:
+        lookback = min(6, len(values) - 1)  # Last 6 months
+        period_name = "month"
+
+    recent_values = values[-lookback:]
+
+    if len(recent_values) < 2:
+        return ""
+
+    # Calculate trend direction
+    first_val = recent_values[0]
+    last_val = recent_values[-1]
+
+    if first_val == 0:
+        return ""
+
+    # Count consecutive direction changes
+    up_count = sum(1 for i in range(1, len(recent_values)) if recent_values[i] > recent_values[i-1])
+    down_count = sum(1 for i in range(1, len(recent_values)) if recent_values[i] < recent_values[i-1])
+    flat_count = len(recent_values) - 1 - up_count - down_count
+
+    # Check for consecutive moves in same direction
+    consecutive_up = 0
+    consecutive_down = 0
+    for i in range(len(recent_values) - 1, 0, -1):
+        if recent_values[i] > recent_values[i-1]:
+            if consecutive_down == 0:
+                consecutive_up += 1
+            else:
+                break
+        elif recent_values[i] < recent_values[i-1]:
+            if consecutive_up == 0:
+                consecutive_down += 1
+            else:
+                break
+        else:
+            break
+
+    # Describe the trend
+    if data_type in ['rate', 'spread', 'growth_rate']:
+        change = last_val - first_val
+        if consecutive_up >= 3:
+            return f"Has risen for {consecutive_up} consecutive {period_name}s, up {abs(change):.1f} pp over this period."
+        elif consecutive_down >= 3:
+            return f"Has declined for {consecutive_down} consecutive {period_name}s, down {abs(change):.1f} pp over this period."
+        elif abs(change) >= 0.5:
+            direction = "risen" if change > 0 else "fallen"
+            return f"Has {direction} {abs(change):.1f} pp over the past {lookback} {period_name}s."
+        elif flat_count >= lookback - 1:
+            return f"Has been relatively stable over the past {lookback} {period_name}s."
+    else:
+        pct_change = ((last_val - first_val) / abs(first_val)) * 100
+        if consecutive_up >= 3:
+            return f"Has risen for {consecutive_up} consecutive {period_name}s, up {abs(pct_change):.1f}% over this period."
+        elif consecutive_down >= 3:
+            return f"Has declined for {consecutive_down} consecutive {period_name}s, down {abs(pct_change):.1f}% over this period."
+        elif abs(pct_change) >= 3:
+            direction = "risen" if pct_change > 0 else "fallen"
+            return f"Has {direction} {abs(pct_change):.1f}% over the past {lookback} {period_name}s."
+        elif flat_count >= lookback - 1:
+            return f"Has been relatively stable over the past {lookback} {period_name}s."
+
+    return ""
+
+
 def generate_narrative_context(dates: list, values: list, data_type: str = 'level') -> dict:
     """
     Generate smart narrative context from time series data.
@@ -2184,7 +2261,12 @@ def main():
             # Sentence 1: Current value
             sentences.append(f"<span class='highlight'>{name}</span> is {value_desc} as of {latest_date_str}.")
 
-            # Sentence 2: Year-over-year comparison with actual values
+            # Sentence 2: Recent trend description (what's happening)
+            trend_desc = describe_recent_trend(dates, values, data_type, frequency)
+            if trend_desc:
+                sentences.append(trend_desc)
+
+            # Sentence 3: Year-over-year comparison with actual values
             try:
                 target_date = latest_date_obj - timedelta(days=365)
                 year_ago_idx = None
