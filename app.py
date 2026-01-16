@@ -606,6 +606,11 @@ SERIES_DB = {
         'data_type': 'level',
         'cumulative': True,  # Skip "at high" comparisons - levels always grow with population
         'show_absolute_change': True,  # NEVER show as %, always show job changes like "+256,000"
+        'change_benchmark': {
+            'breakeven_low': 100,  # in thousands
+            'breakeven_high': 150,
+            'text': "Economists generally estimate the economy needs 100,000-150,000 new jobs per month to keep pace with population growth.",
+        },
         'bullets': [
             'The single most important monthly indicator of labor market health. This is the "jobs number" that moves markets on the first Friday of each month. It counts every worker on a U.S. business payroll outside of farming.',
             'Context matters: The economy needs roughly 100,000-150,000 new jobs per month just to absorb population growth. Gains above 200,000 signal robust hiring; below 100,000 suggests softening. During recessions, this figure turns sharply negative—the economy lost 800,000+ jobs monthly at the depths of the 2008-09 crisis.'
@@ -633,6 +638,11 @@ SERIES_DB = {
         'sa': True,
         'frequency': 'monthly',
         'data_type': 'rate',
+        'benchmark': {
+            'value': 4.0,
+            'comparison': 'above',  # 'above' means above benchmark is worse
+            'text': "Economists generally estimate full employment around 4%.",
+        },
         'bullets': [
             'The headline unemployment rate measures the share of Americans who are actively looking for work but cannot find it. This is the figure cited in news reports and used to gauge the health of the labor market.',
             'Historical context: Rates below 4% are historically rare and typically signal a very tight labor market. The rate peaked at 10% during the Great Recession and briefly hit 14.7% in April 2020 during COVID lockdowns. Important caveat: This measure excludes "discouraged workers" who\'ve stopped looking and part-time workers who want full-time jobs. The broader U-6 measure captures these groups and typically runs 3-4 percentage points higher.'
@@ -700,6 +710,12 @@ SERIES_DB = {
         'show_yoy': True,
         'yoy_name': 'CPI Inflation Rate (Headline)',
         'yoy_unit': '% Change YoY',
+        'benchmark': {
+            'value': 2.0,
+            'comparison': 'above',
+            'text': "The Fed targets 2% inflation (on PCE, which typically runs slightly below CPI).",
+            'applies_to_yoy': True,
+        },
         'bullets': [
             'The Consumer Price Index is the most widely cited measure of inflation in the United States. It tracks the prices urban consumers pay for a basket of goods and services—everything from rent and groceries to gasoline and healthcare.',
             'Why it matters to households: CPI directly affects Americans\' purchasing power. It\'s also used to adjust Social Security benefits, income tax brackets, and TIPS bond returns. The Federal Reserve targets 2% annual inflation; rates persistently above this level erode household budgets and can force the Fed to raise interest rates, slowing economic growth.'
@@ -747,6 +763,12 @@ SERIES_DB = {
         'show_yoy': True,
         'yoy_name': 'PCE Inflation Rate',
         'yoy_unit': '% Change YoY',
+        'benchmark': {
+            'value': 2.0,
+            'comparison': 'above',
+            'text': "The Fed targets 2% inflation.",
+            'applies_to_yoy': True,
+        },
         'bullets': [
             'The Personal Consumption Expenditures price index is the Federal Reserve\'s preferred measure of inflation. When Fed officials say they target "2% inflation," they mean PCE. It\'s broader than CPI and better captures how consumers actually spend.',
             'PCE differs from CPI in important ways: it includes spending by employers and government on behalf of households (like employer-provided health insurance), and it adjusts for consumers substituting cheaper alternatives when prices rise. PCE inflation typically runs 0.3-0.5 percentage points below CPI.'
@@ -762,6 +784,12 @@ SERIES_DB = {
         'show_yoy': True,
         'yoy_name': 'Core PCE Inflation Rate',
         'yoy_unit': '% Change YoY',
+        'benchmark': {
+            'value': 2.0,
+            'comparison': 'above',  # above target is concerning
+            'text': "The Fed's explicit inflation target is 2%.",
+            'applies_to_yoy': True,  # benchmark applies to YoY transformation
+        },
         'bullets': [
             'This is the single most important inflation measure for monetary policy. The Federal Reserve\'s explicit inflation target is 2% on core PCE. Every FOMC statement, press conference, and Summary of Economic Projections references this metric.',
             'When core PCE runs persistently above 2%, the Fed faces pressure to raise interest rates to cool demand. When it runs below 2%, the Fed has room to keep rates low to support employment. Core PCE running at 4-5% in 2022-23 drove the most aggressive Fed rate-hiking cycle in four decades.'
@@ -2298,8 +2326,17 @@ def main():
 
                 # 12-month average comparison
                 if avg_12mo != 0:
-                    comparison = "above" if latest_change > avg_12mo * 1.1 else "below" if latest_change < avg_12mo * 0.9 else "in line with"
                     sentences.append(f"The 12-month average is {format_job_change(avg_12mo)}/month.")
+
+                # Benchmark context: compare to breakeven job growth
+                change_benchmark = db_info.get('change_benchmark')
+                if change_benchmark:
+                    breakeven_low = change_benchmark.get('breakeven_low', 100)
+                    breakeven_high = change_benchmark.get('breakeven_high', 150)
+                    if latest_change < breakeven_low:
+                        sentences.append(f"This is below the {breakeven_low:,}-{breakeven_high:,}/month economists estimate is needed to keep pace with population growth.")
+                    elif latest_change > breakeven_high * 1.5:
+                        sentences.append(f"This is well above the {breakeven_low:,}-{breakeven_high:,}/month needed to keep pace with population growth.")
 
                 narrative = f"<p>{' '.join(sentences)}</p>"
                 st.markdown(narrative, unsafe_allow_html=True)
@@ -2326,6 +2363,29 @@ def main():
 
             # Sentence 1: Current value
             sentences.append(f"<span class='highlight'>{name}</span> is {value_desc} as of {latest_date_str}.")
+
+            # Sentence 1b: Benchmark context (if available)
+            benchmark = db_info.get('benchmark')
+            if benchmark:
+                bench_val = benchmark.get('value')
+                bench_text = benchmark.get('text', '')
+                applies_to_yoy = benchmark.get('applies_to_yoy', False)
+                comparison_type = benchmark.get('comparison', 'above')
+
+                # Only apply benchmark if it's relevant (YoY benchmarks only for YoY data)
+                if applies_to_yoy and info.get('is_yoy') and bench_val is not None:
+                    diff = latest - bench_val
+                    if comparison_type == 'above' and diff > 0.2:
+                        sentences.append(f"This is above the Fed's {bench_val}% target ({diff:+.1f} pp).")
+                    elif comparison_type == 'above' and diff < -0.2:
+                        sentences.append(f"This is below the Fed's {bench_val}% target ({diff:+.1f} pp).")
+                elif not applies_to_yoy and data_type == 'rate' and bench_val is not None:
+                    # For rates like unemployment
+                    diff = latest - bench_val
+                    if comparison_type == 'above' and diff > 0.3:
+                        sentences.append(f"This is above what economists generally estimate as full employment (~{bench_val}%).")
+                    elif comparison_type == 'above' and diff < -0.3:
+                        sentences.append(f"This is below typical estimates of full employment (~{bench_val}%), indicating a tight labor market.")
 
             # Sentence 2: Recent trend description (what's happening)
             show_abs = db_info.get('show_absolute_change', False)
