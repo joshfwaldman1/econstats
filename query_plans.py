@@ -417,9 +417,9 @@ QUERY_PLANS = {
     "series": [
       "PAYEMS"
     ],
-    "show_yoy": false,
-    "show_payroll_changes": true,
-    "combine_chart": false,
+    "show_yoy": False,
+    "show_payroll_changes": True,
+    "combine_chart": False,
     "explanation": "PAYEMS (Total nonfarm payrolls) is THE definitive measure of job growth. Economists focus on monthly job gains and moving averages (3mo, 6mo, 12mo average) to assess job creation momentum."
   },
   "job openings": {
@@ -445,18 +445,18 @@ QUERY_PLANS = {
     "series": [
       "PAYEMS"
     ],
-    "show_yoy": false,
-    "show_payroll_changes": true,
-    "combine_chart": false,
+    "show_yoy": False,
+    "show_payroll_changes": True,
+    "combine_chart": False,
     "explanation": "PAYEMS is total nonfarm payrolls - THE monthly jobs number. Economists focus on monthly job gains (not YoY %), showing how many jobs were added each month and averaging over 3, 6, and 12 months."
   },
   "nonfarm payrolls": {
     "series": [
       "PAYEMS"
     ],
-    "show_yoy": false,
-    "show_payroll_changes": true,
-    "combine_chart": false,
+    "show_yoy": False,
+    "show_payroll_changes": True,
+    "combine_chart": False,
     "explanation": "PAYEMS is THE nonfarm payrolls series - the official monthly employment count. Economists discuss monthly job gains and moving averages (3mo, 6mo, 12mo) rather than year-over-year percent change."
   },
   "jobs report": {
@@ -655,18 +655,18 @@ QUERY_PLANS = {
       "PAYEMS",
       "JTSHIR"
     ],
-    "show_yoy": false,
-    "show_payroll_changes": true,
-    "combine_chart": false,
+    "show_yoy": False,
+    "show_payroll_changes": True,
+    "combine_chart": False,
     "explanation": "PAYEMS (nonfarm payrolls) is the primary measure of net job creation - economists focus on monthly job gains and moving averages. JTSHIR (JOLTS hires) complements this by showing gross hiring activity."
   },
   "employment growth": {
     "series": [
       "PAYEMS"
     ],
-    "show_yoy": false,
-    "show_payroll_changes": true,
-    "combine_chart": false,
+    "show_yoy": False,
+    "show_payroll_changes": True,
+    "combine_chart": False,
     "explanation": "PAYEMS (Total nonfarm payrolls) is THE definitive measure of employment growth. Economists discuss monthly job gains and moving averages (3mo, 6mo, 12mo) rather than year-over-year percent change."
   },
   "are people getting hired": {
