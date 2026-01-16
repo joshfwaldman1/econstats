@@ -410,12 +410,13 @@ def describe_recent_trend(dates: list, values: list, data_type: str = 'level', f
     elif show_absolute_change:
         # Employment counts like PAYEMS - show absolute change in thousands, not %
         change = last_val - first_val
-        # Format as millions if large (PAYEMS is in thousands)
+        # Format as full number (data is in thousands, so multiply by 1000)
         def format_change(val):
-            if abs(val) >= 1000:
-                return f"{abs(val)/1000:.1f} million"
+            full_val = abs(val) * 1000
+            if full_val >= 1000000:
+                return f"{full_val/1000000:.1f} million"
             else:
-                return f"{abs(val):,.0f} thousand"
+                return f"{full_val:,.0f}"
 
         if consecutive_up >= 3:
             return f"Has added jobs for {consecutive_up} consecutive {period_name}s, adding {format_change(change)} over this period."
@@ -468,12 +469,13 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                         if d.startswith(str(year))]
             return sum(year_vals) / len(year_vals) if year_vals else None
 
-        # Helper: format absolute change for employment data
+        # Helper: format absolute change for employment data (data is in thousands)
         def format_job_diff(val):
-            if abs(val) >= 1000:
-                return f"{abs(val)/1000:.1f} million"
+            full_val = abs(val) * 1000
+            if full_val >= 1000000:
+                return f"{full_val/1000000:.1f} million"
             else:
-                return f"{abs(val):,.0f}K"
+                return f"{full_val:,.0f}"
 
         # 1. Compare to 2019 average (pre-COVID baseline)
         avg_2019 = year_average(2019)
@@ -2267,9 +2269,10 @@ def main():
                 prior_12mo = monthly_changes[-13:-1] if len(monthly_changes) >= 13 else monthly_changes[:-1]
                 avg_12mo = sum(prior_12mo) / len(prior_12mo) if prior_12mo else 0
 
-                # Format change numbers (in thousands, show as +256,000)
+                # Format change numbers (data is in thousands, display as full number: 256 -> +256,000)
                 def format_job_change(val):
-                    return f"{val:+,.0f}"
+                    full_val = val * 1000  # Convert from thousands to actual
+                    return f"{full_val:+,.0f}"
 
                 # Build BLS-style narrative
                 sentences = []
@@ -2352,11 +2355,12 @@ def main():
                         change = latest - year_ago_val
                         direction = 'up' if change >= 0 else 'down'
                         css_class = 'up' if change >= 0 else 'down'
-                        # Format as millions for large numbers (PAYEMS is in thousands)
-                        if abs(change) >= 1000:
-                            change_str = f"{abs(change)/1000:.1f} million jobs"
+                        # Format as full number (data is in thousands, so multiply by 1000)
+                        full_change = abs(change) * 1000
+                        if full_change >= 1000000:
+                            change_str = f"{full_change/1000000:.1f} million jobs"
                         else:
-                            change_str = f"{abs(change):,.0f} thousand jobs"
+                            change_str = f"{full_change:,.0f} jobs"
                         sentences.append(f"That's <span class='{css_class}'>{change_str} {direction}</span> from a year ago.")
                     elif year_ago_val != 0:
                         pct = ((latest - year_ago_val) / abs(year_ago_val)) * 100
@@ -2384,12 +2388,14 @@ def main():
                     elif db_info.get('show_absolute_change', False):
                         # Employment counts like PAYEMS - show absolute change
                         diff = latest - pre_covid
-                        if abs(diff) >= 100:  # Only mention if significant
+                        if abs(diff) >= 100:  # Only mention if significant (100K+)
                             direction = "above" if diff > 0 else "below"
-                            if abs(diff) >= 1000:
-                                diff_str = f"{abs(diff)/1000:.1f} million jobs"
+                            # Format as full number (data is in thousands, so multiply by 1000)
+                            full_diff = abs(diff) * 1000
+                            if full_diff >= 1000000:
+                                diff_str = f"{full_diff/1000000:.1f} million jobs"
                             else:
-                                diff_str = f"{abs(diff):,.0f} thousand jobs"
+                                diff_str = f"{full_diff:,.0f} jobs"
                             sentences.append(f"Employment is {diff_str} {direction} the pre-pandemic level (Feb 2020).")
                     elif pre_covid != 0:
                         pct_diff = ((latest - pre_covid) / abs(pre_covid)) * 100
