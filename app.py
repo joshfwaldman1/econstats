@@ -2046,16 +2046,25 @@ def main():
                         info_copy['original_name'] = 'Total Nonfarm Payrolls'
                         series_data.append((series_id, change_dates, change_values, info_copy))
                     elif show_mom and len(dates) > 1:
-                        # User requested month-over-month
-                        mom_dates, mom_values = calculate_mom(dates, values)
-                        if mom_dates:
-                            info_copy = dict(info)
-                            info_copy['name'] = series_name + ' (MoM %)'
-                            info_copy['unit'] = '% Change MoM'
-                            info_copy['is_mom'] = True
-                            series_data.append((series_id, mom_dates, mom_values, info_copy))
-                        else:
+                        # User requested month-over-month - but NEVER for rates!
+                        data_type = db_info.get('data_type', 'level')
+                        if data_type in ['rate', 'spread', 'growth_rate']:
+                            # Rates are already percentages - showing MoM % is nonsense
+                            # Just show the raw rate instead
                             series_data.append((series_id, dates, values, info))
+                        elif db_info.get('cumulative', False):
+                            # Cumulative series like PAYEMS - show absolute change, not %
+                            series_data.append((series_id, dates, values, info))
+                        else:
+                            mom_dates, mom_values = calculate_mom(dates, values)
+                            if mom_dates:
+                                info_copy = dict(info)
+                                info_copy['name'] = series_name + ' (MoM %)'
+                                info_copy['unit'] = '% Change MoM'
+                                info_copy['is_mom'] = True
+                                series_data.append((series_id, mom_dates, mom_values, info_copy))
+                            else:
+                                series_data.append((series_id, dates, values, info))
                     elif show_avg_annual:
                         # User requested average annual
                         avg_dates, avg_values = calculate_avg_annual(dates, values)
