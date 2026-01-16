@@ -1853,9 +1853,8 @@ def main():
                     key="search_input"
                 )
             with btn_col:
-                search_clicked = st.button("Search", type="primary", use_container_width=True)
-                if not search_clicked:
-                    query = None  # Only submit on button click or Enter
+                st.button("Search", type="primary", use_container_width=True)
+                # Enter key in text_input automatically submits
     else:
         # CHAT MODE - for follow-up questions
         # Show chat history
