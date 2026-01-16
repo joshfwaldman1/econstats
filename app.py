@@ -2220,6 +2220,38 @@ def main():
         csv = df.to_csv(index=False)
         st.download_button("Download CSV", csv, "econstats_data.csv", "text/csv")
 
+        # Debug info expander
+        with st.expander("🔧 Debug Info", expanded=False):
+            # Query interpretation method
+            if interpretation.get('used_precomputed'):
+                st.write("**Method:** Pre-computed query plan (instant)")
+            elif interpretation.get('used_local_parser'):
+                st.write("**Method:** Local follow-up parser (instant)")
+            else:
+                st.write("**Method:** Claude AI interpretation")
+
+            st.write(f"**Series fetched:** {', '.join(series_to_fetch)}")
+            st.write(f"**Chart type:** {chart_type}")
+            st.write(f"**Combine charts:** {combine}")
+
+            transforms = []
+            if show_yoy:
+                transforms.append("Year-over-Year")
+            if show_mom:
+                transforms.append("Month-over-Month")
+            if show_avg_annual:
+                transforms.append("Annual Average")
+            if normalize:
+                transforms.append("Normalized to 100")
+            if pct_change_from_start:
+                transforms.append("% Change from Start")
+            st.write(f"**Transformations:** {', '.join(transforms) if transforms else 'None'}")
+
+            st.write(f"**Time period:** {years} years")
+
+            if is_followup:
+                st.write("**Follow-up query:** Yes")
+
         # Follow-up suggestions
         st.markdown("---")
         st.markdown("**Try a follow-up:**")
