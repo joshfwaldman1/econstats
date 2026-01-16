@@ -2263,17 +2263,9 @@ def main():
         st.markdown('<span style="color: #666; font-size: 0.9em;">' + ' &bull; '.join(suggestions) + '</span>', unsafe_allow_html=True)
 
     elif not query:
+        # Show welcome message without bordered box
         st.markdown("""
-        <div class='narrative-box'>
-        <h3 style='margin-top:0'>Welcome to EconStats</h3>
-        <p>Ask questions about the economy in plain English:</p>
-        <ul style='color: #555; line-height: 1.8;'>
-            <li>"How is the economy doing?"</li>
-            <li>"How is the job market?"</li>
-            <li>"What is inflation?"</li>
-        </ul>
-        <p style='color: #666; font-size: 0.9rem; margin-top: 15px;'>Data from FRED (Federal Reserve Economic Data).</p>
-        </div>
+        <p style='color: #666; margin-top: 20px;'>Ask questions about the economy in plain English, like "How is the economy doing?" or "What is inflation?"</p>
         """, unsafe_allow_html=True)
 
 
