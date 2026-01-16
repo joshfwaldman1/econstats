@@ -1710,13 +1710,16 @@ def main():
         time_period = st.selectbox("Timeframe", list(TIME_PERIODS.keys()), index=3, label_visibility="collapsed")
         years = TIME_PERIODS[time_period]
 
-    # Search input form
+    # Search input
     has_previous_query = st.session_state.last_query and len(st.session_state.last_query) > 0
     placeholder = "Ask a follow-up..." if has_previous_query else "Ask about the economy (e.g., inflation, jobs, GDP)"
 
-    with st.form(key="search_form", clear_on_submit=False, border=False):
-        query = st.text_input("Search", placeholder=placeholder, label_visibility="collapsed")
-        search_clicked = st.form_submit_button("Search", type="primary", use_container_width=True)
+    # Use session state to preserve query across reruns
+    if 'search_query' not in st.session_state:
+        st.session_state.search_query = ""
+
+    query = st.text_input("Search", placeholder=placeholder, label_visibility="collapsed", key="search_input")
+    search_clicked = st.button("Search", type="primary", use_container_width=True)
 
     # Handle pending query from button clicks
     if 'pending_query' in st.session_state and st.session_state.pending_query:
