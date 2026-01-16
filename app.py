@@ -1657,6 +1657,10 @@ def main():
     .header-divider { border-bottom: 1px solid #ddd; margin-bottom: 25px; padding-bottom: 15px; }
     .narrative-box { background: #fff; border: 1px solid #e0e0e0; padding: 20px 25px; border-radius: 4px; margin-bottom: 20px; }
     .narrative-box p { color: #333; line-height: 1.7; margin-bottom: 10px; }
+    .narrative-box:empty { display: none; }
+    /* Hide empty Streamlit containers */
+    .stMarkdown:empty, div[data-testid="stVerticalBlock"]:empty { display: none !important; }
+    div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
     .highlight { font-weight: 600; }
     .up { color: #228b22; }
     .down { color: #cc0000; }
