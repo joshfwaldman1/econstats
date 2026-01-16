@@ -1,0 +1,2968 @@
+{
+  "generated": "2026-01-15T14:31:33.478380",
+  "overall_average": 3.9,
+  "total_queries": 165,
+  "score_distribution": {
+    "1": 0,
+    "2": 10,
+    "3": 37,
+    "4": 78,
+    "5": 40
+  },
+  "issues_summary": {
+    "WRONG_YOY": 4,
+    "MISSING_KEY": 38,
+    "TOO_FEW": 33,
+    "WRONG_SERIES": 9,
+    "AGGREGATE_FOR_DEMOGRAPHIC": 1
+  },
+  "category_stats": [
+    {
+      "category": "Economy Overview",
+      "queries": 20,
+      "avg_score": 4.3,
+      "issues": {
+        "WRONG_YOY": 1,
+        "MISSING_KEY": 2
+      }
+    },
+    {
+      "category": "Jobs & Employment",
+      "queries": 25,
+      "avg_score": 4.04,
+      "issues": {
+        "TOO_FEW": 4,
+        "MISSING_KEY": 5,
+        "WRONG_SERIES": 2
+      }
+    },
+    {
+      "category": "Inflation & Prices",
+      "queries": 25,
+      "avg_score": 4.0,
+      "issues": {
+        "WRONG_SERIES": 1,
+        "MISSING_KEY": 6,
+        "TOO_FEW": 2
+      }
+    },
+    {
+      "category": "Interest Rates & Fed",
+      "queries": 20,
+      "avg_score": 3.9,
+      "issues": {
+        "TOO_FEW": 4,
+        "MISSING_KEY": 7,
+        "WRONG_SERIES": 1
+      }
+    },
+    {
+      "category": "Housing",
+      "queries": 15,
+      "avg_score": 3.27,
+      "issues": {
+        "MISSING_KEY": 7,
+        "TOO_FEW": 7,
+        "WRONG_SERIES": 2
+      }
+    },
+    {
+      "category": "Demographics",
+      "queries": 22,
+      "avg_score": 3.82,
+      "issues": {
+        "WRONG_SERIES": 3,
+        "MISSING_KEY": 5,
+        "TOO_FEW": 1,
+        "AGGREGATE_FOR_DEMOGRAPHIC": 1
+      }
+    },
+    {
+      "category": "Consumer",
+      "queries": 16,
+      "avg_score": 3.94,
+      "issues": {
+        "MISSING_KEY": 4,
+        "TOO_FEW": 5,
+        "WRONG_YOY": 1
+      }
+    },
+    {
+      "category": "Trade, GDP & Markets",
+      "queries": 22,
+      "avg_score": 3.73,
+      "issues": {
+        "MISSING_KEY": 2,
+        "WRONG_YOY": 2,
+        "TOO_FEW": 10
+      }
+    }
+  ],
+  "all_results": [
+    {
+      "query": "how is the economy",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a general economic health query. Shows the three most fundamental economic indicators: GDP growth (economic output), unemployment rate (labor market health), and CPI inflation (price stability). YoY transformation is correctly applied only to CPI for meaningful inflation measurement.",
+      "suggested_fix": null
+    },
+    {
+      "query": "how is the economy doing",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a general economic health question. Shows the three most fundamental economic indicators: GDP growth (economic output), unemployment rate (labor market health), and CPI inflation (price stability). The YoY transformations are appropriate - GDP growth is already a rate, unemployment is a level that doesn't need YoY, and CPI inflation should be shown YoY.",
+      "suggested_fix": null
+    },
+    {
+      "query": "economic overview",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect selection for an economic overview. The three core macroeconomic indicators (GDP growth, unemployment, and inflation via CPI) provide a comprehensive snapshot of economic health. The YoY transformation for CPI is appropriate to show inflation rate.",
+      "suggested_fix": null
+    },
+    {
+      "query": "state of the economy",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a general 'state of the economy' query. The three core macroeconomic indicators (GDP growth, unemployment, and inflation via CPI) provide a comprehensive overview of economic health. The YoY transformation for CPI is correct as inflation is typically measured year-over-year, while GDP growth rate and unemployment rate are already in appropriate forms.",
+      "suggested_fix": null
+    },
+    {
+      "query": "is the economy good",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [],
+      "explanation": "This is a good selection of the three most fundamental economic indicators: GDP growth for overall economic output, unemployment for labor market health, and inflation via CPI. The YoY transformation choices are appropriate - GDP growth is already a rate, unemployment is typically viewed as a level, and CPI needs YoY to show inflation rate.",
+      "suggested_fix": "Could potentially add one labor market indicator like job growth (PAYEMS) to provide slightly more comprehensive coverage of economic health."
+    },
+    {
+      "query": "is the economy bad",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [
+        "WRONG_YOY"
+      ],
+      "explanation": "Excellent core selection of the three most important macroeconomic indicators for assessing overall economic health. However, GDP growth should be shown year-over-year rather than quarterly annualized rate for better trend assessment and comparability with historical performance.",
+      "suggested_fix": "Change Real GDP Growth Rate to show year-over-year transformation for clearer trend analysis"
+    },
+    {
+      "query": "us economy",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a broad 'US economy' query. Shows the three most fundamental macroeconomic indicators: GDP growth (economic output), unemployment (labor market health), and inflation (price stability). YoY transformation correctly applied only to CPI for meaningful inflation measurement.",
+      "suggested_fix": null
+    },
+    {
+      "query": "american economy",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three core macroeconomic indicators that best represent the American economy's overall health - GDP growth, unemployment, and inflation. The YoY transformation choices are appropriate (GDP growth and unemployment rate are already meaningful as levels, while CPI benefits from YoY comparison to show inflation rate).",
+      "suggested_fix": "Could potentially add a fourth series like Industrial Production or Consumer Spending to provide slightly more comprehensive coverage, but the current selection is very solid for a broad economic overview."
+    },
+    {
+      "query": "economic outlook",
+      "series": [
+        "USSLIND",
+        "A191RL1Q225SBEA",
+        "UNRATE"
+      ],
+      "series_names": [
+        "USSLIND",
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The three series provide a reasonable foundation for economic outlook (leading indicators, GDP growth, unemployment), but missing inflation data which is crucial for current economic assessment and Fed policy outlook.",
+      "suggested_fix": "Add a key inflation measure like CPI or PCE to provide complete picture of economic conditions affecting monetary policy and consumer impact"
+    },
+    {
+      "query": "is there a recession",
+      "series": [
+        "A191RL1Q225SBEA",
+        "T10Y2Y",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Yield Curve (10Y-2Y)",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three core recession indicators: GDP growth shows economic contraction, yield curve inversion is a leading predictor, and unemployment shows labor market stress. These are exactly what economists look at for recession analysis.",
+      "suggested_fix": "Could potentially add initial jobless claims (ICSA) as a higher-frequency labor market indicator to complement the monthly unemployment rate"
+    },
+    {
+      "query": "are we in a recession",
+      "series": [
+        "A191RL1Q225SBEA",
+        "T10Y2Y",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Yield Curve (10Y-2Y)",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three most important recession indicators: GDP growth (the primary measure), yield curve inversion (leading indicator), and unemployment rate (lagging indicator). These directly address whether we're currently in a recession.",
+      "suggested_fix": "Could potentially add initial jobless claims (ICSA) as a more timely labor market indicator to complement the monthly unemployment rate"
+    },
+    {
+      "query": "recession risk",
+      "series": [
+        "A191RL1Q225SBEA",
+        "T10Y2Y",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Yield Curve (10Y-2Y)",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three most important recession indicators: GDP growth (economic output), yield curve inversion (forward-looking market signal), and unemployment rate (labor market health). These are standard metrics economists use for recession analysis.",
+      "suggested_fix": "Could potentially add initial jobless claims (ICSA) as a higher-frequency leading indicator to complement the monthly/quarterly data"
+    },
+    {
+      "query": "recession indicators",
+      "series": [
+        "A191RL1Q225SBEA",
+        "T10Y2Y",
+        "SAHMREALTIME"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Yield Curve (10Y-2Y)",
+        "SAHMREALTIME"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of three key recession indicators: Real GDP growth (economic output), yield curve inversion (leading indicator), and Sahm Rule (labor market indicator). These are widely recognized recession signals used by economists and policymakers.",
+      "suggested_fix": "Could add initial jobless claims (ICSA or 4-week moving average) as a fourth indicator to provide more comprehensive labor market coverage alongside the Sahm Rule."
+    },
+    {
+      "query": "economic conditions",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "This is an excellent response for a broad 'economic conditions' query. The three series (GDP growth, unemployment, and inflation) represent the core macroeconomic indicators that economists use to assess overall economic health. The YoY transformations are appropriate - GDP growth is already a rate, unemployment is a level that doesn't need YoY, and CPI should be shown YoY for inflation rate.",
+      "suggested_fix": null
+    },
+    {
+      "query": "economy 2024",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a broad economy query. Shows the three most fundamental economic indicators: GDP growth (economic output), unemployment rate (labor market health), and CPI (inflation). Year-over-year transformation is correctly applied only to CPI for meaningful inflation measurement.",
+      "suggested_fix": null
+    },
+    {
+      "query": "economy 2025",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [],
+      "explanation": "This is a strong response to a general economy query. The three core macroeconomic indicators (GDP growth, unemployment, and inflation) provide a comprehensive overview of economic health. The YoY transformation for CPI is appropriate for inflation analysis.",
+      "suggested_fix": "Could consider adding a labor market indicator like nonfarm payrolls or a forward-looking indicator, but the current selection covers the essential economic fundamentals well."
+    },
+    {
+      "query": "soft landing",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect selection for 'soft landing' analysis. The three core indicators - GDP growth, unemployment, and inflation (CPI) - are exactly what economists use to assess whether an economy is achieving a soft landing. The YoY transformation for CPI is correct for inflation analysis, while GDP growth rate and unemployment rate are appropriately shown in their standard forms.",
+      "suggested_fix": null
+    },
+    {
+      "query": "hard landing",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "T10Y2Y"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "Yield Curve (10Y-2Y)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of core hard landing indicators. Real GDP growth shows economic output decline, unemployment rate captures labor market deterioration, and the yield curve indicates recession probability. These three series collectively provide a comprehensive view of hard landing conditions.",
+      "suggested_fix": "Could potentially add inflation data (CPI or PCE) to show the full macroeconomic picture, as hard landings often occur during efforts to combat inflation."
+    },
+    {
+      "query": "economic forecast",
+      "series": [
+        "USSLIND",
+        "A191RL1Q225SBEA",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "USSLIND",
+        "Real GDP Growth Rate",
+        "CPI All Items"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The response includes relevant economic indicators for forecasting (leading index, GDP growth, inflation), but is missing unemployment data which is a key component of economic forecasts and one of the most important labor market indicators.",
+      "suggested_fix": "Add unemployment rate (UNRATE) to provide a complete picture of the four key economic indicators typically used in forecasting: growth, inflation, employment, and leading indicators."
+    },
+    {
+      "query": "key economic indicators",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three most fundamental economic indicators: GDP growth, unemployment, and inflation. These form the core trinity that economists and policymakers watch most closely. The YoY transformation choices are appropriate - GDP growth is already a rate, unemployment is typically viewed as a level, and CPI benefits from YoY comparison to show inflation trends.",
+      "suggested_fix": "Could consider adding a fourth indicator like Personal Consumption Expenditures (PCE) inflation or Employment Cost Index to provide slightly more comprehensive coverage, but the current selection is very solid for 'key economic indicators.'"
+    },
+    {
+      "query": "jobs",
+      "series": [
+        "PAYEMS",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Total Nonfarm Payrolls",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "PAYEMS and UNRATE are the two most fundamental job market indicators that directly answer a general 'jobs' query. These series provide comprehensive coverage of employment levels and unemployment rate.",
+      "suggested_fix": "Could consider adding CIVPART (Labor Force Participation Rate) to provide complete labor market context, though not essential for this broad query."
+    },
+    {
+      "query": "job market",
+      "series": [
+        "PAYEMS",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Total Nonfarm Payrolls",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "PAYEMS and UNRATE are the two most fundamental job market indicators - employment creation and unemployment rate. These directly answer a general job market inquiry and provide both flow (payrolls) and stock (unemployment) perspectives.",
+      "suggested_fix": "Could potentially add CIVPART (Labor Force Participation Rate) to provide a more complete picture of labor market dynamics, as participation rates affect the interpretation of unemployment data."
+    },
+    {
+      "query": "employment",
+      "series": [
+        "PAYEMS",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Total Nonfarm Payrolls",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "PAYEMS and UNRATE are the two most fundamental employment indicators that directly answer a general 'employment' query. These series provide complementary perspectives on labor market conditions.",
+      "suggested_fix": "Could potentially add CIVPART (Labor Force Participation Rate) to provide a more complete picture of labor market dynamics, as it captures those who have stopped looking for work."
+    },
+    {
+      "query": "unemployment",
+      "series": [
+        "UNRATE",
+        "U6RATE"
+      ],
+      "series_names": [
+        "Unemployment Rate (U-3)",
+        "Unemployment Rate (U-6)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response showing the two main unemployment measures. U-3 (UNRATE) is the standard headline rate, and U-6 captures broader underemployment including discouraged workers and part-time for economic reasons. These are the most relevant series for a general unemployment query.",
+      "suggested_fix": "Could potentially include initial jobless claims (ICSA) to show recent trend momentum, but the current selection is quite solid for the basic query."
+    },
+    {
+      "query": "unemployment rate",
+      "series": [
+        "UNRATE"
+      ],
+      "series_names": [
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. UNRATE is the standard unemployment rate series that directly answers the query. The U-3 unemployment rate is the most commonly referenced unemployment measure, and showing it in levels (not YoY) is appropriate for this general query.",
+      "suggested_fix": null
+    },
+    {
+      "query": "how is the job market",
+      "series": [
+        "PAYEMS",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Total Nonfarm Payrolls",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "PAYEMS and UNRATE are the two most fundamental job market indicators and directly answer the question. However, for a complete picture of job market health, adding initial jobless claims would provide valuable context about labor market dynamics.",
+      "suggested_fix": "Add ICSA (Initial Claims) to show the flow of people entering unemployment and provide a more comprehensive view of job market conditions"
+    },
+    {
+      "query": "labor market",
+      "series": [
+        "PAYEMS",
+        "UNRATE",
+        "LNS12300060"
+      ],
+      "series_names": [
+        "Total Nonfarm Payrolls",
+        "Unemployment Rate (U-3)",
+        "Prime-Age Employment-Pop Ratio (25-54)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "This is a strong selection of core labor market indicators. Total nonfarm payrolls shows job creation, unemployment rate shows labor market slack, and prime-age employment-population ratio provides insight into labor force participation trends among core working-age adults. These three series together give a comprehensive view of labor market health.",
+      "suggested_fix": "Could consider adding initial jobless claims (ICSA) for a more complete real-time labor market picture, but the current selection covers the essential metrics well."
+    },
+    {
+      "query": "hiring",
+      "series": [
+        "JTSHIR",
+        "JTSJOL"
+      ],
+      "series_names": [
+        "JTSHIR",
+        "Job Openings (JOLTS)"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "The response shows job openings data which is relevant to hiring, but it's incomplete. For a comprehensive view of hiring, it should include actual hires data (JTSHIRE) and potentially layoffs/separations for full labor market context.",
+      "suggested_fix": "Add JTSHIRE (actual hires) as it directly measures hiring activity, not just job availability. Consider including JTSQUR (quit rate) or JTSSEP (separations) for broader hiring context."
+    },
+    {
+      "query": "job growth",
+      "series": [
+        "PAYEMS"
+      ],
+      "series_names": [
+        "Total Nonfarm Payrolls"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "PAYEMS (Total Nonfarm Payrolls) with year-over-year transformation is the standard and most appropriate measure for job growth. This directly answers the user's query with the primary labor market indicator economists use to track employment changes.",
+      "suggested_fix": "Could potentially add UNRATE (unemployment rate) for additional context, but PAYEMS YoY is perfectly sufficient for a job growth query"
+    },
+    {
+      "query": "job openings",
+      "series": [
+        "JTSJOL",
+        "JTSQUR"
+      ],
+      "series_names": [
+        "Job Openings (JOLTS)",
+        "Quits Rate (JOLTS)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The Job Openings series (JTSJOL) directly answers the user's query. However, including the Quits Rate is less relevant to someone asking specifically about job openings, and the response could benefit from additional context like job openings rate or hires to provide a more complete labor market picture.",
+      "suggested_fix": "Remove Quits Rate and add Job Openings Rate (JTSJORL) or consider adding Hires (JTSHIL) for better labor market context around job openings"
+    },
+    {
+      "query": "jolts",
+      "series": [
+        "JTSJOL",
+        "JTSQUR",
+        "JTSHIR"
+      ],
+      "series_names": [
+        "Job Openings (JOLTS)",
+        "Quits Rate (JOLTS)",
+        "JTSHIR"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Good selection of core JOLTS data with job openings and quits rate, but missing the layoffs and discharges rate which is a key component economists typically examine alongside openings and quits to get the full labor market turnover picture.",
+      "suggested_fix": "Add the layoffs and discharges rate (JTSLDL) to provide complete coverage of the main JOLTS labor market flow indicators"
+    },
+    {
+      "query": "payrolls",
+      "series": [
+        "PAYEMS"
+      ],
+      "series_names": [
+        "Total Nonfarm Payrolls"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. PAYEMS (Total Nonfarm Payrolls) is exactly what economists mean when they say 'payrolls' - it's the standard measure of employment from the establishment survey. Year-over-year view is appropriate for analyzing employment trends.",
+      "suggested_fix": null
+    },
+    {
+      "query": "nonfarm payrolls",
+      "series": [
+        "PAYEMS"
+      ],
+      "series_names": [
+        "Total Nonfarm Payrolls"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. PAYEMS is the exact FRED series for nonfarm payrolls, which is precisely what the user requested. The year-over-year transformation is appropriate as it shows the employment growth rate, which is the standard way economists analyze payroll data.",
+      "suggested_fix": null
+    },
+    {
+      "query": "jobs report",
+      "series": [
+        "PAYEMS",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Total Nonfarm Payrolls",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "explanation": "Shows the two most fundamental jobs report indicators, but missing other key employment metrics that are typically part of a comprehensive jobs report analysis",
+      "issues": [
+        "TOO_FEW"
+      ],
+      "suggested_fix": "Add labor force participation rate (CIVPART) and average hourly earnings (AHETPI) to provide a more complete picture of labor market conditions"
+    },
+    {
+      "query": "weekly jobless claims",
+      "series": [
+        "ICSA",
+        "CCSA"
+      ],
+      "series_names": [
+        "Initial Jobless Claims",
+        "CCSA"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response correctly identifies the two main weekly jobless claims series - ICSA (Initial Claims) and CCSA (Continued Claims). These are the standard measures economists use for weekly employment data. The level data (not YoY) is appropriate for weekly claims monitoring.",
+      "suggested_fix": "Minor improvement would be to show the full name for CCSA (Continued Claims/Insured Unemployment) for clarity, but this is a very solid response for the query."
+    },
+    {
+      "query": "initial claims",
+      "series": [
+        "ICSA"
+      ],
+      "series_names": [
+        "Initial Jobless Claims"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. ICSA (Initial Claims for Unemployment Insurance) is exactly what users mean when they ask for 'initial claims'. This is the standard weekly series that measures new unemployment insurance filings, which is a key high-frequency labor market indicator. The series name is clear and YoY transformation is appropriately not applied since initial claims are typically analyzed in levels and weekly changes.",
+      "suggested_fix": null
+    },
+    {
+      "query": "labor force participation",
+      "series": [
+        "LNS11300000",
+        "LNS11300060"
+      ],
+      "series_names": [
+        "Labor Force Participation Rate",
+        "Prime-Age Labor Force Participation"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response with the two most relevant labor force participation series. The overall participation rate (LNS11300000) is the primary metric, and prime-age participation (LNS11300060) provides valuable context by focusing on the 25-54 age group, which is less affected by demographic shifts. Year-over-year transformation is appropriately set to false since levels are more meaningful for participation rates.",
+      "suggested_fix": "Could potentially include the participation rate for a key demographic group (e.g., women: LNS11300002) to provide additional context, but the current selection covers the core metrics well."
+    },
+    {
+      "query": "prime age employment",
+      "series": [
+        "LNS12300060",
+        "LNS11300060"
+      ],
+      "series_names": [
+        "Prime-Age Employment-Pop Ratio (25-54)",
+        "Prime-Age Labor Force Participation"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Very good response that directly addresses the prime age employment query. The employment-population ratio is the most relevant metric for prime age employment, and including labor force participation provides valuable context for understanding employment dynamics in this demographic.",
+      "suggested_fix": "Could potentially add the prime age unemployment rate (LNS14000060) to provide a complete picture of prime age labor market conditions, but the current selection is quite appropriate."
+    },
+    {
+      "query": "is the labor market tight",
+      "series": [
+        "LNS12300060",
+        "JTSJOL",
+        "JTSQUR"
+      ],
+      "series_names": [
+        "Prime-Age Employment-Pop Ratio (25-54)",
+        "Job Openings (JOLTS)",
+        "Quits Rate (JOLTS)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Good selection of labor market tightness indicators - prime-age employment ratio shows labor utilization, job openings show demand, and quits rate indicates worker confidence. However, missing unemployment rate which is the most standard and widely recognized measure of labor market tightness.",
+      "suggested_fix": "Add unemployment rate (UNRATE) as it's the primary indicator most economists and policymakers use to assess labor market tightness"
+    },
+    {
+      "query": "underemployment",
+      "series": [
+        "U6RATE",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Unemployment Rate (U-6)",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response that captures the essence of underemployment. U-6 is the primary measure that includes underemployed workers, and U-3 provides important context for comparison. Both series directly address the query.",
+      "suggested_fix": "Could potentially add state-level underemployment data or break out by demographics if available, but the core federal measures are well-chosen"
+    },
+    {
+      "query": "u6 unemployment",
+      "series": [
+        "U6RATE"
+      ],
+      "series_names": [
+        "Unemployment Rate (U-6)"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The user specifically requested 'u6 unemployment' and the system returned exactly that - the U6RATE series which is the official U-6 unemployment rate. This is precisely what was asked for.",
+      "suggested_fix": null
+    },
+    {
+      "query": "job quits",
+      "series": [
+        "JTSQUR",
+        "JTSJOL"
+      ],
+      "series_names": [
+        "Quits Rate (JOLTS)",
+        "Job Openings (JOLTS)"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "WRONG_SERIES",
+        "MISSING_KEY"
+      ],
+      "explanation": "JTSQUR (Quits Rate) is perfect for 'job quits' but JTSJOL (Job Openings) doesn't answer the question about quits. The response is missing the total number of quits (JTSQUL) which would provide important context alongside the quits rate.",
+      "suggested_fix": "Replace Job Openings with Quits Level (JTSQUL) to show both the rate and total number of people quitting jobs"
+    },
+    {
+      "query": "quit rate",
+      "series": [
+        "JTSQUR"
+      ],
+      "series_names": [
+        "Quits Rate (JOLTS)"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The user asked for 'quit rate' and the system returned JTSQUR (Quits Rate from JOLTS), which is exactly the standard measure for this metric. No year-over-year transformation is appropriate as quit rates are typically analyzed in levels.",
+      "suggested_fix": null
+    },
+    {
+      "query": "layoffs",
+      "series": [
+        "ICSA",
+        "CCSA",
+        "JTSQUR"
+      ],
+      "series_names": [
+        "Initial Jobless Claims",
+        "CCSA",
+        "Quits Rate (JOLTS)"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "WRONG_SERIES",
+        "MISSING_KEY"
+      ],
+      "explanation": "Initial claims measures new unemployment filings, not layoffs specifically. Quits rate is voluntary separations, opposite of layoffs. CCSA appears to be continuing claims. Missing actual layoffs data like JOLTS separations.",
+      "suggested_fix": "Replace with JOLTS layoffs and discharges series (JTSLDL), remove quits rate, and consider adding mass layoff events data if available"
+    },
+    {
+      "query": "full employment",
+      "series": [
+        "LNS12300060",
+        "UNRATE",
+        "U6RATE",
+        "JTSJOL"
+      ],
+      "series_names": [
+        "Prime-Age Employment-Pop Ratio (25-54)",
+        "Unemployment Rate (U-3)",
+        "Unemployment Rate (U-6)",
+        "Job Openings (JOLTS)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of complementary full employment indicators: prime-age employment ratio shows labor force participation strength, U-3 gives headline unemployment, U-6 captures underemployment, and JOLTS shows labor demand. These four series together provide a comprehensive view of labor market tightness.",
+      "suggested_fix": "Could potentially add CIVPART (labor force participation rate) to complete the picture, but the current selection is already very strong for assessing full employment conditions."
+    },
+    {
+      "query": "inflation",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "series_names": [
+        "CPI All Items",
+        "Core CPI"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for an inflation query. Shows both headline CPI (CPIAUCSL) and Core CPI (CPILFESL) which are the two most important inflation measures. Year-over-year transformation is exactly right for inflation analysis.",
+      "suggested_fix": null
+    },
+    {
+      "query": "cpi",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "series_names": [
+        "CPI All Items",
+        "Core CPI"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a CPI query. Shows both headline CPI (CPIAUCSL) and Core CPI (CPILFESL), which are the two most important inflation measures. Year-over-year transformation is exactly right for inflation analysis.",
+      "suggested_fix": null
+    },
+    {
+      "query": "consumer price index",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "series_names": [
+        "CPI All Items",
+        "Core CPI"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a CPI query. Shows both headline CPI (CPIAUCSL) and Core CPI (CPILFESL) which are the two most important measures economists use. YoY transformation is appropriate as CPI is typically analyzed as inflation rate.",
+      "suggested_fix": null
+    },
+    {
+      "query": "core inflation",
+      "series": [
+        "CPILFESL",
+        "PCEPILFE"
+      ],
+      "series_names": [
+        "Core CPI",
+        "Core PCE (Fed Target)"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for core inflation query. Shows both major core inflation measures (Core CPI and Core PCE) with YoY transformation, which is the standard way to view inflation data. Core PCE is the Fed's preferred target measure, making both series highly relevant.",
+      "suggested_fix": null
+    },
+    {
+      "query": "core cpi",
+      "series": [
+        "CPILFESL"
+      ],
+      "series_names": [
+        "Core CPI"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. CPILFESL is the standard FRED series for Core CPI (Consumer Price Index for All Urban Consumers: All Items Less Food and Energy), and showing it as year-over-year is the conventional way economists analyze inflation data.",
+      "suggested_fix": null
+    },
+    {
+      "query": "pce",
+      "series": [
+        "PCEPI",
+        "PCEPILFE"
+      ],
+      "series_names": [
+        "PCE Price Index",
+        "Core PCE (Fed Target)"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response showing the two most important PCE price measures. PCEPI is the headline PCE price index and PCEPILFE is core PCE which is the Fed's primary inflation target. YoY transformation is appropriate for inflation data.",
+      "suggested_fix": "Could potentially include PCE (personal consumption expenditures in dollars) as users sometimes want spending data rather than just price indices, but the price indices are the most common interpretation of 'PCE' queries."
+    },
+    {
+      "query": "pce inflation",
+      "series": [
+        "PCEPI",
+        "PCEPILFE"
+      ],
+      "series_names": [
+        "PCE Price Index",
+        "Core PCE (Fed Target)"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. PCEPI and PCEPILFE are exactly the right series for PCE inflation - the headline PCE Price Index and Core PCE (excluding food and energy), which is the Fed's preferred inflation measure. Year-over-year transformation is appropriate for inflation data.",
+      "suggested_fix": null
+    },
+    {
+      "query": "core pce",
+      "series": [
+        "PCEPILFE"
+      ],
+      "series_names": [
+        "Core PCE (Fed Target)"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. PCEPILFE is the standard FRED series for Core PCE Price Index, which is exactly what was requested. The year-over-year transformation is appropriate since Core PCE is typically analyzed as an inflation rate (YoY percentage change) and is the Fed's preferred inflation measure.",
+      "suggested_fix": null
+    },
+    {
+      "query": "what does the fed target",
+      "series": [
+        "PCEPILFE"
+      ],
+      "series_names": [
+        "Core PCE (Fed Target)"
+      ],
+      "show_yoy": true,
+      "score": 2,
+      "issues": [
+        "WRONG_SERIES",
+        "MISSING_KEY"
+      ],
+      "explanation": "While Core PCE is related to Fed policy, the Fed's primary target is actually the headline PCE (Personal Consumption Expenditures) price index, not the core measure. The Fed targets 2% inflation as measured by total PCE. Core PCE excludes food and energy and is used as a supplementary measure, but it's not the official target.",
+      "suggested_fix": "Should show PCEPI (headline PCE) as the primary series since that's the Fed's actual 2% inflation target, with PCEPILFE (Core PCE) as supplementary context"
+    },
+    {
+      "query": "fed inflation target",
+      "series": [
+        "PCEPILFE"
+      ],
+      "series_names": [
+        "Core PCE (Fed Target)"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Core PCE is indeed the Fed's preferred inflation measure and showing it year-over-year is the standard way to compare against the 2% target. However, the response could be enhanced by also showing the Fed's actual 2% target line for direct comparison.",
+      "suggested_fix": "Add a horizontal reference line at 2% or include a series that shows the Fed's explicit inflation target to make the comparison more obvious"
+    },
+    {
+      "query": "price increases",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "series_names": [
+        "CPI All Items",
+        "Core CPI"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response provides the two most important price indices for measuring inflation - headline CPI and Core CPI - with appropriate year-over-year transformation to show actual price increase rates. These directly answer the price increases query.",
+      "suggested_fix": "Could potentially add PPI (Producer Price Index) to show upstream price pressures, but the current selection is excellent for the general query."
+    },
+    {
+      "query": "cost of living",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL",
+        "CUSR0000SAH1",
+        "CUSR0000SAF11"
+      ],
+      "series_names": [
+        "CPI All Items",
+        "Core CPI",
+        "CPI Shelter",
+        "CUSR0000SAF11"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The response includes relevant CPI series for cost of living analysis, but one series (CUSR0000SAF11) appears to be incorrectly identified and the selection misses food costs, which is a key component of cost of living alongside shelter.",
+      "suggested_fix": "Replace the unidentified CUSR0000SAF11 series with food CPI (CUSR0000SAF1 - Food and Beverages) to provide a more complete picture of cost of living drivers including both shelter and food costs."
+    },
+    {
+      "query": "prices",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "series_names": [
+        "CPI All Items",
+        "Core CPI"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a 'prices' query. Shows both headline CPI (CPIAUCSL) and Core CPI (CPILFESL) which are the two most important price measures. YoY transformation is appropriate for inflation analysis.",
+      "suggested_fix": null
+    },
+    {
+      "query": "inflation rate",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "series_names": [
+        "CPI All Items",
+        "Core CPI"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response showing the two most important inflation measures - headline CPI and core CPI. Year-over-year transformation is correct for inflation rate calculation. Both series directly answer the inflation rate question.",
+      "suggested_fix": "Could potentially include PCE inflation (PCEPI) as it's the Fed's preferred measure, but the current selection covers the essential inflation metrics well."
+    },
+    {
+      "query": "is inflation high",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL",
+        "PCEPILFE"
+      ],
+      "series_names": [
+        "CPI All Items",
+        "Core CPI",
+        "Core PCE (Fed Target)"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection of core inflation measures with appropriate YoY transformation. Includes headline CPI, core CPI, and the Fed's preferred core PCE measure, which provides comprehensive view of inflation trends.",
+      "suggested_fix": "Could add headline PCE (PCEPI) to complement the core PCE and provide complete picture of both headline and core measures for both CPI and PCE."
+    },
+    {
+      "query": "is inflation coming down",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL",
+        "PCEPILFE"
+      ],
+      "series_names": [
+        "CPI All Items",
+        "Core CPI",
+        "Core PCE (Fed Target)"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection of core inflation measures with appropriate YoY transformation. Shows CPI (headline), Core CPI, and Core PCE which is the Fed's preferred target. These series effectively answer whether inflation is declining.",
+      "suggested_fix": "Could include headline PCE (PCEPI) to provide complete picture of both CPI and PCE measures, but current selection is quite comprehensive for the question asked."
+    },
+    {
+      "query": "food prices",
+      "series": [
+        "CUSR0000SAF11",
+        "CUSR0000SEFV"
+      ],
+      "series_names": [
+        "CUSR0000SAF11",
+        "CUSR0000SEFV"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response showing two key food price series - CUSR0000SAF11 (Food at home) and CUSR0000SEFV (Food away from home) with appropriate YoY transformation for inflation analysis. These cover the main components of consumer food spending.",
+      "suggested_fix": "Could add overall food CPI (CUSR0000SAF) for complete context, showing total food inflation alongside the home/away breakdown"
+    },
+    {
+      "query": "grocery prices",
+      "series": [
+        "CUSR0000SAF11",
+        "CUSR0000SEFV"
+      ],
+      "series_names": [
+        "CUSR0000SAF11",
+        "CUSR0000SEFV"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response showing two relevant grocery-related CPI series with appropriate year-over-year transformation. CUSR0000SAF11 covers food at home (grocery stores) and CUSR0000SEFV covers food and beverages, both directly relevant to grocery price inflation.",
+      "suggested_fix": "Could potentially include CUSR0000SAF111 (cereals and bakery products) or CUSR0000SAF112 (meats, poultry, fish, and eggs) for more granular grocery category breakdowns, but the current selection adequately addresses the query."
+    },
+    {
+      "query": "gas prices",
+      "series": [
+        "GASREGW",
+        "CUSR0000SETB01"
+      ],
+      "series_names": [
+        "Gas Price",
+        "CUSR0000SETB01"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The response includes relevant gas price data but has significant limitations. GASREGW (regular gas prices) is appropriate, but CUSR0000SETB01 appears to be a CPI component that's not clearly labeled. Missing diesel prices and wholesale/crude oil context that economists typically want when analyzing gas prices.",
+      "suggested_fix": "Include diesel prices (GASDESW), improve series labeling to show CUSR0000SETB01 is 'CPI: Gasoline', and consider adding crude oil prices (DCOILWTICO) for broader energy context"
+    },
+    {
+      "query": "gasoline prices",
+      "series": [
+        "GASREGW",
+        "CUSR0000SETB01"
+      ],
+      "series_names": [
+        "Gas Price",
+        "CUSR0000SETB01"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "GASREGW is perfect for gasoline prices, but CUSR0000SETB01 (Energy CPI) is broader than gasoline specifically. The response is missing diesel prices which are commonly requested alongside gasoline prices for a complete fuel price picture.",
+      "suggested_fix": "Replace CUSR0000SETB01 with a diesel price series like GASDESW, or include both diesel and the energy CPI for broader context"
+    },
+    {
+      "query": "oil prices",
+      "series": [
+        "DCOILWTICO"
+      ],
+      "series_names": [
+        "WTI Crude Oil Price"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "WTI Crude Oil Price is the most important and widely-referenced oil price benchmark, making it highly appropriate for a general 'oil prices' query. However, showing additional context like Brent crude would provide a more complete picture of global oil markets.",
+      "suggested_fix": "Consider adding Brent crude oil price (DCOILBRENTEU) to show both major global benchmarks, as oil markets are often analyzed using both WTI and Brent prices"
+    },
+    {
+      "query": "rent inflation",
+      "series": [
+        "CUSR0000SAH1",
+        "CUSR0000SEHA",
+        "CUSR0000SEHC"
+      ],
+      "series_names": [
+        "CPI Shelter",
+        "CPI Rent of Primary Residence",
+        "CUSR0000SEHC"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection of rent inflation data. CPI Shelter and CPI Rent of Primary Residence are the standard measures economists use for rent inflation. Year-over-year transformation is appropriate for inflation analysis. However, one series appears to have a code instead of a proper name.",
+      "suggested_fix": "Provide the proper name for CUSR0000SEHC series, and consider if all three series are necessary or if the two named series sufficiently cover rent inflation"
+    },
+    {
+      "query": "shelter inflation",
+      "series": [
+        "CUSR0000SAH1"
+      ],
+      "series_names": [
+        "CPI Shelter"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response correctly identifies and returns the CPI Shelter series (CUSR0000SAH1), which is the primary measure of shelter inflation. The year-over-year transformation is appropriate for viewing inflation rates. This directly answers the user's query about shelter inflation.",
+      "suggested_fix": "Could potentially add the Core CPI series (CPILFESL) for additional context to show how shelter inflation compares to overall core inflation, since shelter is a major component of core CPI."
+    },
+    {
+      "query": "housing inflation",
+      "series": [
+        "CUSR0000SAH1",
+        "CUSR0000SEHA",
+        "CUSR0000SEHC"
+      ],
+      "series_names": [
+        "CPI Shelter",
+        "CPI Rent of Primary Residence",
+        "CUSR0000SEHC"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Shows good shelter-focused CPI components with appropriate YoY transformation, but missing the broader 'CPI Housing' aggregate (CUSR0000SAH) which is the primary housing inflation measure. Also unclear what CUSR0000SEHC represents without the full name.",
+      "suggested_fix": "Include CUSR0000SAH (CPI Housing) as the main housing inflation indicator, and provide the full name for CUSR0000SEHC series"
+    },
+    {
+      "query": "services inflation",
+      "series": [
+        "DPCERD3Q086SBEA",
+        "CUSR0000SAH1"
+      ],
+      "series_names": [
+        "DPCERD3Q086SBEA",
+        "CPI Shelter"
+      ],
+      "show_yoy": true,
+      "score": 2,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "The response only shows shelter CPI (housing services) and one unclear series, missing core services inflation measures. Services inflation typically refers to broader categories like core services CPI, services PCE, or medical care services - not just shelter.",
+      "suggested_fix": "Include core services CPI (CUSR0000SASLE), services PCE inflation, and medical care services CPI. Remove or clarify the first series which doesn't clearly relate to services inflation."
+    },
+    {
+      "query": "interest rates",
+      "series": [
+        "FEDFUNDS",
+        "DGS10"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "10-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The Federal Funds Rate and 10-Year Treasury are the two most important interest rates and directly answer the query. However, for a complete picture of 'interest rates', adding a medium-term rate would provide better context across the yield curve.",
+      "suggested_fix": "Add a medium-term rate like the 2-Year Treasury (DGS2) to show the full yield curve picture"
+    },
+    {
+      "query": "rates",
+      "series": [
+        "FEDFUNDS",
+        "DGS10"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "10-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The Federal Funds Rate and 10-Year Treasury are core interest rates, but 'rates' is a broad query that could benefit from additional context like mortgage rates or corporate bond rates to provide a more comprehensive view of the interest rate environment.",
+      "suggested_fix": "Add 1-2 more key rates such as 30-Year Fixed Mortgage Rate (MORTGAGE30US) or AAA Corporate Bond Yield (DAAA) to give a fuller picture of the rate landscape"
+    },
+    {
+      "query": "fed",
+      "series": [
+        "FEDFUNDS",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The query 'fed' is ambiguous but likely refers to Federal Reserve policy rates. FEDFUNDS is perfect and central to the query. However, DFEDTARU and DFEDTARL are upper/lower bounds of the target range which are less commonly referenced. Missing the actual Federal Funds Target Rate (DFF or DFEDTAR) which would provide better context alongside the effective rate.",
+      "suggested_fix": "Include the Federal Funds Target Rate (DFEDTAR or DFF) to show both the target and effective rates, and consider removing the upper/lower bound series unless specifically requested"
+    },
+    {
+      "query": "federal reserve",
+      "series": [
+        "FEDFUNDS",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The response includes the key Federal Funds Rate (FEDFUNDS) which is central to Federal Reserve policy, but the other two series (DFEDTARU, DFEDTARL) have unclear names that don't provide obvious value. For a broad 'federal reserve' query, this misses other important Fed indicators like the discount rate, reserve balances, or Fed balance sheet data that would provide better context.",
+      "suggested_fix": "Replace the unclear DFEDTARU/DFEDTARL series with more recognizable Fed indicators like the discount rate (DGS10 for context), Fed balance sheet total assets, or unemployment rate to show the broader economic context the Fed monitors"
+    },
+    {
+      "query": "fed funds rate",
+      "series": [
+        "FEDFUNDS"
+      ],
+      "series_names": [
+        "Federal Funds Rate"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The user asked for 'fed funds rate' and the system returned exactly the right FRED series (FEDFUNDS) which is the official Federal Funds Rate. This is the most direct and appropriate answer to the query.",
+      "suggested_fix": null
+    },
+    {
+      "query": "federal funds rate",
+      "series": [
+        "FEDFUNDS"
+      ],
+      "series_names": [
+        "Federal Funds Rate"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. FEDFUNDS is exactly the right series for 'federal funds rate' - it's the official effective federal funds rate from the Federal Reserve. The series name matches perfectly, and no year-over-year transformation is needed since users typically want to see the actual rate level.",
+      "suggested_fix": null
+    },
+    {
+      "query": "fed policy",
+      "series": [
+        "FEDFUNDS",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The Federal Funds Rate (FEDFUNDS) is appropriate for Fed policy, but the other two series have unclear names (DFEDTARU, DFEDTARL) and the response lacks key Fed policy indicators like the Fed's target rate range bounds or policy meeting decisions that would provide better context for understanding current Fed policy stance.",
+      "suggested_fix": "Include clearer series names and add key Fed policy indicators such as the upper and lower bounds of the target rate range with proper labels, or consider adding Fed balance sheet data or policy meeting outcomes for comprehensive Fed policy analysis."
+    },
+    {
+      "query": "monetary policy",
+      "series": [
+        "FEDFUNDS",
+        "DGS2",
+        "DGS10"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "2-Year Treasury",
+        "10-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The three series shown (Fed Funds Rate, 2-Year Treasury, 10-Year Treasury) are core monetary policy indicators that effectively capture the yield curve and policy stance. However, for a complete monetary policy picture, a key missing element is a measure of money supply or monetary base.",
+      "suggested_fix": "Add a money supply measure like M2 (M2SL) or monetary base (BOGMBASE) to show the quantitative aspect of monetary policy alongside the interest rate tools"
+    },
+    {
+      "query": "rate hikes",
+      "series": [
+        "FEDFUNDS",
+        "DGS2"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "2-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The Federal Funds Rate is perfect for rate hikes analysis, and 2-Year Treasury provides useful context. However, this is missing a longer-term treasury rate (like 10-year) to show the full yield curve impact of rate hikes, which is crucial for understanding monetary policy transmission.",
+      "suggested_fix": "Add DGS10 (10-Year Treasury) to show how rate hikes affect the longer end of the yield curve and provide complete interest rate context"
+    },
+    {
+      "query": "rate cuts",
+      "series": [
+        "FEDFUNDS",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "WRONG_SERIES",
+        "MISSING_KEY"
+      ],
+      "explanation": "The response shows unclear series codes (DFEDTARU, DFEDTARL) that don't obviously relate to rate cuts, and while FEDFUNDS is relevant, the query 'rate cuts' implies looking for Fed policy changes which would be better served by the Fed's target rate and recent changes/cuts specifically.",
+      "suggested_fix": "Replace unclear series with Fed's target rate (DFF or similar) and consider showing rate change data or focusing on recent Fed policy decisions. Clarify what DFEDTARU and DFEDTARL represent or replace with more transparent series names."
+    },
+    {
+      "query": "will the fed cut rates",
+      "series": [
+        "FEDFUNDS",
+        "DGS2",
+        "T10Y2Y"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "2-Year Treasury",
+        "Yield Curve (10Y-2Y)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection of relevant series for Fed rate prediction. FEDFUNDS shows current rates, DGS2 reflects market expectations, and T10Y2Y (yield curve) is a key economic indicator the Fed monitors. These three series provide solid context for rate decisions.",
+      "suggested_fix": "Could add inflation data (CPI or PCE) since Fed decisions heavily depend on inflation trends relative to their 2% target"
+    },
+    {
+      "query": "treasury yields",
+      "series": [
+        "DGS3MO",
+        "DGS2",
+        "DGS10",
+        "DGS30"
+      ],
+      "series_names": [
+        "DGS3MO",
+        "2-Year Treasury",
+        "10-Year Treasury",
+        "DGS30"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Good selection of key treasury yields across the yield curve (3-month, 2-year, 10-year, 30-year), but missing the important 1-year treasury yield which is commonly referenced. Series names are inconsistent - some show full names while others show FRED codes.",
+      "suggested_fix": "Add 1-year treasury yield (DGS1) and standardize series names to show duration consistently (e.g., '3-Month Treasury', '2-Year Treasury', etc.)"
+    },
+    {
+      "query": "10 year treasury",
+      "series": [
+        "DGS10"
+      ],
+      "series_names": [
+        "10-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. DGS10 is the standard FRED series for 10-year Treasury constant maturity rate, which directly answers the user's query. The level data is appropriate since Treasury rates are typically viewed as absolute percentages rather than year-over-year changes.",
+      "suggested_fix": null
+    },
+    {
+      "query": "2 year treasury",
+      "series": [
+        "DGS2"
+      ],
+      "series_names": [
+        "2-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. DGS2 is exactly the right FRED series for 2-year Treasury constant maturity rate. The series name is clear and accurate, and no year-over-year transformation is needed since users typically want to see the actual interest rate levels.",
+      "suggested_fix": null
+    },
+    {
+      "query": "yield curve",
+      "series": [
+        "T10Y2Y"
+      ],
+      "series_names": [
+        "Yield Curve (10Y-2Y)"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The 10Y-2Y spread is a key yield curve indicator, but 'yield curve' typically refers to the full term structure. Users often want to see multiple maturity spreads or the actual yields across different maturities to understand the complete curve shape.",
+      "suggested_fix": "Include additional key spreads like 10Y-3M, 2Y-3M, or show actual Treasury yields at multiple maturities (3M, 2Y, 5Y, 10Y, 30Y) to provide a fuller picture of the yield curve"
+    },
+    {
+      "query": "inverted yield curve",
+      "series": [
+        "T10Y2Y"
+      ],
+      "series_names": [
+        "Yield Curve (10Y-2Y)"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. T10Y2Y is the exact FRED series that measures the yield curve spread between 10-year and 2-year Treasury bonds. When this series goes negative, it indicates an inverted yield curve, which is precisely what the user asked about. The series name is clear and descriptive.",
+      "suggested_fix": null
+    },
+    {
+      "query": "bond yields",
+      "series": [
+        "DGS2",
+        "DGS10",
+        "DGS30"
+      ],
+      "series_names": [
+        "2-Year Treasury",
+        "10-Year Treasury",
+        "DGS30"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Good selection of key Treasury yields across the yield curve (2-year, 10-year, 30-year), but missing the most commonly referenced benchmark - the 10-year Treasury yield. Also note that 'DGS30' should be labeled as '30-Year Treasury' for consistency.",
+      "suggested_fix": "Include DGS3M (3-Month Treasury) or DGS1 (1-Year Treasury) for short-term perspective, and ensure consistent labeling (DGS30 should show as '30-Year Treasury')"
+    },
+    {
+      "query": "mortgage rates",
+      "series": [
+        "MORTGAGE30US",
+        "MORTGAGE15US"
+      ],
+      "series_names": [
+        "30-Year Mortgage Rate",
+        "MORTGAGE15US"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response provides the two most relevant mortgage rate series (30-year and 15-year) which directly answers the user's query. These are the primary mortgage rates that economists and consumers track. The level data is appropriate since mortgage rates are typically analyzed in levels rather than year-over-year changes.",
+      "suggested_fix": "Could potentially include the 5/1 ARM rate (MORTGAGE5US) for completeness, as adjustable rate mortgages are also commonly referenced when discussing mortgage rates."
+    },
+    {
+      "query": "30 year mortgage",
+      "series": [
+        "MORTGAGE30US"
+      ],
+      "series_names": [
+        "30-Year Mortgage Rate"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The query '30 year mortgage' is directly answered by MORTGAGE30US (30-Year Mortgage Rate), which is the standard benchmark mortgage rate series. No YoY transformation needed as mortgage rates are typically analyzed in levels.",
+      "suggested_fix": null
+    },
+    {
+      "query": "borrowing costs",
+      "series": [
+        "FEDFUNDS",
+        "DPRIME",
+        "MORTGAGE30US",
+        "BAMLC0A0CM"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DPRIME",
+        "30-Year Mortgage Rate",
+        "BAMLC0A0CM"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection covering key borrowing cost indicators: federal funds rate (policy rate), prime rate (bank lending), mortgage rates (housing), and corporate bond yields. These represent the main channels through which borrowing costs affect the economy.",
+      "suggested_fix": "Could include Treasury rates (e.g., 10-year) as a benchmark for risk-free borrowing costs, which would provide additional context for understanding the interest rate environment."
+    },
+    {
+      "query": "housing",
+      "series": [
+        "CSUSHPINSA",
+        "HOUST",
+        "CUSR0000SEHA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index",
+        "Housing Starts",
+        "CPI Rent of Primary Residence"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The response covers key housing metrics (prices, construction, and rental costs) but misses housing sales data, which is a fundamental indicator for housing market analysis. The three series shown are relevant and complementary.",
+      "suggested_fix": "Add existing home sales (EXHOSLUSM495S) or new home sales (HSN1F) to provide a more complete picture of housing market activity"
+    },
+    {
+      "query": "housing market",
+      "series": [
+        "CSUSHPINSA",
+        "MORTGAGE30US",
+        "CUSR0000SEHA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index",
+        "30-Year Mortgage Rate",
+        "CPI Rent of Primary Residence"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection covering key housing market indicators: home prices (Case-Shiller), mortgage costs (30-year rate), and rental costs (CPI rent). These three series provide a solid overview of housing market conditions from both ownership and rental perspectives.",
+      "suggested_fix": "Could add housing starts or existing home sales to show market activity/volume, but the current selection adequately covers pricing fundamentals"
+    },
+    {
+      "query": "home prices",
+      "series": [
+        "CSUSHPINSA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "The Case-Shiller Home Price Index is the gold standard for tracking U.S. home prices and is exactly what most users expect when asking about 'home prices'. The year-over-year transformation is appropriate as it shows the rate of price appreciation, which is how home price changes are typically discussed.",
+      "suggested_fix": "Could potentially add the FHFA House Price Index as a complementary series to provide additional context, but the current response is quite strong on its own."
+    },
+    {
+      "query": "house prices",
+      "series": [
+        "CSUSHPINSA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "The Case-Shiller Home Price Index is the gold standard for US house price data and perfectly answers the query. YoY transformation is appropriate for showing price appreciation trends rather than raw index levels.",
+      "suggested_fix": "Could potentially add FHFA House Price Index for additional context, but the current response is very strong as-is."
+    },
+    {
+      "query": "real estate",
+      "series": [
+        "CSUSHPINSA",
+        "HOUST"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index",
+        "Housing Starts"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW",
+        "MISSING_KEY"
+      ],
+      "explanation": "The two series shown (home prices and housing starts) are relevant to real estate but provide a narrow view. The query 'real estate' is quite broad and would benefit from additional context like sales volumes, inventory levels, or mortgage rates to give a more comprehensive picture of the real estate market.",
+      "suggested_fix": "Add 1-2 more series such as existing home sales (EXHOSLUSM495S) or housing inventory to provide better market context while staying under 4 total series"
+    },
+    {
+      "query": "home sales",
+      "series": [
+        "EXHOSLUSM495S",
+        "HSN1F"
+      ],
+      "series_names": [
+        "EXHOSLUSM495S",
+        "HSN1F"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "The response only shows 2 series and appears to miss the most fundamental home sales data. For a 'home sales' query, users typically expect existing home sales (EXHSLUSM495S) and new home sales (HSN1F), but the first series code looks incorrect (EXHOSLUSM495S vs EXHSLUSM495S).",
+      "suggested_fix": "Include the correct existing home sales series (EXHSLUSM495S), new home sales (HSN1F), and consider adding pending home sales for more comprehensive coverage of the housing market"
+    },
+    {
+      "query": "existing home sales",
+      "series": [
+        "EXHOSLUSM495S"
+      ],
+      "series_names": [
+        "EXHOSLUSM495S"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "EXHOSLUSM495S is the correct monthly existing home sales series, but the response could be enhanced with additional context such as the seasonally adjusted version (EXHOSLUSM495S is NSA) or year-over-year comparison to better understand trends.",
+      "suggested_fix": "Consider adding the seasonally adjusted existing home sales series (EXHOSLUSM494S) or enabling year-over-year transformation to show growth trends"
+    },
+    {
+      "query": "new home sales",
+      "series": [
+        "HSN1F"
+      ],
+      "series_names": [
+        "HSN1F"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "HSN1F (New One Family Houses Sold) is the correct primary series for new home sales, and year-over-year view is appropriate for analyzing trends. However, showing only one series provides limited context.",
+      "suggested_fix": "Add complementary series like new home sales in other regions (South, West, etc.) or new home inventory/months' supply to provide better market context"
+    },
+    {
+      "query": "housing starts",
+      "series": [
+        "HOUST"
+      ],
+      "series_names": [
+        "Housing Starts"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "explanation": "Perfect response. HOUST is the standard and most commonly referenced housing starts series from FRED, measuring new residential construction starts. This directly answers the user's query with the exact data they requested.",
+      "issues": [],
+      "suggested_fix": null
+    },
+    {
+      "query": "building permits",
+      "series": [
+        "PERMIT",
+        "HOUST"
+      ],
+      "series_names": [
+        "PERMIT",
+        "Housing Starts"
+      ],
+      "show_yoy": true,
+      "score": 2,
+      "issues": [
+        "WRONG_SERIES"
+      ],
+      "explanation": "The user specifically asked for 'building permits' but got PERMIT (correct) and HOUST (Housing Starts). Housing starts are different from building permits - starts measure when construction begins, while permits measure authorization to build. This is a fundamental distinction in construction economics.",
+      "suggested_fix": "Remove HOUST and keep only PERMIT, or add a proper building permits series if PERMIT isn't the right one. If showing related context, clearly label that housing starts are related but different from permits."
+    },
+    {
+      "query": "housing affordability",
+      "series": [
+        "MORTGAGE30US",
+        "CSUSHPINSA"
+      ],
+      "series_names": [
+        "30-Year Mortgage Rate",
+        "Case-Shiller Home Price Index"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Shows two relevant housing cost components (mortgage rates and home prices) but missing income data which is essential for measuring affordability - the relationship between housing costs and what people can actually afford to pay.",
+      "suggested_fix": "Add a median household income or real median household income series to provide the income component needed to assess true affordability"
+    },
+    {
+      "query": "rent prices",
+      "series": [
+        "CUSR0000SEHA",
+        "CUSR0000SEHC"
+      ],
+      "series_names": [
+        "CPI Rent of Primary Residence",
+        "CUSR0000SEHC"
+      ],
+      "show_yoy": true,
+      "score": 2,
+      "issues": [
+        "WRONG_SERIES",
+        "MISSING_KEY"
+      ],
+      "explanation": "The response shows CPI rent components which measure rent inflation, but the user asked about 'rent prices' which typically means actual rent levels. The series names are also incomplete (missing name for CUSR0000SEHC). Missing key series like median rent, rental vacancy rates, or housing rental market indicators that show actual price levels rather than just inflation measures.",
+      "suggested_fix": "Include actual rent price series like median rent data, housing rental costs, or rental market indicators. If CPI rent is included, it should be alongside actual rent level data to provide complete context."
+    },
+    {
+      "query": "case shiller",
+      "series": [
+        "CSUSHPINSA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The response correctly identifies the Case-Shiller Home Price Index with appropriate year-over-year transformation, which is standard for housing price analysis. However, it only shows the national aggregate when users typically want to see regional variations or the most commonly referenced indices.",
+      "suggested_fix": "Include the Case-Shiller 10-City and 20-City composite indices (CSXR0000SA0L2, SPCS20RSA) alongside or instead of just the national series, as these are more frequently cited benchmarks"
+    },
+    {
+      "query": "housing inventory",
+      "series": [
+        "MNMFS",
+        "MSACSR"
+      ],
+      "series_names": [
+        "MNMFS",
+        "MSACSR"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "MNMFS (months' supply) and MSACSR (existing home sales) are relevant to housing inventory, but the response is incomplete. It's missing the most direct measure of housing inventory - actual housing units available for sale (like HOUST for housing starts or new home inventory data).",
+      "suggested_fix": "Add direct housing inventory measures such as new home inventory levels or housing units for sale, and consider including housing starts (HOUST) for broader inventory context"
+    },
+    {
+      "query": "housing supply",
+      "series": [
+        "MSACSR",
+        "MNMFS"
+      ],
+      "series_names": [
+        "MSACSR",
+        "MNMFS"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "MSACSR (months' supply) and MNMFS (new manufactured homes) are relevant but inadequate for housing supply. Missing critical metrics like housing starts, building permits, new home sales, and existing home inventory.",
+      "suggested_fix": "Add HOUST (housing starts), PERMIT (building permits), EXHOSLUSM495S (existing home inventory), and HSN1F (new single-family home sales) to provide comprehensive housing supply picture"
+    },
+    {
+      "query": "women",
+      "series": [
+        "LNS14000002",
+        "LNS12300062",
+        "LNS11300002"
+      ],
+      "series_names": [
+        "Unemployment Rate - Women",
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response provides the three core labor market indicators specifically for women: unemployment rate, prime-age employment-population ratio, and labor force participation rate. These are exactly the right demographic-specific series for understanding women's labor market status.",
+      "suggested_fix": "Could potentially add women's employment level (LNS12000002) to provide absolute context alongside the rates, but the current selection covers all essential metrics well."
+    },
+    {
+      "query": "women employment",
+      "series": [
+        "LNS12300062",
+        "LNS14000002",
+        "LNS11300002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "Unemployment Rate - Women",
+        "LFPR - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three core women's employment metrics: employment-population ratio, unemployment rate, and labor force participation rate. These directly answer the query and provide comprehensive coverage of women's employment status.",
+      "suggested_fix": "Could potentially add women's employment level (LNS12000002) to show the absolute number of employed women alongside the rates, but the current selection is already very strong."
+    },
+    {
+      "query": "women unemployment",
+      "series": [
+        "LNS14000002",
+        "LNS14000026",
+        "LNS12300062"
+      ],
+      "series_names": [
+        "Unemployment Rate - Women",
+        "LNS14000026",
+        "Prime-Age Emp-Pop Ratio - Women"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "WRONG_SERIES"
+      ],
+      "explanation": "Two of the three series are appropriate - unemployment rate for women is perfect, and prime-age employment-population ratio provides useful context. However, LNS14000026 appears to be mislabeled/unidentified, and employment-population ratio, while related, isn't directly what was asked for when someone queries 'women unemployment'.",
+      "suggested_fix": "Replace the unidentified LNS14000026 with women's labor force participation rate (LNS11300002) or unemployment level for women (LNS13000002) to provide more directly relevant unemployment context."
+    },
+    {
+      "query": "women in the workforce",
+      "series": [
+        "LNS12300062",
+        "LNS11300002",
+        "LNS14000002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women",
+        "Unemployment Rate - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The three series provide a comprehensive view of women's labor market status: employment rate (prime-age emp-pop ratio), labor force participation, and unemployment. These are the core metrics for analyzing workforce participation by demographic group.",
+      "suggested_fix": "Could potentially add total women in labor force (LNS12000002) to show absolute numbers alongside the rates, but the current selection covers all the essential metrics well."
+    },
+    {
+      "query": "women labor force",
+      "series": [
+        "LNS12300062",
+        "LNS11300002",
+        "LNS14000002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women",
+        "Unemployment Rate - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response provides three highly relevant series that comprehensively cover women's labor force participation: employment-to-population ratio for prime-age women, labor force participation rate for women, and unemployment rate for women. These are exactly the right demographic-specific series for this query.",
+      "suggested_fix": "Could potentially add the absolute number of women in the labor force (CLF16OV filtered for women or CIVPART series for women) to show the scale/trend in addition to the rates, but the current selection is already very strong."
+    },
+    {
+      "query": "female employment",
+      "series": [
+        "LNS12300062",
+        "LNS11300002",
+        "LNS14000002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women",
+        "Unemployment Rate - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three core female employment metrics: employment-population ratio, labor force participation rate, and unemployment rate for women. These provide a comprehensive view of female employment status covering both employment levels and labor market engagement.",
+      "suggested_fix": "Could potentially add total nonfarm payroll by gender or women's employment level (LNS12000002) to show absolute employment numbers alongside the rates, but the current selection is very strong."
+    },
+    {
+      "query": "female unemployment",
+      "series": [
+        "LNS14000002",
+        "LNS14000026",
+        "LNS12300062"
+      ],
+      "series_names": [
+        "Unemployment Rate - Women",
+        "LNS14000026",
+        "Prime-Age Emp-Pop Ratio - Women"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "WRONG_SERIES"
+      ],
+      "explanation": "Two series are relevant (unemployment rate and employment-population ratio for women), but one series (LNS14000026) appears to be incorrectly labeled or irrelevant. The employment-population ratio, while related, doesn't directly measure unemployment as requested.",
+      "suggested_fix": "Replace the mislabeled series and focus on unemployment-specific metrics for women, such as unemployment level or labor force participation rate for women to provide better context"
+    },
+    {
+      "query": "how are women doing in the economy",
+      "series": [
+        "LNS12300062",
+        "LNS14000002",
+        "LNS11300002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "Unemployment Rate - Women",
+        "LFPR - Women"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of core labor market indicators specifically for women. The three series (employment-population ratio, unemployment rate, and labor force participation rate) provide a comprehensive view of women's labor market performance. Year-over-year view is appropriate for showing recent trends.",
+      "suggested_fix": "Could consider adding women's median earnings or wage growth data to provide a more complete picture of economic well-being beyond just labor market participation."
+    },
+    {
+      "query": "working women",
+      "series": [
+        "LNS12300062",
+        "LNS11300002",
+        "LNS14000026"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women",
+        "LNS14000026"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Good selection covering employment ratio and labor force participation for women. However, missing unemployment rate for women which is a key metric for understanding the full picture of working women's labor market status.",
+      "suggested_fix": "Add women's unemployment rate (LNS14000026 appears to be incorrect - should be LNS14000002 for women's unemployment rate) to provide complete labor market overview"
+    },
+    {
+      "query": "gender employment gap",
+      "series": [
+        "LNS12300062",
+        "LNS12300061"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LNS12300061"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The system correctly identified prime-age employment-population ratios for women, which is highly relevant for gender employment gap analysis. However, it's missing the corresponding men's series to actually show the gap comparison.",
+      "suggested_fix": "Add the men's prime-age employment-population ratio series (LNS12300060) to enable direct comparison and visualization of the gender employment gap"
+    },
+    {
+      "query": "men employment",
+      "series": [
+        "LNS12300061",
+        "LNS14000001",
+        "LNS11300001"
+      ],
+      "series_names": [
+        "LNS12300061",
+        "Unemployment Rate - Men",
+        "LNS11300001"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "MISSING_KEY",
+        "WRONG_SERIES"
+      ],
+      "explanation": "The response includes unemployment rate for men but is missing the core employment data (employment level or employment-population ratio for men). One series name is missing, and LNS14000001 appears to be total unemployment rate rather than men-specific data.",
+      "suggested_fix": "Include men's employment level (LNS12000001) or employment-population ratio (LNS12300001), remove the aggregate unemployment series, and ensure all series are men-specific employment indicators."
+    },
+    {
+      "query": "men unemployment",
+      "series": [
+        "LNS14000001",
+        "LNS14000026"
+      ],
+      "series_names": [
+        "Unemployment Rate - Men",
+        "LNS14000026"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The response correctly identifies unemployment data for men, but only shows two series with one having an unclear name (LNS14000026). For unemployment analysis, it would be helpful to include context like overall unemployment rate or women's unemployment for comparison.",
+      "suggested_fix": "Add the overall unemployment rate (UNRATE) and women's unemployment rate (LNS14000002) for better context and comparison"
+    },
+    {
+      "query": "black unemployment",
+      "series": [
+        "LNS14000006",
+        "LNS14000003"
+      ],
+      "series_names": [
+        "Unemployment Rate - Black",
+        "LNS14000003"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response correctly identifies and returns the primary Black unemployment rate series (LNS14000006). The data directly answers the user's query for 'black unemployment' with the most relevant demographic-specific series.",
+      "suggested_fix": "Could potentially include a comparison series like the overall unemployment rate (UNRATE) to provide context, but the core data need is well satisfied."
+    },
+    {
+      "query": "african american unemployment",
+      "series": [
+        "LNS14000006",
+        "LNS14000003"
+      ],
+      "series_names": [
+        "Unemployment Rate - Black",
+        "LNS14000003"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response correctly identifies and shows the Black unemployment rate series (LNS14000006), which directly answers the query. The series names show 'Unemployment Rate - Black' which is exactly what was requested. No year-over-year transformation is appropriate for unemployment rates as levels are more meaningful.",
+      "suggested_fix": "Could potentially include the overall unemployment rate (UNRATE) for context to allow comparison between Black unemployment and the general population, but the current response is still very good as-is."
+    },
+    {
+      "query": "hispanic unemployment",
+      "series": [
+        "LNS14000009"
+      ],
+      "series_names": [
+        "Unemployment Rate - Hispanic"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response - returns exactly the right FRED series for Hispanic unemployment rate. The series LNS14000009 is the official BLS unemployment rate specifically for Hispanic or Latino workers, which directly answers the user's query.",
+      "suggested_fix": null
+    },
+    {
+      "query": "latino unemployment",
+      "series": [
+        "LNS14000009"
+      ],
+      "series_names": [
+        "Unemployment Rate - Hispanic"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The system correctly identified that 'latino unemployment' refers to Hispanic unemployment rate and returned the exact appropriate FRED series (LNS14000009 - Unemployment Rate - Hispanic). The year-over-year transformation is appropriate for unemployment rate analysis to show trends and changes.",
+      "suggested_fix": ""
+    },
+    {
+      "query": "white unemployment",
+      "series": [
+        "LNS14000003"
+      ],
+      "series_names": [
+        "LNS14000003"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. LNS14000003 is the correct FRED series for White unemployment rate. The series directly answers the user's query with the appropriate demographic breakdown. Year-over-year display is reasonable for unemployment data to show trends.",
+      "suggested_fix": null
+    },
+    {
+      "query": "youth unemployment",
+      "series": [
+        "LNS14000012",
+        "LNS14000036"
+      ],
+      "series_names": [
+        "LNS14000012",
+        "LNS14000036"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "LNS14000012 and LNS14000036 are the correct FRED series for youth unemployment rates (16-19 years and 20-24 years respectively). These directly answer the user's question about youth unemployment with the two standard age cohorts used for this demographic.",
+      "suggested_fix": "Consider adding context with overall unemployment rate (UNRATE) to show how youth unemployment compares to the general population"
+    },
+    {
+      "query": "teen unemployment",
+      "series": [
+        "LNS14000012"
+      ],
+      "series_names": [
+        "LNS14000012"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "LNS14000012 is the exact FRED series for teen unemployment rate (16-19 years), which perfectly matches the user's query. The series is specific to the demographic requested and level data is appropriate for unemployment rates.",
+      "suggested_fix": null
+    },
+    {
+      "query": "older workers",
+      "series": [
+        "LNS14000095",
+        "LNS14000097",
+        "LNS11300012",
+        "LNS11300013"
+      ],
+      "series_names": [
+        "LNS14000095",
+        "LNS14000097",
+        "LNS11300012",
+        "LNS11300013"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection of older worker data. LNS14000095/097 are unemployment rates for 55+ age groups, and LNS11300012/013 are labor force participation rates for the same demographics. These four series appropriately cover the key labor market metrics for older workers without being overwhelming.",
+      "suggested_fix": "Could potentially include employment-population ratio for older workers to provide a more complete picture of older worker employment outcomes."
+    },
+    {
+      "query": "racial unemployment gap",
+      "series": [
+        "LNS14000003",
+        "LNS14000006",
+        "LNS14000009"
+      ],
+      "series_names": [
+        "LNS14000003",
+        "Unemployment Rate - Black",
+        "Unemployment Rate - Hispanic"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "MISSING_KEY",
+        "AGGREGATE_FOR_DEMOGRAPHIC"
+      ],
+      "explanation": "The query asks for 'racial unemployment gap' which requires comparison between racial groups, but the response is missing the White unemployment rate (the baseline for measuring racial gaps). Without this key series, it's impossible to calculate or visualize the actual gap.",
+      "suggested_fix": "Add the White unemployment rate series (LNS14000006) to enable proper gap analysis between racial groups"
+    },
+    {
+      "query": "prime age workers",
+      "series": [
+        "LNS12300060",
+        "LNS11300060",
+        "LNS14000025"
+      ],
+      "series_names": [
+        "Prime-Age Employment-Pop Ratio (25-54)",
+        "Prime-Age Labor Force Participation",
+        "LNS14000025"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Shows relevant prime-age (25-54) employment and labor force participation data, but missing the unemployment rate for this demographic group. The third series LNS14000025 appears to be unlabeled/unclear.",
+      "suggested_fix": "Replace the unclear third series with prime-age unemployment rate (LNS14000025 should be labeled as Prime-Age Unemployment Rate if that's what it is, or find the correct prime-age unemployment series). The three key labor market indicators for prime-age workers should be employment-population ratio, labor force participation rate, and unemployment rate."
+    },
+    {
+      "query": "consumer spending",
+      "series": [
+        "RSXFS"
+      ],
+      "series_names": [
+        "Retail Sales"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "RSXFS (Retail Sales) is relevant to consumer spending but provides a narrow view. Consumer spending encompasses much more than just retail sales, including services which make up the majority of consumption.",
+      "suggested_fix": "Add Personal Consumption Expenditures (PCE) as the primary measure, and consider including services spending data alongside retail sales for a complete picture of consumer spending"
+    },
+    {
+      "query": "retail sales",
+      "series": [
+        "RSXFS"
+      ],
+      "series_names": [
+        "Retail Sales"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "WRONG_YOY"
+      ],
+      "explanation": "RSXFS is the correct primary retail sales series, but retail sales data is typically analyzed in year-over-year terms to account for seasonal patterns and provide meaningful growth context.",
+      "suggested_fix": "Show the data with year-over-year transformation enabled to provide growth rates rather than raw levels"
+    },
+    {
+      "query": "consumer sentiment",
+      "series": [
+        "UMCSENT"
+      ],
+      "series_names": [
+        "Consumer Sentiment"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. UMCSENT (University of Michigan Consumer Sentiment Index) is the standard and most widely referenced measure of consumer sentiment. It directly answers the query with the exact data requested.",
+      "suggested_fix": null
+    },
+    {
+      "query": "consumer confidence",
+      "series": [
+        "UMCSENT"
+      ],
+      "series_names": [
+        "Consumer Sentiment"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "UMCSENT (University of Michigan Consumer Sentiment Index) is the primary and most widely used measure of consumer confidence in the US. It directly answers the user's query and is exactly what most economists would expect to see.",
+      "suggested_fix": "Could potentially add the Conference Board Consumer Confidence Index (CSCICP03USM665S) for comparison, as it's the other major consumer confidence measure, but UMCSENT alone is perfectly adequate."
+    },
+    {
+      "query": "spending",
+      "series": [
+        "RSXFS",
+        "PCEC96"
+      ],
+      "series_names": [
+        "Retail Sales",
+        "PCEC96"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "Response shows relevant consumer spending data but is incomplete. Retail Sales and Personal Consumption Expenditures cover important aspects of spending, but the query 'spending' is broad and could benefit from government spending data to provide fuller economic context.",
+      "suggested_fix": "Add government spending series like FGEXPND (Federal Government Expenditures) or SLEXPND (State and Local Government Expenditures) to capture total economic spending beyond just consumer activity"
+    },
+    {
+      "query": "consumption",
+      "series": [
+        "PCEC96",
+        "RSXFS"
+      ],
+      "series_names": [
+        "PCEC96",
+        "Retail Sales"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "PCEC96 (real personal consumption expenditures) is the gold standard for consumption data, but retail sales (RSXFS) is more narrow and excludes services. Missing key consumption components like services consumption, and could benefit from showing personal consumption expenditures in current dollars for completeness.",
+      "suggested_fix": "Add personal consumption expenditures services (PCESV96) and consider including nominal PCE (PCEC) to show both real and nominal consumption trends"
+    },
+    {
+      "query": "personal spending",
+      "series": [
+        "PCEC96",
+        "RSXFS"
+      ],
+      "series_names": [
+        "PCEC96",
+        "Retail Sales"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "PCEC96 (Real Personal Consumption Expenditures) is the perfect primary series for personal spending. Retail sales provides useful context but is narrower in scope. However, the response is missing nominal personal consumption expenditures, which would provide important context alongside the real measure.",
+      "suggested_fix": "Add nominal personal consumption expenditures (PCEC) to show both real and nominal spending trends, giving a more complete picture of personal spending patterns"
+    },
+    {
+      "query": "consumer",
+      "series": [
+        "UMCSENT",
+        "RSXFS",
+        "PSAVERT"
+      ],
+      "series_names": [
+        "Consumer Sentiment",
+        "Retail Sales",
+        "Personal Savings Rate"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection of core consumer indicators covering sentiment, spending behavior, and savings patterns. These three series provide a well-rounded view of consumer economic activity.",
+      "suggested_fix": "Could add Consumer Price Index (CPI) or Personal Consumption Expenditures to show the inflation impact on consumers, making it a more complete consumer economic picture."
+    },
+    {
+      "query": "michigan consumer sentiment",
+      "series": [
+        "UMCSENT"
+      ],
+      "series_names": [
+        "Consumer Sentiment"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. UMCSENT is the official University of Michigan Consumer Sentiment Index, which is exactly what was requested. This is the primary and most important series for Michigan consumer sentiment data.",
+      "suggested_fix": null
+    },
+    {
+      "query": "savings rate",
+      "series": [
+        "PSAVERT"
+      ],
+      "series_names": [
+        "Personal Savings Rate"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. PSAVERT (Personal Savings Rate) is exactly what the user requested when asking for 'savings rate'. This is the standard measure economists use for household savings behavior.",
+      "suggested_fix": null
+    },
+    {
+      "query": "personal savings",
+      "series": [
+        "PSAVERT"
+      ],
+      "series_names": [
+        "Personal Savings Rate"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "PSAVERT (Personal Savings Rate) is relevant to personal savings but only shows the rate, not the absolute level. For a complete picture of personal savings, both the rate and dollar amount would be more informative.",
+      "suggested_fix": "Include PSAVE (Personal Saving in billions of dollars) alongside PSAVERT to show both the savings rate and absolute savings levels"
+    },
+    {
+      "query": "consumer debt",
+      "series": [
+        "TOTALSL",
+        "REVOLSL",
+        "NONREVSL"
+      ],
+      "series_names": [
+        "TOTALSL",
+        "REVOLSL",
+        "NONREVSL"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for consumer debt query. TOTALSL (total consumer credit), REVOLSL (revolving credit like credit cards), and NONREVSL (non-revolving credit like auto/student loans) comprehensively cover all major categories of consumer debt. YoY transformation is appropriate for analyzing debt growth trends.",
+      "suggested_fix": null
+    },
+    {
+      "query": "household debt",
+      "series": [
+        "TOTALSL",
+        "REVOLSL",
+        "NONREVSL"
+      ],
+      "series_names": [
+        "TOTALSL",
+        "REVOLSL",
+        "NONREVSL"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "These three FRED series perfectly capture the core components of household debt: TOTALSL (total consumer credit), REVOLSL (revolving credit like credit cards), and NONREVSL (non-revolving credit like auto loans). The year-over-year transformation is appropriate for showing debt growth trends. The response directly answers the household debt query with the most relevant data.",
+      "suggested_fix": "Could potentially add mortgage debt (HHMSDODNS) since it's typically the largest component of household debt, but the current series cover consumer credit comprehensively."
+    },
+    {
+      "query": "credit card debt",
+      "series": [
+        "REVOLSL",
+        "DRCCLACBS"
+      ],
+      "series_names": [
+        "REVOLSL",
+        "DRCCLACBS"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Both REVOLSL (revolving consumer credit) and DRCCLACBS (delinquency rate on credit card loans) are highly relevant to credit card debt. REVOLSL shows the outstanding amount of credit card debt, while DRCCLACBS shows the quality/stress in that debt. Year-over-year transformation is appropriate for trend analysis.",
+      "suggested_fix": "Could potentially add charge-off rates (DRCCLACBN) to provide a more complete picture of credit card debt stress, but the current selection covers the core aspects well."
+    },
+    {
+      "query": "personal income",
+      "series": [
+        "PI",
+        "DSPIC96"
+      ],
+      "series_names": [
+        "PI",
+        "DSPIC96"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response showing two key personal income measures: PI (total personal income) and DSPIC96 (real disposable personal income). YoY transformation is appropriate for income growth analysis. Both series directly answer the query.",
+      "suggested_fix": "Could include nominal disposable personal income (DSPI) to provide complete picture of both real and nominal disposable income alongside total personal income"
+    },
+    {
+      "query": "disposable income",
+      "series": [
+        "DSPIC96"
+      ],
+      "series_names": [
+        "DSPIC96"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "DSPIC96 (Real Disposable Personal Income) is the correct primary series for disposable income queries. Year-over-year transformation is appropriate for showing growth trends. The response directly answers the user's question with the most relevant data.",
+      "suggested_fix": "Could consider adding nominal disposable income (DSPI) to provide both real and nominal perspectives, but this is minor since real income is typically more analytically useful."
+    },
+    {
+      "query": "gdp",
+      "series": [
+        "A191RL1Q225SBEA"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Shows GDP growth rate which is relevant, but for a simple 'gdp' query, users typically expect to see the actual GDP level data as the primary response, with growth rate as supplementary context.",
+      "suggested_fix": "Include both real GDP level (GDPC1) as the primary series and real GDP growth rate as additional context to give a complete picture of GDP performance"
+    },
+    {
+      "query": "gdp growth",
+      "series": [
+        "A191RL1Q225SBEA"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "WRONG_YOY"
+      ],
+      "explanation": "The series selection is perfect - Real GDP Growth Rate is exactly what was requested. However, GDP growth is typically viewed as year-over-year changes to smooth out seasonal volatility and provide meaningful economic context, but the system shows quarterly changes instead.",
+      "suggested_fix": "Set 'Show as year-over-year' to True to display the more standard and economically meaningful year-over-year GDP growth rate"
+    },
+    {
+      "query": "economic growth",
+      "series": [
+        "A191RL1Q225SBEA"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "Real GDP Growth Rate is the most direct and appropriate measure for 'economic growth' query. However, showing only one series provides limited context for comprehensive economic growth analysis.",
+      "suggested_fix": "Add complementary series like nominal GDP growth, GDP per capita growth, or productivity measures to provide fuller picture of economic growth trends"
+    },
+    {
+      "query": "real gdp",
+      "series": [
+        "GDPC1"
+      ],
+      "series_names": [
+        "Real GDP Level"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "WRONG_YOY"
+      ],
+      "explanation": "GDPC1 is the correct primary series for real GDP, but showing it in levels rather than year-over-year growth is less intuitive for most economic analysis. Real GDP growth rates are more commonly referenced and meaningful for understanding economic performance.",
+      "suggested_fix": "Show as year-over-year percentage change to display real GDP growth rate, which is the standard way economists and analysts interpret GDP data"
+    },
+    {
+      "query": "industrial production",
+      "series": [
+        "INDPRO"
+      ],
+      "series_names": [
+        "Industrial Production"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. INDPRO is the main Federal Reserve series for industrial production, and year-over-year transformation is appropriate for showing growth trends in production data.",
+      "suggested_fix": null
+    },
+    {
+      "query": "manufacturing",
+      "series": [
+        "IPMAN",
+        "TCU"
+      ],
+      "series_names": [
+        "IPMAN",
+        "TCU"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "IPMAN (Industrial Production: Manufacturing) and TCU (Capacity Utilization) are relevant manufacturing indicators, but the response is incomplete for such a broad query. Missing key manufacturing metrics like employment, new orders, or PMI data.",
+      "suggested_fix": "Add manufacturing employment (MANEMP) and new orders or shipments data to provide a more comprehensive view of the manufacturing sector"
+    },
+    {
+      "query": "productivity",
+      "series": [
+        "OPHNFB",
+        "PRS85006092"
+      ],
+      "series_names": [
+        "OPHNFB",
+        "PRS85006092"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The response includes two relevant productivity series (nonfarm business sector productivity), but for a broad query like 'productivity', it would benefit from showing additional context such as manufacturing productivity or labor productivity growth trends to give a more comprehensive view.",
+      "suggested_fix": "Add 1-2 more productivity series such as manufacturing productivity (OPHMFB) or total factor productivity to provide broader economic context"
+    },
+    {
+      "query": "trade",
+      "series": [
+        "BOPGSTB"
+      ],
+      "series_names": [
+        "Trade Balance"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "Trade balance is relevant to 'trade' but the query is very broad and could benefit from additional context. A single series provides limited insight into overall trade activity.",
+      "suggested_fix": "Add exports and imports series (e.g., EXPGS, IMPGS) to show the components that make up the trade balance and provide fuller picture of trade activity"
+    },
+    {
+      "query": "trade deficit",
+      "series": [
+        "BOPGSTB"
+      ],
+      "series_names": [
+        "Trade Balance"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "BOPGSTB (Trade Balance) directly answers the trade deficit query. Trade deficit is simply the negative of trade balance, so this is the correct and most appropriate series. The response is concise and on-target.",
+      "suggested_fix": "Could potentially add goods-only trade balance (BOPGSB) for additional context since goods trade deficit is often discussed separately from services, but the current response is quite good as-is."
+    },
+    {
+      "query": "trade balance",
+      "series": [
+        "BOPGSTB"
+      ],
+      "series_names": [
+        "Trade Balance"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "BOPGSTB is the correct and primary trade balance series from FRED, showing the difference between exports and imports of goods and services. This directly answers the user's query for trade balance data.",
+      "suggested_fix": "Could potentially include BOPGSTB (goods and services) alongside BOPGTB (goods only) to provide both headline and core trade balance measures, giving users a more complete view of trade dynamics."
+    },
+    {
+      "query": "imports",
+      "series": [
+        "IMPGS"
+      ],
+      "series_names": [
+        "IMPGS"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "IMPGS (Imports of Goods and Services) is correct for the query, but showing only one series provides limited context. For imports analysis, it would be more useful to see goods vs services breakdown or compare with exports.",
+      "suggested_fix": "Add IMPGSC1 (Real Imports of Goods and Services) for inflation-adjusted view, or include IMPGS (goods and services), IEAGS (goods only), and IEASS (services only) for better breakdown"
+    },
+    {
+      "query": "exports",
+      "series": [
+        "EXPGS"
+      ],
+      "series_names": [
+        "EXPGS"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "EXPGS (Exports of Goods and Services) is the standard and most comprehensive measure of U.S. exports, making it highly appropriate for a general 'exports' query. Year-over-year view is suitable for showing export growth trends.",
+      "suggested_fix": "Could potentially add EXPGSC1 (real exports) to show volume changes alongside nominal values, but EXPGS alone adequately answers the query"
+    },
+    {
+      "query": "china trade",
+      "series": [
+        "IMPCH",
+        "EXPCH"
+      ],
+      "series_names": [
+        "Imports from China",
+        "EXPCH"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response showing both US imports from China and US exports to China, which gives a complete picture of bilateral trade. The series are directly relevant to the query.",
+      "suggested_fix": "Could potentially benefit from year-over-year transformation to show growth trends, especially given the volatility in trade data and recent trade tensions between the countries."
+    },
+    {
+      "query": "dollar",
+      "series": [
+        "DTWEXBGS"
+      ],
+      "series_names": [
+        "DTWEXBGS"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "DTWEXBGS (Trade Weighted U.S. Dollar Index: Broad, Goods and Services) is relevant for a 'dollar' query as it measures dollar strength, but the single-word query is ambiguous and could refer to multiple dollar-related concepts. More context would be helpful.",
+      "suggested_fix": "Include additional dollar-related series such as DGS10 (10-year Treasury rate), DEXUSEU (USD/EUR exchange rate), or DFF (Federal funds rate) to provide broader context for dollar performance and monetary policy"
+    },
+    {
+      "query": "exchange rate",
+      "series": [
+        "DTWEXBGS",
+        "DEXUSEU",
+        "DEXJPUS"
+      ],
+      "series_names": [
+        "DTWEXBGS",
+        "DEXUSEU",
+        "DEXJPUS"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The three series shown (Trade Weighted Dollar Index, EUR/USD, and JPY/USD) are relevant exchange rate data, but the selection is limited. For a general 'exchange rate' query, this covers major currencies but misses other important ones like GBP, CAD, and CNY that would provide better global context.",
+      "suggested_fix": "Add 1-2 more major exchange rates like GBP/USD (DEXUSUK) or CAD/USD (DEXCAUS) to give a more comprehensive view of USD exchange rate movements"
+    },
+    {
+      "query": "stock market",
+      "series": [
+        "SP500"
+      ],
+      "series_names": [
+        "S&P 500"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The S&P 500 is the most appropriate single indicator for 'stock market' queries and correctly shows levels rather than YoY changes. However, for a complete stock market picture, it would benefit from additional major indices.",
+      "suggested_fix": "Add Dow Jones Industrial Average (DJIA) and NASDAQ Composite to provide broader market coverage"
+    },
+    {
+      "query": "stocks",
+      "series": [
+        "SP500"
+      ],
+      "series_names": [
+        "S&P 500"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The S&P 500 is a reasonable response to 'stocks' but is quite limited. The query is very broad and could benefit from additional context like other major indices or market indicators.",
+      "suggested_fix": "Include other major stock indices like NASDAQ Composite (NASDAQCOM) and Dow Jones (DJIA) to provide broader market context, or add VIX for volatility perspective"
+    },
+    {
+      "query": "s&p 500",
+      "series": [
+        "SP500"
+      ],
+      "series_names": [
+        "S&P 500"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The user asked for 'S&P 500' and the system returned exactly the right series (SP500) with the correct name. No year-over-year transformation is appropriate since S&P 500 is typically viewed as an index level.",
+      "suggested_fix": null
+    },
+    {
+      "query": "sp500",
+      "series": [
+        "SP500"
+      ],
+      "series_names": [
+        "S&P 500"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response - the user asked for 'sp500' and got exactly that with the S&P 500 index series. The level data is appropriate as users typically want to see the actual index value rather than year-over-year changes when asking about the S&P 500.",
+      "suggested_fix": null
+    },
+    {
+      "query": "oil",
+      "series": [
+        "DCOILWTICO"
+      ],
+      "series_names": [
+        "WTI Crude Oil Price"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "WTI Crude Oil Price is the most relevant and commonly referenced oil price series for a general 'oil' query. However, for broader context, Brent crude prices would also be valuable since these are the two main global oil benchmarks.",
+      "suggested_fix": "Add Brent crude oil prices (DCOILBRENTEU) to provide a more complete view of global oil markets"
+    },
+    {
+      "query": "crude oil",
+      "series": [
+        "DCOILWTICO"
+      ],
+      "series_names": [
+        "WTI Crude Oil Price"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "WTI Crude Oil Price is the most appropriate and widely-used benchmark for crude oil pricing. The series directly answers the user's query with the standard oil price reference.",
+      "suggested_fix": "Could potentially add Brent crude oil price for additional context, as it's another major benchmark, but WTI alone is sufficient for most crude oil price analysis."
+    },
+    {
+      "query": "commodities",
+      "series": [
+        "DCOILWTICO",
+        "GOLDAMGBD228NLBM",
+        "GASREGW",
+        "PPIACO"
+      ],
+      "series_names": [
+        "WTI Crude Oil Price",
+        "GOLDAMGBD228NLBM",
+        "Gas Price",
+        "PPIACO"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Shows relevant commodity data with oil, gold, and gas prices, but has unclear series names (GOLDAMGBD228NLBM, PPIACO not properly labeled) and misses other major commodities like agricultural products or metals beyond gold.",
+      "suggested_fix": "Fix series names to show 'Gold Price' and 'Producer Price Index - All Commodities', and consider adding key agricultural or industrial metal commodities for broader representation"
+    }
+  ]
+}

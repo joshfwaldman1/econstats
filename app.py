@@ -1710,21 +1710,21 @@ def main():
         time_period = st.selectbox("Timeframe", list(TIME_PERIODS.keys()), index=3, label_visibility="collapsed")
         years = TIME_PERIODS[time_period]
 
-    # Handle pending query from button clicks
-    button_query = None
-    if 'pending_query' in st.session_state and st.session_state.pending_query:
-        button_query = st.session_state.pending_query
-        st.session_state.pending_query = None  # Clear it
-
-    # Chat input at bottom of page (like Claude/ChatGPT)
+    # Search input form
     has_previous_query = st.session_state.last_query and len(st.session_state.last_query) > 0
     placeholder = "Ask a follow-up..." if has_previous_query else "Ask about the economy (e.g., inflation, jobs, GDP)"
-    chat_query = st.chat_input(placeholder)
 
-    # Use button query or chat query
-    query = button_query or chat_query
+    with st.form(key="search_form", clear_on_submit=False, border=False):
+        query = st.text_input("Search", placeholder=placeholder, label_visibility="collapsed")
+        search_clicked = st.form_submit_button("Search", type="primary", use_container_width=True)
 
-    if query:
+    # Handle pending query from button clicks
+    if 'pending_query' in st.session_state and st.session_state.pending_query:
+        query = st.session_state.pending_query
+        search_clicked = True
+        st.session_state.pending_query = None
+
+    if query and search_clicked:
         # Build context from previous query for follow-up detection
         previous_context = None
         if st.session_state.last_query and st.session_state.last_series:

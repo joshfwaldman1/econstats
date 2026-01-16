@@ -1,0 +1,278 @@
+{
+  "category": "Housing",
+  "total_queries": 15,
+  "average_score": 3.27,
+  "score_distribution": {
+    "1": 0,
+    "2": 4,
+    "3": 4,
+    "4": 6,
+    "5": 1
+  },
+  "issues_summary": {
+    "MISSING_KEY": 7,
+    "TOO_FEW": 7,
+    "WRONG_SERIES": 2
+  },
+  "results": [
+    {
+      "query": "housing",
+      "series": [
+        "CSUSHPINSA",
+        "HOUST",
+        "CUSR0000SEHA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index",
+        "Housing Starts",
+        "CPI Rent of Primary Residence"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The response covers key housing metrics (prices, construction, and rental costs) but misses housing sales data, which is a fundamental indicator for housing market analysis. The three series shown are relevant and complementary.",
+      "suggested_fix": "Add existing home sales (EXHOSLUSM495S) or new home sales (HSN1F) to provide a more complete picture of housing market activity"
+    },
+    {
+      "query": "housing market",
+      "series": [
+        "CSUSHPINSA",
+        "MORTGAGE30US",
+        "CUSR0000SEHA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index",
+        "30-Year Mortgage Rate",
+        "CPI Rent of Primary Residence"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection covering key housing market indicators: home prices (Case-Shiller), mortgage costs (30-year rate), and rental costs (CPI rent). These three series provide a solid overview of housing market conditions from both ownership and rental perspectives.",
+      "suggested_fix": "Could add housing starts or existing home sales to show market activity/volume, but the current selection adequately covers pricing fundamentals"
+    },
+    {
+      "query": "home prices",
+      "series": [
+        "CSUSHPINSA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "The Case-Shiller Home Price Index is the gold standard for tracking U.S. home prices and is exactly what most users expect when asking about 'home prices'. The year-over-year transformation is appropriate as it shows the rate of price appreciation, which is how home price changes are typically discussed.",
+      "suggested_fix": "Could potentially add the FHFA House Price Index as a complementary series to provide additional context, but the current response is quite strong on its own."
+    },
+    {
+      "query": "house prices",
+      "series": [
+        "CSUSHPINSA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "The Case-Shiller Home Price Index is the gold standard for US house price data and perfectly answers the query. YoY transformation is appropriate for showing price appreciation trends rather than raw index levels.",
+      "suggested_fix": "Could potentially add FHFA House Price Index for additional context, but the current response is very strong as-is."
+    },
+    {
+      "query": "real estate",
+      "series": [
+        "CSUSHPINSA",
+        "HOUST"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index",
+        "Housing Starts"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW",
+        "MISSING_KEY"
+      ],
+      "explanation": "The two series shown (home prices and housing starts) are relevant to real estate but provide a narrow view. The query 'real estate' is quite broad and would benefit from additional context like sales volumes, inventory levels, or mortgage rates to give a more comprehensive picture of the real estate market.",
+      "suggested_fix": "Add 1-2 more series such as existing home sales (EXHOSLUSM495S) or housing inventory to provide better market context while staying under 4 total series"
+    },
+    {
+      "query": "home sales",
+      "series": [
+        "EXHOSLUSM495S",
+        "HSN1F"
+      ],
+      "series_names": [
+        "EXHOSLUSM495S",
+        "HSN1F"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "The response only shows 2 series and appears to miss the most fundamental home sales data. For a 'home sales' query, users typically expect existing home sales (EXHSLUSM495S) and new home sales (HSN1F), but the first series code looks incorrect (EXHOSLUSM495S vs EXHSLUSM495S).",
+      "suggested_fix": "Include the correct existing home sales series (EXHSLUSM495S), new home sales (HSN1F), and consider adding pending home sales for more comprehensive coverage of the housing market"
+    },
+    {
+      "query": "existing home sales",
+      "series": [
+        "EXHOSLUSM495S"
+      ],
+      "series_names": [
+        "EXHOSLUSM495S"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "EXHOSLUSM495S is the correct monthly existing home sales series, but the response could be enhanced with additional context such as the seasonally adjusted version (EXHOSLUSM495S is NSA) or year-over-year comparison to better understand trends.",
+      "suggested_fix": "Consider adding the seasonally adjusted existing home sales series (EXHOSLUSM494S) or enabling year-over-year transformation to show growth trends"
+    },
+    {
+      "query": "new home sales",
+      "series": [
+        "HSN1F"
+      ],
+      "series_names": [
+        "HSN1F"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "HSN1F (New One Family Houses Sold) is the correct primary series for new home sales, and year-over-year view is appropriate for analyzing trends. However, showing only one series provides limited context.",
+      "suggested_fix": "Add complementary series like new home sales in other regions (South, West, etc.) or new home inventory/months' supply to provide better market context"
+    },
+    {
+      "query": "housing starts",
+      "series": [
+        "HOUST"
+      ],
+      "series_names": [
+        "Housing Starts"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "explanation": "Perfect response. HOUST is the standard and most commonly referenced housing starts series from FRED, measuring new residential construction starts. This directly answers the user's query with the exact data they requested.",
+      "issues": [],
+      "suggested_fix": null
+    },
+    {
+      "query": "building permits",
+      "series": [
+        "PERMIT",
+        "HOUST"
+      ],
+      "series_names": [
+        "PERMIT",
+        "Housing Starts"
+      ],
+      "show_yoy": true,
+      "score": 2,
+      "issues": [
+        "WRONG_SERIES"
+      ],
+      "explanation": "The user specifically asked for 'building permits' but got PERMIT (correct) and HOUST (Housing Starts). Housing starts are different from building permits - starts measure when construction begins, while permits measure authorization to build. This is a fundamental distinction in construction economics.",
+      "suggested_fix": "Remove HOUST and keep only PERMIT, or add a proper building permits series if PERMIT isn't the right one. If showing related context, clearly label that housing starts are related but different from permits."
+    },
+    {
+      "query": "housing affordability",
+      "series": [
+        "MORTGAGE30US",
+        "CSUSHPINSA"
+      ],
+      "series_names": [
+        "30-Year Mortgage Rate",
+        "Case-Shiller Home Price Index"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Shows two relevant housing cost components (mortgage rates and home prices) but missing income data which is essential for measuring affordability - the relationship between housing costs and what people can actually afford to pay.",
+      "suggested_fix": "Add a median household income or real median household income series to provide the income component needed to assess true affordability"
+    },
+    {
+      "query": "rent prices",
+      "series": [
+        "CUSR0000SEHA",
+        "CUSR0000SEHC"
+      ],
+      "series_names": [
+        "CPI Rent of Primary Residence",
+        "CUSR0000SEHC"
+      ],
+      "show_yoy": true,
+      "score": 2,
+      "issues": [
+        "WRONG_SERIES",
+        "MISSING_KEY"
+      ],
+      "explanation": "The response shows CPI rent components which measure rent inflation, but the user asked about 'rent prices' which typically means actual rent levels. The series names are also incomplete (missing name for CUSR0000SEHC). Missing key series like median rent, rental vacancy rates, or housing rental market indicators that show actual price levels rather than just inflation measures.",
+      "suggested_fix": "Include actual rent price series like median rent data, housing rental costs, or rental market indicators. If CPI rent is included, it should be alongside actual rent level data to provide complete context."
+    },
+    {
+      "query": "case shiller",
+      "series": [
+        "CSUSHPINSA"
+      ],
+      "series_names": [
+        "Case-Shiller Home Price Index"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The response correctly identifies the Case-Shiller Home Price Index with appropriate year-over-year transformation, which is standard for housing price analysis. However, it only shows the national aggregate when users typically want to see regional variations or the most commonly referenced indices.",
+      "suggested_fix": "Include the Case-Shiller 10-City and 20-City composite indices (CSXR0000SA0L2, SPCS20RSA) alongside or instead of just the national series, as these are more frequently cited benchmarks"
+    },
+    {
+      "query": "housing inventory",
+      "series": [
+        "MNMFS",
+        "MSACSR"
+      ],
+      "series_names": [
+        "MNMFS",
+        "MSACSR"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "MNMFS (months' supply) and MSACSR (existing home sales) are relevant to housing inventory, but the response is incomplete. It's missing the most direct measure of housing inventory - actual housing units available for sale (like HOUST for housing starts or new home inventory data).",
+      "suggested_fix": "Add direct housing inventory measures such as new home inventory levels or housing units for sale, and consider including housing starts (HOUST) for broader inventory context"
+    },
+    {
+      "query": "housing supply",
+      "series": [
+        "MSACSR",
+        "MNMFS"
+      ],
+      "series_names": [
+        "MSACSR",
+        "MNMFS"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "MISSING_KEY",
+        "TOO_FEW"
+      ],
+      "explanation": "MSACSR (months' supply) and MNMFS (new manufactured homes) are relevant but inadequate for housing supply. Missing critical metrics like housing starts, building permits, new home sales, and existing home inventory.",
+      "suggested_fix": "Add HOUST (housing starts), PERMIT (building permits), EXHOSLUSM495S (existing home inventory), and HSN1F (new single-family home sales) to provide comprehensive housing supply picture"
+    }
+  ]
+}

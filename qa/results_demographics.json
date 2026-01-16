@@ -1,0 +1,410 @@
+{
+  "category": "Demographics",
+  "total_queries": 22,
+  "average_score": 3.82,
+  "score_distribution": {
+    "1": 0,
+    "2": 2,
+    "3": 4,
+    "4": 12,
+    "5": 4
+  },
+  "issues_summary": {
+    "WRONG_SERIES": 3,
+    "MISSING_KEY": 5,
+    "TOO_FEW": 1,
+    "AGGREGATE_FOR_DEMOGRAPHIC": 1
+  },
+  "results": [
+    {
+      "query": "women",
+      "series": [
+        "LNS14000002",
+        "LNS12300062",
+        "LNS11300002"
+      ],
+      "series_names": [
+        "Unemployment Rate - Women",
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response provides the three core labor market indicators specifically for women: unemployment rate, prime-age employment-population ratio, and labor force participation rate. These are exactly the right demographic-specific series for understanding women's labor market status.",
+      "suggested_fix": "Could potentially add women's employment level (LNS12000002) to provide absolute context alongside the rates, but the current selection covers all essential metrics well."
+    },
+    {
+      "query": "women employment",
+      "series": [
+        "LNS12300062",
+        "LNS14000002",
+        "LNS11300002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "Unemployment Rate - Women",
+        "LFPR - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three core women's employment metrics: employment-population ratio, unemployment rate, and labor force participation rate. These directly answer the query and provide comprehensive coverage of women's employment status.",
+      "suggested_fix": "Could potentially add women's employment level (LNS12000002) to show the absolute number of employed women alongside the rates, but the current selection is already very strong."
+    },
+    {
+      "query": "women unemployment",
+      "series": [
+        "LNS14000002",
+        "LNS14000026",
+        "LNS12300062"
+      ],
+      "series_names": [
+        "Unemployment Rate - Women",
+        "LNS14000026",
+        "Prime-Age Emp-Pop Ratio - Women"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "WRONG_SERIES"
+      ],
+      "explanation": "Two of the three series are appropriate - unemployment rate for women is perfect, and prime-age employment-population ratio provides useful context. However, LNS14000026 appears to be mislabeled/unidentified, and employment-population ratio, while related, isn't directly what was asked for when someone queries 'women unemployment'.",
+      "suggested_fix": "Replace the unidentified LNS14000026 with women's labor force participation rate (LNS11300002) or unemployment level for women (LNS13000002) to provide more directly relevant unemployment context."
+    },
+    {
+      "query": "women in the workforce",
+      "series": [
+        "LNS12300062",
+        "LNS11300002",
+        "LNS14000002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women",
+        "Unemployment Rate - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The three series provide a comprehensive view of women's labor market status: employment rate (prime-age emp-pop ratio), labor force participation, and unemployment. These are the core metrics for analyzing workforce participation by demographic group.",
+      "suggested_fix": "Could potentially add total women in labor force (LNS12000002) to show absolute numbers alongside the rates, but the current selection covers all the essential metrics well."
+    },
+    {
+      "query": "women labor force",
+      "series": [
+        "LNS12300062",
+        "LNS11300002",
+        "LNS14000002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women",
+        "Unemployment Rate - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response provides three highly relevant series that comprehensively cover women's labor force participation: employment-to-population ratio for prime-age women, labor force participation rate for women, and unemployment rate for women. These are exactly the right demographic-specific series for this query.",
+      "suggested_fix": "Could potentially add the absolute number of women in the labor force (CLF16OV filtered for women or CIVPART series for women) to show the scale/trend in addition to the rates, but the current selection is already very strong."
+    },
+    {
+      "query": "female employment",
+      "series": [
+        "LNS12300062",
+        "LNS11300002",
+        "LNS14000002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women",
+        "Unemployment Rate - Women"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three core female employment metrics: employment-population ratio, labor force participation rate, and unemployment rate for women. These provide a comprehensive view of female employment status covering both employment levels and labor market engagement.",
+      "suggested_fix": "Could potentially add total nonfarm payroll by gender or women's employment level (LNS12000002) to show absolute employment numbers alongside the rates, but the current selection is very strong."
+    },
+    {
+      "query": "female unemployment",
+      "series": [
+        "LNS14000002",
+        "LNS14000026",
+        "LNS12300062"
+      ],
+      "series_names": [
+        "Unemployment Rate - Women",
+        "LNS14000026",
+        "Prime-Age Emp-Pop Ratio - Women"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "WRONG_SERIES"
+      ],
+      "explanation": "Two series are relevant (unemployment rate and employment-population ratio for women), but one series (LNS14000026) appears to be incorrectly labeled or irrelevant. The employment-population ratio, while related, doesn't directly measure unemployment as requested.",
+      "suggested_fix": "Replace the mislabeled series and focus on unemployment-specific metrics for women, such as unemployment level or labor force participation rate for women to provide better context"
+    },
+    {
+      "query": "how are women doing in the economy",
+      "series": [
+        "LNS12300062",
+        "LNS14000002",
+        "LNS11300002"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "Unemployment Rate - Women",
+        "LFPR - Women"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of core labor market indicators specifically for women. The three series (employment-population ratio, unemployment rate, and labor force participation rate) provide a comprehensive view of women's labor market performance. Year-over-year view is appropriate for showing recent trends.",
+      "suggested_fix": "Could consider adding women's median earnings or wage growth data to provide a more complete picture of economic well-being beyond just labor market participation."
+    },
+    {
+      "query": "working women",
+      "series": [
+        "LNS12300062",
+        "LNS11300002",
+        "LNS14000026"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LFPR - Women",
+        "LNS14000026"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Good selection covering employment ratio and labor force participation for women. However, missing unemployment rate for women which is a key metric for understanding the full picture of working women's labor market status.",
+      "suggested_fix": "Add women's unemployment rate (LNS14000026 appears to be incorrect - should be LNS14000002 for women's unemployment rate) to provide complete labor market overview"
+    },
+    {
+      "query": "gender employment gap",
+      "series": [
+        "LNS12300062",
+        "LNS12300061"
+      ],
+      "series_names": [
+        "Prime-Age Emp-Pop Ratio - Women",
+        "LNS12300061"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The system correctly identified prime-age employment-population ratios for women, which is highly relevant for gender employment gap analysis. However, it's missing the corresponding men's series to actually show the gap comparison.",
+      "suggested_fix": "Add the men's prime-age employment-population ratio series (LNS12300060) to enable direct comparison and visualization of the gender employment gap"
+    },
+    {
+      "query": "men employment",
+      "series": [
+        "LNS12300061",
+        "LNS14000001",
+        "LNS11300001"
+      ],
+      "series_names": [
+        "LNS12300061",
+        "Unemployment Rate - Men",
+        "LNS11300001"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "MISSING_KEY",
+        "WRONG_SERIES"
+      ],
+      "explanation": "The response includes unemployment rate for men but is missing the core employment data (employment level or employment-population ratio for men). One series name is missing, and LNS14000001 appears to be total unemployment rate rather than men-specific data.",
+      "suggested_fix": "Include men's employment level (LNS12000001) or employment-population ratio (LNS12300001), remove the aggregate unemployment series, and ensure all series are men-specific employment indicators."
+    },
+    {
+      "query": "men unemployment",
+      "series": [
+        "LNS14000001",
+        "LNS14000026"
+      ],
+      "series_names": [
+        "Unemployment Rate - Men",
+        "LNS14000026"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The response correctly identifies unemployment data for men, but only shows two series with one having an unclear name (LNS14000026). For unemployment analysis, it would be helpful to include context like overall unemployment rate or women's unemployment for comparison.",
+      "suggested_fix": "Add the overall unemployment rate (UNRATE) and women's unemployment rate (LNS14000002) for better context and comparison"
+    },
+    {
+      "query": "black unemployment",
+      "series": [
+        "LNS14000006",
+        "LNS14000003"
+      ],
+      "series_names": [
+        "Unemployment Rate - Black",
+        "LNS14000003"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response correctly identifies and returns the primary Black unemployment rate series (LNS14000006). The data directly answers the user's query for 'black unemployment' with the most relevant demographic-specific series.",
+      "suggested_fix": "Could potentially include a comparison series like the overall unemployment rate (UNRATE) to provide context, but the core data need is well satisfied."
+    },
+    {
+      "query": "african american unemployment",
+      "series": [
+        "LNS14000006",
+        "LNS14000003"
+      ],
+      "series_names": [
+        "Unemployment Rate - Black",
+        "LNS14000003"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response correctly identifies and shows the Black unemployment rate series (LNS14000006), which directly answers the query. The series names show 'Unemployment Rate - Black' which is exactly what was requested. No year-over-year transformation is appropriate for unemployment rates as levels are more meaningful.",
+      "suggested_fix": "Could potentially include the overall unemployment rate (UNRATE) for context to allow comparison between Black unemployment and the general population, but the current response is still very good as-is."
+    },
+    {
+      "query": "hispanic unemployment",
+      "series": [
+        "LNS14000009"
+      ],
+      "series_names": [
+        "Unemployment Rate - Hispanic"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response - returns exactly the right FRED series for Hispanic unemployment rate. The series LNS14000009 is the official BLS unemployment rate specifically for Hispanic or Latino workers, which directly answers the user's query.",
+      "suggested_fix": null
+    },
+    {
+      "query": "latino unemployment",
+      "series": [
+        "LNS14000009"
+      ],
+      "series_names": [
+        "Unemployment Rate - Hispanic"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The system correctly identified that 'latino unemployment' refers to Hispanic unemployment rate and returned the exact appropriate FRED series (LNS14000009 - Unemployment Rate - Hispanic). The year-over-year transformation is appropriate for unemployment rate analysis to show trends and changes.",
+      "suggested_fix": ""
+    },
+    {
+      "query": "white unemployment",
+      "series": [
+        "LNS14000003"
+      ],
+      "series_names": [
+        "LNS14000003"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. LNS14000003 is the correct FRED series for White unemployment rate. The series directly answers the user's query with the appropriate demographic breakdown. Year-over-year display is reasonable for unemployment data to show trends.",
+      "suggested_fix": null
+    },
+    {
+      "query": "youth unemployment",
+      "series": [
+        "LNS14000012",
+        "LNS14000036"
+      ],
+      "series_names": [
+        "LNS14000012",
+        "LNS14000036"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "LNS14000012 and LNS14000036 are the correct FRED series for youth unemployment rates (16-19 years and 20-24 years respectively). These directly answer the user's question about youth unemployment with the two standard age cohorts used for this demographic.",
+      "suggested_fix": "Consider adding context with overall unemployment rate (UNRATE) to show how youth unemployment compares to the general population"
+    },
+    {
+      "query": "teen unemployment",
+      "series": [
+        "LNS14000012"
+      ],
+      "series_names": [
+        "LNS14000012"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "LNS14000012 is the exact FRED series for teen unemployment rate (16-19 years), which perfectly matches the user's query. The series is specific to the demographic requested and level data is appropriate for unemployment rates.",
+      "suggested_fix": null
+    },
+    {
+      "query": "older workers",
+      "series": [
+        "LNS14000095",
+        "LNS14000097",
+        "LNS11300012",
+        "LNS11300013"
+      ],
+      "series_names": [
+        "LNS14000095",
+        "LNS14000097",
+        "LNS11300012",
+        "LNS11300013"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection of older worker data. LNS14000095/097 are unemployment rates for 55+ age groups, and LNS11300012/013 are labor force participation rates for the same demographics. These four series appropriately cover the key labor market metrics for older workers without being overwhelming.",
+      "suggested_fix": "Could potentially include employment-population ratio for older workers to provide a more complete picture of older worker employment outcomes."
+    },
+    {
+      "query": "racial unemployment gap",
+      "series": [
+        "LNS14000003",
+        "LNS14000006",
+        "LNS14000009"
+      ],
+      "series_names": [
+        "LNS14000003",
+        "Unemployment Rate - Black",
+        "Unemployment Rate - Hispanic"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "MISSING_KEY",
+        "AGGREGATE_FOR_DEMOGRAPHIC"
+      ],
+      "explanation": "The query asks for 'racial unemployment gap' which requires comparison between racial groups, but the response is missing the White unemployment rate (the baseline for measuring racial gaps). Without this key series, it's impossible to calculate or visualize the actual gap.",
+      "suggested_fix": "Add the White unemployment rate series (LNS14000006) to enable proper gap analysis between racial groups"
+    },
+    {
+      "query": "prime age workers",
+      "series": [
+        "LNS12300060",
+        "LNS11300060",
+        "LNS14000025"
+      ],
+      "series_names": [
+        "Prime-Age Employment-Pop Ratio (25-54)",
+        "Prime-Age Labor Force Participation",
+        "LNS14000025"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Shows relevant prime-age (25-54) employment and labor force participation data, but missing the unemployment rate for this demographic group. The third series LNS14000025 appears to be unlabeled/unclear.",
+      "suggested_fix": "Replace the unclear third series with prime-age unemployment rate (LNS14000025 should be labeled as Prime-Age Unemployment Rate if that's what it is, or find the correct prime-age unemployment series). The three key labor market indicators for prime-age workers should be employment-population ratio, labor force participation rate, and unemployment rate."
+    }
+  ]
+}

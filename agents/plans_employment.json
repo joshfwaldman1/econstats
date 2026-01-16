@@ -1,0 +1,361 @@
+{
+  "jobs": {
+    "series": [
+      "PAYEMS",
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "PAYEMS (nonfarm payrolls) is THE jobs number - the monthly change shows job creation/loss from the establishment survey. UNRATE (unemployment rate) provides the complementary household survey perspective. Together they give the complete picture of the job market that markets and policymakers focus on."
+  },
+  "job market": {
+    "series": [
+      "PAYEMS",
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For a general job market overview, PAYEMS (total nonfarm payrolls) shows job creation - the headline 'jobs number' that gets the most attention. UNRATE (unemployment rate) shows the percentage of people actively looking for work who can't find it. Together, these two series give the clearest, most widely-followed picture of overall job market conditions."
+  },
+  "employment": {
+    "series": [
+      "PAYEMS",
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For a general employment query, these are the two most important headline indicators: PAYEMS (total nonfarm payrolls) shows the monthly change in jobs - this is THE jobs number that moves markets. UNRATE is the headline unemployment rate (U-3) that measures the percentage of labor force actively seeking work. Together they give the complete picture of employment conditions."
+  },
+  "unemployment": {
+    "series": [
+      "UNRATE",
+      "U6RATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "UNRATE is the headline U-3 unemployment rate that everyone watches. U6RATE includes discouraged workers and those working part-time for economic reasons, giving a fuller picture of labor market slack. Together they show both the standard measure and broader unemployment conditions."
+  },
+  "unemployment rate": {
+    "series": [
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "UNRATE is the official U-3 unemployment rate - the headline unemployment statistic that measures the percentage of labor force that is jobless and actively seeking employment. This is the primary metric when someone asks about 'the unemployment rate'."
+  },
+  "how is the job market": {
+    "series": [
+      "PAYEMS",
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "PAYEMS (nonfarm payrolls) shows monthly job creation - the headline jobs number that indicates labor demand. UNRATE (unemployment rate) shows the percentage of labor force actively seeking work. Together, these two series provide the clearest, most digestible snapshot of overall job market conditions."
+  },
+  "labor market": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "LNS12300060"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For a comprehensive labor market overview: PAYEMS (total nonfarm payrolls) shows job creation momentum, UNRATE provides the headline unemployment rate, and LNS12300060 (prime-age employment-population ratio) is the best single measure of labor market health as it captures employment strength among workers in their prime working years (25-54), unaffected by demographic shifts or schooling decisions."
+  },
+  "hiring": {
+    "series": [
+      "JTSHIR",
+      "JTSJOL"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "JTSHIR (JOLTS Hires) directly measures actual hiring activity - the number of people hired each month. JTSJOL (Job Openings) shows hiring demand and complements the hiring picture by indicating available opportunities. Together they show both realized hiring and potential hiring capacity. YoY helps identify hiring trends vs seasonal patterns."
+  },
+  "job growth": {
+    "series": [
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "PAYEMS (Total nonfarm payrolls) is THE definitive measure of job growth. This establishment survey tracks the monthly change in employment across all non-farm sectors and is the headline 'jobs number' that markets and policymakers focus on. Year-over-year view shows the growth trend clearly, filtering out monthly volatility."
+  },
+  "job openings": {
+    "series": [
+      "JTSJOL",
+      "JTSQUR"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "JTSJOL is the primary job openings data from JOLTS survey - the definitive measure of labor demand. Adding JTSQUR (quits rate) provides crucial context since high quits indicate worker confidence and tight labor markets where people feel secure leaving jobs, which complements job openings data to show full demand picture."
+  },
+  "jolts": {
+    "series": [
+      "JTSJOL",
+      "JTSQUR",
+      "JTSHIR"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "JOLTS (Job Openings and Labor Turnover Survey) provides the best view of labor market dynamics beyond just hiring/firing. JTSJOL shows job openings (demand for workers), JTSQUR shows quits rate (worker confidence to leave jobs), and JTSHIR shows actual hiring activity. Together these reveal labor market tightness, worker bargaining power, and employment flows that payrolls data misses."
+  },
+  "payrolls": {
+    "series": [
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "PAYEMS is total nonfarm payrolls - the definitive monthly jobs number from the establishment survey. This measures net job creation/destruction and is THE primary indicator for employment growth. YoY growth shows the pace of job market expansion."
+  },
+  "nonfarm payrolls": {
+    "series": [
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "PAYEMS is THE nonfarm payrolls series - the official monthly employment count from the establishment survey that represents the headline 'jobs number' reported in employment reports. This is the most closely watched employment indicator."
+  },
+  "jobs report": {
+    "series": [
+      "PAYEMS",
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The jobs report refers to the monthly Employment Situation Summary. PAYEMS (total nonfarm payrolls) is THE jobs number - the headline figure showing monthly job gains/losses from the establishment survey. UNRATE is the headline unemployment rate from the household survey. These two series form the core of every jobs report analysis and give the clearest picture of employment trends."
+  },
+  "employment rate": {
+    "series": [
+      "LNS12300060",
+      "EMRATIO"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Prime-age employment-population ratio (LNS12300060) is the gold standard for employment rate health as it excludes retirement/school effects. Overall employment-population ratio (EMRATIO) provides broader context. These are the two key 'employment rate' measures - NOT unemployment rate."
+  },
+  "jobless rate": {
+    "series": [
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "UNRATE is the official U-3 unemployment rate - the headline 'jobless rate' that measures the percentage of the labor force that is unemployed and actively seeking work. This is the standard measure reported in media and policy discussions when referring to the jobless rate."
+  },
+  "weekly jobless claims": {
+    "series": [
+      "ICSA",
+      "CCSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "ICSA (Initial Claims) shows new unemployment insurance filings each week - the timeliest labor market indicator. CCSA (Continuing Claims) shows ongoing claims, indicating duration of unemployment spells. Together they provide complete picture of unemployment insurance flows and labor market stress in real-time."
+  },
+  "initial claims": {
+    "series": [
+      "ICSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "ICSA is the primary weekly series for initial unemployment insurance claims - the most timely indicator of layoffs and labor market stress. This high-frequency data provides real-time insight into job losses before monthly employment reports. YoY not needed as weekly volatility and recent trends are more relevant for this leading indicator."
+  },
+  "continuing claims": {
+    "series": [
+      "CCSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "CCSA (Continuing Claims Seasonally Adjusted) is the direct measure of the number of people receiving unemployment benefits after their initial claim. This weekly series shows how many people remain unemployed and are continuing to collect benefits, making it a key real-time indicator of labor market stress and the duration of unemployment spells."
+  },
+  "labor force participation": {
+    "series": [
+      "LNS11300000",
+      "LNS11300060"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "LNS11300000 is the overall labor force participation rate - the core metric showing what percentage of the civilian population is either working or actively looking for work. LNS11300060 is the prime-age (25-54) participation rate, which filters out demographic effects from aging and schooling. The prime-age measure is crucial because it shows labor market engagement of people in their peak working years, unaffected by retirement or education decisions. Comparing both reveals whether participation changes are structural (prime-age) or demographic (overall)."
+  },
+  "participation rate": {
+    "series": [
+      "CIVPART",
+      "LNS11300060"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "CIVPART shows overall civilian labor force participation rate trends, while LNS11300060 (prime-age 25-54 participation) is the cleaner measure since it excludes demographic effects from aging population and student enrollment changes. Prime-age participation is the better indicator of underlying labor market conditions."
+  },
+  "prime age employment": {
+    "series": [
+      "LNS12300060",
+      "LNS11300060"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Prime-age (25-54) employment-population ratio is THE best measure of labor market health - it excludes retirement/education distortions. Combined with prime-age labor force participation to show both employment strength and worker engagement. These are the gold standard metrics economists use to assess true labor market conditions."
+  },
+  "employment to population ratio": {
+    "series": [
+      "EMRATIO",
+      "LNS12300060"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "EMRATIO shows the overall employment-to-population ratio for all civilians 16+, while LNS12300060 shows the prime-age (25-54) employment-population ratio. The prime-age measure is superior for assessing labor market health as it excludes demographic effects from aging populations, students, and early retirees. Combining both provides the complete picture of employment rates across age groups."
+  },
+  "underemployment": {
+    "series": [
+      "U6RATE",
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "U6RATE is the definitive underemployment measure - it includes unemployed, marginally attached workers, and those working part-time for economic reasons. Comparing it to the headline unemployment rate (UNRATE) shows the gap between official unemployment and true labor underutilization. The spread between U6 and U3 widens during recessions when underemployment becomes more prevalent."
+  },
+  "u6 unemployment": {
+    "series": [
+      "U6RATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "U6RATE is the broadest unemployment measure (U-6) that includes not just the unemployed but also marginally attached workers and those employed part-time for economic reasons. This gives a more comprehensive view of labor market slack than the headline U-3 rate."
+  },
+  "long term unemployment": {
+    "series": [
+      "LNS13023621",
+      "LNS13000000"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "LNS13023621 tracks unemployed persons jobless for 27+ weeks (the official long-term unemployment definition). LNS13000000 provides total unemployment level for context and calculating the long-term share. This shows both the absolute number of long-term unemployed and how it compares to overall unemployment levels."
+  },
+  "job quits": {
+    "series": [
+      "JTSQUR",
+      "JTSJOL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "JTSQUR (quits rate) directly measures job quits - the rate at which people voluntarily leave their jobs, which indicates worker confidence and labor market tightness. JTSJOL (job openings) provides crucial context since high quits typically coincide with abundant job opportunities. Together they show the 'Great Resignation' pattern and current quit dynamics relative to job availability."
+  },
+  "quit rate": {
+    "series": [
+      "JTSQUR"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "JTSQUR is the official quits rate from the Job Openings and Labor Turnover Survey (JOLTS). The quits rate measures voluntary separations as a percent of total employment and is a key indicator of labor market confidence - workers quit more when they're confident about finding better jobs elsewhere."
+  },
+  "layoffs": {
+    "series": [
+      "ICSA",
+      "CCSA",
+      "JTSQUR"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For layoffs, ICSA (initial jobless claims) is the most timely weekly indicator of new layoffs and job losses. CCSA (continuing claims) shows the persistence of unemployment from layoffs. JTSQUR (quits rate) provides context - when layoffs increase, quits typically decrease as workers become more cautious about leaving jobs voluntarily. These three series together give the clearest picture of layoff activity and labor market stress."
+  },
+  "job cuts": {
+    "series": [
+      "ICSA",
+      "CCSA",
+      "LNS13000000"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Job cuts are best measured by: ICSA (initial jobless claims - weekly new layoffs, most timely indicator), CCSA (continuing claims - shows persistence of job losses), and LNS13000000 (unemployment level - shows cumulative effect). Initial claims spike immediately when cuts happen, continuing claims show if cuts are leading to sustained unemployment, and unemployment level captures the overall impact."
+  },
+  "is the labor market tight": {
+    "series": [
+      "LNS12300060",
+      "JTSJOL",
+      "JTSQUR"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Prime-age employment-population ratio (LNS12300060) is the BEST measure of labor market tightness - it shows how many prime working-age adults actually have jobs, avoiding demographic distortions. Job openings (JTSJOL) shows demand for workers, while quits rate (JTSQUR) indicates worker confidence to leave jobs - both key tightness indicators. High prime-age employment + high openings + high quits = tight market."
+  },
+  "labor market slack": {
+    "series": [
+      "U6RATE",
+      "LNS12300060",
+      "JTSJOL"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Labor market slack requires comprehensive underutilization measures: U6RATE captures unemployed + marginally attached + part-time for economic reasons (broadest slack measure), LNS12300060 shows prime-age employment-population ratio (if below trend, indicates slack capacity), and JTSJOL shows job openings (low openings = more slack, high openings = tight). These three series together provide the complete slack picture from different angles."
+  },
+  "full employment": {
+    "series": [
+      "LNS12300060",
+      "UNRATE",
+      "U6RATE",
+      "JTSJOL"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Full employment requires multiple indicators: Prime-age employment-population ratio (LNS12300060) is the gold standard for labor market health - shows how many prime working-age adults are actually employed. UNRATE provides the headline unemployment rate context. U6RATE captures broader unemployment including underemployment and discouraged workers - critical since full employment means minimal slack. JTSJOL (job openings) indicates labor demand - high openings suggest employers can't find workers, a key full employment signal. Together these show both supply-side (how many want/have jobs) and demand-side (employer needs) of full employment."
+  },
+  "natural rate of unemployment": {
+    "series": [
+      "UNRATE",
+      "LNS13023621",
+      "U6RATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "The natural rate of unemployment (NAIRU) isn't directly observable but can be estimated by analyzing unemployment patterns over business cycles. UNRATE shows the headline rate to identify cyclical lows that approximate natural rate levels. LNS13023621 (long-term unemployed 27+ weeks) is crucial because structural unemployment - a key component of natural rate - manifests as persistent long-term joblessness. U6RATE captures broader labor market slack including underemployment. During periods of low inflation and stable growth, when unemployment reaches cyclical troughs (especially when long-term unemployment is minimal), we're likely near the natural rate. Most estimates currently place it around 4-4.5%."
+  },
+  "job creation": {
+    "series": [
+      "PAYEMS",
+      "JTSHIR"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "PAYEMS (nonfarm payrolls) is the primary measure of net job creation - the monthly change shows jobs added/lost. JTSHIR (JOLTS hires) complements this by showing gross hiring activity. Year-over-year changes help smooth monthly volatility and show underlying job creation trends."
+  },
+  "employment growth": {
+    "series": [
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "PAYEMS (Total nonfarm payrolls) is THE definitive measure of employment growth. This establishment survey data shows month-over-month and year-over-year job creation/destruction across the economy. Year-over-year view is essential to see the growth trend clearly and smooth out monthly volatility. This is the 'jobs number' that moves markets and policy."
+  },
+  "are people getting hired": {
+    "series": [
+      "JTSHIR",
+      "PAYEMS",
+      "JTSJOL"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "JTSHIR (hires rate) directly measures hiring activity - this is the most direct answer to your question. PAYEMS (total nonfarm payrolls) shows net job creation, which reflects successful hiring minus separations. JTSJOL (job openings) indicates employer demand and hiring intentions. Together, these three series paint the complete picture of hiring dynamics in the labor market."
+  },
+  "hiring rate": {
+    "series": [
+      "JTSHIR",
+      "JTSQUR"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "JTSHIR is the direct measure of hiring rate from JOLTS data. JTSQUR (quits rate) is included because hiring and quits move together in healthy labor markets - when workers are confident about finding new jobs, they quit more, and when employers need workers, they hire more. These two rates together show labor market dynamism and worker mobility."
+  },
+  "job losses": {
+    "series": [
+      "PAYEMS",
+      "ICSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "PAYEMS (nonfarm payrolls) shows monthly net job changes - the definitive measure of job losses/gains from the establishment survey. ICSA (initial jobless claims) provides weekly real-time data on new unemployment filings, serving as the most immediate indicator of job losses as they happen."
+  },
+  "weekly hours worked": {
+    "series": [
+      "CES0500000011"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CES0500000011 is average weekly hours for all employees on private nonfarm payrolls - the primary measure of weekly hours worked. This series tracks labor intensity and is a key leading indicator of employment changes. YoY comparison helps show whether employers are adjusting hours (easier than hiring/firing) in response to economic conditions."
+  }
+}

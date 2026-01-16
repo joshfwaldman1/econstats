@@ -1,0 +1,298 @@
+{
+  "trade": {
+    "series": [
+      "BOPGSTB"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "BOPGSTB (trade balance for goods & services) is the most comprehensive measure of US trade performance. A negative value indicates a trade deficit, which is the standard metric economists and policymakers focus on when discussing 'trade' broadly."
+  },
+  "trade deficit": {
+    "series": [
+      "BOPGSTB"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "BOPGSTB is the trade balance for goods and services, where negative values indicate a trade deficit. This is the primary measure that captures what people mean when they refer to the 'trade deficit' - the amount by which imports exceed exports."
+  },
+  "trade balance": {
+    "series": [
+      "BOPGSTB"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "BOPGSTB is the comprehensive trade balance covering both goods and services, which is the standard measure when people ask about 'trade balance'. Negative values indicate a trade deficit (imports exceed exports), while positive values indicate a trade surplus. This series provides the most complete picture of the US trade position."
+  },
+  "imports": {
+    "series": [
+      "IMPGS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "IMPGS (Imports of goods & services) is the comprehensive measure of total U.S. imports, covering both physical goods and services. This provides the broadest view of import activity and trade flows into the United States."
+  },
+  "exports": {
+    "series": [
+      "EXPGS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "EXPGS measures total U.S. exports of goods and services, which directly answers the query about exports. Year-over-year transformation is appropriate to show export growth trends and remove seasonal patterns that are common in trade data."
+  },
+  "china trade": {
+    "series": [
+      "IMPCH",
+      "EXPCH"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "For China trade, showing both US imports from China (IMPCH) and US exports to China (EXPCH) provides the complete bilateral trade picture. Imports from China are typically much larger and get more attention in trade discussions, but exports show the full relationship. Combining them on one chart makes it easy to see the trade balance and trends in both directions."
+  },
+  "tariffs impact": {
+    "series": [
+      "BOPGSTB",
+      "IMPGS",
+      "DTWEXBGS",
+      "PPIACO"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "To analyze tariffs impact, we need: (1) BOPGSTB - trade balance to see if tariffs reduce the deficit, (2) IMPGS - total imports to measure tariff effects on import volumes, (3) DTWEXBGS - dollar strength which affects trade and can be influenced by trade policy, and (4) PPIACO - producer prices to capture inflationary effects of tariffs on input costs. YoY changes help identify policy impact periods."
+  },
+  "dollar": {
+    "series": [
+      "DTWEXBGS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "DTWEXBGS is the trade-weighted dollar index (broad), which measures the dollar's strength against a basket of major trading partner currencies. This is the most comprehensive measure of dollar performance and what economists refer to when discussing 'the dollar'."
+  },
+  "us dollar": {
+    "series": [
+      "DTWEXBGS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "DTWEXBGS is the trade-weighted US dollar index (broad basket), which is the most comprehensive measure of the dollar's strength against major trading partners. This is the standard metric for tracking overall US dollar performance in international markets."
+  },
+  "exchange rate": {
+    "series": [
+      "DTWEXBGS",
+      "DEXUSEU",
+      "DEXJPUS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For exchange rates, I'm showing the trade-weighted dollar index (DTWEXBGS) which measures the dollar's strength against a broad basket of currencies, plus the two most important bilateral rates: USD/EUR and JPY/USD. These capture both the dollar's overall performance and its movement against major trading partners. Exchange rate data doesn't need YoY transformation as the levels themselves are what matter for currency analysis."
+  },
+  "dollar strength": {
+    "series": [
+      "DTWEXBGS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The trade-weighted dollar index (broad) is the best measure of overall dollar strength as it tracks the dollar against a comprehensive basket of trading partner currencies, weighted by trade volumes. This gives the most accurate picture of the dollar's global purchasing power and competitive position."
+  },
+  "strong dollar": {
+    "series": [
+      "DTWEXBGS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "DTWEXBGS (Trade-weighted dollar index - broad) is the most comprehensive measure of dollar strength as it tracks the USD against a broad basket of trading partner currencies, weighted by trade volumes. This gives the best overall picture of whether the dollar is strong or weak in international markets."
+  },
+  "weak dollar": {
+    "series": [
+      "DTWEXBGS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "DTWEXBGS is the broad trade-weighted dollar index, which measures the dollar's strength against a basket of major trading partner currencies. This is the most comprehensive measure to assess whether the dollar is weak or strong relative to other currencies."
+  },
+  "currency": {
+    "series": [
+      "DTWEXBGS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The trade-weighted dollar index (broad) is the most comprehensive measure of USD strength against a basket of trading partner currencies. Financial market data like exchange rates typically don't need YoY transformation as the levels themselves are most meaningful for currency analysis."
+  },
+  "stock market": {
+    "series": [
+      "SP500"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The S&P 500 is the most comprehensive and widely-followed U.S. stock market index, representing approximately 80% of the total market capitalization of U.S. equities. It provides the best single measure of overall stock market performance and is what most analysts and investors reference when discussing 'the stock market'."
+  },
+  "stocks": {
+    "series": [
+      "SP500"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The S&P 500 is the most comprehensive and widely-followed US stock market index, representing about 80% of total US equity market capitalization. It's the best single indicator for overall stock market performance and what most people mean when they ask about 'stocks'."
+  },
+  "s&p 500": {
+    "series": [
+      "SP500"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "SP500 is the S&P 500 stock market index, which directly answers your query. This is the most widely followed US stock market benchmark, representing the performance of 500 large-cap US companies. Financial market data like stock indices are typically viewed in levels rather than year-over-year changes to see actual price movements and trends."
+  },
+  "sp500": {
+    "series": [
+      "SP500"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "SP500 is the most commonly referenced broad U.S. stock market index, tracking the performance of 500 large-cap companies. Financial market data like stock indices are typically viewed in levels rather than year-over-year changes to see actual market performance and trends."
+  },
+  "dow jones": {
+    "series": [
+      "DJIA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "DJIA is the Dow Jones Industrial Average index. While the S&P 500 is generally more representative of the broader market, you specifically asked for the Dow Jones, so that's what I'm providing. Stock market data is shown in levels rather than year-over-year changes since investors typically focus on index levels and recent performance."
+  },
+  "nasdaq": {
+    "series": [
+      "NASDAQCOM"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "NASDAQCOM is the NASDAQ Composite index, which tracks the performance of all stocks listed on the NASDAQ exchange. This is the primary measure for NASDAQ performance that investors and analysts reference."
+  },
+  "market performance": {
+    "series": [
+      "SP500",
+      "NASDAQCOM",
+      "VIXCLS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Market performance is best captured by the S&P 500 (broad market benchmark), NASDAQ Composite (tech-heavy index), and VIX (volatility/fear gauge). These three together provide a comprehensive view of equity market performance and investor sentiment. Financial market data doesn't need YoY transformation as absolute levels and trends are more meaningful."
+  },
+  "equities": {
+    "series": [
+      "SP500"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "S&P 500 is the most comprehensive and widely-followed equity market index, representing about 80% of total US stock market capitalization. For equity market analysis, absolute price levels and trends are more important than year-over-year changes."
+  },
+  "stock prices": {
+    "series": [
+      "SP500"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The S&P 500 is the best single measure of U.S. stock market performance, representing 500 of the largest publicly traded companies and serving as the primary benchmark for equity markets. Stock price levels are more meaningful than year-over-year changes for market analysis."
+  },
+  "market volatility": {
+    "series": [
+      "VIXCLS",
+      "SP500"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The VIX (VIXCLS) is the primary measure of market volatility, often called the 'fear gauge' as it reflects expected S&P 500 volatility. Including the S&P 500 (SP500) provides context by showing the underlying market performance that the VIX is measuring volatility for. Financial market data like these are typically analyzed in levels rather than year-over-year changes to capture immediate market sentiment and volatility patterns."
+  },
+  "vix": {
+    "series": [
+      "VIXCLS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "VIX (VIXCLS) is the CBOE Volatility Index, measuring market expectations of near-term volatility conveyed by S&P 500 stock index option prices. Often called the 'fear gauge', it spikes during market stress and falls during calm periods. Financial market indicators like VIX are shown in levels rather than year-over-year changes since traders focus on current volatility levels."
+  },
+  "oil": {
+    "series": [
+      "DCOILWTICO"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "WTI crude oil price is the primary benchmark for oil prices in the US market. Financial market data like oil prices are typically analyzed in levels rather than year-over-year changes to show current market conditions and price trends."
+  },
+  "oil prices": {
+    "series": [
+      "DCOILWTICO"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "WTI crude oil price is the primary benchmark for oil prices in the US market. Oil prices are typically analyzed in nominal terms rather than year-over-year changes, as traders and analysts focus on absolute price levels for trading and economic impact assessment."
+  },
+  "crude oil": {
+    "series": [
+      "DCOILWTICO"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "WTI crude oil price is the primary benchmark for US oil prices and most relevant for analyzing crude oil market trends. Financial/commodity data typically doesn't need YoY transformation as the raw price levels and volatility are what matter most for market analysis."
+  },
+  "gas prices": {
+    "series": [
+      "GASREGW"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "GASREGW tracks U.S. regular gasoline prices, which is the most direct measure of what consumers pay at the pump. This series provides the clearest view of gas price trends that affect household budgets and inflation expectations."
+  },
+  "gasoline": {
+    "series": [
+      "GASREGW"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "GASREGW tracks U.S. regular gasoline prices, which is the most relevant metric for consumer gasoline costs. This series shows retail gasoline prices that directly affect consumers and businesses."
+  },
+  "gold price": {
+    "series": [
+      "GOLDAMGBD228NLBM"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "GOLDAMGBD228NLBM provides the gold price in USD per troy ounce from the London Bullion Market. Financial market data like commodity prices are typically analyzed in levels rather than year-over-year changes, as investors care about the actual price level for trading and investment decisions."
+  },
+  "commodities": {
+    "series": [
+      "DCOILWTICO",
+      "GOLDAMGBD228NLBM",
+      "GASREGW",
+      "PPIACO"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "This gives a comprehensive view of key commodities markets: WTI crude oil as the benchmark energy commodity, gold as the primary precious metal and inflation hedge, gasoline prices which affect consumers directly, and the Producer Price Index for commodities which captures broader commodity price trends across multiple sectors."
+  },
+  "commodity prices": {
+    "series": [
+      "DCOILWTICO",
+      "GOLDAMGBD228NLBM",
+      "PPIACO"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "These three series provide a comprehensive view of commodity prices: WTI crude oil represents energy commodities (the most important traded commodity globally), gold represents precious metals and safe-haven assets, and the Producer Price Index for commodities captures broad commodity price movements across multiple categories including agricultural products, metals, and energy."
+  },
+  "current account": {
+    "series": [
+      "BOPGSTB"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The current account is primarily driven by the trade balance of goods and services (BOPGSTB). While the full current account also includes income flows and transfers, the trade balance is the largest and most volatile component that determines current account trends. A negative BOPGSTB indicates a trade deficit, which typically corresponds to a current account deficit."
+  },
+  "trade war": {
+    "series": [
+      "BOPGSTB",
+      "IMPCH",
+      "DTWEXBGS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Trade wars primarily impact the overall trade balance (BOPGSTB), imports from China which is the main trade war focus (IMPCH), and the dollar's strength which affects trade competitiveness (DTWEXBGS). These three series capture the key economic dimensions of trade war effects: bilateral trade flows, overall trade performance, and currency impacts."
+  }
+}

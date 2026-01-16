@@ -1,0 +1,370 @@
+{
+  "category": "Interest Rates & Fed",
+  "total_queries": 20,
+  "average_score": 3.9,
+  "score_distribution": {
+    "1": 0,
+    "2": 1,
+    "3": 6,
+    "4": 7,
+    "5": 6
+  },
+  "issues_summary": {
+    "TOO_FEW": 4,
+    "MISSING_KEY": 7,
+    "WRONG_SERIES": 1
+  },
+  "results": [
+    {
+      "query": "interest rates",
+      "series": [
+        "FEDFUNDS",
+        "DGS10"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "10-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The Federal Funds Rate and 10-Year Treasury are the two most important interest rates and directly answer the query. However, for a complete picture of 'interest rates', adding a medium-term rate would provide better context across the yield curve.",
+      "suggested_fix": "Add a medium-term rate like the 2-Year Treasury (DGS2) to show the full yield curve picture"
+    },
+    {
+      "query": "rates",
+      "series": [
+        "FEDFUNDS",
+        "DGS10"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "10-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The Federal Funds Rate and 10-Year Treasury are core interest rates, but 'rates' is a broad query that could benefit from additional context like mortgage rates or corporate bond rates to provide a more comprehensive view of the interest rate environment.",
+      "suggested_fix": "Add 1-2 more key rates such as 30-Year Fixed Mortgage Rate (MORTGAGE30US) or AAA Corporate Bond Yield (DAAA) to give a fuller picture of the rate landscape"
+    },
+    {
+      "query": "fed",
+      "series": [
+        "FEDFUNDS",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The query 'fed' is ambiguous but likely refers to Federal Reserve policy rates. FEDFUNDS is perfect and central to the query. However, DFEDTARU and DFEDTARL are upper/lower bounds of the target range which are less commonly referenced. Missing the actual Federal Funds Target Rate (DFF or DFEDTAR) which would provide better context alongside the effective rate.",
+      "suggested_fix": "Include the Federal Funds Target Rate (DFEDTAR or DFF) to show both the target and effective rates, and consider removing the upper/lower bound series unless specifically requested"
+    },
+    {
+      "query": "federal reserve",
+      "series": [
+        "FEDFUNDS",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The response includes the key Federal Funds Rate (FEDFUNDS) which is central to Federal Reserve policy, but the other two series (DFEDTARU, DFEDTARL) have unclear names that don't provide obvious value. For a broad 'federal reserve' query, this misses other important Fed indicators like the discount rate, reserve balances, or Fed balance sheet data that would provide better context.",
+      "suggested_fix": "Replace the unclear DFEDTARU/DFEDTARL series with more recognizable Fed indicators like the discount rate (DGS10 for context), Fed balance sheet total assets, or unemployment rate to show the broader economic context the Fed monitors"
+    },
+    {
+      "query": "fed funds rate",
+      "series": [
+        "FEDFUNDS"
+      ],
+      "series_names": [
+        "Federal Funds Rate"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The user asked for 'fed funds rate' and the system returned exactly the right FRED series (FEDFUNDS) which is the official Federal Funds Rate. This is the most direct and appropriate answer to the query.",
+      "suggested_fix": null
+    },
+    {
+      "query": "federal funds rate",
+      "series": [
+        "FEDFUNDS"
+      ],
+      "series_names": [
+        "Federal Funds Rate"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. FEDFUNDS is exactly the right series for 'federal funds rate' - it's the official effective federal funds rate from the Federal Reserve. The series name matches perfectly, and no year-over-year transformation is needed since users typically want to see the actual rate level.",
+      "suggested_fix": null
+    },
+    {
+      "query": "fed policy",
+      "series": [
+        "FEDFUNDS",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The Federal Funds Rate (FEDFUNDS) is appropriate for Fed policy, but the other two series have unclear names (DFEDTARU, DFEDTARL) and the response lacks key Fed policy indicators like the Fed's target rate range bounds or policy meeting decisions that would provide better context for understanding current Fed policy stance.",
+      "suggested_fix": "Include clearer series names and add key Fed policy indicators such as the upper and lower bounds of the target rate range with proper labels, or consider adding Fed balance sheet data or policy meeting outcomes for comprehensive Fed policy analysis."
+    },
+    {
+      "query": "monetary policy",
+      "series": [
+        "FEDFUNDS",
+        "DGS2",
+        "DGS10"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "2-Year Treasury",
+        "10-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The three series shown (Fed Funds Rate, 2-Year Treasury, 10-Year Treasury) are core monetary policy indicators that effectively capture the yield curve and policy stance. However, for a complete monetary policy picture, a key missing element is a measure of money supply or monetary base.",
+      "suggested_fix": "Add a money supply measure like M2 (M2SL) or monetary base (BOGMBASE) to show the quantitative aspect of monetary policy alongside the interest rate tools"
+    },
+    {
+      "query": "rate hikes",
+      "series": [
+        "FEDFUNDS",
+        "DGS2"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "2-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The Federal Funds Rate is perfect for rate hikes analysis, and 2-Year Treasury provides useful context. However, this is missing a longer-term treasury rate (like 10-year) to show the full yield curve impact of rate hikes, which is crucial for understanding monetary policy transmission.",
+      "suggested_fix": "Add DGS10 (10-Year Treasury) to show how rate hikes affect the longer end of the yield curve and provide complete interest rate context"
+    },
+    {
+      "query": "rate cuts",
+      "series": [
+        "FEDFUNDS",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "show_yoy": false,
+      "score": 2,
+      "issues": [
+        "WRONG_SERIES",
+        "MISSING_KEY"
+      ],
+      "explanation": "The response shows unclear series codes (DFEDTARU, DFEDTARL) that don't obviously relate to rate cuts, and while FEDFUNDS is relevant, the query 'rate cuts' implies looking for Fed policy changes which would be better served by the Fed's target rate and recent changes/cuts specifically.",
+      "suggested_fix": "Replace unclear series with Fed's target rate (DFF or similar) and consider showing rate change data or focusing on recent Fed policy decisions. Clarify what DFEDTARU and DFEDTARL represent or replace with more transparent series names."
+    },
+    {
+      "query": "will the fed cut rates",
+      "series": [
+        "FEDFUNDS",
+        "DGS2",
+        "T10Y2Y"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "2-Year Treasury",
+        "Yield Curve (10Y-2Y)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection of relevant series for Fed rate prediction. FEDFUNDS shows current rates, DGS2 reflects market expectations, and T10Y2Y (yield curve) is a key economic indicator the Fed monitors. These three series provide solid context for rate decisions.",
+      "suggested_fix": "Could add inflation data (CPI or PCE) since Fed decisions heavily depend on inflation trends relative to their 2% target"
+    },
+    {
+      "query": "treasury yields",
+      "series": [
+        "DGS3MO",
+        "DGS2",
+        "DGS10",
+        "DGS30"
+      ],
+      "series_names": [
+        "DGS3MO",
+        "2-Year Treasury",
+        "10-Year Treasury",
+        "DGS30"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Good selection of key treasury yields across the yield curve (3-month, 2-year, 10-year, 30-year), but missing the important 1-year treasury yield which is commonly referenced. Series names are inconsistent - some show full names while others show FRED codes.",
+      "suggested_fix": "Add 1-year treasury yield (DGS1) and standardize series names to show duration consistently (e.g., '3-Month Treasury', '2-Year Treasury', etc.)"
+    },
+    {
+      "query": "10 year treasury",
+      "series": [
+        "DGS10"
+      ],
+      "series_names": [
+        "10-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. DGS10 is the standard FRED series for 10-year Treasury constant maturity rate, which directly answers the user's query. The level data is appropriate since Treasury rates are typically viewed as absolute percentages rather than year-over-year changes.",
+      "suggested_fix": null
+    },
+    {
+      "query": "2 year treasury",
+      "series": [
+        "DGS2"
+      ],
+      "series_names": [
+        "2-Year Treasury"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. DGS2 is exactly the right FRED series for 2-year Treasury constant maturity rate. The series name is clear and accurate, and no year-over-year transformation is needed since users typically want to see the actual interest rate levels.",
+      "suggested_fix": null
+    },
+    {
+      "query": "yield curve",
+      "series": [
+        "T10Y2Y"
+      ],
+      "series_names": [
+        "Yield Curve (10Y-2Y)"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The 10Y-2Y spread is a key yield curve indicator, but 'yield curve' typically refers to the full term structure. Users often want to see multiple maturity spreads or the actual yields across different maturities to understand the complete curve shape.",
+      "suggested_fix": "Include additional key spreads like 10Y-3M, 2Y-3M, or show actual Treasury yields at multiple maturities (3M, 2Y, 5Y, 10Y, 30Y) to provide a fuller picture of the yield curve"
+    },
+    {
+      "query": "inverted yield curve",
+      "series": [
+        "T10Y2Y"
+      ],
+      "series_names": [
+        "Yield Curve (10Y-2Y)"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. T10Y2Y is the exact FRED series that measures the yield curve spread between 10-year and 2-year Treasury bonds. When this series goes negative, it indicates an inverted yield curve, which is precisely what the user asked about. The series name is clear and descriptive.",
+      "suggested_fix": null
+    },
+    {
+      "query": "bond yields",
+      "series": [
+        "DGS2",
+        "DGS10",
+        "DGS30"
+      ],
+      "series_names": [
+        "2-Year Treasury",
+        "10-Year Treasury",
+        "DGS30"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Good selection of key Treasury yields across the yield curve (2-year, 10-year, 30-year), but missing the most commonly referenced benchmark - the 10-year Treasury yield. Also note that 'DGS30' should be labeled as '30-Year Treasury' for consistency.",
+      "suggested_fix": "Include DGS3M (3-Month Treasury) or DGS1 (1-Year Treasury) for short-term perspective, and ensure consistent labeling (DGS30 should show as '30-Year Treasury')"
+    },
+    {
+      "query": "mortgage rates",
+      "series": [
+        "MORTGAGE30US",
+        "MORTGAGE15US"
+      ],
+      "series_names": [
+        "30-Year Mortgage Rate",
+        "MORTGAGE15US"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "The response provides the two most relevant mortgage rate series (30-year and 15-year) which directly answers the user's query. These are the primary mortgage rates that economists and consumers track. The level data is appropriate since mortgage rates are typically analyzed in levels rather than year-over-year changes.",
+      "suggested_fix": "Could potentially include the 5/1 ARM rate (MORTGAGE5US) for completeness, as adjustable rate mortgages are also commonly referenced when discussing mortgage rates."
+    },
+    {
+      "query": "30 year mortgage",
+      "series": [
+        "MORTGAGE30US"
+      ],
+      "series_names": [
+        "30-Year Mortgage Rate"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The query '30 year mortgage' is directly answered by MORTGAGE30US (30-Year Mortgage Rate), which is the standard benchmark mortgage rate series. No YoY transformation needed as mortgage rates are typically analyzed in levels.",
+      "suggested_fix": null
+    },
+    {
+      "query": "borrowing costs",
+      "series": [
+        "FEDFUNDS",
+        "DPRIME",
+        "MORTGAGE30US",
+        "BAMLC0A0CM"
+      ],
+      "series_names": [
+        "Federal Funds Rate",
+        "DPRIME",
+        "30-Year Mortgage Rate",
+        "BAMLC0A0CM"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good selection covering key borrowing cost indicators: federal funds rate (policy rate), prime rate (bank lending), mortgage rates (housing), and corporate bond yields. These represent the main channels through which borrowing costs affect the economy.",
+      "suggested_fix": "Could include Treasury rates (e.g., 10-year) as a benchmark for risk-free borrowing costs, which would provide additional context for understanding the interest rate environment."
+    }
+  ]
+}

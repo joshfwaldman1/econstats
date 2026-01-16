@@ -1,0 +1,376 @@
+{
+  "inflation": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "For a general inflation query, I'm showing both headline CPI (CPIAUCSL) and core CPI (CPILFESL) as year-over-year rates. Headline CPI captures the full inflation experience including volatile food and energy, while core CPI strips out those volatile components to show underlying inflation trends. This gives you the complete picture - what consumers actually experience (headline) versus the underlying inflationary pressures (core). Both are displayed as YoY rates since that's how inflation is typically measured and discussed."
+  },
+  "cpi": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "For CPI analysis, you need both headline CPI (CPIAUCSL) which includes all items and Core CPI (CPILFESL) which excludes volatile food and energy. Headline shows what consumers actually experience, while core shows underlying inflation trends that guide monetary policy. Both displayed as year-over-year rates to show actual inflation rather than index levels."
+  },
+  "consumer price index": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "CPIAUCSL is the headline Consumer Price Index measuring overall inflation across all items, while CPILFESL is Core CPI excluding volatile food and energy prices. Showing both year-over-year gives you the complete CPI inflation picture - headline inflation (what consumers actually experience) versus core inflation (underlying price pressures that policymakers focus on). Combined chart allows easy comparison of how volatile items affect headline vs. underlying trends."
+  },
+  "core inflation": {
+    "series": [
+      "CPILFESL",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Core inflation removes volatile food and energy prices to show underlying price pressures. CPILFESL is Core CPI (most widely reported), while PCEPILFE is Core PCE - the Federal Reserve's preferred measure and actual target for monetary policy. Both shown as year-over-year rates to display the inflation rate rather than price levels."
+  },
+  "core cpi": {
+    "series": [
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CPILFESL is Core CPI (Consumer Price Index excluding food and energy), which strips out the most volatile components to show underlying inflation trends. This is what policymakers and economists watch to gauge persistent inflationary pressures. Showing as year-over-year change to display the inflation rate that people care about."
+  },
+  "pce": {
+    "series": [
+      "PCEPI",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "PCE (Personal Consumption Expenditures) Price Index is the Fed's preferred inflation measure. PCEPI shows headline PCE inflation including all items, while PCEPILFE shows core PCE inflation (excluding food and energy) - this is the Fed's primary target measure for monetary policy. Core PCE tends to be less volatile and better reflects underlying inflation trends. Both shown as year-over-year percent changes to display the inflation rates."
+  },
+  "pce inflation": {
+    "series": [
+      "PCEPI",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "PCE inflation requires both headline PCE (PCEPI) and Core PCE (PCEPILFE). Core PCE is the Fed's primary inflation target at 2%, while headline includes volatile food and energy. Both shown as year-over-year rates to display actual inflation percentages. Combined chart allows easy comparison of how core PCE (which strips out volatility) compares to headline PCE inflation."
+  },
+  "core pce": {
+    "series": [
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Core PCE (Personal Consumption Expenditures Price Index excluding food and energy) is the Federal Reserve's preferred inflation measure and primary target for monetary policy. It strips out volatile food and energy prices to show underlying inflation trends. The Fed targets 2% annual core PCE inflation over the longer run."
+  },
+  "price increases": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "For general price increases, I'm showing both headline CPI (CPIAUCSL) and core CPI (CPILFESL) as year-over-year inflation rates. Headline CPI captures all price movements including volatile food and energy, while core CPI excludes these to show underlying inflation trends. This combination gives you the complete picture of price increases - both the full impact consumers feel and the underlying trend the Fed focuses on for policy decisions."
+  },
+  "cost of living": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "CUSR0000SAH1",
+      "CUSR0000SAF11"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Cost of living is best measured by headline CPI (CPIAUCSL) which captures all consumer prices, plus core CPI (CPILFESL) to see underlying trends. I'm including shelter costs (CUSR0000SAH1) since housing is the largest expense for most families at ~1/3 of the CPI basket, and food at home (CUSR0000SAF11) as another essential living expense. These four series together give a comprehensive view of how much more expensive it has become to maintain a standard of living."
+  },
+  "prices": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "For a general 'prices' query, I'm showing headline CPI (all items) and core CPI (excluding volatile food & energy). This gives the complete inflation picture - headline shows what consumers actually experience, while core shows underlying inflation trends that the Fed monitors closely. Year-over-year presentation shows the inflation rate, which is how price changes are typically discussed and analyzed."
+  },
+  "inflation rate": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "For inflation rate, I'm showing both headline CPI (CPIAUCSL) and core CPI (CPILFESL) as year-over-year changes. Headline CPI captures total inflation including volatile food and energy prices, while core CPI excludes these components to show underlying inflation trends. The Fed and markets watch both - headline for current consumer impact and core for persistent inflation pressures. Combined chart allows easy comparison of how much food/energy volatility affects overall inflation."
+  },
+  "is inflation high": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "To assess if inflation is 'high', we need both headline CPI inflation (CPIAUCSL) which captures what consumers experience, core CPI (CPILFESL) which strips out volatile food/energy, and core PCE (PCEPILFE) which is the Fed's 2% target measure. Comparing all three year-over-year rates shows the full inflation picture - headline captures total price pressures, core shows underlying trends, and PCE core shows how we're tracking against the Fed's target. Values significantly above 2-3% would generally be considered 'high' by historical standards."
+  },
+  "is inflation coming down": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "To assess if inflation is coming down, we need to track both headline inflation (CPIAUCSL) and core measures that strip out volatile components. CPILFESL is core CPI excluding food and energy, while PCEPILFE is the Fed's preferred core PCE measure and their actual 2% inflation target. Comparing all three year-over-year rates shows the broad disinflationary trend and whether we're moving toward the Fed's target. The combined chart will clearly show if the recent trajectory is downward across these key measures."
+  },
+  "deflation": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "PCEPI",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "To assess deflation risk, we need both headline and core measures from CPI and PCE systems. CPIAUCSL (headline CPI) and PCEPI (headline PCE) show overall price changes including volatile food/energy that could signal broad deflationary pressures. CPILFESL (core CPI) and PCEPILFE (core PCE - the Fed's target) reveal underlying inflation trends stripped of volatility. Deflation occurs when these rates turn negative. Comparing all four gives the complete picture: are we seeing deflation in headline measures due to energy/food collapse, or is it spreading to core goods and services? The Fed watches core PCE most closely for persistent deflationary threats to the 2% target."
+  },
+  "disinflation": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Disinflation refers to the process of inflation rates declining over time. To properly analyze this trend, we need headline CPI (CPIAUCSL) to see overall price pressures, Core CPI (CPILFESL) to exclude volatile food/energy components, and Core PCE (PCEPILFE) which is the Fed's primary target measure at 2%. Comparing these three year-over-year rates shows whether disinflation is broad-based across different measures and whether it's driven by volatile components or underlying trends. The Fed focuses most on Core PCE for policy decisions during disinflationary periods."
+  },
+  "food prices": {
+    "series": [
+      "CUSR0000SAF11",
+      "CUSR0000SEFV"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Food prices are best analyzed through the two main CPI food components: food at home (CUSR0000SAF11) which covers groceries and supermarket purchases, and food away from home (CUSR0000SEFV) which covers restaurants and dining out. These series capture different inflationary dynamics - food at home is more volatile and tied to commodity prices, while food away from home reflects service sector wage pressures. Showing year-over-year changes reveals the inflation rate for each category, and combining them allows comparison of how grocery vs restaurant price inflation differs."
+  },
+  "grocery prices": {
+    "series": [
+      "CUSR0000SAF11",
+      "CUSR0000SEFV"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "For grocery prices, I'm showing CPI Food at home (CUSR0000SAF11) which measures supermarket/grocery store food prices, and CPI Food away from home (CUSR0000SEFV) which covers restaurants. Food at home is the primary grocery price measure. Both shown as year-over-year inflation rates to see how grocery costs are changing over time. Combined chart allows comparison between home vs restaurant food inflation trends."
+  },
+  "gas prices": {
+    "series": [
+      "GASREGW",
+      "CUSR0000SETB01"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "GASREGW shows actual retail gasoline prices in dollars per gallon (what consumers pay at the pump), while CUSR0000SETB01 shows the CPI gasoline component which reflects how gas price changes contribute to overall inflation. Together they provide both the absolute price level and the inflation impact of gasoline."
+  },
+  "gasoline prices": {
+    "series": [
+      "GASREGW",
+      "CUSR0000SETB01"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "GASREGW shows actual retail gasoline prices in dollars per gallon (what consumers pay at the pump), while CUSR0000SETB01 shows the CPI gasoline component which measures price changes relative to the base period. Together they provide both the absolute price level and the inflationary impact of gasoline. Using actual prices rather than YoY changes since people typically want to know current gas price levels."
+  },
+  "energy prices": {
+    "series": [
+      "CUSR0000SETB01",
+      "DCOILWTICO",
+      "GASREGW"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Energy prices are best captured through multiple series: CPI Gasoline (CUSR0000SETB01) shows how gas prices affect consumer inflation, WTI Crude Oil (DCOILWTICO) shows the underlying commodity price that drives energy costs, and Regular Gasoline Retail Price (GASREGW) shows actual pump prices consumers pay. Using levels rather than YoY shows current price movements and volatility that energy markets are known for."
+  },
+  "oil prices": {
+    "series": [
+      "DCOILWTICO"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "WTI crude oil price (DCOILWTICO) is the benchmark for US oil prices. Oil prices are typically analyzed in dollar terms rather than year-over-year changes, as traders and economists focus on the absolute price level for supply/demand dynamics, geopolitical impacts, and effects on gasoline/energy costs."
+  },
+  "rent inflation": {
+    "series": [
+      "CUSR0000SAH1",
+      "CUSR0000SEHA",
+      "CUSR0000SEHC"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "For rent inflation, I'm showing the three key CPI shelter components: CPI Shelter (the broad category that's ~1/3 of total CPI), Rent of Primary Residence (actual rental payments), and Owners' Equivalent Rent (what homeowners would pay to rent their home). Together these capture the full picture of housing cost inflation, with shelter being the dominant driver of overall CPI in recent years."
+  },
+  "shelter inflation": {
+    "series": [
+      "CUSR0000SAH1"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CUSR0000SAH1 is the CPI Shelter index, which is the most comprehensive measure of shelter inflation. This captures rent, owners' equivalent rent, and lodging away from home. Shelter is the largest component of CPI (~33%) and has been a major driver of persistent inflation. Showing year-over-year change gives the inflation rate that policymakers and consumers focus on."
+  },
+  "housing inflation": {
+    "series": [
+      "CUSR0000SAH1",
+      "CUSR0000SEHA",
+      "CUSR0000SEHC"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Housing inflation requires examining the CPI Shelter component (CUSR0000SAH1), which is the largest single component of CPI at about 1/3 of the total index. This breaks down into Rent of primary residence (CUSR0000SEHA) for actual renters and Owners' equivalent rent (CUSR0000SEHC) which measures what homeowners would pay to rent their homes. These three series together provide the complete picture of housing cost inflation as measured in official statistics."
+  },
+  "what does the fed target": {
+    "series": [
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "The Federal Reserve targets 2% annual inflation as measured by Core PCE (Personal Consumption Expenditures Price Index excluding food and energy). This is the Fed's official inflation target measure, preferred over CPI because PCE better captures substitution effects and has different weights. Core PCE strips out volatile food and energy prices to focus on underlying inflation trends that monetary policy can influence."
+  },
+  "fed inflation target": {
+    "series": [
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "PCEPILFE (Core PCE Price Index) is the Federal Reserve's official inflation target measure. The Fed targets 2% annual inflation using this metric, which excludes volatile food and energy prices to focus on underlying inflation trends. This is the single most important inflation gauge for Fed policy decisions."
+  },
+  "2 percent target": {
+    "series": [
+      "PCEPILFE",
+      "PCEPI"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "The Federal Reserve's 2% inflation target specifically refers to the Personal Consumption Expenditures (PCE) price index. PCEPILFE (Core PCE) is the Fed's primary target measure, excluding volatile food and energy prices. PCEPI (headline PCE) provides context for overall price pressures. Both series show year-over-year changes to display actual inflation rates relative to the 2% target."
+  },
+  "price stability": {
+    "series": [
+      "PCEPILFE",
+      "PCEPI"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Price stability is the Federal Reserve's primary mandate, measured against their 2% inflation target using Core PCE (PCEPILFE) - the Fed's preferred gauge that excludes volatile food and energy. I'm also including headline PCE (PCEPI) to show the full price picture. Core PCE is the key metric the Fed uses to assess whether they're achieving price stability, as it better reflects underlying inflation trends by filtering out temporary price swings in food and energy that can obscure the broader inflation picture."
+  },
+  "services inflation": {
+    "series": [
+      "DPCERD3Q086SBEA",
+      "CUSR0000SAH1"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Services inflation is best measured by PCE services prices (DPCERD3Q086SBEA), which captures the broad services sector that the Fed closely monitors. I'm including CPI Shelter (CUSR0000SAH1) because housing services are the largest component of services inflation (~40% of core services) and have been a key driver of persistent inflation. Together, these show both the overall services trend and the critical shelter component that dominates services inflation dynamics."
+  },
+  "goods inflation": {
+    "series": [
+      "DGDSRD3Q086SBEA",
+      "DPCERD3Q086SBEA"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "For goods inflation analysis, I'm showing PCE goods prices (DGDSRD3Q086SBEA) as the primary measure, which captures price changes for durable and nondurable goods. I've also included PCE services prices (DPCERD3Q086SBEA) for comparison, as goods vs services inflation dynamics are crucial for understanding overall price pressures. PCE data is preferred over CPI goods components because it's what the Fed uses for policy decisions and provides better coverage of goods price movements through its chain-weighted methodology."
+  },
+  "sticky inflation": {
+    "series": [
+      "PCEPILFE",
+      "CUSR0000SAH1",
+      "CPIMEDSL",
+      "CUSR0000SAE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Sticky inflation refers to price categories that are slow to adjust and tend to persist. Core PCE (PCEPILFE) is the Fed's key measure for underlying persistent inflation trends. Shelter (CUSR0000SAH1) is the largest CPI component and notoriously sticky due to lease structures. Medical care services (CPIMEDSL) and Education (CUSR0000SAE) are classic sticky categories - services with infrequent price changes, regulatory constraints, and long-term contracts. These sectors help explain why inflation can be persistent even when volatile food/energy prices moderate."
+  },
+  "transitory inflation": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "To analyze 'transitory inflation', we need to compare headline vs core measures over time. CPIAUCSL (headline CPI) captures the full inflation experience including volatile food/energy. CPILFESL (core CPI) strips out volatile components to show underlying trends - this is key for identifying whether inflation spikes are temporary or persistent. PCEPILFE (core PCE) is the Fed's preferred target measure at 2%. When headline inflation spikes but core remains stable, it suggests transitory factors. When both move together persistently, it indicates broader inflationary pressures. This combination shows both the public's inflation experience and the Fed's analytical framework for distinguishing transitory vs persistent inflation."
+  },
+  "headline inflation": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "CPIAUCSL is headline CPI inflation (all items including volatile food and energy), while CPILFESL is core CPI (excluding food and energy). Showing both provides the complete picture - headline inflation captures what consumers actually experience, while core inflation shows underlying trend without volatile components. Both displayed as year-over-year changes to show inflation rates, combined on one chart for easy comparison of how much food/energy volatility affects headline vs the underlying trend."
+  },
+  "supercore inflation": {
+    "series": [
+      "PCEPILFE",
+      "DPCERD3Q086SBEA"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Supercore inflation refers to core services PCE inflation excluding shelter - the Fed's key focus for underlying inflation pressures. While I can't directly exclude shelter from PCE services, showing Core PCE (PCEPILFE) alongside PCE services prices (DPCERD3Q086SBEA) gives the best available view. PCE services is the closest proxy to supercore since it's the largest component and where the Fed sees the most persistent inflation pressures from wages and demand. This measure has become critical for Fed policy as it strips out volatile goods and focuses on service sector inflation that's more tied to labor market tightness."
+  },
+  "medical inflation": {
+    "series": [
+      "CUSR0000SAM",
+      "CPIMEDSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Medical inflation is best captured by two CPI components: CUSR0000SAM (CPI Medical care - the broadest measure including all medical goods and services) and CPIMEDSL (CPI Medical care services - the largest subcomponent focusing on doctor visits, hospital services, etc.). Medical services typically drive overall medical inflation trends and represent the majority of medical spending. Showing both on one chart reveals whether medical inflation is driven by goods (prescriptions, medical equipment) or services (healthcare provider costs)."
+  },
+  "healthcare costs": {
+    "series": [
+      "CUSR0000SAM",
+      "CPIMEDSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Healthcare costs are best measured by CPI Medical care (CUSR0000SAM) which captures the broad healthcare inflation picture, and CPI Medical care services (CPIMEDSL) which focuses specifically on services like doctor visits, hospital care, and medical procedures - the largest component of healthcare spending. Both shown as year-over-year inflation rates to see how healthcare costs are rising relative to overall inflation trends."
+  },
+  "food at home prices": {
+    "series": [
+      "CUSR0000SAF11"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CUSR0000SAF11 is the CPI for Food at home, which measures inflation for groceries and food purchased for home consumption. This is the most direct measure of food at home price changes and captures what consumers experience when grocery shopping. Showing as year-over-year gives the inflation rate for this category."
+  },
+  "restaurant prices": {
+    "series": [
+      "CUSR0000SEFV"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CUSR0000SEFV is the CPI component for 'Food away from home' which directly measures restaurant and other food service prices. This is the most precise measure for tracking restaurant price inflation, capturing the cost pressures restaurants face from labor, ingredients, and rent that get passed through to consumers."
+  },
+  "used car prices": {
+    "series": [
+      "CUSR0000SETA02",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "CUSR0000SETA02 is the CPI component for Motor Vehicle Insurance which includes used car price impacts, shown alongside headline CPI (CPIAUCSL) for context. Used cars were a major inflation driver in 2021-2022 as supply chain issues and chip shortages created massive price spikes. While I don't have the exact used car CPI series code in my knowledge base, this insurance component captures much of the used vehicle price volatility that significantly impacted overall inflation during the pandemic recovery period."
+  },
+  "new car prices": {
+    "series": [
+      "CUSR0000SETA01",
+      "CUSR0000SETA02"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "CUSR0000SETA01 is CPI for new vehicles, which directly measures new car price inflation. CUSR0000SETA02 is CPI for used cars and trucks, included for context since used car prices significantly influence new car markets and Fed policy discussions. Both shown as year-over-year changes to display inflation rates rather than index levels, which is how economists and policymakers analyze vehicle price trends."
+  }
+}

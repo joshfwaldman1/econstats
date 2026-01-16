@@ -1,0 +1,436 @@
+{
+  "category": "Economy Overview",
+  "total_queries": 20,
+  "average_score": 4.3,
+  "score_distribution": {
+    "1": 0,
+    "2": 0,
+    "3": 2,
+    "4": 10,
+    "5": 8
+  },
+  "issues_summary": {
+    "WRONG_YOY": 1,
+    "MISSING_KEY": 2
+  },
+  "results": [
+    {
+      "query": "how is the economy",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a general economic health query. Shows the three most fundamental economic indicators: GDP growth (economic output), unemployment rate (labor market health), and CPI inflation (price stability). YoY transformation is correctly applied only to CPI for meaningful inflation measurement.",
+      "suggested_fix": null
+    },
+    {
+      "query": "how is the economy doing",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a general economic health question. Shows the three most fundamental economic indicators: GDP growth (economic output), unemployment rate (labor market health), and CPI inflation (price stability). The YoY transformations are appropriate - GDP growth is already a rate, unemployment is a level that doesn't need YoY, and CPI inflation should be shown YoY.",
+      "suggested_fix": null
+    },
+    {
+      "query": "economic overview",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect selection for an economic overview. The three core macroeconomic indicators (GDP growth, unemployment, and inflation via CPI) provide a comprehensive snapshot of economic health. The YoY transformation for CPI is appropriate to show inflation rate.",
+      "suggested_fix": null
+    },
+    {
+      "query": "state of the economy",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a general 'state of the economy' query. The three core macroeconomic indicators (GDP growth, unemployment, and inflation via CPI) provide a comprehensive overview of economic health. The YoY transformation for CPI is correct as inflation is typically measured year-over-year, while GDP growth rate and unemployment rate are already in appropriate forms.",
+      "suggested_fix": null
+    },
+    {
+      "query": "is the economy good",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [],
+      "explanation": "This is a good selection of the three most fundamental economic indicators: GDP growth for overall economic output, unemployment for labor market health, and inflation via CPI. The YoY transformation choices are appropriate - GDP growth is already a rate, unemployment is typically viewed as a level, and CPI needs YoY to show inflation rate.",
+      "suggested_fix": "Could potentially add one labor market indicator like job growth (PAYEMS) to provide slightly more comprehensive coverage of economic health."
+    },
+    {
+      "query": "is the economy bad",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [
+        "WRONG_YOY"
+      ],
+      "explanation": "Excellent core selection of the three most important macroeconomic indicators for assessing overall economic health. However, GDP growth should be shown year-over-year rather than quarterly annualized rate for better trend assessment and comparability with historical performance.",
+      "suggested_fix": "Change Real GDP Growth Rate to show year-over-year transformation for clearer trend analysis"
+    },
+    {
+      "query": "us economy",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a broad 'US economy' query. Shows the three most fundamental macroeconomic indicators: GDP growth (economic output), unemployment (labor market health), and inflation (price stability). YoY transformation correctly applied only to CPI for meaningful inflation measurement.",
+      "suggested_fix": null
+    },
+    {
+      "query": "american economy",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three core macroeconomic indicators that best represent the American economy's overall health - GDP growth, unemployment, and inflation. The YoY transformation choices are appropriate (GDP growth and unemployment rate are already meaningful as levels, while CPI benefits from YoY comparison to show inflation rate).",
+      "suggested_fix": "Could potentially add a fourth series like Industrial Production or Consumer Spending to provide slightly more comprehensive coverage, but the current selection is very solid for a broad economic overview."
+    },
+    {
+      "query": "economic outlook",
+      "series": [
+        "USSLIND",
+        "A191RL1Q225SBEA",
+        "UNRATE"
+      ],
+      "series_names": [
+        "USSLIND",
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The three series provide a reasonable foundation for economic outlook (leading indicators, GDP growth, unemployment), but missing inflation data which is crucial for current economic assessment and Fed policy outlook.",
+      "suggested_fix": "Add a key inflation measure like CPI or PCE to provide complete picture of economic conditions affecting monetary policy and consumer impact"
+    },
+    {
+      "query": "is there a recession",
+      "series": [
+        "A191RL1Q225SBEA",
+        "T10Y2Y",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Yield Curve (10Y-2Y)",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three core recession indicators: GDP growth shows economic contraction, yield curve inversion is a leading predictor, and unemployment shows labor market stress. These are exactly what economists look at for recession analysis.",
+      "suggested_fix": "Could potentially add initial jobless claims (ICSA) as a higher-frequency labor market indicator to complement the monthly unemployment rate"
+    },
+    {
+      "query": "are we in a recession",
+      "series": [
+        "A191RL1Q225SBEA",
+        "T10Y2Y",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Yield Curve (10Y-2Y)",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three most important recession indicators: GDP growth (the primary measure), yield curve inversion (leading indicator), and unemployment rate (lagging indicator). These directly address whether we're currently in a recession.",
+      "suggested_fix": "Could potentially add initial jobless claims (ICSA) as a more timely labor market indicator to complement the monthly unemployment rate"
+    },
+    {
+      "query": "recession risk",
+      "series": [
+        "A191RL1Q225SBEA",
+        "T10Y2Y",
+        "UNRATE"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Yield Curve (10Y-2Y)",
+        "Unemployment Rate (U-3)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three most important recession indicators: GDP growth (economic output), yield curve inversion (forward-looking market signal), and unemployment rate (labor market health). These are standard metrics economists use for recession analysis.",
+      "suggested_fix": "Could potentially add initial jobless claims (ICSA) as a higher-frequency leading indicator to complement the monthly/quarterly data"
+    },
+    {
+      "query": "recession indicators",
+      "series": [
+        "A191RL1Q225SBEA",
+        "T10Y2Y",
+        "SAHMREALTIME"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Yield Curve (10Y-2Y)",
+        "SAHMREALTIME"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of three key recession indicators: Real GDP growth (economic output), yield curve inversion (leading indicator), and Sahm Rule (labor market indicator). These are widely recognized recession signals used by economists and policymakers.",
+      "suggested_fix": "Could add initial jobless claims (ICSA or 4-week moving average) as a fourth indicator to provide more comprehensive labor market coverage alongside the Sahm Rule."
+    },
+    {
+      "query": "economic conditions",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "This is an excellent response for a broad 'economic conditions' query. The three series (GDP growth, unemployment, and inflation) represent the core macroeconomic indicators that economists use to assess overall economic health. The YoY transformations are appropriate - GDP growth is already a rate, unemployment is a level that doesn't need YoY, and CPI should be shown YoY for inflation rate.",
+      "suggested_fix": null
+    },
+    {
+      "query": "economy 2024",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response for a broad economy query. Shows the three most fundamental economic indicators: GDP growth (economic output), unemployment rate (labor market health), and CPI (inflation). Year-over-year transformation is correctly applied only to CPI for meaningful inflation measurement.",
+      "suggested_fix": null
+    },
+    {
+      "query": "economy 2025",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [],
+      "explanation": "This is a strong response to a general economy query. The three core macroeconomic indicators (GDP growth, unemployment, and inflation) provide a comprehensive overview of economic health. The YoY transformation for CPI is appropriate for inflation analysis.",
+      "suggested_fix": "Could consider adding a labor market indicator like nonfarm payrolls or a forward-looking indicator, but the current selection covers the essential economic fundamentals well."
+    },
+    {
+      "query": "soft landing",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect selection for 'soft landing' analysis. The three core indicators - GDP growth, unemployment, and inflation (CPI) - are exactly what economists use to assess whether an economy is achieving a soft landing. The YoY transformation for CPI is correct for inflation analysis, while GDP growth rate and unemployment rate are appropriately shown in their standard forms.",
+      "suggested_fix": null
+    },
+    {
+      "query": "hard landing",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "T10Y2Y"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "Yield Curve (10Y-2Y)"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of core hard landing indicators. Real GDP growth shows economic output decline, unemployment rate captures labor market deterioration, and the yield curve indicates recession probability. These three series collectively provide a comprehensive view of hard landing conditions.",
+      "suggested_fix": "Could potentially add inflation data (CPI or PCE) to show the full macroeconomic picture, as hard landings often occur during efforts to combat inflation."
+    },
+    {
+      "query": "economic forecast",
+      "series": [
+        "USSLIND",
+        "A191RL1Q225SBEA",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "USSLIND",
+        "Real GDP Growth Rate",
+        "CPI All Items"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "The response includes relevant economic indicators for forecasting (leading index, GDP growth, inflation), but is missing unemployment data which is a key component of economic forecasts and one of the most important labor market indicators.",
+      "suggested_fix": "Add unemployment rate (UNRATE) to provide a complete picture of the four key economic indicators typically used in forecasting: growth, inflation, employment, and leading indicators."
+    },
+    {
+      "query": "key economic indicators",
+      "series": [
+        "A191RL1Q225SBEA",
+        "UNRATE",
+        "CPIAUCSL"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate",
+        "Unemployment Rate (U-3)",
+        "CPI All Items"
+      ],
+      "show_yoy": [
+        false,
+        false,
+        true
+      ],
+      "score": 4,
+      "issues": [],
+      "explanation": "Excellent selection of the three most fundamental economic indicators: GDP growth, unemployment, and inflation. These form the core trinity that economists and policymakers watch most closely. The YoY transformation choices are appropriate - GDP growth is already a rate, unemployment is typically viewed as a level, and CPI benefits from YoY comparison to show inflation trends.",
+      "suggested_fix": "Could consider adding a fourth indicator like Personal Consumption Expenditures (PCE) inflation or Employment Cost Index to provide slightly more comprehensive coverage, but the current selection is very solid for 'key economic indicators.'"
+    }
+  ]
+}

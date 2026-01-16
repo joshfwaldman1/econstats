@@ -1,0 +1,266 @@
+{
+  "housing": {
+    "series": [
+      "CSUSHPINSA",
+      "HOUST"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For a general 'housing' query, these two series provide the most comprehensive overview of the housing market. CSUSHPINSA (S&P/Case-Shiller National Home Price Index) is the gold standard for tracking home price trends nationwide. HOUST (Housing Starts) measures new construction activity, indicating supply-side dynamics and future housing inventory. Together, they capture both the price and activity dimensions of the housing market - showing what's happening to home values and how much new supply is being added."
+  },
+  "housing market": {
+    "series": [
+      "CSUSHPINSA",
+      "HOUST"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The housing market is best captured by these two fundamental indicators: the S&P/Case-Shiller National Home Price Index (CSUSHPINSA) shows the price trends across the market, while Housing Starts (HOUST) reveals construction activity and supply dynamics. Together they provide a comprehensive view of both demand pressures (reflected in prices) and supply response (new construction activity)."
+  },
+  "home prices": {
+    "series": [
+      "CSUSHPINSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CSUSHPINSA is the S&P/Case-Shiller National Home Price Index, the gold standard for tracking U.S. home prices. It measures the change in value of residential real estate nationwide using a repeat-sales methodology. Showing year-over-year changes reveals the home price appreciation rate, which is the key metric for understanding price trends and market momentum."
+  },
+  "house prices": {
+    "series": [
+      "CSUSHPINSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CSUSHPINSA is the S&P/Case-Shiller National Home Price Index, which is the gold standard for tracking U.S. house prices. It measures the change in value of residential real estate nationally and is widely regarded as the most reliable indicator of home price trends. Showing year-over-year changes will reveal the price appreciation rate, which is crucial for understanding housing market dynamics."
+  },
+  "real estate": {
+    "series": [
+      "CSUSHPINSA",
+      "HOUST"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For a broad 'real estate' query, these two series provide the essential overview: CSUSHPINSA (Case-Shiller National Home Price Index) shows price trends - the most watched real estate metric - while HOUST (Housing Starts) captures market activity and supply dynamics. Together they give a comprehensive view of real estate market health, showing both valuation and construction activity."
+  },
+  "home sales": {
+    "series": [
+      "EXHOSLUSM495S",
+      "HSN1F"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "EXHOSLUSM495S captures existing home sales, which represent about 85-90% of the total housing market and is the primary indicator of home sales activity. HSN1F shows new single-family home sales, providing a complete picture of both existing and new home market activity. Combined, these series give the most comprehensive view of overall home sales performance."
+  },
+  "existing home sales": {
+    "series": [
+      "EXHOSLUSM495S"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "EXHOSLUSM495S measures existing home sales, which represents the vast majority of the housing market (typically 85-90% of all home sales). This series tracks the monthly volume of previously owned homes sold, providing the most direct measure of existing home sales activity and market liquidity."
+  },
+  "new home sales": {
+    "series": [
+      "HSN1F"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "HSN1F (New single-family homes sold) is the primary measure for new home sales activity. This series tracks the monthly sales of newly constructed single-family homes, which represents the vast majority of new home sales. Showing year-over-year changes helps identify trends and seasonal patterns in the new home market."
+  },
+  "housing starts": {
+    "series": [
+      "HOUST"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "HOUST is the total housing starts series, measuring when new residential construction begins. This is the most direct and comprehensive measure of housing starts activity, capturing all types of residential construction (single-family, multi-family, condos, etc.). Housing starts are a key leading indicator of future housing supply and construction activity."
+  },
+  "building permits": {
+    "series": [
+      "PERMIT",
+      "HOUST"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Building permits (PERMIT) are the leading indicator for future construction activity, as developers must obtain permits before breaking ground. I've paired this with housing starts (HOUST) to show the complete pipeline from permits to actual construction beginning. Year-over-year growth shows the momentum in construction activity, which is important for understanding housing supply dynamics."
+  },
+  "housing affordability": {
+    "series": [
+      "MORTGAGE30US",
+      "CSUSHPINSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Housing affordability is primarily driven by two key factors: mortgage rates (MORTGAGE30US) and home prices (CSUSHPINSA - Case-Shiller National Home Price Index). When mortgage rates rise or home prices increase, affordability decreases. These two series together provide the most comprehensive view of affordability conditions, as they represent the major cost components of homeownership - the price of the home and the cost of financing it."
+  },
+  "rent prices": {
+    "series": [
+      "CUSR0000SEHA",
+      "CUSR0000SEHC"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "CUSR0000SEHA (CPI rent of primary residence) tracks actual rents paid by tenants, while CUSR0000SEHC (owners' equivalent rent) measures what homeowners would pay to rent their homes. Together they provide comprehensive rent price trends. Showing year-over-year change reveals rent inflation rates, which are critical for understanding rental market pressures."
+  },
+  "case shiller": {
+    "series": [
+      "CSUSHPINSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "The S&P/Case-Shiller National Home Price Index (CSUSHPINSA) is the gold standard for tracking U.S. home price trends. Showing year-over-year changes will display the home price appreciation rate, which is how Case-Shiller data is most commonly analyzed and reported."
+  },
+  "home values": {
+    "series": [
+      "CSUSHPINSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "The S&P/Case-Shiller National Home Price Index (CSUSHPINSA) is the gold standard measure for home values in the US. It tracks repeat sales of the same properties to provide the most accurate picture of home value changes over time. Showing year-over-year changes will reveal the home price appreciation rate, which is crucial for understanding how home values are trending."
+  },
+  "housing inventory": {
+    "series": [
+      "MNMFS",
+      "MSACSR"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Housing inventory is best measured by months' supply metrics: MNMFS (months' supply of new homes) and MSACSR (months' supply of existing homes). These indicators show how long it would take to sell current inventory at the current sales pace. Lower months' supply indicates tight inventory (seller's market), while higher supply indicates looser inventory (buyer's market). The existing home supply (MSACSR) is particularly important as it represents the much larger segment of the market. Both series can be combined on one chart as they measure the same concept (months of supply) for different market segments."
+  },
+  "housing supply": {
+    "series": [
+      "MSACSR",
+      "MNMFS"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Housing supply is best measured by inventory levels relative to sales pace. MSACSR (months' supply of existing homes) and MNMFS (months' supply of new homes) directly quantify how many months it would take to exhaust current inventory at the current sales rate. Lower months' supply indicates tight supply conditions, while higher levels suggest abundant supply. These are the standard metrics used by housing economists and the National Association of Realtors to assess supply constraints in housing markets."
+  },
+  "housing demand": {
+    "series": [
+      "EXHOSLUSM495S",
+      "HSN1F",
+      "PERMIT"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Housing demand is best measured through actual market activity. Existing home sales (EXHOSLUSM495S) represents the largest segment of housing demand, while new home sales (HSN1F) captures demand for newly constructed homes. Building permits (PERMIT) serves as a forward-looking indicator of demand, as builders obtain permits based on expected demand. Year-over-year changes show demand trends more clearly by removing seasonal patterns."
+  },
+  "homeownership": {
+    "series": [
+      "RHORUSQ156N",
+      "MORTGAGE30US"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "RHORUSQ156N is the homeownership rate - the primary metric showing what percentage of households own their homes. MORTGAGE30US (30-year mortgage rate) is included as it's the key financial factor that drives homeownership accessibility and trends over time."
+  },
+  "homeownership rate": {
+    "series": [
+      "RHORUSQ156N"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "RHORUSQ156N is the homeownership rate for the United States, which directly measures the percentage of housing units that are owner-occupied. This is the primary metric for tracking homeownership trends over time and is published quarterly by the Census Bureau as part of the Housing Vacancy Survey."
+  },
+  "first time homebuyers": {
+    "series": [
+      "MORTGAGE30US",
+      "CSUSHPINSA",
+      "FIXHAI"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "First-time homebuyers are most sensitive to affordability constraints. The 30-year mortgage rate directly affects monthly payments, the Case-Shiller price index shows home price levels they must afford, and the housing affordability index specifically measures how accessible homeownership is for typical buyers. Together, these three series capture the key financial barriers first-time buyers face when entering the housing market."
+  },
+  "housing construction": {
+    "series": [
+      "HOUST",
+      "PERMIT"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Housing starts (HOUST) measures when construction actually begins, while building permits (PERMIT) is a leading indicator showing approved future construction. Together they provide the complete picture of housing construction activity - permits show what's planned and starts show what's actively being built."
+  },
+  "residential construction": {
+    "series": [
+      "TLRESCONS",
+      "HOUST"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "TLRESCONS shows total residential construction spending (the dollar value of all residential construction activity), while HOUST shows housing starts (the number of new residential construction projects beginning). Together, these provide a comprehensive view of residential construction from both value and volume perspectives - spending captures the economic scale while starts indicate the pace of new project initiation."
+  },
+  "housing bubble": {
+    "series": [
+      "CSUSHPINSA",
+      "MORTGAGE30US"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "To analyze housing bubble conditions, we need the Case-Shiller National Home Price Index (the gold standard for tracking home price bubbles) with year-over-year changes to see price appreciation rates, combined with 30-year mortgage rates which are a key driver of housing bubbles. Rapid price appreciation (high YoY growth in CSUSHPINSA) combined with low mortgage rates often indicates bubble conditions, while high rates can deflate bubbles."
+  },
+  "housing crash": {
+    "series": [
+      "CSUSHPINSA",
+      "HOUST",
+      "EXHOSLUSM495S"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "A housing crash involves dramatic declines in home prices, construction activity, and sales volumes. The Case-Shiller National Home Price Index (CSUSHPINSA) with year-over-year changes will show price appreciation turning negative during crashes like 2008-2012. Housing starts (HOUST) reveal construction activity collapse as builders halt projects. Existing home sales (EXHOSLUSM495S) capture transaction volume drops as buyers disappear and sellers withdraw from market. Together, these three series provide the clearest picture of housing market distress across prices, supply, and demand."
+  },
+  "mortgage applications": {
+    "series": [
+      "MORTGAGE30US"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "While mortgage applications data (MBA's weekly applications index) isn't directly available in FRED's most common housing series, the 30-year mortgage rate is the primary driver of mortgage application activity. When rates fall, applications typically surge; when rates rise, applications drop significantly. This rate series will show the underlying trend affecting mortgage demand and application volumes."
+  },
+  "home equity": {
+    "series": [
+      "CSUSHPINSA",
+      "MORTGAGE30US"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Home equity is primarily driven by home price appreciation (CSUSHPINSA with year-over-year changes showing equity gains) and mortgage rates (MORTGAGE30US), which affect both refinancing opportunities to access equity and the cost of home equity loans/HELOCs. Rising home prices build equity while lower rates make equity extraction more affordable."
+  },
+  "housing wealth": {
+    "series": [
+      "CSUSHPINSA",
+      "HOUST"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Housing wealth is primarily driven by home price appreciation, which the Case-Shiller National Home Price Index captures as the gold standard measure. Showing year-over-year changes reveals the wealth accumulation rate for homeowners. Housing starts provides context on supply dynamics that influence future price trends and wealth effects. Together, these series show both current housing wealth trends and supply factors affecting future wealth accumulation."
+  },
+  "rental market": {
+    "series": [
+      "CUSR0000SEHA",
+      "RRVRUSQ156N"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CUSR0000SEHA (CPI rent of primary residence) tracks actual rental price trends, while RRVRUSQ156N (rental vacancy rate) measures rental market tightness. Together they provide a complete picture of the rental market - price movements and supply/demand balance. Year-over-year changes show rental inflation trends."
+  },
+  "apartment rents": {
+    "series": [
+      "CUSR0000SEHA",
+      "CUSR0000SEHC"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "CUSR0000SEHA measures rent of primary residence (what renters actually pay) while CUSR0000SEHC captures owners' equivalent rent (what homeowners would pay to rent their homes). Together they provide comprehensive rental market trends. Year-over-year shows rent inflation rates, which is crucial for understanding apartment rent dynamics."
+  },
+  "vacancy rates": {
+    "series": [
+      "RRVRUSQ156N",
+      "RHVRUSQ156N"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "RRVRUSQ156N (rental vacancy rate) and RHVRUSQ156N (homeowner vacancy rate) are the two primary measures of housing vacancy rates in the US. The rental vacancy rate shows the percentage of rental housing units that are vacant and available for rent, while the homeowner vacancy rate shows the percentage of homeowner housing units that are vacant and for sale. Both are quarterly data and combining them provides a complete picture of housing market tightness across both rental and ownership markets. Lower vacancy rates indicate tighter housing supply, while higher rates suggest more available housing stock."
+  }
+}

@@ -1,0 +1,260 @@
+{
+  "gdp": {
+    "series": [
+      "A191RL1Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For GDP queries, people typically want to see economic growth performance. A191RL1Q225SBEA shows the real GDP growth rate (quarterly, annualized), which is the headline economic growth measure that indicates whether the economy is expanding or contracting. This is more informative than static GDP levels since it shows the economy's momentum and direction."
+  },
+  "gdp growth": {
+    "series": [
+      "A191RL1Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "A191RL1Q225SBEA is the Real GDP growth rate (quarterly, annualized) - this is THE headline GDP growth measure that economists and media focus on. It's already expressed as a growth rate, so no YoY calculation needed."
+  },
+  "economic growth": {
+    "series": [
+      "A191RL1Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "A191RL1Q225SBEA is the Real GDP growth rate (quarterly, annualized) - this is THE definitive measure of economic growth that economists and policymakers focus on. It shows the pace at which the economy is expanding or contracting, already expressed as a growth rate, so no year-over-year calculation is needed."
+  },
+  "real gdp": {
+    "series": [
+      "GDPC1"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "GDPC1 is the definitive measure of real GDP in billions of chained 2017 dollars. This series shows the actual level of inflation-adjusted economic output, which is what you're asking for when requesting 'real GDP'. This is the primary measure used to assess the size and trend of the U.S. economy."
+  },
+  "gdp report": {
+    "series": [
+      "A191RL1Q225SBEA",
+      "GDPC1"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For a GDP report, you need the headline growth rate (A191RL1Q225SBEA) which shows quarterly annualized real GDP growth - this is the key number everyone focuses on. GDPC1 shows the level of real GDP to provide context on the overall size and trend of the economy. Together these give you both the growth momentum and absolute output level."
+  },
+  "quarterly gdp": {
+    "series": [
+      "A191RL1Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "A191RL1Q225SBEA is the quarterly real GDP growth rate (annualized), which is the standard measure for tracking quarterly GDP performance. This series shows the percentage change in economic output from quarter to quarter, which is what economists and markets focus on for quarterly GDP analysis."
+  },
+  "growth rate": {
+    "series": [
+      "A191RL1Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "A191RL1Q225SBEA is the Real GDP growth rate (quarterly, annualized) - this is THE headline growth rate measure that economists and policymakers focus on. It's already expressed as a growth rate, so no additional year-over-year calculation is needed."
+  },
+  "output": {
+    "series": [
+      "INDPRO"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Industrial Production Index (INDPRO) is the primary measure of US economic output, tracking real output across manufacturing, mining, and utilities sectors. This index directly measures physical production and is the standard metric for analyzing output trends in the economy."
+  },
+  "production": {
+    "series": [
+      "INDPRO"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Industrial Production Index (INDPRO) is the primary measure of production activity in the US economy, covering manufacturing, mining, and utilities sectors. This index provides the most comprehensive view of actual production output and is a key indicator of economic activity and business cycle conditions."
+  },
+  "industrial production": {
+    "series": [
+      "INDPRO"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "INDPRO is the primary measure of industrial production, covering manufacturing, mining, and utilities output. This index directly measures the physical volume of production in the industrial sector and is the standard metric economists use to track industrial activity and capacity."
+  },
+  "manufacturing": {
+    "series": [
+      "IPMAN",
+      "TCU"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "IPMAN (Industrial Production: Manufacturing) measures the physical output of the manufacturing sector, while TCU (Total Capacity Utilization) shows how much of manufacturing capacity is being used. Together they provide a comprehensive view of manufacturing activity - both absolute production levels and efficiency of resource utilization."
+  },
+  "factory output": {
+    "series": [
+      "IPMAN"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "IPMAN (Industrial Production: Manufacturing) is the definitive measure of factory output in the US. This index tracks the real output of the manufacturing sector, covering all types of factories and production facilities. Year-over-year comparison shows the growth trend in factory production, which is essential for understanding manufacturing sector health and economic momentum."
+  },
+  "capacity utilization": {
+    "series": [
+      "TCU"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "TCU (Total Capacity Utilization) is the primary measure of how intensively firms are using their productive capacity across all industries. This metric shows the percentage of total industrial capacity currently in use, providing insight into economic slack and potential inflationary pressures. High capacity utilization suggests strong demand and potential supply constraints, while low utilization indicates economic weakness and available productive slack."
+  },
+  "productivity": {
+    "series": [
+      "OPHNFB",
+      "PRS85006092"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "OPHNFB (nonfarm business sector output per hour) is the primary measure of labor productivity, showing how much output workers produce per hour worked. PRS85006092 (nonfarm business unit labor costs) provides the complementary view - when productivity rises, unit labor costs typically fall, making this pair essential for comprehensive productivity analysis. These are the key metrics economists use to assess whether the economy is becoming more efficient at producing goods and services."
+  },
+  "economic expansion": {
+    "series": [
+      "A191RL1Q225SBEA",
+      "CFNAI"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Real GDP growth rate (A191RL1Q225SBEA) is the primary measure of economic expansion - positive values indicate expansion, negative values indicate contraction. The Chicago Fed National Activity Index (CFNAI) provides additional confirmation as a broad-based indicator that measures economic activity relative to trend - positive values support expansion while negative values suggest below-trend growth."
+  },
+  "economic contraction": {
+    "series": [
+      "A191RL1Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Economic contraction is measured by negative real GDP growth rates. A191RL1Q225SBEA shows the quarterly annualized real GDP growth rate - when this turns negative, the economy is contracting. Two consecutive quarters of negative growth is the traditional definition of recession. This series is already a growth rate so no YoY calculation is needed."
+  },
+  "durable goods": {
+    "series": [
+      "DGORDER"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "DGORDER (Durable Goods Orders) is the primary indicator for durable goods activity. This measures new orders placed with domestic manufacturers for durable goods - items expected to last at least 3 years like machinery, aircraft, automobiles, and appliances. It's a key leading indicator of manufacturing activity and business investment trends. Showing year-over-year changes helps identify underlying trends beyond seasonal fluctuations."
+  },
+  "business investment": {
+    "series": [
+      "GPDIC1"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "GPDIC1 (Real Gross Private Domestic Investment) is the definitive measure of business investment in the economy. This series captures all private sector investment in equipment, structures, and inventories - the core component of GDP that represents business capital formation. Year-over-year growth shows investment trends and business confidence in economic expansion."
+  },
+  "capital spending": {
+    "series": [
+      "GPDIC1",
+      "DGORDER"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Capital spending is best measured by real gross private domestic investment (GPDIC1), which captures business investment in equipment, structures, and intellectual property. Durable goods orders (DGORDER) provides a forward-looking indicator of business capital spending intentions, as many durable goods orders represent business equipment purchases. Together, these series show both current capital investment levels and future spending signals."
+  },
+  "corporate investment": {
+    "series": [
+      "GPDIC1"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "GPDIC1 (Real gross private domestic investment) is the comprehensive measure of corporate investment in the GDP accounts. It includes business fixed investment in equipment, structures, and intellectual property, plus residential investment and inventory changes. This captures all forms of private sector investment spending, which is what drives future productive capacity and economic growth. Year-over-year growth shows the investment trend clearly."
+  },
+  "manufacturing orders": {
+    "series": [
+      "NEWORDER",
+      "DGORDER"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "NEWORDER (Manufacturers' new orders) provides the broadest measure of new manufacturing demand, while DGORDER (Durable goods orders) captures the more volatile capital goods sector that's crucial for business investment trends. Together they give a comprehensive view of manufacturing order flow - both are key leading indicators of industrial activity and economic momentum."
+  },
+  "factory orders": {
+    "series": [
+      "DGORDER",
+      "NEWORDER"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "DGORDER (durable goods orders) and NEWORDER (manufacturers' new orders) provide the most comprehensive view of factory orders. Durable goods orders are the most closely watched factory orders indicator, while manufacturers' new orders gives broader coverage of all manufacturing orders. Together they show both the key headline number and the broader manufacturing demand picture."
+  },
+  "leading indicators": {
+    "series": [
+      "USSLIND",
+      "CFNAI"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "These are the two premier leading indicators for the US economy. The Leading Index for the US (USSLIND) is designed to predict turning points in the business cycle 6-9 months in advance, while the Chicago Fed National Activity Index (CFNAI) measures economic activity relative to trend and helps identify periods of economic growth above or below trend. Both are forward-looking measures that help anticipate future economic conditions."
+  },
+  "economic activity": {
+    "series": [
+      "A191RL1Q225SBEA",
+      "CFNAI",
+      "INDPRO"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "For broad economic activity assessment, I'm providing three complementary measures: A191RL1Q225SBEA (Real GDP growth rate) as the primary headline measure of overall economic expansion/contraction, CFNAI (Chicago Fed National Activity Index) which synthesizes 85 monthly indicators into a single measure of national economic activity relative to trend, and INDPRO (Industrial Production Index) to capture real-time production activity across manufacturing, mining, and utilities sectors. These three series together provide a comprehensive view of current economic momentum."
+  },
+  "business activity": {
+    "series": [
+      "INDPRO",
+      "RSXFS",
+      "DGORDER"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "These three series provide a comprehensive view of business activity across key sectors: INDPRO captures industrial production (manufacturing, mining, utilities), RSXFS shows retail sales excluding food services (consumer-facing business activity), and DGORDER reflects durable goods orders (forward-looking business investment demand). Together they span production, consumption, and investment aspects of business activity."
+  },
+  "economic momentum": {
+    "series": [
+      "A191RL1Q225SBEA",
+      "CFNAI"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Economic momentum is best captured by the Real GDP growth rate (A191RL1Q225SBEA) which shows the quarterly annualized pace of economic expansion, combined with the Chicago Fed National Activity Index (CFNAI) which is specifically designed to gauge the overall economic momentum by synthesizing 85 economic indicators. The CFNAI is particularly valuable for momentum analysis as positive values indicate above-trend growth while negative values suggest below-trend growth. Together, these provide both the headline growth measure and a comprehensive momentum gauge."
+  },
+  "gdp components": {
+    "series": [
+      "PCECC96",
+      "GPDIC1",
+      "GCEC1",
+      "EXPGSC1",
+      "IMPGSC1"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "These are the five main components of real GDP: personal consumption expenditures (PCECC96), gross private domestic investment (GPDIC1), government consumption (GCEC1), exports (EXPGSC1), and imports (IMPGSC1). All are in real terms (chained 2017 dollars) to match how GDP is measured. Combined chart shows their relative magnitudes and how each component contributes to total economic output."
+  },
+  "consumer spending share of gdp": {
+    "series": [
+      "PCECC96",
+      "GDPC1"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "To calculate consumer spending's share of GDP, we need real personal consumption expenditures (PCECC96) and real GDP (GDPC1). Both are in the same units (billions of chained 2017 dollars), allowing for accurate percentage calculation. Consumer spending typically represents about 70% of US GDP, making this ratio a key indicator of the economy's consumption dependence. The separate charts will show the levels of each component, and the ratio can be calculated by dividing PCE by GDP."
+  },
+  "investment spending": {
+    "series": [
+      "GPDIC1"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "GPDIC1 (Real Gross Private Domestic Investment) is the definitive measure of investment spending in the economy. This captures business investment in equipment, structures, and residential construction, plus changes in inventories - all measured in real terms. Showing year-over-year changes will reveal investment trends and cyclical patterns, which are crucial since investment is the most volatile component of GDP and a key driver of economic cycles."
+  },
+  "government spending": {
+    "series": [
+      "GCEC1"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "GCEC1 (Real Government Consumption Expenditures and Gross Investment) is the comprehensive measure of government spending in the GDP accounts. This captures all government purchases of goods and services at federal, state, and local levels in real terms. Year-over-year growth shows the trend in government fiscal activity and its contribution to economic growth."
+  }
+}

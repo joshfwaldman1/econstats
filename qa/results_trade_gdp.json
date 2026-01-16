@@ -1,0 +1,371 @@
+{
+  "category": "Trade, GDP & Markets",
+  "total_queries": 22,
+  "average_score": 3.73,
+  "score_distribution": {
+    "1": 0,
+    "2": 0,
+    "3": 9,
+    "4": 10,
+    "5": 3
+  },
+  "issues_summary": {
+    "MISSING_KEY": 2,
+    "WRONG_YOY": 2,
+    "TOO_FEW": 10
+  },
+  "results": [
+    {
+      "query": "gdp",
+      "series": [
+        "A191RL1Q225SBEA"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Shows GDP growth rate which is relevant, but for a simple 'gdp' query, users typically expect to see the actual GDP level data as the primary response, with growth rate as supplementary context.",
+      "suggested_fix": "Include both real GDP level (GDPC1) as the primary series and real GDP growth rate as additional context to give a complete picture of GDP performance"
+    },
+    {
+      "query": "gdp growth",
+      "series": [
+        "A191RL1Q225SBEA"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "WRONG_YOY"
+      ],
+      "explanation": "The series selection is perfect - Real GDP Growth Rate is exactly what was requested. However, GDP growth is typically viewed as year-over-year changes to smooth out seasonal volatility and provide meaningful economic context, but the system shows quarterly changes instead.",
+      "suggested_fix": "Set 'Show as year-over-year' to True to display the more standard and economically meaningful year-over-year GDP growth rate"
+    },
+    {
+      "query": "economic growth",
+      "series": [
+        "A191RL1Q225SBEA"
+      ],
+      "series_names": [
+        "Real GDP Growth Rate"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "Real GDP Growth Rate is the most direct and appropriate measure for 'economic growth' query. However, showing only one series provides limited context for comprehensive economic growth analysis.",
+      "suggested_fix": "Add complementary series like nominal GDP growth, GDP per capita growth, or productivity measures to provide fuller picture of economic growth trends"
+    },
+    {
+      "query": "real gdp",
+      "series": [
+        "GDPC1"
+      ],
+      "series_names": [
+        "Real GDP Level"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "WRONG_YOY"
+      ],
+      "explanation": "GDPC1 is the correct primary series for real GDP, but showing it in levels rather than year-over-year growth is less intuitive for most economic analysis. Real GDP growth rates are more commonly referenced and meaningful for understanding economic performance.",
+      "suggested_fix": "Show as year-over-year percentage change to display real GDP growth rate, which is the standard way economists and analysts interpret GDP data"
+    },
+    {
+      "query": "industrial production",
+      "series": [
+        "INDPRO"
+      ],
+      "series_names": [
+        "Industrial Production"
+      ],
+      "show_yoy": true,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. INDPRO is the main Federal Reserve series for industrial production, and year-over-year transformation is appropriate for showing growth trends in production data.",
+      "suggested_fix": null
+    },
+    {
+      "query": "manufacturing",
+      "series": [
+        "IPMAN",
+        "TCU"
+      ],
+      "series_names": [
+        "IPMAN",
+        "TCU"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "IPMAN (Industrial Production: Manufacturing) and TCU (Capacity Utilization) are relevant manufacturing indicators, but the response is incomplete for such a broad query. Missing key manufacturing metrics like employment, new orders, or PMI data.",
+      "suggested_fix": "Add manufacturing employment (MANEMP) and new orders or shipments data to provide a more comprehensive view of the manufacturing sector"
+    },
+    {
+      "query": "productivity",
+      "series": [
+        "OPHNFB",
+        "PRS85006092"
+      ],
+      "series_names": [
+        "OPHNFB",
+        "PRS85006092"
+      ],
+      "show_yoy": true,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The response includes two relevant productivity series (nonfarm business sector productivity), but for a broad query like 'productivity', it would benefit from showing additional context such as manufacturing productivity or labor productivity growth trends to give a more comprehensive view.",
+      "suggested_fix": "Add 1-2 more productivity series such as manufacturing productivity (OPHMFB) or total factor productivity to provide broader economic context"
+    },
+    {
+      "query": "trade",
+      "series": [
+        "BOPGSTB"
+      ],
+      "series_names": [
+        "Trade Balance"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "Trade balance is relevant to 'trade' but the query is very broad and could benefit from additional context. A single series provides limited insight into overall trade activity.",
+      "suggested_fix": "Add exports and imports series (e.g., EXPGS, IMPGS) to show the components that make up the trade balance and provide fuller picture of trade activity"
+    },
+    {
+      "query": "trade deficit",
+      "series": [
+        "BOPGSTB"
+      ],
+      "series_names": [
+        "Trade Balance"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "BOPGSTB (Trade Balance) directly answers the trade deficit query. Trade deficit is simply the negative of trade balance, so this is the correct and most appropriate series. The response is concise and on-target.",
+      "suggested_fix": "Could potentially add goods-only trade balance (BOPGSB) for additional context since goods trade deficit is often discussed separately from services, but the current response is quite good as-is."
+    },
+    {
+      "query": "trade balance",
+      "series": [
+        "BOPGSTB"
+      ],
+      "series_names": [
+        "Trade Balance"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "BOPGSTB is the correct and primary trade balance series from FRED, showing the difference between exports and imports of goods and services. This directly answers the user's query for trade balance data.",
+      "suggested_fix": "Could potentially include BOPGSTB (goods and services) alongside BOPGTB (goods only) to provide both headline and core trade balance measures, giving users a more complete view of trade dynamics."
+    },
+    {
+      "query": "imports",
+      "series": [
+        "IMPGS"
+      ],
+      "series_names": [
+        "IMPGS"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "IMPGS (Imports of Goods and Services) is correct for the query, but showing only one series provides limited context. For imports analysis, it would be more useful to see goods vs services breakdown or compare with exports.",
+      "suggested_fix": "Add IMPGSC1 (Real Imports of Goods and Services) for inflation-adjusted view, or include IMPGS (goods and services), IEAGS (goods only), and IEASS (services only) for better breakdown"
+    },
+    {
+      "query": "exports",
+      "series": [
+        "EXPGS"
+      ],
+      "series_names": [
+        "EXPGS"
+      ],
+      "show_yoy": true,
+      "score": 4,
+      "issues": [],
+      "explanation": "EXPGS (Exports of Goods and Services) is the standard and most comprehensive measure of U.S. exports, making it highly appropriate for a general 'exports' query. Year-over-year view is suitable for showing export growth trends.",
+      "suggested_fix": "Could potentially add EXPGSC1 (real exports) to show volume changes alongside nominal values, but EXPGS alone adequately answers the query"
+    },
+    {
+      "query": "china trade",
+      "series": [
+        "IMPCH",
+        "EXPCH"
+      ],
+      "series_names": [
+        "Imports from China",
+        "EXPCH"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "Good response showing both US imports from China and US exports to China, which gives a complete picture of bilateral trade. The series are directly relevant to the query.",
+      "suggested_fix": "Could potentially benefit from year-over-year transformation to show growth trends, especially given the volatility in trade data and recent trade tensions between the countries."
+    },
+    {
+      "query": "dollar",
+      "series": [
+        "DTWEXBGS"
+      ],
+      "series_names": [
+        "DTWEXBGS"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "DTWEXBGS (Trade Weighted U.S. Dollar Index: Broad, Goods and Services) is relevant for a 'dollar' query as it measures dollar strength, but the single-word query is ambiguous and could refer to multiple dollar-related concepts. More context would be helpful.",
+      "suggested_fix": "Include additional dollar-related series such as DGS10 (10-year Treasury rate), DEXUSEU (USD/EUR exchange rate), or DFF (Federal funds rate) to provide broader context for dollar performance and monetary policy"
+    },
+    {
+      "query": "exchange rate",
+      "series": [
+        "DTWEXBGS",
+        "DEXUSEU",
+        "DEXJPUS"
+      ],
+      "series_names": [
+        "DTWEXBGS",
+        "DEXUSEU",
+        "DEXJPUS"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The three series shown (Trade Weighted Dollar Index, EUR/USD, and JPY/USD) are relevant exchange rate data, but the selection is limited. For a general 'exchange rate' query, this covers major currencies but misses other important ones like GBP, CAD, and CNY that would provide better global context.",
+      "suggested_fix": "Add 1-2 more major exchange rates like GBP/USD (DEXUSUK) or CAD/USD (DEXCAUS) to give a more comprehensive view of USD exchange rate movements"
+    },
+    {
+      "query": "stock market",
+      "series": [
+        "SP500"
+      ],
+      "series_names": [
+        "S&P 500"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The S&P 500 is the most appropriate single indicator for 'stock market' queries and correctly shows levels rather than YoY changes. However, for a complete stock market picture, it would benefit from additional major indices.",
+      "suggested_fix": "Add Dow Jones Industrial Average (DJIA) and NASDAQ Composite to provide broader market coverage"
+    },
+    {
+      "query": "stocks",
+      "series": [
+        "SP500"
+      ],
+      "series_names": [
+        "S&P 500"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "The S&P 500 is a reasonable response to 'stocks' but is quite limited. The query is very broad and could benefit from additional context like other major indices or market indicators.",
+      "suggested_fix": "Include other major stock indices like NASDAQ Composite (NASDAQCOM) and Dow Jones (DJIA) to provide broader market context, or add VIX for volatility perspective"
+    },
+    {
+      "query": "s&p 500",
+      "series": [
+        "SP500"
+      ],
+      "series_names": [
+        "S&P 500"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response. The user asked for 'S&P 500' and the system returned exactly the right series (SP500) with the correct name. No year-over-year transformation is appropriate since S&P 500 is typically viewed as an index level.",
+      "suggested_fix": null
+    },
+    {
+      "query": "sp500",
+      "series": [
+        "SP500"
+      ],
+      "series_names": [
+        "S&P 500"
+      ],
+      "show_yoy": false,
+      "score": 5,
+      "issues": [],
+      "explanation": "Perfect response - the user asked for 'sp500' and got exactly that with the S&P 500 index series. The level data is appropriate as users typically want to see the actual index value rather than year-over-year changes when asking about the S&P 500.",
+      "suggested_fix": null
+    },
+    {
+      "query": "oil",
+      "series": [
+        "DCOILWTICO"
+      ],
+      "series_names": [
+        "WTI Crude Oil Price"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [
+        "TOO_FEW"
+      ],
+      "explanation": "WTI Crude Oil Price is the most relevant and commonly referenced oil price series for a general 'oil' query. However, for broader context, Brent crude prices would also be valuable since these are the two main global oil benchmarks.",
+      "suggested_fix": "Add Brent crude oil prices (DCOILBRENTEU) to provide a more complete view of global oil markets"
+    },
+    {
+      "query": "crude oil",
+      "series": [
+        "DCOILWTICO"
+      ],
+      "series_names": [
+        "WTI Crude Oil Price"
+      ],
+      "show_yoy": false,
+      "score": 4,
+      "issues": [],
+      "explanation": "WTI Crude Oil Price is the most appropriate and widely-used benchmark for crude oil pricing. The series directly answers the user's query with the standard oil price reference.",
+      "suggested_fix": "Could potentially add Brent crude oil price for additional context, as it's another major benchmark, but WTI alone is sufficient for most crude oil price analysis."
+    },
+    {
+      "query": "commodities",
+      "series": [
+        "DCOILWTICO",
+        "GOLDAMGBD228NLBM",
+        "GASREGW",
+        "PPIACO"
+      ],
+      "series_names": [
+        "WTI Crude Oil Price",
+        "GOLDAMGBD228NLBM",
+        "Gas Price",
+        "PPIACO"
+      ],
+      "show_yoy": false,
+      "score": 3,
+      "issues": [
+        "MISSING_KEY"
+      ],
+      "explanation": "Shows relevant commodity data with oil, gold, and gas prices, but has unclear series names (GOLDAMGBD228NLBM, PPIACO not properly labeled) and misses other major commodities like agricultural products or metals beyond gold.",
+      "suggested_fix": "Fix series names to show 'Gold Price' and 'Producer Price Index - All Commodities', and consider adding key agricultural or industrial metal commodities for broader representation"
+    }
+  ]
+}
