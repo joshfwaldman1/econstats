@@ -1469,8 +1469,15 @@ def find_local_series(query: str) -> dict:
 
 def add_recession_shapes(fig, min_date: str, max_date: str):
     """Add recession shading to a plotly figure."""
+    # Convert to datetime for proper date comparison
+    min_dt = datetime.strptime(min_date, '%Y-%m-%d')
+    max_dt = datetime.strptime(max_date, '%Y-%m-%d')
+
     for rec in RECESSIONS:
-        if rec['end'] >= min_date and rec['start'] <= max_date:
+        rec_start = datetime.strptime(rec['start'], '%Y-%m-%d')
+        rec_end = datetime.strptime(rec['end'], '%Y-%m-%d')
+
+        if rec_end >= min_dt and rec_start <= max_dt:
             x0 = max(rec['start'], min_date)
             x1 = min(rec['end'], max_date)
             fig.add_vrect(
@@ -1952,14 +1959,6 @@ def main():
                     pct_data.append((series_id, dates, values, info))
             series_data = pct_data
 
-        # Store context for follow-up queries
-        st.session_state.last_query = query
-        st.session_state.last_series = series_to_fetch[:4]
-        st.session_state.last_series_names = series_names_fetched
-        st.session_state.last_series_data = series_data
-        st.session_state.last_chart_type = chart_type
-        st.session_state.last_combine = combine
-
         # Call economist reviewer agent to improve explanation (only for non-precomputed queries)
         used_precomputed = interpretation.get('used_precomputed', False)
         used_local_parser = interpretation.get('used_local_parser', False)
@@ -1967,15 +1966,23 @@ def main():
             with st.spinner("Economist reviewing analysis..."):
                 ai_explanation = call_economist_reviewer(query, series_data, ai_explanation)
 
-        # Save explanation to session state
+        # Store ALL context atomically for follow-up queries (prevents race conditions)
+        st.session_state.last_query = query
+        st.session_state.last_series = series_to_fetch[:4]
+        st.session_state.last_series_names = series_names_fetched
+        st.session_state.last_series_data = series_data
+        st.session_state.last_chart_type = chart_type
+        st.session_state.last_combine = combine
         st.session_state.last_explanation = ai_explanation
 
-        # Narrative summary
-        st.markdown("<div class='narrative-box'>", unsafe_allow_html=True)
-        st.markdown("<h3 style='margin-top:0'>Summary</h3>", unsafe_allow_html=True)
+        # Narrative summary - only render if there's content
+        has_narrative_content = ai_explanation or any(values for _, _, values, _ in series_data)
+        if has_narrative_content:
+            st.markdown("<div class='narrative-box'>", unsafe_allow_html=True)
+            st.markdown("<h3 style='margin-top:0'>Summary</h3>", unsafe_allow_html=True)
 
-        if ai_explanation:
-            st.markdown(f"<div class='ai-explanation'>{ai_explanation}</div>", unsafe_allow_html=True)
+            if ai_explanation:
+                st.markdown(f"<div class='ai-explanation'>{ai_explanation}</div>", unsafe_allow_html=True)
 
         for series_id, dates, values, info in series_data:
             if not values:
@@ -2110,22 +2117,32 @@ def main():
             narrative = f"<p>{' '.join(sentences)}</p>"
             st.markdown(narrative, unsafe_allow_html=True)
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        if has_narrative_content:
+            st.markdown("</div>", unsafe_allow_html=True)
 
         # Charts
         if combine and len(series_data) > 1:
             db_info = SERIES_DB.get(series_data[0][0], {})
-            bullets = db_info.get('bullets', ['', ''])
+            bullets = db_info.get('bullets', [])
+            # Filter out empty bullets
+            bullets = [b for b in bullets if b and b.strip()]
 
             st.markdown("<div class='chart-section'>", unsafe_allow_html=True)
-            st.markdown(f"""
-            <div class='chart-header'>
-                <div class='chart-title'>{' vs '.join([info.get('name', info.get('title', sid))[:40] for sid, _, _, info in series_data])}</div>
-                <ul class='chart-bullets'>
-                    <li>{bullets[0]}</li>
-                </ul>
-            </div>
-            """, unsafe_allow_html=True)
+            chart_title = ' vs '.join([info.get('name', info.get('title', sid))[:40] for sid, _, _, info in series_data])
+            if bullets:
+                bullets_html = ''.join([f'<li>{b}</li>' for b in bullets[:2]])
+                st.markdown(f"""
+                <div class='chart-header'>
+                    <div class='chart-title'>{chart_title}</div>
+                    <ul class='chart-bullets'>{bullets_html}</ul>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class='chart-header'>
+                    <div class='chart-title'>{chart_title}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
             st.plotly_chart(fig, use_container_width=True)
@@ -2138,7 +2155,10 @@ def main():
                 db_info = SERIES_DB.get(series_id, {})
                 name = info.get('name', info.get('title', series_id))
                 source = db_info.get('source', info.get('source', 'FRED'))
-                bullets = db_info.get('bullets', [f'FRED series: {series_id}', f"Unit: {info.get('unit', info.get('units', ''))}"])
+                unit = info.get('unit', info.get('units', ''))
+                bullets = db_info.get('bullets', [f'FRED series: {series_id}', f"Unit: {unit}" if unit else ''])
+                # Filter out empty bullets
+                bullets = [b for b in bullets if b and b.strip()]
                 sa_note = "Seasonally adjusted." if db_info.get('sa', False) else "Not seasonally adjusted."
                 transform_note = ""
                 if info.get('is_yoy'):
@@ -2149,15 +2169,20 @@ def main():
                     transform_note = " Showing annual averages."
 
                 st.markdown("<div class='chart-section'>", unsafe_allow_html=True)
-                st.markdown(f"""
-                <div class='chart-header'>
-                    <div class='chart-title'>{name}</div>
-                    <ul class='chart-bullets'>
-                        <li>{bullets[0]}</li>
-                        <li>{bullets[1]}</li>
-                    </ul>
-                </div>
-                """, unsafe_allow_html=True)
+                if bullets:
+                    bullets_html = ''.join([f'<li>{b}</li>' for b in bullets[:2]])
+                    st.markdown(f"""
+                    <div class='chart-header'>
+                        <div class='chart-title'>{name}</div>
+                        <ul class='chart-bullets'>{bullets_html}</ul>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div class='chart-header'>
+                        <div class='chart-title'>{name}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                 st.plotly_chart(fig, use_container_width=True)
