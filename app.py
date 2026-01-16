@@ -1685,6 +1685,13 @@ def main():
     .chart-bullets li { margin-bottom: 4px; }
     .source-line { padding: 10px 20px; border-top: 1px solid #e0e0e0; font-size: 0.85rem; color: #666; background: #fafafa; }
     .ai-explanation { font-style: italic; color: #444; padding: 10px 15px; background: #f8f8f8; border-left: 3px solid #0066cc; margin-bottom: 15px; }
+    /* Hide chat message avatars */
+    .stChatMessage [data-testid="chatAvatarIcon-assistant"],
+    .stChatMessage [data-testid="chatAvatarIcon-user"],
+    .stChatMessage img[alt="assistant avatar"],
+    .stChatMessage img[alt="user avatar"],
+    [data-testid="stChatMessageAvatarAssistant"],
+    [data-testid="stChatMessageAvatarUser"] { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
 
