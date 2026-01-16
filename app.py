@@ -400,7 +400,10 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
         recent_values = values[recent_start_idx:]
         recent_dates = dates[recent_start_idx:]
 
-        if recent_values:
+        # Skip high/low comparisons for cumulative series (like total payrolls) - levels grow with population
+        is_cumulative = db_info.get('cumulative', False)
+
+        if recent_values and not is_cumulative:
             max_val = max(recent_values)
             min_val = min(recent_values)
             max_idx = recent_values.index(max_val)
@@ -429,6 +432,11 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                         context['at_low'] = f"10-year low"
                     elif pct_from_low <= 15:
                         context['near_low'] = f"near 10-year low ({min_date})"
+
+        # For cumulative series like payrolls, show monthly change instead
+        if is_cumulative and len(values) >= 2:
+            monthly_change = values[-1] - values[-2]
+            context['monthly_change'] = monthly_change
 
         # 4. Trend direction (consecutive months in same direction)
         if len(values) >= 4:
@@ -469,6 +477,7 @@ SERIES_DB = {
         'sa': True,
         'frequency': 'monthly',
         'data_type': 'level',
+        'cumulative': True,  # Skip "at high" comparisons - levels always grow with population
         'bullets': [
             'The single most important monthly indicator of labor market health. This is the "jobs number" that moves markets on the first Friday of each month. It counts every worker on a U.S. business payroll outside of farming.',
             'Context matters: The economy needs roughly 100,000-150,000 new jobs per month just to absorb population growth. Gains above 200,000 signal robust hiring; below 100,000 suggests softening. During recessions, this figure turns sharply negative—the economy lost 800,000+ jobs monthly at the depths of the 2008-09 crisis.'
@@ -1969,10 +1978,8 @@ def main():
                     pct_data.append((series_id, dates, values, info))
             series_data = pct_data
 
-        # Call economist reviewer agent to improve explanation (only for non-precomputed queries)
-        used_precomputed = interpretation.get('used_precomputed', False)
-        used_local_parser = interpretation.get('used_local_parser', False)
-        if not used_precomputed and not used_local_parser and series_data:
+        # Call economist reviewer agent for ALL queries to ensure quality explanations
+        if series_data:
             with st.spinner("Economist reviewing analysis..."):
                 ai_explanation = call_economist_reviewer(query, series_data, ai_explanation)
 
