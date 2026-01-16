@@ -347,8 +347,9 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "PAYEMS (nonfarm payrolls) is THE jobs number - the monthly change shows job creation/loss from the establishment survey. UNRATE (unemployment rate) provides the complementary household survey perspective. Together they give the complete picture of the job market that markets and policymakers focus on."
+    "explanation": "PAYEMS (nonfarm payrolls) is THE jobs number - shown as monthly job gains/losses in thousands. UNRATE (unemployment rate) provides the complementary household survey perspective. Together they give the complete picture of the job market."
   },
   "job market": {
     "series": [
@@ -356,8 +357,9 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "For a general job market overview, PAYEMS (total nonfarm payrolls) shows job creation - the headline 'jobs number' that gets the most attention. UNRATE (unemployment rate) shows the percentage of people actively looking for work who can't find it. Together, these two series give the clearest, most widely-followed picture of overall job market conditions."
+    "explanation": "For a general job market overview, PAYEMS shows monthly job gains/losses in thousands - the headline 'jobs number'. UNRATE shows the unemployment rate as a percentage. Together, these give the clearest picture of job market conditions."
   },
   "employment": {
     "series": [
@@ -365,8 +367,9 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "For a general employment query, these are the two most important headline indicators: PAYEMS (total nonfarm payrolls) shows the monthly change in jobs - this is THE jobs number that moves markets. UNRATE is the headline unemployment rate (U-3) that measures the percentage of labor force actively seeking work. Together they give the complete picture of employment conditions."
+    "explanation": "PAYEMS shows monthly job gains/losses in thousands - this is THE jobs number. UNRATE is the headline unemployment rate. Together they give the complete picture of employment conditions."
   },
   "unemployment": {
     "series": [
@@ -391,8 +394,9 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "PAYEMS (nonfarm payrolls) shows monthly job creation - the headline jobs number that indicates labor demand. UNRATE (unemployment rate) shows the percentage of labor force actively seeking work. Together, these two series provide the clearest, most digestible snapshot of overall job market conditions."
+    "explanation": "PAYEMS shows monthly job gains/losses in thousands - the headline jobs number. UNRATE shows the unemployment rate. Together, these provide the clearest snapshot of job market conditions."
   },
   "labor market": {
     "series": [
@@ -401,8 +405,9 @@ QUERY_PLANS = {
       "LNS12300060"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "For a comprehensive labor market overview: PAYEMS (total nonfarm payrolls) shows job creation momentum, UNRATE provides the headline unemployment rate, and LNS12300060 (prime-age employment-population ratio) is the best single measure of labor market health as it captures employment strength among workers in their prime working years (25-54), unaffected by demographic shifts or schooling decisions."
+    "explanation": "PAYEMS shows monthly job gains/losses in thousands, UNRATE provides the unemployment rate, and LNS12300060 (prime-age employment-population ratio) is the best single measure of labor market health among workers 25-54."
   },
   "hiring": {
     "series": [
