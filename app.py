@@ -1791,8 +1791,11 @@ def main():
         query_lower = query.lower().strip()
         precomputed_plan = QUERY_PLANS.get(query_lower)
 
-        if precomputed_plan and not previous_context:
-            # Use pre-computed plan - instant response!
+        # Check if this looks like a follow-up command (transformation, time range, etc.)
+        local_parsed = parse_followup_command(query, st.session_state.last_series) if previous_context else None
+
+        if precomputed_plan and not local_parsed:
+            # Use pre-computed plan - instant response! (even if there's previous context)
             interpretation = {
                 'series': precomputed_plan.get('series', []),
                 'explanation': precomputed_plan.get('explanation', f'Showing data for: {query}'),
@@ -1807,7 +1810,7 @@ def main():
                 'used_precomputed': True,
                 'show_payroll_changes': precomputed_plan.get('show_payroll_changes', False),
             }
-        elif previous_context and (local_parsed := parse_followup_command(query, st.session_state.last_series)):
+        elif local_parsed:
             # Try local parser for common follow-up commands (no API call needed)
             interpretation = {
                 'series': local_parsed.get('series', []),
