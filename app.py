@@ -1682,6 +1682,12 @@ def main():
         st.session_state.last_series_names = []
     if 'last_series_data' not in st.session_state:
         st.session_state.last_series_data = []
+    if 'last_explanation' not in st.session_state:
+        st.session_state.last_explanation = ''
+    if 'last_chart_type' not in st.session_state:
+        st.session_state.last_chart_type = 'line'
+    if 'last_combine' not in st.session_state:
+        st.session_state.last_combine = False
 
     # Quick search buttons - single compact row
     col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
@@ -1961,6 +1967,8 @@ def main():
         st.session_state.last_series = series_to_fetch[:4]
         st.session_state.last_series_names = series_names_fetched
         st.session_state.last_series_data = series_data
+        st.session_state.last_chart_type = chart_type
+        st.session_state.last_combine = combine
 
         # Call economist reviewer agent to improve explanation (only for non-precomputed queries)
         used_precomputed = interpretation.get('used_precomputed', False)
@@ -1968,6 +1976,9 @@ def main():
         if not used_precomputed and not used_local_parser and series_data:
             with st.spinner("Economist reviewing analysis..."):
                 ai_explanation = call_economist_reviewer(query, series_data, ai_explanation)
+
+        # Save explanation to session state
+        st.session_state.last_explanation = ai_explanation
 
         # Narrative summary
         st.markdown("<div class='narrative-box'>", unsafe_allow_html=True)
@@ -2229,26 +2240,49 @@ def main():
         if st.session_state[feedback_key].get('comment_submitted'):
             st.info("Feedback submitted. Thank you!")
 
+    elif not query and st.session_state.last_series_data:
+        # Display cached results from previous query
+        series_data = st.session_state.last_series_data
+        ai_explanation = st.session_state.last_explanation
+        chart_type = st.session_state.last_chart_type
+        combine = st.session_state.last_combine
+
+        # Show previous query context
+        st.markdown(f"<p style='color: #666; font-size: 0.9em;'>Showing results for: <strong>{st.session_state.last_query}</strong></p>", unsafe_allow_html=True)
+
+        # Narrative summary
+        st.markdown("<div class='narrative-box'>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin-top:0'>Summary</h3>", unsafe_allow_html=True)
+        if ai_explanation:
+            st.markdown(f"<div class='ai-explanation'>{ai_explanation}</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Charts
+        if combine and len(series_data) > 1:
+            fig = create_chart(series_data, combine=True, chart_type=chart_type)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            for series_id, dates, values, info in series_data:
+                fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
+                st.plotly_chart(fig, use_container_width=True)
+
+        # Follow-up suggestions
+        st.markdown("---")
+        st.markdown("**Try a follow-up:**")
+        suggestions = ['"year over year"', '"last 5 years"', '"add unemployment"', '"bar chart"']
+        st.markdown('<span style="color: #666; font-size: 0.9em;">' + ' &bull; '.join(suggestions) + '</span>', unsafe_allow_html=True)
+
     elif not query:
         st.markdown("""
         <div class='narrative-box'>
         <h3 style='margin-top:0'>Welcome to EconStats</h3>
         <p>Ask questions about the economy in plain English:</p>
         <ul style='color: #555; line-height: 1.8;'>
-            <li>"How is the economy doing?" → GDP growth, unemployment, inflation</li>
-            <li>"How is the job market?" → Nonfarm payrolls + unemployment rate</li>
-            <li>"What is inflation?" → CPI headline and core</li>
-            <li>"Is the labor market tight?" → Prime-age employment ratio</li>
-            <li>"What does the Fed target?" → Core PCE inflation</li>
+            <li>"How is the economy doing?"</li>
+            <li>"How is the job market?"</li>
+            <li>"What is inflation?"</li>
         </ul>
-        <p style='color: #555; margin-top: 15px;'><strong>Follow-up questions:</strong> After any query, ask things like:</p>
-        <ul style='color: #555; line-height: 1.6;'>
-            <li>"Show me year-over-year" or "show me MoM" → Transform the data</li>
-            <li>"Add unemployment to this" → Add series to your chart</li>
-            <li>"Show annual averages" → Aggregate to yearly view</li>
-            <li>"Combine these" → Put all series on one chart</li>
-        </ul>
-        <p style='color: #666; font-size: 0.9rem; margin-top: 15px;'>Data from the Federal Reserve Economic Data (FRED). Sources include BLS, BEA, Census Bureau, and others.</p>
+        <p style='color: #666; font-size: 0.9rem; margin-top: 15px;'>Data from FRED (Federal Reserve Economic Data).</p>
         </div>
         """, unsafe_allow_html=True)
 
