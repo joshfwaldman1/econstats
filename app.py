@@ -562,7 +562,7 @@ SERIES_DB = {
         'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'CPI Inflation Rate (Headline)',
-        'yoy_unit': 'Percent Change (Year-over-Year)',
+        'yoy_unit': '% Change YoY',
         'bullets': [
             'The Consumer Price Index is the most widely cited measure of inflation in the United States. It tracks the prices urban consumers pay for a basket of goods and services—everything from rent and groceries to gasoline and healthcare.',
             'Why it matters to households: CPI directly affects Americans\' purchasing power. It\'s also used to adjust Social Security benefits, income tax brackets, and TIPS bond returns. The Federal Reserve targets 2% annual inflation; rates persistently above this level erode household budgets and can force the Fed to raise interest rates, slowing economic growth.'
@@ -577,7 +577,7 @@ SERIES_DB = {
         'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'Core CPI Inflation Rate',
-        'yoy_unit': 'Percent Change (Year-over-Year)',
+        'yoy_unit': '% Change YoY',
         'bullets': [
             'Core inflation strips out volatile food and energy prices to reveal the underlying trend in prices. While headline inflation captures what consumers actually pay, core inflation better reflects persistent price pressures that monetary policy can address.',
             'Economists focus on core inflation because food and energy prices swing wildly based on weather, geopolitics, and speculation—factors largely outside the Fed\'s control. When core inflation is elevated, it typically signals that price pressures have become "sticky" and embedded in the economy through wages, rents, and services. This is much harder to reverse than a temporary oil price spike.'
@@ -592,7 +592,7 @@ SERIES_DB = {
         'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'Shelter Inflation Rate',
-        'yoy_unit': 'Percent Change (Year-over-Year)',
+        'yoy_unit': '% Change YoY',
         'bullets': [
             'Housing costs (rent and owners\' equivalent rent) make up roughly one-third of the CPI basket—the largest single component. When shelter inflation surges, it pulls overall inflation higher and is felt acutely by household budgets.',
             'Critical caveat: CPI shelter lags actual market rents by approximately 12 months due to how the BLS measures it (surveying existing leases that turn over slowly). This means market rent declines won\'t show up in CPI shelter for many months. Economists watching for inflation to ease look at private rent indexes like Zillow or Apartment List for leading signals.'
@@ -609,7 +609,7 @@ SERIES_DB = {
         'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'PCE Inflation Rate',
-        'yoy_unit': 'Percent Change (Year-over-Year)',
+        'yoy_unit': '% Change YoY',
         'bullets': [
             'The Personal Consumption Expenditures price index is the Federal Reserve\'s preferred measure of inflation. When Fed officials say they target "2% inflation," they mean PCE. It\'s broader than CPI and better captures how consumers actually spend.',
             'PCE differs from CPI in important ways: it includes spending by employers and government on behalf of households (like employer-provided health insurance), and it adjusts for consumers substituting cheaper alternatives when prices rise. PCE inflation typically runs 0.3-0.5 percentage points below CPI.'
@@ -624,7 +624,7 @@ SERIES_DB = {
         'data_type': 'index',
         'show_yoy': True,
         'yoy_name': 'Core PCE Inflation Rate',
-        'yoy_unit': 'Percent Change (Year-over-Year)',
+        'yoy_unit': '% Change YoY',
         'bullets': [
             'This is the single most important inflation measure for monetary policy. The Federal Reserve\'s explicit inflation target is 2% on core PCE. Every FOMC statement, press conference, and Summary of Economic Projections references this metric.',
             'When core PCE runs persistently above 2%, the Fed faces pressure to raise interest rates to cool demand. When it runs below 2%, the Fed has room to keep rates low to support employment. Core PCE running at 4-5% in 2022-23 drove the most aggressive Fed rate-hiking cycle in four decades.'
@@ -646,7 +646,7 @@ SERIES_DB = {
     },
     'A191RL1Q225SBEA': {
         'name': 'Real GDP Growth Rate',
-        'unit': 'Percent Change (Quarterly, Annualized)',
+        'unit': '% Change (SAAR)',
         'source': 'U.S. Bureau of Economic Analysis',
         'sa': True,
         'frequency': 'quarterly',
@@ -1878,7 +1878,7 @@ def main():
                         if mom_dates:
                             info_copy = dict(info)
                             info_copy['name'] = series_name + ' (MoM %)'
-                            info_copy['unit'] = 'Percent Change (Month-over-Month)'
+                            info_copy['unit'] = '% Change MoM'
                             info_copy['is_mom'] = True
                             series_data.append((series_id, mom_dates, mom_values, info_copy))
                         else:
@@ -1900,7 +1900,7 @@ def main():
                         if yoy_dates:
                             info_copy = dict(info)
                             info_copy['name'] = series_name + ' (YoY %)'
-                            info_copy['unit'] = 'Percent Change (Year-over-Year)'
+                            info_copy['unit'] = '% Change YoY'
                             info_copy['is_yoy'] = True
                             series_data.append((series_id, yoy_dates, yoy_values, info_copy))
                         else:
@@ -1911,7 +1911,7 @@ def main():
                         if yoy_dates:
                             info_copy = dict(info)
                             info_copy['name'] = db_info.get('yoy_name', series_name + ' (YoY %)')
-                            info_copy['unit'] = db_info.get('yoy_unit', 'Percent Change (Year-over-Year)')
+                            info_copy['unit'] = db_info.get('yoy_unit', '% Change YoY')
                             info_copy['is_yoy'] = True
                             series_data.append((series_id, yoy_dates, yoy_values, info_copy))
                         else:
