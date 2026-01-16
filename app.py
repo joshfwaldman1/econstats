@@ -342,10 +342,13 @@ RECESSIONS = [
 ]
 
 
-def describe_recent_trend(dates: list, values: list, data_type: str = 'level', frequency: str = 'monthly') -> str:
+def describe_recent_trend(dates: list, values: list, data_type: str = 'level', frequency: str = 'monthly', show_absolute_change: bool = False) -> str:
     """
     Describe what's happening in the recent data - the actual trend.
     Returns a human-readable sentence about the recent trend.
+
+    Args:
+        show_absolute_change: If True (e.g. for PAYEMS), show absolute changes not percentages
     """
     if not dates or not values or len(values) < 3:
         return ""
@@ -404,6 +407,25 @@ def describe_recent_trend(dates: list, values: list, data_type: str = 'level', f
             return f"Has {direction} {abs(change):.1f} pp over the past {lookback} {period_name}s."
         elif flat_count >= lookback - 1:
             return f"Has been relatively stable over the past {lookback} {period_name}s."
+    elif show_absolute_change:
+        # Employment counts like PAYEMS - show absolute change in thousands, not %
+        change = last_val - first_val
+        # Format as millions if large (PAYEMS is in thousands)
+        def format_change(val):
+            if abs(val) >= 1000:
+                return f"{abs(val)/1000:.1f} million"
+            else:
+                return f"{abs(val):,.0f} thousand"
+
+        if consecutive_up >= 3:
+            return f"Has added jobs for {consecutive_up} consecutive {period_name}s, adding {format_change(change)} over this period."
+        elif consecutive_down >= 3:
+            return f"Has lost jobs for {consecutive_down} consecutive {period_name}s, shedding {format_change(change)} over this period."
+        elif abs(change) >= 100:  # At least 100k change
+            direction = "added" if change > 0 else "lost"
+            return f"Has {direction} {format_change(change)} jobs over the past {lookback} {period_name}s."
+        elif flat_count >= lookback - 1:
+            return f"Has been relatively stable over the past {lookback} {period_name}s."
     else:
         pct_change = ((last_val - first_val) / abs(first_val)) * 100
         if consecutive_up >= 3:
@@ -419,18 +441,25 @@ def describe_recent_trend(dates: list, values: list, data_type: str = 'level', f
     return ""
 
 
-def generate_narrative_context(dates: list, values: list, data_type: str = 'level') -> dict:
+def generate_narrative_context(dates: list, values: list, data_type: str = 'level', db_info: dict = None) -> dict:
     """
     Generate smart narrative context from time series data.
     Returns factual comparisons without prescriptive claims.
+
+    Args:
+        db_info: Optional dict with series metadata (cumulative, show_absolute_change, etc.)
     """
     if not dates or not values or len(values) < 2:
         return {}
+
+    if db_info is None:
+        db_info = {}
 
     context = {}
     latest = values[-1]
     latest_date = dates[-1]
     current_year = datetime.now().year
+    show_absolute = db_info.get('show_absolute_change', False)
 
     try:
         # Helper: calculate average for a given year
@@ -438,6 +467,13 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
             year_vals = [v for d, v in zip(dates, values)
                         if d.startswith(str(year))]
             return sum(year_vals) / len(year_vals) if year_vals else None
+
+        # Helper: format absolute change for employment data
+        def format_job_diff(val):
+            if abs(val) >= 1000:
+                return f"{abs(val)/1000:.1f} million"
+            else:
+                return f"{abs(val):,.0f}K"
 
         # 1. Compare to 2019 average (pre-COVID baseline)
         avg_2019 = year_average(2019)
@@ -447,6 +483,12 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                 if abs(diff) >= 0.3:  # Meaningful difference for rates
                     direction = "above" if diff > 0 else "below"
                     context['vs_2019'] = f"{abs(diff):.1f} pp {direction} 2019 avg"
+            elif show_absolute:
+                # Employment counts - show absolute difference, not %
+                diff = latest - avg_2019
+                if abs(diff) >= 500:  # At least 500K difference
+                    direction = "above" if diff > 0 else "below"
+                    context['vs_2019'] = f"{format_job_diff(diff)} {direction} 2019 avg"
             elif avg_2019 != 0:
                 pct_diff = ((latest - avg_2019) / abs(avg_2019)) * 100
                 if abs(pct_diff) >= 3:  # Meaningful difference for levels
@@ -465,6 +507,12 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                     if abs(diff) >= 0.2:
                         direction = "above" if diff > 0 else "below"
                         context['vs_prior_year'] = f"{abs(diff):.1f} pp {direction} {prior_year} avg"
+                elif show_absolute:
+                    # Employment counts - show absolute difference
+                    diff = latest - avg_prior
+                    if abs(diff) >= 200:  # At least 200K difference
+                        direction = "above" if diff > 0 else "below"
+                        context['vs_prior_year'] = f"{format_job_diff(diff)} {direction} {prior_year} avg"
                 elif avg_prior != 0:
                     pct_diff = ((latest - avg_prior) / abs(avg_prior)) * 100
                     if abs(pct_diff) >= 2:
@@ -555,6 +603,7 @@ SERIES_DB = {
         'frequency': 'monthly',
         'data_type': 'level',
         'cumulative': True,  # Skip "at high" comparisons - levels always grow with population
+        'show_absolute_change': True,  # NEVER show as %, always show job changes like "+256,000"
         'bullets': [
             'The single most important monthly indicator of labor market health. This is the "jobs number" that moves markets on the first Friday of each month. It counts every worker on a U.S. business payroll outside of farming.',
             'Context matters: The economy needs roughly 100,000-150,000 new jobs per month just to absorb population growth. Gains above 200,000 signal robust hiring; below 100,000 suggests softening. During recessions, this figure turns sharply negative—the economy lost 800,000+ jobs monthly at the depths of the 2008-09 crisis.'
@@ -2045,14 +2094,14 @@ def main():
                         info_copy['original_name'] = 'Total Nonfarm Payrolls'
                         series_data.append((series_id, change_dates, change_values, info_copy))
                     elif show_mom and len(dates) > 1:
-                        # User requested month-over-month - but NEVER for rates!
+                        # User requested month-over-month - but NEVER for rates or employment counts!
                         data_type = db_info.get('data_type', 'level')
                         if data_type in ['rate', 'spread', 'growth_rate']:
                             # Rates are already percentages - showing MoM % is nonsense
                             # Just show the raw rate instead
                             series_data.append((series_id, dates, values, info))
-                        elif db_info.get('cumulative', False):
-                            # Cumulative series like PAYEMS - show absolute change, not %
+                        elif db_info.get('show_absolute_change', False):
+                            # Employment counts like PAYEMS - NEVER show as %, show raw data
                             series_data.append((series_id, dates, values, info))
                         else:
                             mom_dates, mom_values = calculate_mom(dates, values)
@@ -2076,10 +2125,13 @@ def main():
                         else:
                             series_data.append((series_id, dates, values, info))
                     elif (show_yoy or series_id in show_yoy_series) and len(dates) > 12:
-                        # User explicitly requested YoY (all or specific series) - but skip for rates
+                        # User explicitly requested YoY (all or specific series) - but skip for certain types
                         data_type = db_info.get('data_type', 'level')
                         if data_type in ['rate', 'spread', 'growth_rate']:
                             # Don't apply YoY to rates - show raw data instead
+                            series_data.append((series_id, dates, values, info))
+                        elif db_info.get('show_absolute_change', False):
+                            # Employment counts like PAYEMS - NEVER show as %, show raw data
                             series_data.append((series_id, dates, values, info))
                         else:
                             yoy_dates, yoy_values = calculate_yoy(dates, values)
@@ -2092,10 +2144,13 @@ def main():
                             else:
                                 series_data.append((series_id, dates, values, info))
                     elif db_info.get('show_yoy') and len(dates) > 12:
-                        # Series default is to show YoY (like CPI) - but skip for rates
+                        # Series default is to show YoY (like CPI) - but skip for certain types
                         data_type = db_info.get('data_type', 'level')
                         if data_type in ['rate', 'spread', 'growth_rate']:
                             # Don't apply YoY to rates - show raw data instead
+                            series_data.append((series_id, dates, values, info))
+                        elif db_info.get('show_absolute_change', False):
+                            # Employment counts like PAYEMS - NEVER show as %, show raw data
                             series_data.append((series_id, dates, values, info))
                         else:
                             yoy_dates, yoy_values = calculate_yoy(dates, values)
@@ -2270,7 +2325,8 @@ def main():
             sentences.append(f"<span class='highlight'>{name}</span> is {value_desc} as of {latest_date_str}.")
 
             # Sentence 2: Recent trend description (what's happening)
-            trend_desc = describe_recent_trend(dates, values, data_type, frequency)
+            show_abs = db_info.get('show_absolute_change', False)
+            trend_desc = describe_recent_trend(dates, values, data_type, frequency, show_absolute_change=show_abs)
             if trend_desc:
                 sentences.append(trend_desc)
 
@@ -2291,6 +2347,17 @@ def main():
                         direction = 'up' if change >= 0 else 'down'
                         css_class = 'up' if change >= 0 else 'down'
                         sentences.append(f"That's <span class='{css_class}'>{direction} {abs(change):.1f} percentage points</span> from a year ago ({year_ago_val:.1f}% in {year_ago_date}).")
+                    elif db_info.get('show_absolute_change', False):
+                        # Employment counts like PAYEMS - show absolute change, not percent
+                        change = latest - year_ago_val
+                        direction = 'up' if change >= 0 else 'down'
+                        css_class = 'up' if change >= 0 else 'down'
+                        # Format as millions for large numbers (PAYEMS is in thousands)
+                        if abs(change) >= 1000:
+                            change_str = f"{abs(change)/1000:.1f} million jobs"
+                        else:
+                            change_str = f"{abs(change):,.0f} thousand jobs"
+                        sentences.append(f"That's <span class='{css_class}'>{change_str} {direction}</span> from a year ago.")
                     elif year_ago_val != 0:
                         pct = ((latest - year_ago_val) / abs(year_ago_val)) * 100
                         direction = 'up' if pct >= 0 else 'down'
@@ -2314,6 +2381,16 @@ def main():
                                 sentences.append(f"This is {abs(diff):.1f} pp above the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
                             elif diff < -0.2:
                                 sentences.append(f"This is {abs(diff):.1f} pp below the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
+                    elif db_info.get('show_absolute_change', False):
+                        # Employment counts like PAYEMS - show absolute change
+                        diff = latest - pre_covid
+                        if abs(diff) >= 100:  # Only mention if significant
+                            direction = "above" if diff > 0 else "below"
+                            if abs(diff) >= 1000:
+                                diff_str = f"{abs(diff)/1000:.1f} million jobs"
+                            else:
+                                diff_str = f"{abs(diff):,.0f} thousand jobs"
+                            sentences.append(f"Employment is {diff_str} {direction} the pre-pandemic level (Feb 2020).")
                     elif pre_covid != 0:
                         pct_diff = ((latest - pre_covid) / abs(pre_covid)) * 100
                         if abs(pct_diff) >= 3:
@@ -2331,7 +2408,7 @@ def main():
                     pass
 
             # Sentence 4: Historical context (trend, highs/lows)
-            smart_context = generate_narrative_context(dates, values, data_type)
+            smart_context = generate_narrative_context(dates, values, data_type, db_info)
             context_sentence_parts = []
 
             # Trend
