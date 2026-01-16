@@ -1814,7 +1814,7 @@ def main():
         st.session_state.messages = []
 
     # Quick search buttons - single compact row
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
+    col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
     with col1:
         if st.button("Jobs", use_container_width=True, key="btn_jobs"):
             st.session_state.pending_query = "job market"
@@ -1830,9 +1830,9 @@ def main():
     with col5:
         if st.button("Recession?", use_container_width=True, key="btn_recession"):
             st.session_state.pending_query = "are we in a recession"
-    with col6:
-        time_period = st.selectbox("Timeframe", list(TIME_PERIODS.keys()), index=3, label_visibility="collapsed")
-        years = TIME_PERIODS[time_period]
+
+    # Default timeframe - 10 years of data
+    years = 10
 
     # Handle pending query from button clicks
     query = None
