@@ -2490,52 +2490,57 @@ QUERY_PLANS = {
   "is there a recession": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "T10Y2Y",
       "UNRATE"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "To assess recession risk, I'm showing the three key indicators: Real GDP growth rate (negative growth = recession), the yield curve spread (inversion warns of recession ahead), and unemployment rate (rises sharply during recessions). These give us the clearest picture of current economic conditions and recession probability."
+    "explanation": "The four key recession indicators: Real GDP growth (negative = recession), nonfarm payrolls (job losses signal recession), the yield curve spread (inversions precede recessions), and unemployment rate (rises during recessions)."
   },
   "are we in a recession": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "T10Y2Y",
       "UNRATE"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "To determine if we're in a recession, I'm showing you the three key indicators: Real GDP growth rate (negative growth over consecutive quarters indicates recession), the yield curve spread (inversions historically precede recessions), and unemployment rate (recessions typically involve rising unemployment). These three together provide the clearest picture of whether the economy is currently in recession."
+    "explanation": "The four key recession indicators: Real GDP growth (negative = recession), nonfarm payrolls (job losses signal recession), the yield curve spread (inversions precede recessions), and unemployment rate (rises during recessions)."
   },
   "recession risk": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "T10Y2Y",
       "UNRATE"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "These three series provide the essential recession risk assessment: Real GDP growth shows current economic momentum, the yield curve spread (10Y-2Y) is a proven leading indicator where inversions (negative values) historically precede recessions, and unemployment rate captures labor market health - rising unemployment often signals recession onset."
+    "explanation": "The four key recession indicators: Real GDP growth shows economic momentum, nonfarm payrolls track job creation, the yield curve spread (10Y-2Y) is a leading indicator where inversions precede recessions, and unemployment rate captures labor market health."
   },
   "recession indicators": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "T10Y2Y",
-      "SAHMREALTIME"
+      "UNRATE"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "The three most reliable recession indicators: Real GDP growth shows if the economy is contracting, the yield curve spread (10Y-2Y) warns of future recessions when inverted (negative), and the Sahm Rule provides real-time recession detection based on unemployment patterns. Together they give you current conditions, forward warning signals, and systematic recession identification."
+    "explanation": "The four key recession indicators: Real GDP growth (negative = recession), nonfarm payrolls (job losses signal recession), the yield curve spread (inversions precede recessions), and unemployment rate (rises during recessions)."
   },
   "recession probability": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "T10Y2Y",
-      "SAHMREALTIME"
+      "UNRATE"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "To assess recession probability, I'm showing the three most reliable indicators: Real GDP growth rate (negative growth signals recession), the yield curve spread (inversions historically precede recessions by 6-18 months), and the Sahm Rule indicator (triggers when unemployment rises sufficiently above recent lows, indicating recession has likely begun)."
+    "explanation": "The four key recession indicators: Real GDP growth (negative = recession), nonfarm payrolls (job losses signal recession), the yield curve spread (inversions precede recessions), and unemployment rate (rises during recessions)."
   },
   "soft landing": {
     "series": [
