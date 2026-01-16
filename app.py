@@ -1833,6 +1833,7 @@ def main():
                 'series': precomputed_plan.get('series', []),
                 'explanation': precomputed_plan.get('explanation', f'Showing data for: {query}'),
                 'show_yoy': precomputed_plan.get('show_yoy', False),
+                'show_yoy_series': precomputed_plan.get('show_yoy_series', []),
                 'combine_chart': precomputed_plan.get('combine_chart', False),
                 'show_mom': False,
                 'show_avg_annual': False,
@@ -1873,6 +1874,7 @@ def main():
         series_to_fetch = list(interpretation.get('series', []))  # Copy the list
         combine = interpretation.get('combine_chart', False)
         show_yoy = interpretation.get('show_yoy', False)
+        show_yoy_series = interpretation.get('show_yoy_series', [])  # Specific series to apply YoY to
         show_mom = interpretation.get('show_mom', False)
         show_avg_annual = interpretation.get('show_avg_annual', False)
         show_payroll_changes = interpretation.get('show_payroll_changes', False)
@@ -1988,8 +1990,8 @@ def main():
                             series_data.append((series_id, avg_dates, avg_values, info_copy))
                         else:
                             series_data.append((series_id, dates, values, info))
-                    elif show_yoy and len(dates) > 12:
-                        # User explicitly requested YoY - but skip for rates (already percentages)
+                    elif (show_yoy or series_id in show_yoy_series) and len(dates) > 12:
+                        # User explicitly requested YoY (all or specific series) - but skip for rates
                         data_type = db_info.get('data_type', 'level')
                         if data_type in ['rate', 'spread', 'growth_rate']:
                             # Don't apply YoY to rates - show raw data instead
@@ -2109,7 +2111,7 @@ def main():
             else:
                 latest_date_str = latest_date_obj.strftime('%b %Y')
 
-            # SPECIAL HANDLING: Payrolls - show monthly job changes like economists do
+            # SPECIAL HANDLING: Payrolls - BLS-style presentation
             if series_id == 'PAYEMS' and info.get('is_payroll_change') and len(values) >= 3:
                 # Values are already monthly changes (in thousands)
                 monthly_changes = values
@@ -2117,39 +2119,32 @@ def main():
                 # Latest month change
                 latest_change = monthly_changes[-1] if monthly_changes else 0
 
-                # Rolling averages (3mo, 6mo, 12mo)
-                avg_3mo = sum(monthly_changes[-3:]) / min(3, len(monthly_changes)) if len(monthly_changes) >= 1 else 0
-                avg_6mo = sum(monthly_changes[-6:]) / min(6, len(monthly_changes)) if len(monthly_changes) >= 6 else avg_3mo
-                avg_12mo = sum(monthly_changes[-12:]) / min(12, len(monthly_changes)) if len(monthly_changes) >= 12 else avg_6mo
+                # 12-month trailing average (BLS standard comparison)
+                # Use prior 12 months, excluding current month
+                prior_12mo = monthly_changes[-13:-1] if len(monthly_changes) >= 13 else monthly_changes[:-1]
+                avg_12mo = sum(prior_12mo) / len(prior_12mo) if prior_12mo else 0
 
-                # Format change numbers (already in thousands)
+                # Format change numbers (in thousands, show as +256,000)
                 def format_job_change(val):
-                    if abs(val) >= 1000:
-                        return f"{val/1000:.1f} million"
-                    else:
-                        return f"{val:,.0f}K"
+                    return f"{val:+,.0f}"
 
-                # Build economist-style narrative for payrolls
+                # Build BLS-style narrative
                 sentences = []
-                direction = "added" if latest_change >= 0 else "lost"
-                sentences.append(f"<span class='highlight'>The economy {direction} {format_job_change(abs(latest_change))} jobs</span> in {latest_date_str}.")
 
-                # Moving averages
-                avg_parts = []
-                avg_parts.append(f"3-month average: {format_job_change(avg_3mo)}/month")
-                avg_parts.append(f"6-month: {format_job_change(avg_6mo)}")
-                avg_parts.append(f"12-month: {format_job_change(avg_12mo)}")
-                sentences.append(f"Job growth averages: {', '.join(avg_parts)}.")
-
-                # Context: compare to breakeven (~100-150K needed for population growth)
-                if avg_3mo > 200:
-                    sentences.append("This pace is well above the ~100-150K/month needed to absorb population growth.")
-                elif avg_3mo > 100:
-                    sentences.append("This pace is roughly in line with population growth needs (~100-150K/month).")
-                elif avg_3mo > 0:
-                    sentences.append("This pace is below the ~100-150K/month typically needed to keep up with population growth.")
+                # Headline: "Total nonfarm payroll employment rose by 256,000 in December"
+                if latest_change >= 0:
+                    verb = "rose" if latest_change > 50 else "edged up" if latest_change > 0 else "was unchanged"
                 else:
-                    sentences.append("The economy is losing jobs, which typically signals a weakening labor market.")
+                    verb = "fell" if latest_change < -50 else "edged down"
+
+                sentences.append(f"<span class='highlight'>Nonfarm payrolls {verb} by {format_job_change(latest_change)}</span> in {latest_date_str}")
+
+                # BLS comparison: vs prior 12-month average
+                if avg_12mo != 0:
+                    comparison = "above" if latest_change > avg_12mo * 1.1 else "below" if latest_change < avg_12mo * 0.9 else "similar to"
+                    sentences[-1] += f", {comparison} the average monthly gain of {format_job_change(avg_12mo)} over the prior 12 months."
+                else:
+                    sentences[-1] += "."
 
                 narrative = f"<p>{' '.join(sentences)}</p>"
                 st.markdown(narrative, unsafe_allow_html=True)
@@ -2323,9 +2318,15 @@ def main():
                 # Special side-by-side layout for payroll changes
                 if info.get('is_payroll_change') and info.get('original_dates'):
                     # Show both monthly changes (bar) and total level (line) side by side
+                    payroll_bullets = [
+                        "Monthly change in thousands of jobs. The economy typically needs 100-150K new jobs/month to absorb population growth.",
+                        "Total employment level in thousands. This is the headline 'jobs number' from the BLS Employment Situation report."
+                    ]
+                    payroll_bullets_html = ''.join([f'<li>{b}</li>' for b in payroll_bullets])
                     st.markdown(f"""
                     <div class='chart-header'>
-                        <div class='chart-title'>Nonfarm Payrolls: Monthly Change & Total Level</div>
+                        <div class='chart-title'>Nonfarm Payrolls</div>
+                        <ul class='chart-bullets'>{payroll_bullets_html}</ul>
                     </div>
                     """, unsafe_allow_html=True)
 

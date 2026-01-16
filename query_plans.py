@@ -2279,100 +2279,93 @@ QUERY_PLANS = {
   "how is the economy": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
-    "show_yoy": [
-      False,
-      False,
-      True
-    ],
+    "show_yoy": False,
+    "show_yoy_series": ["CPIAUCSL"],
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three metrics provide the definitive assessment of overall economic conditions that any Chair of the Council of Economic Advisers would present."
+    "explanation": "The four key indicators of economic health: Real GDP growth shows expansion pace, nonfarm payrolls reveal job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) measures price stability."
   },
   "how is the economy doing": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
-    "show_yoy": [
-      False,
-      False,
-      True
-    ],
+    "show_yoy": False,
+    "show_yoy_series": ["CPIAUCSL"],
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "This is the holy trinity of economic assessment that every CEA uses: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI year-over-year inflation reveals price stability. Together, these three metrics provide the complete picture of economic performance that policymakers and economists rely on."
+    "explanation": "The four key indicators of economic health: Real GDP growth shows expansion pace, nonfarm payrolls reveal job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) measures price stability."
   },
   "economic overview": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
-    "show_yoy": [
-      False,
-      False,
-      True
-    ],
+    "show_yoy": False,
+    "show_yoy_series": ["CPIAUCSL"],
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "This is the Holy Trinity of economic assessment that every CEA briefing starts with: Real GDP growth shows whether the economy is expanding, unemployment rate indicates labor market health, and year-over-year CPI inflation reveals price stability. These three metrics capture the fundamental dimensions of economic performance and provide a comprehensive snapshot of current economic conditions."
+    "explanation": "The four key indicators of economic health: Real GDP growth shows expansion pace, nonfarm payrolls reveal job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) measures price stability."
   },
   "state of the economy": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
-    "show_yoy": [
-      False,
-      False,
-      True
-    ],
+    "show_yoy": False,
+    "show_yoy_series": ["CPIAUCSL"],
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "The state of the economy is best captured by the holy trinity of economic indicators: Real GDP growth shows whether the economy is expanding or contracting, unemployment rate reveals labor market health and job availability, and CPI inflation (year-over-year) indicates price stability and purchasing power. Together, these three metrics provide the comprehensive snapshot that economists and policymakers use to assess overall economic performance."
+    "explanation": "The four key indicators of economic health: Real GDP growth shows expansion pace, nonfarm payrolls reveal job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) measures price stability."
   },
   "is the economy good": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
-    "show_yoy": [
-      False,
-      False,
-      True
-    ],
+    "show_yoy": False,
+    "show_yoy_series": ["CPIAUCSL"],
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "To assess whether the economy is 'good,' we need the Holy Trinity of economic indicators: Real GDP growth shows if the economy is expanding, unemployment rate reveals job market health, and CPI inflation (year-over-year) indicates price stability. These three core metrics provide the definitive answer to overall economic performance - positive GDP growth, low unemployment, and controlled inflation signal a healthy economy."
+    "explanation": "The four key indicators of economic health: Real GDP growth shows expansion pace, nonfarm payrolls reveal job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) measures price stability."
   },
   "is the economy bad": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
-    "show_yoy": [
-      False,
-      False,
-      True
-    ],
+    "show_yoy": False,
+    "show_yoy_series": ["CPIAUCSL"],
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "To assess if the economy is 'bad,' we need the Holy Trinity: Real GDP growth shows if the economy is expanding or contracting, unemployment rate indicates job market health, and CPI inflation (year-over-year) reveals price stability. Positive GDP growth, low unemployment, and moderate inflation suggest a healthy economy, while negative growth, high unemployment, and extreme inflation levels indicate problems."
+    "explanation": "The four key indicators of economic health: Real GDP growth shows expansion pace, nonfarm payrolls reveal job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) measures price stability."
   },
   "economy today": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
-    "show_yoy": [
-      False,
-      False,
-      True
-    ],
+    "show_yoy": False,
+    "show_yoy_series": ["CPIAUCSL"],
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "The Holy Trinity of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These three metrics provide the complete picture of current economic conditions that any economist or policymaker uses to assess 'how the economy is doing today.'"
+    "explanation": "The four key indicators of economic health: Real GDP growth shows expansion pace, nonfarm payrolls reveal job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) measures price stability."
   },
   "current economic conditions": {
     "series": [
@@ -2447,30 +2440,28 @@ QUERY_PLANS = {
   "us economy": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
-    "show_yoy": [
-      False,
-      False,
-      True
-    ],
+    "show_yoy": False,
+    "show_yoy_series": ["CPIAUCSL"],
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "The holy trinity of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These three indicators provide the essential snapshot any economist would use to assess overall economic performance."
+    "explanation": "The four key indicators of economic health: Real GDP growth shows expansion pace, nonfarm payrolls reveal job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) measures price stability."
   },
   "american economy": {
     "series": [
       "A191RL1Q225SBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
-    "show_yoy": [
-      False,
-      False,
-      True
-    ],
+    "show_yoy": False,
+    "show_yoy_series": ["CPIAUCSL"],
+    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three metrics provide the comprehensive overview that economists use to assess overall economic conditions."
+    "explanation": "The four key indicators of economic health: Real GDP growth shows expansion pace, nonfarm payrolls reveal job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) measures price stability."
   },
   "economic outlook": {
     "series": [
