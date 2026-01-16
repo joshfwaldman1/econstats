@@ -1194,6 +1194,96 @@ def call_claude(query: str, previous_context: dict = None) -> dict:
         return default_response
 
 
+def call_economist_reviewer(query: str, series_data: list, original_explanation: str) -> str:
+    """Call a second Claude agent to review and improve the explanation.
+
+    This agent sees the actual data values and can write smarter, more contextual narratives.
+
+    Args:
+        query: The user's original question
+        series_data: List of (series_id, dates, values, info) tuples with actual data
+        original_explanation: The initial explanation from the first agent
+
+    Returns:
+        Improved explanation string
+    """
+    if not ANTHROPIC_API_KEY or not series_data:
+        return original_explanation
+
+    # Build a summary of the data for the reviewer
+    data_summary = []
+    for series_id, dates, values, info in series_data:
+        if not values:
+            continue
+        name = info.get('name', info.get('title', series_id))
+        latest = values[-1]
+        latest_date = dates[-1]
+
+        # Calculate some basic stats
+        if len(values) >= 12:
+            year_ago_val = values[-12] if len(values) >= 12 else values[0]
+            yoy_change = latest - year_ago_val
+        else:
+            yoy_change = None
+
+        # Get min/max in recent period
+        recent_vals = values[-60:] if len(values) >= 60 else values  # Last 5 years
+        recent_min = min(recent_vals)
+        recent_max = max(recent_vals)
+
+        summary = {
+            'series_id': series_id,
+            'name': name,
+            'latest_value': round(latest, 2),
+            'latest_date': latest_date,
+            'yoy_change': round(yoy_change, 2) if yoy_change else None,
+            'recent_5yr_min': round(recent_min, 2),
+            'recent_5yr_max': round(recent_max, 2),
+        }
+        data_summary.append(summary)
+
+    prompt = f"""You are an expert economist reviewing data for a user query. Your job is to write a clear, insightful 2-3 sentence explanation.
+
+USER QUERY: {query}
+
+DATA SUMMARY:
+{json.dumps(data_summary, indent=2)}
+
+INITIAL EXPLANATION: {original_explanation}
+
+Write an improved explanation that:
+1. States the current values clearly with proper formatting
+2. Provides meaningful context (is this high/low historically? trending up/down?)
+3. Answers the user's actual question directly
+4. Avoids jargon - write for a general audience
+5. Is factual and objective - no speculation or predictions
+
+Keep it to 2-3 concise sentences. Do not use bullet points. Just return the explanation text, nothing else."""
+
+    url = 'https://api.anthropic.com/v1/messages'
+    payload = {
+        'model': 'claude-sonnet-4-20250514',
+        'max_tokens': 300,
+        'messages': [{'role': 'user', 'content': prompt}]
+    }
+    headers = {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+    }
+
+    try:
+        req = Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers, method='POST')
+        with urlopen(req, timeout=15) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            improved = result['content'][0]['text'].strip()
+            # Clean up any markdown or quotes
+            improved = improved.strip('"\'')
+            return improved if improved else original_explanation
+    except Exception as e:
+        return original_explanation
+
+
 def fred_request(endpoint: str, params: dict) -> dict:
     """Make a request to the FRED API."""
     params['api_key'] = FRED_API_KEY
@@ -1871,6 +1961,13 @@ def main():
         st.session_state.last_series = series_to_fetch[:4]
         st.session_state.last_series_names = series_names_fetched
         st.session_state.last_series_data = series_data
+
+        # Call economist reviewer agent to improve explanation (only for non-precomputed queries)
+        used_precomputed = interpretation.get('used_precomputed', False)
+        used_local_parser = interpretation.get('used_local_parser', False)
+        if not used_precomputed and not used_local_parser and series_data:
+            with st.spinner("Economist reviewing analysis..."):
+                ai_explanation = call_economist_reviewer(query, series_data, ai_explanation)
 
         # Narrative summary
         st.markdown("<div class='narrative-box'>", unsafe_allow_html=True)
