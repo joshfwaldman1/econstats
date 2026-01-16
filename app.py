@@ -365,7 +365,7 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
         # 1. Compare to 2019 average (pre-COVID baseline)
         avg_2019 = year_average(2019)
         if avg_2019 is not None:
-            if data_type in ['rate', 'spread']:
+            if data_type in ['rate', 'spread', 'growth_rate']:
                 diff = latest - avg_2019
                 if abs(diff) >= 0.3:  # Meaningful difference for rates
                     direction = "above" if diff > 0 else "below"
@@ -383,7 +383,7 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
         if latest_date_obj.year == current_year and latest_date_obj.month >= 3:
             avg_prior = year_average(prior_year)
             if avg_prior is not None:
-                if data_type in ['rate', 'spread']:
+                if data_type in ['rate', 'spread', 'growth_rate']:
                     diff = latest - avg_prior
                     if abs(diff) >= 0.2:
                         direction = "above" if diff > 0 else "below"
@@ -417,7 +417,7 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                     context['near_high'] = f"near 10-year high ({max_date})"
 
             if min_val != max_val:
-                if data_type in ['rate', 'spread']:
+                if data_type in ['rate', 'spread', 'growth_rate']:
                     diff_from_low = latest - min_val
                     if diff_from_low <= 0.3:
                         context['at_low'] = f"10-year low"
@@ -1950,7 +1950,7 @@ def main():
                 if year_ago_idx is not None:
                     year_ago_val = values[year_ago_idx]
                     year_ago_date = datetime.strptime(dates[year_ago_idx], '%Y-%m-%d').strftime('%b %Y')
-                    if data_type in ['rate', 'spread'] or info.get('is_yoy') or info.get('is_mom'):
+                    if data_type in ['rate', 'spread', 'growth_rate'] or info.get('is_yoy') or info.get('is_mom'):
                         change = latest - year_ago_val
                         direction = 'up' if change >= 0 else 'down'
                         css_class = 'up' if change >= 0 else 'down'
@@ -1971,13 +1971,13 @@ def main():
                 try:
                     covid_idx = next(i for i, d in enumerate(dates) if d >= '2020-02-01')
                     pre_covid = values[covid_idx]
-                    if data_type in ['rate', 'spread']:
+                    if data_type in ['rate', 'spread', 'growth_rate']:
                         diff = latest - pre_covid
                         if abs(diff) >= 0.2:
                             if diff > 0.2:
-                                sentences.append(f"This is above the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
+                                sentences.append(f"This is {abs(diff):.1f} pp above the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
                             elif diff < -0.2:
-                                sentences.append(f"This is below the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
+                                sentences.append(f"This is {abs(diff):.1f} pp below the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
                     elif pre_covid != 0:
                         pct_diff = ((latest - pre_covid) / abs(pre_covid)) * 100
                         if abs(pct_diff) >= 3:
