@@ -2119,6 +2119,9 @@ def main():
                 # Latest month change
                 latest_change = monthly_changes[-1] if monthly_changes else 0
 
+                # Prior month change (for month-over-month comparison)
+                prior_change = monthly_changes[-2] if len(monthly_changes) >= 2 else 0
+
                 # 12-month trailing average (BLS standard comparison)
                 # Use prior 12 months, excluding current month
                 prior_12mo = monthly_changes[-13:-1] if len(monthly_changes) >= 13 else monthly_changes[:-1]
@@ -2137,14 +2140,23 @@ def main():
                 else:
                     verb = "fell" if latest_change < -50 else "edged down"
 
-                sentences.append(f"<span class='highlight'>Nonfarm payrolls {verb} by {format_job_change(latest_change)}</span> in {latest_date_str}")
+                sentences.append(f"<span class='highlight'>Nonfarm payrolls {verb} by {format_job_change(latest_change)}</span> in {latest_date_str}.")
 
-                # BLS comparison: vs prior 12-month average
+                # Month-over-month comparison
+                if prior_change != 0:
+                    mom_diff = latest_change - prior_change
+                    if abs(mom_diff) < 10:
+                        mom_desc = "little changed from"
+                    elif mom_diff > 0:
+                        mom_desc = "up from"
+                    else:
+                        mom_desc = "down from"
+                    sentences.append(f"This is {mom_desc} {format_job_change(prior_change)} the prior month.")
+
+                # 12-month average comparison
                 if avg_12mo != 0:
-                    comparison = "above" if latest_change > avg_12mo * 1.1 else "below" if latest_change < avg_12mo * 0.9 else "similar to"
-                    sentences[-1] += f", {comparison} the average monthly gain of {format_job_change(avg_12mo)} over the prior 12 months."
-                else:
-                    sentences[-1] += "."
+                    comparison = "above" if latest_change > avg_12mo * 1.1 else "below" if latest_change < avg_12mo * 0.9 else "in line with"
+                    sentences.append(f"The 12-month average is {format_job_change(avg_12mo)}/month.")
 
                 narrative = f"<p>{' '.join(sentences)}</p>"
                 st.markdown(narrative, unsafe_allow_html=True)
