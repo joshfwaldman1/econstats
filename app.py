@@ -1925,6 +1925,10 @@ def main():
                         info_copy['name'] = 'Monthly Job Change'
                         info_copy['unit'] = 'Thousands of Jobs'
                         info_copy['is_payroll_change'] = True
+                        # Store original data for side-by-side display
+                        info_copy['original_dates'] = dates
+                        info_copy['original_values'] = values
+                        info_copy['original_name'] = 'Total Nonfarm Payrolls'
                         series_data.append((series_id, change_dates, change_values, info_copy))
                     elif show_mom and len(dates) > 1:
                         # User requested month-over-month
@@ -2279,25 +2283,61 @@ def main():
                     transform_note = " Showing annual averages."
 
                 st.markdown("<div class='chart-section'>", unsafe_allow_html=True)
-                if bullets:
-                    bullets_html = ''.join([f'<li>{b}</li>' for b in bullets[:2]])
+
+                # Special side-by-side layout for payroll changes
+                if info.get('is_payroll_change') and info.get('original_dates'):
+                    # Show both monthly changes (bar) and total level (line) side by side
                     st.markdown(f"""
                     <div class='chart-header'>
-                        <div class='chart-title'>{name}</div>
-                        <ul class='chart-bullets'>{bullets_html}</ul>
-                    </div>
-                    """, unsafe_allow_html=True)
-                else:
-                    st.markdown(f"""
-                    <div class='chart-header'>
-                        <div class='chart-title'>{name}</div>
+                        <div class='chart-title'>Nonfarm Payrolls: Monthly Change & Total Level</div>
                     </div>
                     """, unsafe_allow_html=True)
 
-                # Use bar chart automatically for payroll monthly changes
-                effective_chart_type = 'bar' if info.get('is_payroll_change') else chart_type
-                fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=effective_chart_type)
-                st.plotly_chart(fig, use_container_width=True)
+                    col1, col2 = st.columns(2)
+
+                    with col1:
+                        st.markdown("**Monthly Job Change**")
+                        fig_bar = create_chart([(series_id, dates, values, info)], combine=False, chart_type='bar')
+                        fig_bar.update_layout(
+                            height=350,
+                            margin=dict(l=50, r=20, t=30, b=50),
+                            yaxis_title='Thousands'
+                        )
+                        st.plotly_chart(fig_bar, use_container_width=True)
+
+                    with col2:
+                        st.markdown("**Total Nonfarm Payrolls**")
+                        orig_info = dict(info)
+                        orig_info['name'] = info.get('original_name', 'Total Nonfarm Payrolls')
+                        orig_info['unit'] = 'Thousands of Persons'
+                        fig_line = create_chart(
+                            [(series_id, info['original_dates'], info['original_values'], orig_info)],
+                            combine=False, chart_type='line'
+                        )
+                        fig_line.update_layout(
+                            height=350,
+                            margin=dict(l=50, r=20, t=30, b=50),
+                            yaxis_title='Thousands'
+                        )
+                        st.plotly_chart(fig_line, use_container_width=True)
+                else:
+                    if bullets:
+                        bullets_html = ''.join([f'<li>{b}</li>' for b in bullets[:2]])
+                        st.markdown(f"""
+                        <div class='chart-header'>
+                            <div class='chart-title'>{name}</div>
+                            <ul class='chart-bullets'>{bullets_html}</ul>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"""
+                        <div class='chart-header'>
+                            <div class='chart-title'>{name}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                    fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
+                    st.plotly_chart(fig, use_container_width=True)
 
                 st.markdown(f"<div class='source-line'>Source: {source}. {sa_note}{transform_note} Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
