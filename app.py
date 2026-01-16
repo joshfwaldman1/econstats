@@ -1722,6 +1722,9 @@ def main():
         st.session_state.last_chart_type = 'line'
     if 'last_combine' not in st.session_state:
         st.session_state.last_combine = False
+    # Chat mode toggle - starts as search bar, can switch to chat for follow-ups
+    if 'chat_mode' not in st.session_state:
+        st.session_state.chat_mode = False
     # Chat history for conversation format
     if 'messages' not in st.session_state:
         st.session_state.messages = []
@@ -1747,36 +1750,59 @@ def main():
         time_period = st.selectbox("Timeframe", list(TIME_PERIODS.keys()), index=3, label_visibility="collapsed")
         years = TIME_PERIODS[time_period]
 
-    # Display chat history
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            if msg["role"] == "user":
-                st.write(msg["content"])
-            else:
-                # Assistant message with explanation and charts
-                if msg.get("explanation"):
-                    st.markdown(f"**{msg['explanation']}**")
-                if msg.get("charts"):
-                    for chart in msg["charts"]:
-                        st.plotly_chart(chart, use_container_width=True)
-
-    # Chat input at the bottom
-    has_previous_query = st.session_state.last_query and len(st.session_state.last_query) > 0
-    placeholder = "Ask a follow-up..." if has_previous_query else "Ask about the economy (e.g., inflation, jobs, GDP)"
-
     # Handle pending query from button clicks
     query = None
     if 'pending_query' in st.session_state and st.session_state.pending_query:
         query = st.session_state.pending_query
         st.session_state.pending_query = None
+
+    # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
+    if not st.session_state.chat_mode:
+        # SEARCH BAR MODE - clean, simple interface
+        if not query:
+            search_col, btn_col = st.columns([5, 1])
+            with search_col:
+                query = st.text_input(
+                    "Search",
+                    placeholder="Ask about the economy (e.g., inflation, jobs, GDP, housing)",
+                    label_visibility="collapsed",
+                    key="search_input"
+                )
+            with btn_col:
+                search_clicked = st.button("Search", type="primary", use_container_width=True)
+                if not search_clicked:
+                    query = None  # Only submit on button click or Enter
     else:
-        query = st.chat_input(placeholder)
+        # CHAT MODE - for follow-up questions
+        # Show chat history
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"]):
+                if msg["role"] == "user":
+                    st.write(msg["content"])
+                else:
+                    if msg.get("explanation"):
+                        st.markdown(f"**{msg['explanation']}**")
+
+        # Chat input at the bottom
+        if not query:
+            query = st.chat_input("Ask a follow-up question...")
+
+        # Option to exit chat mode
+        if st.button("← New Search", key="exit_chat"):
+            st.session_state.chat_mode = False
+            st.session_state.messages = []
+            st.session_state.last_query = ''
+            st.session_state.last_series = []
+            st.rerun()
 
     if query:
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": query})
-        with st.chat_message("user"):
-            st.write(query)
+
+        # Only show chat bubble in chat mode
+        if st.session_state.chat_mode:
+            with st.chat_message("user"):
+                st.write(query)
 
         # Build context from previous query for follow-up detection
         previous_context = None
@@ -2356,7 +2382,16 @@ def main():
 
         df = pd.DataFrame(list(all_data.values())).sort_values('Date')
         csv = df.to_csv(index=False)
-        st.download_button("Download CSV", csv, "econstats_data.csv", "text/csv")
+
+        # Action buttons row
+        btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 2])
+        with btn_col1:
+            st.download_button("Download CSV", csv, "econstats_data.csv", "text/csv")
+        with btn_col2:
+            if not st.session_state.chat_mode:
+                if st.button("💬 Ask Follow-up", key="enter_chat"):
+                    st.session_state.chat_mode = True
+                    st.rerun()
 
         # Debug info expander
         with st.expander("🔧 Debug Info", expanded=False):
