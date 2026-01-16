@@ -1850,19 +1850,6 @@ def main():
             st.warning("Could not find relevant economic data. Try rephrasing your question or being more specific.")
             st.stop()
 
-        # Debug expander to show what happened
-        with st.expander("🔍 Debug: See how this query was interpreted"):
-            if interpretation.get('used_precomputed'):
-                st.success("**Used pre-computed plan (instant, no API call)**")
-            else:
-                st.info("**Used Claude API**")
-            st.json(interpretation)
-            st.write(f"**Series to fetch:** {series_to_fetch}")
-            if is_followup:
-                st.write("**This was detected as a follow-up question**")
-                st.write(f"Previous query: {st.session_state.last_query}")
-                st.write(f"Previous series: {st.session_state.last_series}")
-
         # Fetch data
         series_data = []
         series_names_fetched = []
