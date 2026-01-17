@@ -1915,6 +1915,23 @@ def main():
     [data-testid="stChatMessageAvatarAssistant"],
     [data-testid="stChatMessageAvatarUser"] { display: none !important; }
 
+    /* Button styles - white text on primary blue */
+    .stButton button[kind="primary"],
+    .stButton button[data-testid="baseButton-primary"] {
+        color: #ffffff !important;
+        background-color: #1F4FD8 !important;
+        border: none !important;
+    }
+    .stButton button[kind="primary"]:hover,
+    .stButton button[data-testid="baseButton-primary"]:hover {
+        background-color: #1a43b8 !important;
+    }
+    /* Secondary/default buttons */
+    .stButton button {
+        color: #1f2937 !important;
+        border-color: #d1d5db !important;
+    }
+
     /* Mobile responsive styles */
     @media (max-width: 768px) {
         .narrative-box { padding: 15px; }
