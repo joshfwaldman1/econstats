@@ -275,6 +275,59 @@ try:
 except ImportError:
     QUERY_PLANS = {}
 
+# Google Sheets helper - reusable connection
+def get_sheets_client():
+    """Get authenticated Google Sheets client, or None if not configured."""
+    try:
+        import gspread
+        from google.oauth2.service_account import Credentials
+
+        if not hasattr(st, 'secrets') or 'gcp_service_account' not in st.secrets:
+            return None
+
+        creds_dict = dict(st.secrets['gcp_service_account'])
+        scopes = ['https://www.googleapis.com/auth/spreadsheets']
+        creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        return gspread.authorize(creds)
+    except Exception:
+        return None
+
+
+# Query logging - logs ALL queries to Google Sheets
+def log_query(query: str, series: list, source: str = "unknown"):
+    """Log every query to Google Sheets for analytics."""
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    series_str = ', '.join(series) if series else ''
+
+    # Always log to console
+    print(f"[QUERY] {timestamp} | {query} | Series: {series_str} | Source: {source}")
+
+    # Save to Google Sheets
+    try:
+        client = get_sheets_client()
+        if not client:
+            return True
+
+        sheet_url = st.secrets.get('QUERY_LOG_SHEET_URL', '')
+        if not sheet_url:
+            # Fall back to feedback sheet if no separate query log sheet
+            sheet_url = st.secrets.get('FEEDBACK_SHEET_URL', '')
+
+        if sheet_url:
+            spreadsheet = client.open_by_url(sheet_url)
+            # Try to use "Queries" worksheet, create if doesn't exist
+            try:
+                sheet = spreadsheet.worksheet('Queries')
+            except:
+                # Worksheet doesn't exist, use first sheet
+                sheet = spreadsheet.sheet1
+            sheet.append_row([timestamp, query, series_str, source])
+        return True
+    except Exception as e:
+        print(f"[QUERY LOG ERROR] {e}")
+        return False
+
+
 # Feedback storage - logs to console (visible in Streamlit Cloud logs)
 # Optionally saves to Google Sheets if configured
 def save_feedback(query: str, series: list, vote: str, comment: str = ""):
@@ -287,20 +340,18 @@ def save_feedback(query: str, series: list, vote: str, comment: str = ""):
 
     # Try Google Sheets if configured
     try:
-        import gspread
-        from google.oauth2.service_account import Credentials
-
-        if not hasattr(st, 'secrets') or 'gcp_service_account' not in st.secrets:
-            return True  # Logged to console, that's enough
-
-        creds_dict = dict(st.secrets['gcp_service_account'])
-        scopes = ['https://www.googleapis.com/auth/spreadsheets']
-        creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        client = gspread.authorize(creds)
+        client = get_sheets_client()
+        if not client:
+            return True
 
         sheet_url = st.secrets.get('FEEDBACK_SHEET_URL', '')
         if sheet_url:
-            sheet = client.open_by_url(sheet_url).sheet1
+            spreadsheet = client.open_by_url(sheet_url)
+            # Try to use "Feedback" worksheet, fall back to first sheet
+            try:
+                sheet = spreadsheet.worksheet('Feedback')
+            except:
+                sheet = spreadsheet.sheet1
             sheet.append_row([timestamp, query, series_str, vote, comment])
         return True
     except Exception as e:
@@ -2101,7 +2152,12 @@ def main():
 
         if not series_to_fetch:
             st.warning("Could not find relevant economic data. Try rephrasing your question or being more specific.")
+            log_query(query, [], "no_results")
             st.stop()
+
+        # Log the query for analytics
+        source = "precomputed" if interpretation.get('used_precomputed') else "claude"
+        log_query(query, series_to_fetch[:4], source)
 
         # Fetch data
         series_data = []
