@@ -529,19 +529,15 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                 return f"{full_val:,.0f}"
 
         # 1. Compare to 2019 average (pre-COVID baseline)
+        # Skip for employment counts (show_absolute) - comparing absolute levels is not meaningful
+        # since employment naturally grows with population. Job GROWTH is what matters.
         avg_2019 = year_average(2019)
-        if avg_2019 is not None:
+        if avg_2019 is not None and not show_absolute:
             if data_type in ['rate', 'spread', 'growth_rate']:
                 diff = latest - avg_2019
                 if abs(diff) >= 0.3:  # Meaningful difference for rates
                     direction = "above" if diff > 0 else "below"
                     context['vs_2019'] = f"{abs(diff):.1f} pp {direction} 2019 avg"
-            elif show_absolute:
-                # Employment counts - show absolute difference, not %
-                diff = latest - avg_2019
-                if abs(diff) >= 500:  # At least 500K difference
-                    direction = "above" if diff > 0 else "below"
-                    context['vs_2019'] = f"{format_job_diff(diff)} {direction} 2019 avg"
             elif avg_2019 != 0:
                 pct_diff = ((latest - avg_2019) / abs(avg_2019)) * 100
                 if abs(pct_diff) >= 3:  # Meaningful difference for levels
@@ -549,10 +545,10 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                     context['vs_2019'] = f"{abs(pct_diff):.0f}% {direction} 2019 avg"
 
         # 2. Compare to prior full year average (e.g., 2024 if we're in 2025)
+        # Skip for employment counts - comparing absolute levels to prior year average is not meaningful
         prior_year = current_year - 1
-        # Only use prior year if we have enough data from current year (at least 2 months in)
         latest_date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
-        if latest_date_obj.year == current_year and latest_date_obj.month >= 3:
+        if latest_date_obj.year == current_year and latest_date_obj.month >= 3 and not show_absolute:
             avg_prior = year_average(prior_year)
             if avg_prior is not None:
                 if data_type in ['rate', 'spread', 'growth_rate']:
@@ -560,12 +556,6 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
                     if abs(diff) >= 0.2:
                         direction = "above" if diff > 0 else "below"
                         context['vs_prior_year'] = f"{abs(diff):.1f} pp {direction} {prior_year} avg"
-                elif show_absolute:
-                    # Employment counts - show absolute difference
-                    diff = latest - avg_prior
-                    if abs(diff) >= 200:  # At least 200K difference
-                        direction = "above" if diff > 0 else "below"
-                        context['vs_prior_year'] = f"{format_job_diff(diff)} {direction} {prior_year} avg"
                 elif avg_prior != 0:
                     pct_diff = ((latest - avg_prior) / abs(avg_prior)) * 100
                     if abs(pct_diff) >= 2:
@@ -873,6 +863,12 @@ SERIES_DB = {
         'sa': True,
         'frequency': 'quarterly',
         'data_type': 'growth_rate',
+        'benchmark': {
+            'value': 2.0,
+            'text': "Trend U.S. growth is ~2% annually. Above 3% is robust; above 4% is a boom; negative is contraction.",
+            'comparison': 'above',
+            'ranges': [(0, 2, 'below trend'), (2, 3, 'trend growth'), (3, 4, 'robust'), (4, 100, 'boom pace')],
+        },
         'bullets': [
             'This measures how fast the economy is expanding or contracting, expressed as an annualized rate (what growth would be if the quarterly pace continued for a full year). It\'s the headline GDP number reported in the news.',
             'Historical context: Trend U.S. growth is around 2% annually. Growth above 3% is considered robust; above 4% is a boom. Negative growth signals contraction. Consumer spending drives roughly 70% of GDP, so consumer health is paramount. Note: GDP is released in three estimates (advance, second, third) and can be significantly revised.'
@@ -1117,10 +1113,11 @@ QUERY_MAP = {
     'rent inflation': {'series': ['CUSR0000SAH1'], 'combine': False},
     'shelter': {'series': ['CUSR0000SAH1'], 'combine': False},
 
-    # GDP
-    'gdp': {'series': ['GDPC1'], 'combine': False},
+    # GDP - Always show growth rate (what users expect, the news headline)
+    'gdp': {'series': ['A191RL1Q225SBEA'], 'combine': False},
     'gdp growth': {'series': ['A191RL1Q225SBEA'], 'combine': False},
     'economic growth': {'series': ['A191RL1Q225SBEA'], 'combine': False},
+    'real gdp': {'series': ['A191RL1Q225SBEA'], 'combine': False},
 
     # Interest rates
     'interest rates': {'series': ['FEDFUNDS', 'DGS10'], 'combine': True},
@@ -1775,7 +1772,23 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
             legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
             margin=dict(l=60, r=20, t=20, b=60),
             yaxis_title=unit[:30] if len(unit) > 30 else unit,
-            xaxis=dict(tickformat='%Y', gridcolor='#e5e5e5'),
+            xaxis=dict(
+                tickformat='%Y',
+                gridcolor='#e5e5e5',
+                type='date',
+                rangeselector=dict(
+                    buttons=list([
+                        dict(count=1, label="1Y", step="year", stepmode="backward"),
+                        dict(count=5, label="5Y", step="year", stepmode="backward"),
+                        dict(count=10, label="10Y", step="year", stepmode="backward"),
+                        dict(step="all", label="All")
+                    ]),
+                    bgcolor="rgba(150, 150, 150, 0.1)",
+                    activecolor="rgba(100, 150, 200, 0.3)",
+                    font=dict(size=11)
+                ),
+                rangeslider=dict(visible=True, thickness=0.04),
+            ),
             yaxis=dict(gridcolor='#e5e5e5'),
             height=350,
         )
@@ -1840,7 +1853,26 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
             margin=dict(l=60, r=20, t=20, b=40),
         )
 
-    fig.update_xaxes(tickformat='%Y', tickangle=-45)
+    # Add range controls - for subplots, only add slider to bottom chart
+    fig.update_xaxes(tickformat='%Y', tickangle=-45, type='date')
+
+    # Add range selector buttons and slider to bottom x-axis only
+    num_rows = len(series_data) if not combine else 1
+    fig.update_xaxes(
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1Y", step="year", stepmode="backward"),
+                dict(count=5, label="5Y", step="year", stepmode="backward"),
+                dict(count=10, label="10Y", step="year", stepmode="backward"),
+                dict(step="all", label="All")
+            ]),
+            bgcolor="rgba(150, 150, 150, 0.1)",
+            activecolor="rgba(100, 150, 200, 0.3)",
+            font=dict(size=11)
+        ),
+        rangeslider=dict(visible=True, thickness=0.04),
+        row=num_rows, col=1
+    )
     return fig
 
 
@@ -1984,8 +2016,8 @@ def main():
         if st.button("Recession?", use_container_width=True, key="btn_recession"):
             st.session_state.pending_query = "are we in a recession"
 
-    # Default timeframe - 10 years of data
-    years = 10
+    # Default timeframe - show all available data for full historical context
+    years = None
 
     # Handle pending query from button clicks
     query = None
@@ -2468,6 +2500,16 @@ def main():
                         sentences.append(f"This is above what economists generally estimate as full employment (~{bench_val}%).")
                     elif comparison_type == 'above' and diff < -0.3:
                         sentences.append(f"This is below typical estimates of full employment (~{bench_val}%), indicating a tight labor market.")
+                elif data_type == 'growth_rate' and benchmark.get('ranges'):
+                    # For GDP growth rate - describe where in the range we are
+                    ranges = benchmark.get('ranges')
+                    for low, high, desc in ranges:
+                        if low <= latest < high:
+                            if latest < 0:
+                                sentences.append(f"Negative growth indicates economic contraction.")
+                            else:
+                                sentences.append(f"This is considered {desc} (trend growth is ~{bench_val}%).")
+                            break
 
             # Sentence 2: Recent trend description (what's happening)
             show_abs = db_info.get('show_absolute_change', False)
