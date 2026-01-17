@@ -1922,18 +1922,21 @@ def main():
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
         # SEARCH BAR MODE - clean, simple interface
+        # Always show search bar so users can enter new queries
+        search_col, btn_col = st.columns([5, 1])
+        with search_col:
+            text_query = st.text_input(
+                "Search",
+                placeholder="Ask about the economy (e.g., inflation, jobs, GDP, housing)",
+                label_visibility="collapsed",
+                key="search_input"
+            )
+        with btn_col:
+            st.button("Search", type="primary", use_container_width=True)
+            # Enter key in text_input automatically submits
+        # Use text input if no pending query from button click
         if not query:
-            search_col, btn_col = st.columns([5, 1])
-            with search_col:
-                query = st.text_input(
-                    "Search",
-                    placeholder="Ask about the economy (e.g., inflation, jobs, GDP, housing)",
-                    label_visibility="collapsed",
-                    key="search_input"
-                )
-            with btn_col:
-                st.button("Search", type="primary", use_container_width=True)
-                # Enter key in text_input automatically submits
+            query = text_query
     else:
         # CHAT MODE - for follow-up questions
         # Show chat history
