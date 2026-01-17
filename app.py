@@ -1839,13 +1839,20 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
             margin=dict(l=60, r=20, t=20, b=40),
         )
 
-    # Add range slider to bottom chart only (clean, intuitive zoom control)
+    # Add range slider for zoom control
     fig.update_xaxes(tickformat='%Y', tickangle=-45, type='date')
-    num_rows = len(series_data) if not combine else 1
-    fig.update_xaxes(
-        rangeslider=dict(visible=True, thickness=0.05),
-        row=num_rows, col=1
-    )
+
+    # Only use row/col for subplots (when not combined and multiple series)
+    if not combine and len(series_data) > 1:
+        # Subplots - add slider to bottom chart only
+        fig.update_xaxes(
+            rangeslider=dict(visible=True, thickness=0.05),
+            row=len(series_data), col=1
+        )
+    else:
+        # Single chart or combined - no row/col needed
+        fig.update_xaxes(rangeslider=dict(visible=True, thickness=0.05))
+
     return fig
 
 
