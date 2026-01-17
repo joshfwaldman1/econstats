@@ -325,7 +325,11 @@ Given the user query below, determine the BEST 1-4 FRED series to display. Be pr
 2. For "how is the economy" type questions, use GDP growth + unemployment + inflation
 3. For inflation, default to showing YoY transformation
 4. Keep it simple: 1-2 series for simple questions, 3-4 max for complex ones
-5. Use combine_chart=true when series have the same units (e.g., two rates)
+5. Only set combine_chart=true when ALL of these are true:
+   - Series share the same units (e.g., both are rates, both are indexes)
+   - Scales are comparable (e.g., both 0-10%, not one 0-5% and another 0-100%)
+   - Visual comparison adds insight (comparing them on one chart tells a story)
+   Otherwise use separate charts (combine_chart=false).
 
 Return JSON only:
 {

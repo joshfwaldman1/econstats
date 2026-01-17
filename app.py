@@ -1282,17 +1282,12 @@ If the user asks about something not listed above (e.g., "semiconductor producti
 
 FRED's search API will find the right series.
 
-## RESPONSE FORMAT
-Return JSON only:
-{
-  "series": ["SERIES_ID1", "SERIES_ID2"],
-  "search_terms": ["specific search term 1", "specific search term 2"],
-  "explanation": "Brief explanation of why these series answer the question",
-  "show_yoy": false,
-  "combine_chart": false
-}
-
-CRITICAL: If you're not 100% sure of exact series IDs, ALWAYS include search_terms. It's better to search than guess wrong.
+## COMBINE_CHART RULES
+Only set combine_chart=true when ALL of these are true:
+- Series share the same units (e.g., both are rates, both are indexes)
+- Scales are comparable (e.g., both 0-10%, not one 0-5% and another 0-100%)
+- Visual comparison adds insight (comparing them on one chart tells a story)
+Otherwise use separate charts (combine_chart=false).
 
 ## RESPONSE FORMAT
 Return JSON only:
@@ -1307,6 +1302,8 @@ Return JSON only:
   "is_followup": false,
   "add_to_previous": false
 }
+
+CRITICAL: If you're not 100% sure of exact series IDs, ALWAYS include search_terms. It's better to search than guess wrong.
 
 USER QUESTION: """
 
