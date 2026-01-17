@@ -1821,7 +1821,9 @@ def main():
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&display=swap');
-    .stApp { font-family: 'Source Serif Pro', Georgia, serif; background-color: #fafafa; }
+    .stApp { font-family: 'Source Serif Pro', Georgia, serif; background-color: #fafafa; color: #333 !important; }
+    .stApp p, .stApp span, .stApp div, .stApp li, .stApp label { color: #333; }
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4 { color: #222 !important; }
     h1 { font-weight: 400 !important; text-align: center; }
     .subtitle { text-align: center; color: #666; margin-top: -15px; margin-bottom: 20px; }
     .header-divider { border-bottom: 1px solid #ddd; margin-bottom: 25px; padding-bottom: 15px; }
