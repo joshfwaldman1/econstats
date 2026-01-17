@@ -782,6 +782,12 @@ SERIES_DB = {
         'show_yoy': True,
         'yoy_name': 'Core CPI Inflation Rate',
         'yoy_unit': '% Change YoY',
+        'benchmark': {
+            'value': 2.0,
+            'comparison': 'above',
+            'text': "The Fed targets 2% inflation. Core CPI typically runs slightly above PCE, so ~2.5% core CPI often aligns with the Fed's 2% PCE target.",
+            'applies_to_yoy': True,
+        },
         'bullets': [
             'Core inflation strips out volatile food and energy prices to reveal the underlying trend in prices. While headline inflation captures what consumers actually pay, core inflation better reflects persistent price pressures that monetary policy can address.',
             'Economists focus on core inflation because food and energy prices swing wildly based on weather, geopolitics, and speculation—factors largely outside the Fed\'s control. When core inflation is elevated, it typically signals that price pressures have become "sticky" and embedded in the economy through wages, rents, and services. This is much harder to reverse than a temporary oil price spike.'
@@ -1901,6 +1907,21 @@ def main():
     .stChatMessage img[alt="user avatar"],
     [data-testid="stChatMessageAvatarAssistant"],
     [data-testid="stChatMessageAvatarUser"] { display: none !important; }
+
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+        .narrative-box { padding: 15px; }
+        .chart-header { padding: 12px 15px; }
+        .chart-title { font-size: 1rem; }
+        .chart-bullets { font-size: 0.9rem; margin-left: 15px; }
+        .source-line { padding: 8px 15px; font-size: 0.8rem; }
+        h1 { font-size: 1.5rem !important; }
+        .subtitle { font-size: 0.9rem; }
+        /* Prevent horizontal scroll */
+        .stApp { overflow-x: hidden; }
+        /* Make buttons more touch-friendly */
+        .stButton button { min-height: 44px; padding: 8px 16px; }
+    }
     </style>
     """, unsafe_allow_html=True)
 

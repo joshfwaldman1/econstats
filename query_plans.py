@@ -470,6 +470,7 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
     "explanation": "The jobs report refers to the monthly Employment Situation Summary. PAYEMS (total nonfarm payrolls) is THE jobs number - the headline figure showing monthly job gains/losses from the establishment survey. UNRATE is the headline unemployment rate from the household survey. These two series form the core of every jobs report analysis and give the clearest picture of employment trends."
   },
@@ -1546,11 +1547,12 @@ QUERY_PLANS = {
   "interest rates": {
     "series": [
       "FEDFUNDS",
+      "DGS2",
       "DGS10"
     ],
     "show_yoy": False,
     "combine_chart": True,
-    "explanation": "The federal funds rate (FEDFUNDS) is the Fed's primary policy tool and represents short-term rates, while the 10-year Treasury (DGS10) is the benchmark long-term rate that influences mortgages, corporate bonds, and broader economic conditions. Together, they show the complete interest rate picture - what the Fed controls directly versus what markets determine for longer-term borrowing."
+    "explanation": "The federal funds rate (FEDFUNDS) is the Fed's policy rate, the 2-year Treasury (DGS2) reflects market expectations for Fed policy over the next two years, and the 10-year Treasury (DGS10) is the benchmark long-term rate. Together, they show short-term policy, market expectations, and long-term borrowing costs."
   },
   "rates": {
     "series": [
@@ -2496,6 +2498,7 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
     "explanation": "The four key recession indicators: Real GDP growth (negative = recession), nonfarm payrolls (job losses signal recession), the yield curve spread (inversions precede recessions), and unemployment rate (rises during recessions)."
   },
@@ -2507,6 +2510,7 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
     "explanation": "The four key recession indicators: Real GDP growth (negative = recession), nonfarm payrolls (job losses signal recession), the yield curve spread (inversions precede recessions), and unemployment rate (rises during recessions)."
   },
@@ -2518,6 +2522,7 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
     "explanation": "The four key recession indicators: Real GDP growth shows economic momentum, nonfarm payrolls track job creation, the yield curve spread (10Y-2Y) is a leading indicator where inversions precede recessions, and unemployment rate captures labor market health."
   },
@@ -2529,6 +2534,7 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
     "explanation": "The four key recession indicators: Real GDP growth (negative = recession), nonfarm payrolls (job losses signal recession), the yield curve spread (inversions precede recessions), and unemployment rate (rises during recessions)."
   },
@@ -2540,6 +2546,7 @@ QUERY_PLANS = {
       "UNRATE"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
     "explanation": "The four key recession indicators: Real GDP growth (negative = recession), nonfarm payrolls (job losses signal recession), the yield curve spread (inversions precede recessions), and unemployment rate (rises during recessions)."
   },
