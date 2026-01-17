@@ -1776,18 +1776,7 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                 tickformat='%Y',
                 gridcolor='#e5e5e5',
                 type='date',
-                rangeselector=dict(
-                    buttons=list([
-                        dict(count=1, label="1Y", step="year", stepmode="backward"),
-                        dict(count=5, label="5Y", step="year", stepmode="backward"),
-                        dict(count=10, label="10Y", step="year", stepmode="backward"),
-                        dict(step="all", label="All")
-                    ]),
-                    bgcolor="rgba(150, 150, 150, 0.1)",
-                    activecolor="rgba(100, 150, 200, 0.3)",
-                    font=dict(size=11)
-                ),
-                rangeslider=dict(visible=True, thickness=0.04),
+                rangeslider=dict(visible=True, thickness=0.05),
             ),
             yaxis=dict(gridcolor='#e5e5e5'),
             height=350,
@@ -1853,24 +1842,11 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
             margin=dict(l=60, r=20, t=20, b=40),
         )
 
-    # Add range controls - for subplots, only add slider to bottom chart
+    # Add range slider to bottom chart only (clean, intuitive zoom control)
     fig.update_xaxes(tickformat='%Y', tickangle=-45, type='date')
-
-    # Add range selector buttons and slider to bottom x-axis only
     num_rows = len(series_data) if not combine else 1
     fig.update_xaxes(
-        rangeselector=dict(
-            buttons=list([
-                dict(count=1, label="1Y", step="year", stepmode="backward"),
-                dict(count=5, label="5Y", step="year", stepmode="backward"),
-                dict(count=10, label="10Y", step="year", stepmode="backward"),
-                dict(step="all", label="All")
-            ]),
-            bgcolor="rgba(150, 150, 150, 0.1)",
-            activecolor="rgba(100, 150, 200, 0.3)",
-            font=dict(size=11)
-        ),
-        rangeslider=dict(visible=True, thickness=0.04),
+        rangeslider=dict(visible=True, thickness=0.05),
         row=num_rows, col=1
     )
     return fig
