@@ -4182,28 +4182,6 @@ def main():
         suggestions = ['"year over year"', '"last 5 years"', '"add unemployment"', '"bar chart"']
         st.markdown('<span style="color: #666; font-size: 0.9em;">' + ' &bull; '.join(suggestions) + '</span>', unsafe_allow_html=True)
 
-    elif not query:
-        # Show welcome message with tappable example buttons (great for mobile)
-        st.markdown("""
-        <p style='color: #666; margin-top: 15px; margin-bottom: 15px;'>Ask about the economy in plain English, or tap an example:</p>
-        """, unsafe_allow_html=True)
-
-        # Example query buttons - 2 columns for mobile-friendly layout
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("📈 How is the economy?", use_container_width=True, key="ex1"):
-                st.session_state.pending_query = "how is the economy"
-                st.rerun()
-            if st.button("💼 Jobs report", use_container_width=True, key="ex3"):
-                st.session_state.pending_query = "jobs"
-                st.rerun()
-        with col2:
-            if st.button("💰 Inflation", use_container_width=True, key="ex2"):
-                st.session_state.pending_query = "inflation"
-                st.rerun()
-            if st.button("🏠 Housing market", use_container_width=True, key="ex4"):
-                st.session_state.pending_query = "housing market"
-                st.rerun()
 
 
 if __name__ == "__main__":
