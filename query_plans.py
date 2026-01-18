@@ -906,6 +906,42 @@ QUERY_PLANS = {
     "combine_chart": False,
     "explanation": "DSPIC96 (Real Disposable Personal Income) is the best measure for real income as it represents personal income after taxes, adjusted for inflation. This shows the actual purchasing power of household income, which is the most relevant metric for consumer spending capacity and financial health. Year-over-year growth helps identify trends in real income gains or losses."
   },
+  "are wages keeping up with inflation": {
+    "series": [
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
+    "show_yoy": True,
+    "combine_chart": True,
+    "explanation": "Comparing average hourly earnings growth (CES0500000003) to CPI inflation (CPIAUCSL). When wage growth exceeds inflation, workers gain purchasing power; when inflation exceeds wage growth, real wages are falling. Both shown as year-over-year percent change for direct comparison."
+  },
+  "real wages": {
+    "series": [
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
+    "show_yoy": True,
+    "combine_chart": True,
+    "explanation": "Real wage growth = nominal wage growth minus inflation. Showing average hourly earnings growth (CES0500000003) vs CPI inflation (CPIAUCSL) as year-over-year percent changes. If the wage line is above the inflation line, real wages are rising."
+  },
+  "wages vs inflation": {
+    "series": [
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
+    "show_yoy": True,
+    "combine_chart": True,
+    "explanation": "Comparing average hourly earnings growth to CPI inflation. When the wage growth line is above the inflation line, workers are gaining purchasing power. Both shown as year-over-year percent change."
+  },
+  "real wage growth": {
+    "series": [
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
+    "show_yoy": True,
+    "combine_chart": True,
+    "explanation": "Real wage growth is nominal wage growth minus inflation. Showing average hourly earnings (CES0500000003) and CPI (CPIAUCSL) as year-over-year changes. The gap between the lines shows real wage growth (positive if wages above inflation)."
+  },
   "income growth": {
     "series": [
       "PI",
