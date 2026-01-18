@@ -3309,7 +3309,7 @@ def main():
             cols = st.columns(2)
             for i, eq in enumerate(example_queries):
                 with cols[i % 2]:
-                    if st.button(f"→ {eq}", key=f"example_{i}", use_container_width=True):
+                    if st.button(eq, key=f"example_{i}", use_container_width=True):
                         st.session_state.pending_query = eq
                         st.rerun()
 
