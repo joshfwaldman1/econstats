@@ -3082,21 +3082,15 @@ def main():
     }
 
     /* Example queries section */
-    .examples-section {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-        margin-top: 1rem;
-    }
     .examples-header {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: #6b7280;
-        margin-bottom: 1rem;
+        margin: 1.5rem 0 0.75rem 0;
         font-weight: 600;
         font-style: normal !important;
+        text-align: center;
     }
     .example-query {
         padding: 0.8rem 1rem;
@@ -3301,11 +3295,7 @@ def main():
 
         # Example queries section - only show when no results yet
         if not st.session_state.last_query:
-            st.markdown('''
-            <div class="examples-section">
-                <div class="examples-header">Try these questions</div>
-            </div>
-            ''', unsafe_allow_html=True)
+            st.markdown('<p class="examples-header">Try these questions</p>', unsafe_allow_html=True)
 
             # Example query buttons in a grid
             example_queries = [
