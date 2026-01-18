@@ -139,6 +139,19 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
             'explanation': 'Zooming out to 20 years.',
         }
 
+    # "pre-covid" / "pre-pandemic" / "before 2020"
+    elif re.search(r'\b(pre[\s-]?(covid|pandemic|2020)|before\s+(covid|pandemic|the\s+pandemic|2020))\b', q):
+        # Show data from 2017-2020 (3 years before COVID)
+        # Calculate years from 2017 to now to fetch enough data, then filter
+        years_from_2017 = datetime.now().year - 2017 + 1
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'years_override': years_from_2017,
+            'filter_end_date': '2020-02-29',  # Pre-COVID cutoff
+            'explanation': 'Showing pre-COVID data (through February 2020).',
+        }
+
     # Normalize/index to 100 (for comparing different scales)
     elif re.search(r'\b(normalize|index(\s+to\s+100)?|rebase|scale\s+to\s+(100|same))\b', q):
         result = {
@@ -211,7 +224,11 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
             'jobs': ['PAYEMS'],
             'payrolls': ['PAYEMS'],
             'job openings': ['JTSJOL'],
-            'gdp': ['A191RL1Q225SBEA'],
+            'gdp': ['A191RL1Q225SBEA', 'A191RO1Q156NBEA'],
+            'gdp growth': ['A191RL1Q225SBEA'],
+            'annual gdp': ['A191RL1A225NBEA'],
+            'core gdp': ['PB0000031Q225SBEA'],
+            'private demand': ['PB0000031Q225SBEA'],
             'fed funds': ['FEDFUNDS'],
             'rates': ['FEDFUNDS'],
             'interest rates': ['FEDFUNDS'],
@@ -274,6 +291,78 @@ try:
     from query_plans import QUERY_PLANS
 except ImportError:
     QUERY_PLANS = {}
+
+# Smart query matching with normalization and fuzzy matching
+import difflib
+
+def normalize_query(query: str) -> str:
+    """Normalize a query for better matching."""
+    q = query.lower().strip()
+    # Remove common filler phrases
+    fillers = [
+        r'^what is\s+', r'^what are\s+', r'^show me\s+', r'^show\s+',
+        r'^tell me about\s+', r'^how is\s+', r'^how are\s+',
+        r'^what\'s\s+', r'^whats\s+', r'^give me\s+',
+        r'^can you show\s+', r'^i want to see\s+',
+        r'\?$', r'\.+$', r'\s+the\s+', r'^the\s+'
+    ]
+    for filler in fillers:
+        q = re.sub(filler, ' ', q)
+    # Collapse whitespace and strip
+    q = ' '.join(q.split()).strip()
+    return q
+
+def find_query_plan(query: str, threshold: float = 0.85) -> dict | None:
+    """
+    Find the best matching query plan using normalization and fuzzy matching.
+    Returns the plan dict if found, None otherwise.
+    """
+    if not QUERY_PLANS:
+        return None
+
+    # Normalize the input query
+    normalized = normalize_query(query)
+    original_lower = query.lower().strip()
+
+    # 1. Exact match on original (fastest)
+    if original_lower in QUERY_PLANS:
+        return QUERY_PLANS[original_lower]
+
+    # 2. Exact match on normalized
+    if normalized in QUERY_PLANS:
+        return QUERY_PLANS[normalized]
+
+    # 3. Fuzzy match - find closest query in plans
+    all_queries = list(QUERY_PLANS.keys())
+
+    # Try matching against normalized query
+    matches = difflib.get_close_matches(normalized, all_queries, n=1, cutoff=threshold)
+    if matches:
+        return QUERY_PLANS[matches[0]]
+
+    # Try matching against original (for cases like typos)
+    matches = difflib.get_close_matches(original_lower, all_queries, n=1, cutoff=threshold)
+    if matches:
+        return QUERY_PLANS[matches[0]]
+
+    # 4. Word-based matching for longer queries
+    # If query contains key economic terms, try to match those
+    key_terms = ['inflation', 'unemployment', 'gdp', 'jobs', 'rates', 'housing',
+                 'wages', 'recession', 'fed', 'cpi', 'pce', 'payrolls']
+    for term in key_terms:
+        if term in normalized:
+            # Find all plans containing this term
+            term_matches = [q for q in all_queries if term in q]
+            if term_matches:
+                # Find best match among these
+                best = difflib.get_close_matches(normalized, term_matches, n=1, cutoff=0.5)
+                if best:
+                    return QUERY_PLANS[best[0]]
+                # If still no fuzzy match, return the simplest one (shortest)
+                term_matches.sort(key=len)
+                return QUERY_PLANS[term_matches[0]]
+
+    return None
 
 # Google Sheets helper - reusable connection
 def get_sheets_client():
@@ -739,6 +828,78 @@ SERIES_DB = {
             'The ratio of job openings to unemployed workers is a key measure of labor market "tightness." In a balanced market, this ratio is around 1.0. When it rises well above 1.0 (as it did in 2021-22, reaching nearly 2.0), workers have significant bargaining power and can command higher wages. Below 1.0 suggests slack in the labor market.'
         ]
     },
+    'JTSHIR': {
+        'name': 'Hires (JOLTS)',
+        'unit': 'Thousands',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Counts the number of new hires each month across all nonfarm establishments. High hires indicate active labor market churn—people moving into new jobs. This is a key JOLTS indicator alongside job openings and quits.',
+            'Context: Hires typically run 5-6 million per month in a healthy labor market. When hires exceed separations (quits + layoffs), total employment grows. A decline in hires often signals employer caution and potential labor market weakening ahead.'
+        ]
+    },
+    'JTSQUR': {
+        'name': 'Quits Rate (JOLTS)',
+        'unit': 'Percent',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 2.3,
+            'comparison': 'above',
+            'text': "Pre-pandemic quits rate averaged ~2.3%. Higher rates indicate worker confidence; lower rates suggest caution.",
+        },
+        'bullets': [
+            'The percentage of workers who voluntarily quit their jobs each month. High quit rates signal worker confidence—people only quit when they believe they can find something better. Low quit rates indicate caution or fear.',
+            'The "Great Resignation" of 2021-22 saw quit rates hit record 3.0%. A quit rate above 2.5% indicates a hot labor market with strong worker bargaining power; below 2.0% suggests workers are staying put due to uncertainty.'
+        ]
+    },
+    'JTSLDL': {
+        'name': 'Layoffs & Discharges (JOLTS)',
+        'unit': 'Thousands',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Counts involuntary separations—workers who were laid off or fired. Rising layoffs signal employer distress and potential recession. This is a lagging indicator, typically rising after economic problems are already underway.',
+            'Context: Layoffs typically run 1.5-1.8 million per month in normal times. Spikes above 2 million signal significant labor market stress. During the 2020 COVID shock, layoffs briefly exceeded 10 million per month.'
+        ]
+    },
+
+    # Unemployment Insurance Claims (Weekly)
+    'ICSA': {
+        'name': 'Initial Jobless Claims',
+        'unit': 'Number',
+        'source': 'U.S. Employment and Training Administration',
+        'sa': True,
+        'frequency': 'weekly',
+        'data_type': 'level',
+        'benchmark': {
+            'value': 225000,
+            'comparison': 'above',
+            'text': "Pre-pandemic, claims below 225K signaled a healthy labor market. Claims above 300K suggest significant job losses.",
+        },
+        'bullets': [
+            'The most timely indicator of labor market conditions. Released every Thursday, initial claims count workers filing for unemployment benefits for the first time. This data arrives weeks before the monthly jobs report, making it a crucial early warning signal.',
+            'Context: Pre-pandemic, claims ran 200-220K weekly in a healthy market. Claims spiked to nearly 7 million weekly in March 2020. Levels persistently above 300K suggest elevated layoffs; below 225K indicates strong labor demand. Economists often look at the 4-week moving average to smooth week-to-week volatility.'
+        ]
+    },
+    'CCSA': {
+        'name': 'Continuing Jobless Claims',
+        'unit': 'Number',
+        'source': 'U.S. Employment and Training Administration',
+        'sa': True,
+        'frequency': 'weekly',
+        'data_type': 'level',
+        'bullets': [
+            'Counts the total number of people receiving unemployment benefits—a measure of ongoing unemployment duration. While initial claims show new layoffs, continuing claims reveal how quickly (or slowly) displaced workers find new jobs.',
+            'Rising continuing claims alongside falling initial claims can indicate workers are having trouble finding new employment, even as layoffs slow. This was a key dynamic during the slow recovery from the Great Recession. Falling continuing claims with stable initial claims suggests a healthy churn where laid-off workers quickly find new positions.'
+        ]
+    },
 
     # Inflation - CPI
     'CPIAUCSL': {
@@ -793,9 +954,114 @@ SERIES_DB = {
         'show_yoy': True,
         'yoy_name': 'Shelter Inflation Rate',
         'yoy_unit': '% Change YoY',
+        'benchmark': {
+            'value': 3.5,
+            'comparison': 'above',
+            'text': "Shelter costs are the largest CPI component (~33%). Pre-pandemic shelter inflation averaged ~3.5% annually.",
+            'applies_to_yoy': True,
+        },
         'bullets': [
             'Housing costs (rent and owners\' equivalent rent) make up roughly one-third of the CPI basket—the largest single component. When shelter inflation surges, it pulls overall inflation higher and is felt acutely by household budgets.',
             'Critical caveat: CPI shelter lags actual market rents by approximately 12 months due to how the BLS measures it (surveying existing leases that turn over slowly). This means market rent declines won\'t show up in CPI shelter for many months. Economists watching for inflation to ease look at private rent indexes like Zillow or Apartment List for leading signals.'
+        ]
+    },
+    'CUSR0000SEHA': {
+        'name': 'CPI: Rent of Primary Residence',
+        'unit': 'Index 1982-84=100',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Rent Inflation Rate',
+        'yoy_unit': '% Change YoY',
+        'benchmark': {
+            'value': 4.0,
+            'comparison': 'above',
+            'text': "Pre-pandemic rent inflation averaged 3-4% annually. Above 5% indicates tight rental markets.",
+            'applies_to_yoy': True,
+        },
+        'bullets': [
+            'Measures rent changes for tenant-occupied housing—what renters actually pay each month. This is a key component of CPI shelter.',
+            'Rent inflation tends to be sticky because most leases are annual. Changes in market rents take time to flow through to the CPI measure, creating a significant lag of 12+ months.'
+        ]
+    },
+    'CUSR0000SEHC': {
+        'name': "CPI: Owners' Equivalent Rent",
+        'unit': 'Index 1982-84=100',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': "Owners' Equivalent Rent Inflation",
+        'yoy_unit': '% Change YoY',
+        'benchmark': {
+            'value': 4.0,
+            'comparison': 'above',
+            'text': "OER typically tracks actual rent inflation closely. Above 5% indicates housing cost pressure.",
+            'applies_to_yoy': True,
+        },
+        'bullets': [
+            "Measures what homeowners would pay to rent their own homes. This is the largest single component of CPI, making up about 24% of the total index.",
+            "OER is somewhat controversial because homeowners don't actually pay rent. Critics argue it doesn't capture actual housing costs like mortgage payments, property taxes, or maintenance. But it's designed to measure housing service consumption, not investment returns."
+        ]
+    },
+    'CUSR0000SAF11': {
+        'name': 'CPI: Food at Home',
+        'unit': 'Index 1982-84=100',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Grocery Price Inflation',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks prices for groceries—food purchased at stores for home consumption. This is what people mean when they talk about grocery prices. Food at home makes up about 8% of the CPI basket.',
+            'Grocery prices are heavily influenced by commodity costs (grains, meat, dairy) and can be volatile due to weather, disease outbreaks, and supply chain issues. During 2022, grocery inflation exceeded 10%—the highest in decades—due to supply chain disruptions and input cost pressures.'
+        ]
+    },
+    'CUSR0000SEFV': {
+        'name': 'CPI: Food Away from Home',
+        'unit': 'Index 1982-84=100',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Restaurant Price Inflation',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks prices for food purchased at restaurants, fast food, and other food-service establishments. Labor costs are a major component, so this category is sensitive to wage pressures in the service sector.',
+            'Restaurant prices tend to be stickier than grocery prices because they\'re driven by labor costs, rent, and other service expenses that don\'t adjust as quickly as commodity prices. Once restaurant prices rise, they rarely fall—making this a key indicator of persistent inflation.'
+        ]
+    },
+    'CUSR0000SETB01': {
+        'name': 'CPI: Gasoline (All Types)',
+        'unit': 'Index 1982-84=100',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Gasoline Price Inflation',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks gasoline prices in the CPI basket. Gasoline is one of the most visible and volatile components of inflation—consumers see prices daily on gas station signs and quickly feel changes in their wallets.',
+            'Gas prices drive headline inflation volatility but are excluded from "core" measures because they\'re determined by global oil markets, not domestic economic conditions. A $1 change in gas prices adds or subtracts roughly 0.4 percentage points to headline CPI inflation.'
+        ]
+    },
+    'GASREGW': {
+        'name': 'Regular Gasoline Price',
+        'unit': 'Dollars per Gallon',
+        'source': 'U.S. Energy Information Administration',
+        'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'price',
+        'bullets': [
+            'The national average retail price for a gallon of regular gasoline. This is the price consumers actually see at the pump and is one of the most closely watched consumer prices in America.',
+            'Gas prices are driven primarily by crude oil costs (about 50-60% of the price), plus refining costs, taxes, and distribution/marketing. The U.S. consumes about 9 million barrels of gasoline per day. Every 1-cent change in gas prices transfers about $1 billion annually between consumers and producers.'
         ]
     },
 
@@ -874,6 +1140,137 @@ SERIES_DB = {
             'Historical context: Trend U.S. growth is around 2% annually. Growth above 3% is considered robust; above 4% is a boom. Negative growth signals contraction. Consumer spending drives roughly 70% of GDP, so consumer health is paramount. Note: GDP is released in three estimates (advance, second, third) and can be significantly revised.'
         ]
     },
+    'A191RO1Q156NBEA': {
+        'name': 'Real GDP Growth (Q/Q Year Ago)',
+        'unit': '% Change from Same Quarter Year Ago',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'growth_rate',
+        'benchmark': {
+            'value': 2.0,
+            'text': "Trend U.S. growth is ~2% annually. This quarterly YoY measure updates more frequently than annual data.",
+            'comparison': 'above',
+            'ranges': [(0, 2, 'below trend'), (2, 3, 'trend growth'), (3, 4, 'robust'), (4, 100, 'boom pace')],
+        },
+        'bullets': [
+            'Shows how much real GDP has grown compared to the same quarter one year ago (e.g., Q3 2024 vs Q3 2023). This is updated quarterly, giving a more timely but still smoothed view of economic growth.',
+            'Note: This is different from "annual GDP growth." For the Q4/Q4 measure (Q4 vs Q4 of prior year) or total annual growth (full year vs full year), see A191RL1A225NBEA which is released annually.'
+        ]
+    },
+    'A191RL1A225NBEA': {
+        'name': 'Annual Real GDP Growth',
+        'unit': '% Change',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': False,
+        'frequency': 'annual',
+        'data_type': 'growth_rate',
+        'benchmark': {
+            'value': 2.0,
+            'text': "Trend U.S. growth is ~2% annually. Above 3% is robust growth; below 0% is a contraction year.",
+            'comparison': 'above',
+            'ranges': [(-10, 0, 'contraction'), (0, 2, 'below trend'), (2, 3, 'trend growth'), (3, 4, 'robust'), (4, 100, 'boom')],
+        },
+        'bullets': [
+            'This is the definitive measure of annual economic growth: how much total real GDP in one calendar year exceeded the prior year. For 2024, this was 2.8%—meaning the U.S. produced 2.8% more goods and services than in 2023.',
+            'Why it matters: The quarterly annualized rate (headline GDP) can be volatile. This annual measure tells you how the economy actually performed over a full year. Economists reference this when discussing long-term economic health, comparing across years, or assessing policy impacts.'
+        ]
+    },
+    'PB0000031Q225SBEA': {
+        'name': 'Real Final Sales to Private Domestic Purchasers',
+        'unit': '% Change (Annualized)',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'growth_rate',
+        'benchmark': {
+            'value': 2.5,
+            'text': "This 'core GDP' measure typically grows around 2-3% in healthy expansions. It's been found to be a better predictor of future growth than headline GDP.",
+            'comparison': 'above',
+            'ranges': [(-10, 0, 'contraction'), (0, 2, 'weak'), (2, 3.5, 'healthy'), (3.5, 100, 'strong')],
+        },
+        'bullets': [
+            'This is what economists call "core GDP"—it strips out the most volatile components (government spending, exports, and inventory changes) to focus on private domestic demand: consumer spending plus business fixed investment.',
+            'Why it matters: The Council of Economic Advisers has found this to be a better predictor of future growth than headline GDP. When core GDP is strong but headline GDP is weak (due to inventory drawdown or trade deficit), it often signals the economy is healthier than the headline suggests. Watch for divergences between this and headline GDP.'
+        ]
+    },
+
+    # GDP Components (for "gdp components" query)
+    'PCECC96': {
+        'name': 'Real Personal Consumption Expenditures (Quarterly)',
+        'unit': 'Billions of Chained 2017 Dollars',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'level',
+        'bullets': [
+            'Real personal consumption expenditures in the GDP accounts—the inflation-adjusted measure of consumer spending that makes up roughly 70% of GDP.',
+            'PCE includes spending on goods and services by households. It is the largest component of GDP and the primary driver of economic growth.'
+        ]
+    },
+    'PCEC96': {
+        'name': 'Real Personal Consumption Expenditures',
+        'unit': 'Billions of Chained 2017 Dollars',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'show_yoy': True,
+        'yoy_name': 'Real Consumer Spending Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Monthly real PCE is the inflation-adjusted measure of consumer spending, accounting for roughly 70% of GDP. This is the broadest measure of consumer activity.',
+            'Unlike retail sales (which only captures goods), PCE includes services like healthcare, education, and financial services—capturing the full breadth of consumer spending.'
+        ]
+    },
+    'GPDIC1': {
+        'name': 'Real Gross Private Domestic Investment',
+        'unit': 'Billions of Chained 2017 Dollars',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'level',
+        'bullets': [
+            'Real gross private domestic investment includes business spending on equipment, structures, intellectual property, residential investment, and changes in inventories.',
+            'Investment is the most volatile component of GDP and a key driver of business cycles. Strong investment signals business confidence in future growth.'
+        ]
+    },
+    'GCEC1': {
+        'name': 'Real Government Consumption Expenditures',
+        'unit': 'Billions of Chained 2017 Dollars',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'level',
+        'bullets': [
+            'Government consumption expenditures and gross investment at all levels (federal, state, and local), measured in real terms.',
+            'Government spending represents roughly 17-18% of GDP and includes both purchases of goods and services and investment in infrastructure.'
+        ]
+    },
+    'EXPGSC1': {
+        'name': 'Real Exports of Goods and Services',
+        'unit': 'Billions of Chained 2017 Dollars',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'level',
+        'bullets': [
+            'Real exports represents the value of goods and services produced in the U.S. and sold abroad.',
+            'Exports add to GDP as they represent domestic production consumed by foreign buyers. A strong dollar tends to reduce exports.'
+        ]
+    },
+    'IMPGSC1': {
+        'name': 'Real Imports of Goods and Services',
+        'unit': 'Billions of Chained 2017 Dollars',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'level',
+        'bullets': [
+            'Real imports represents the value of goods and services produced abroad and consumed in the U.S.',
+            'Imports are subtracted from GDP because they represent foreign production. Rising imports often signal strong domestic demand.'
+        ]
+    },
 
     # Interest Rates
     'FEDFUNDS': {
@@ -919,6 +1316,11 @@ SERIES_DB = {
         'sa': False,
         'frequency': 'daily',
         'data_type': 'spread',
+        'benchmark': {
+            'value': 0.0,
+            'comparison': 'below',
+            'text': "When this spread goes negative (inverted yield curve), it's a recession warning signal—has preceded every U.S. recession since 1970.",
+        },
         'bullets': [
             'The yield curve spread measures the difference between long-term and short-term interest rates. Normally positive (investors demand more to lend for longer), this spread turns negative ("inverts") when markets expect economic trouble ahead.',
             'An inverted yield curve has predicted every U.S. recession since 1970 with remarkable accuracy. The logic: investors accept lower long-term rates because they expect the Fed will need to cut rates to fight a recession. The spread was deeply inverted through much of 2023, though the lag between inversion and recession varies from several months to two years.'
@@ -936,6 +1338,66 @@ SERIES_DB = {
             'This rate generally tracks the 10-year Treasury yield plus a spread for risk (typically 1.5-2.5 percentage points). When rates rose from 3% to 7% in 2022-23, it effectively priced many buyers out of the market and froze existing homeowners in place (the "lock-in effect"), dramatically reducing housing market activity.'
         ]
     },
+    'MORTGAGE15US': {
+        'name': '15-Year Fixed Mortgage Rate',
+        'unit': 'Percent',
+        'source': 'Freddie Mac',
+        'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'rate',
+        'bullets': [
+            'The 15-year fixed mortgage rate offers lower rates than the 30-year in exchange for higher monthly payments. Popular with refinancers and buyers who can afford larger payments.',
+            'The 15-year rate typically runs 0.5-0.75 percentage points below the 30-year rate due to lower duration risk for lenders. Borrowers save substantially on total interest paid over the life of the loan.'
+        ]
+    },
+    'DFEDTARU': {
+        'name': 'Fed Funds Target Upper Bound',
+        'unit': 'Percent',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
+        'bullets': [
+            "The upper bound of the Federal Reserve's target range for the federal funds rate. Since 2008, the Fed has set a target range rather than a single target.",
+            'The effective fed funds rate typically trades within this band. Watching the target bounds shows exactly when the Fed changed policy at FOMC meetings.'
+        ]
+    },
+    'DFEDTARL': {
+        'name': 'Fed Funds Target Lower Bound',
+        'unit': 'Percent',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
+        'bullets': [
+            "The lower bound of the Federal Reserve's target range for the federal funds rate. Along with the upper bound, this defines the corridor for overnight rates.",
+            'When the lower bound hits zero, the Fed has reached the "zero lower bound" and must turn to unconventional tools like quantitative easing.'
+        ]
+    },
+    'DGS30': {
+        'name': '30-Year Treasury Yield',
+        'unit': 'Percent',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
+        'bullets': [
+            'The 30-year Treasury yield represents the longest-duration benchmark in the Treasury market. It reflects investor expectations about growth, inflation, and Fed policy over a very long horizon.',
+            'The 30-year yield is less sensitive to Fed policy changes than shorter maturities but highly sensitive to inflation expectations. Pension funds and insurance companies are major buyers of long-dated Treasuries.'
+        ]
+    },
+    'DGS3MO': {
+        'name': '3-Month Treasury Yield',
+        'unit': 'Percent',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
+        'bullets': [
+            'The 3-month Treasury bill yield tracks very closely with the federal funds rate and serves as the benchmark for money market funds.',
+            'When the 3-month yield exceeds longer-term yields, it signals an inverted yield curve at the short end—a classic recession warning signal.'
+        ]
+    },
 
     # Housing
     'CSUSHPINSA': {
@@ -945,6 +1407,15 @@ SERIES_DB = {
         'sa': False,
         'frequency': 'monthly',
         'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Home Price Growth (YoY)',
+        'yoy_unit': '% Change YoY',
+        'benchmark': {
+            'value': 5.0,
+            'comparison': 'above',
+            'text': "Long-run home price appreciation averages 3-5% annually. Growth above 10% may signal overheating.",
+            'applies_to_yoy': True,
+        },
         'bullets': [
             'The Case-Shiller index is the gold standard for tracking U.S. home prices. It uses a "repeat sales" methodology—tracking the same homes over time—to provide the cleanest measure of actual price changes. An index value of 300 means prices have tripled since January 2000.',
             'Housing wealth matters enormously to household finances: home equity is the largest source of wealth for most American families. Rising home prices increase consumer spending through wealth effects, while falling prices can devastate household balance sheets—as the 2008 financial crisis demonstrated.'
@@ -960,6 +1431,315 @@ SERIES_DB = {
         'bullets': [
             'Housing starts counts new residential construction projects breaking ground. It\'s a leading indicator—homebuilders only begin projects when they\'re confident about future demand, so starts often signal the economy\'s direction.',
             'The U.S. faces a structural housing shortage estimated at 3-5 million units, built up over a decade of underbuilding following the 2008 crash. Healthy starts typically run 1.2-1.6 million annually. During the housing bust of 2009, starts collapsed to just 478,000—a level that contributed to years of housing undersupply.'
+        ]
+    },
+    'EXHOSLUSM495S': {
+        'name': 'Existing Home Sales',
+        'unit': 'Millions of Units (Annual Rate)',
+        'source': 'National Association of Realtors',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Existing home sales measures transactions of previously-owned homes. This is the largest segment of the housing market—roughly 85-90% of all home sales are existing homes rather than new construction.',
+            'Sales volume depends heavily on mortgage rates (affordability), inventory (what\'s available), and prices. The 2022-23 rate surge from 3% to 7% created a "lock-in effect"—existing homeowners stayed put rather than give up their low-rate mortgages, suppressing both inventory and sales volume.'
+        ]
+    },
+    'HSN1F': {
+        'name': 'New One Family Houses Sold',
+        'unit': 'Thousands of Units (Annual Rate)',
+        'source': 'U.S. Census Bureau',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'New home sales tracks purchases of newly-built single-family homes. While smaller than existing sales, new home sales are a leading indicator—they reflect builder confidence and require significant economic activity (construction, materials, labor).',
+            'New home sales are more sensitive to mortgage rates and builder capacity. Unlike existing homes, builders can offer incentives and rate buydowns, making new homes relatively more competitive when rates rise.'
+        ]
+    },
+    'PERMIT': {
+        'name': 'Building Permits',
+        'unit': 'Thousands of Units (Annual Rate)',
+        'source': 'U.S. Census Bureau',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Building permits is the earliest signal of new residential construction—filed before construction begins. This makes it a leading indicator of future housing supply and construction activity.',
+            'Permits lead housing starts by 1-3 months. Economists watch permits for early signs of housing market turning points. Sustained growth in permits signals builders expect strong future demand.'
+        ]
+    },
+
+    # Housing Prices (Additional)
+    'MSPUS': {
+        'name': 'Median Sales Price of Houses Sold',
+        'unit': 'Dollars',
+        'source': 'U.S. Census Bureau',
+        'sa': False,
+        'frequency': 'quarterly',
+        'data_type': 'level',
+        'bullets': [
+            'The median sales price represents the middle point of all home sales—half sold for more, half for less. Unlike average price, the median is not skewed by extremely expensive homes, making it more representative of typical home values.',
+            'This is often the most intuitive price measure for consumers. However, it can be affected by the mix of homes selling (more luxury homes = higher median even if prices are flat). For pure price trends, Case-Shiller is more accurate.'
+        ]
+    },
+    'ASPUS': {
+        'name': 'Average Sales Price of Houses Sold',
+        'unit': 'Dollars',
+        'source': 'U.S. Census Bureau',
+        'sa': False,
+        'frequency': 'quarterly',
+        'data_type': 'level',
+        'bullets': [
+            'The average sales price is the mean of all home sale prices. It tends to be higher than median because expensive homes pull the average up.',
+            'The average is more sensitive to luxury home sales and can be more volatile than the median. It\'s useful for tracking total housing market value but less representative of what typical buyers pay.'
+        ]
+    },
+    'USSTHPI': {
+        'name': 'FHFA House Price Index',
+        'unit': 'Index 1980:Q1=100',
+        'source': 'Federal Housing Finance Agency',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'FHFA Home Price Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'The FHFA House Price Index covers homes with mortgages backed by Fannie Mae or Freddie Mac. It has broader geographic coverage than Case-Shiller since it includes all states and metro areas.',
+            'Like Case-Shiller, FHFA uses a repeat-sales methodology for accuracy. The main difference: FHFA only includes homes with conforming mortgages (under the loan limit), while Case-Shiller includes all sales regardless of financing.'
+        ]
+    },
+
+    # Vacancy & Homeownership
+    'RHORUSQ156N': {
+        'name': 'Homeownership Rate',
+        'unit': 'Percent',
+        'source': 'U.S. Census Bureau',
+        'sa': False,
+        'frequency': 'quarterly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 65.0,
+            'comparison': 'context',
+            'text': "The long-run average homeownership rate is around 65%. Peaked at 69% before the 2008 crisis, bottomed at 63% in 2016.",
+        },
+        'bullets': [
+            'The homeownership rate measures the percentage of households that own their home rather than rent. It reflects affordability, access to credit, demographic trends, and cultural preferences.',
+            'Homeownership peaked at 69% in 2004 during the housing bubble, then fell to 63% by 2016 as foreclosures and tighter lending took their toll. It has since recovered to around 65-66%, near the historical average.'
+        ]
+    },
+    'RHVRUSQ156N': {
+        'name': 'Homeowner Vacancy Rate',
+        'unit': 'Percent',
+        'source': 'U.S. Census Bureau',
+        'sa': False,
+        'frequency': 'quarterly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 1.5,
+            'comparison': 'above',
+            'text': "Normal vacancy is around 1.5%. Above 2.5% signals oversupply; below 1% indicates very tight market.",
+        },
+        'bullets': [
+            'The homeowner vacancy rate measures the percentage of for-sale homes that are vacant. Low vacancy indicates strong demand and limited inventory; high vacancy suggests oversupply or weak demand.',
+            'This rate spiked above 2.8% during the 2008-2010 foreclosure crisis as unsold homes flooded the market. It has since fallen to historic lows below 1%, reflecting the severe housing shortage.'
+        ]
+    },
+    'RRVRUSQ156N': {
+        'name': 'Rental Vacancy Rate',
+        'unit': 'Percent',
+        'source': 'U.S. Census Bureau',
+        'sa': False,
+        'frequency': 'quarterly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 7.0,
+            'comparison': 'context',
+            'text': "Normal rental vacancy is 6-8%. Below 5% indicates very tight rental market with upward pressure on rents.",
+        },
+        'bullets': [
+            'The rental vacancy rate measures the percentage of rental units that are vacant and available. Low vacancy gives landlords pricing power and pushes rents higher; high vacancy favors renters.',
+            'Rental vacancy has been low since 2021, contributing to rapid rent increases. Tight rental markets often reflect housing undersupply, population growth, or high homeownership costs pushing people to rent.'
+        ]
+    },
+
+    # Construction Pipeline
+    'COMPUTSA': {
+        'name': 'Housing Units Completed',
+        'unit': 'Thousands of Units (Annual Rate)',
+        'source': 'U.S. Census Bureau',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Housing completions measure when new residential units are actually finished and ready for occupancy. This is the final stage of the construction pipeline after permits and starts.',
+            'Completions lag starts by 6-12 months depending on construction type. Multifamily buildings take longer to complete than single-family homes. Rising completions add to housing supply and can moderate price growth.'
+        ]
+    },
+    'UNDCONTSA': {
+        'name': 'Housing Units Under Construction',
+        'unit': 'Thousands of Units',
+        'source': 'U.S. Census Bureau',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Units under construction measures homes currently being built—started but not yet completed. This is the construction pipeline that will become future housing supply.',
+            'A large pipeline suggests more supply coming to market, which could moderate prices. Extended construction times (from labor or material shortages) can keep units "under construction" longer, delaying supply relief.'
+        ]
+    },
+    'PRRESCONS': {
+        'name': 'Private Residential Construction Spending',
+        'unit': 'Millions of Dollars (Annual Rate)',
+        'source': 'U.S. Census Bureau',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Residential construction spending measures total investment in new homes, improvements, and additions. It captures the economic activity generated by housing construction.',
+            'This series includes both new construction and improvements to existing homes. It\'s a key component of GDP and reflects both housing demand and construction costs (labor and materials).'
+        ]
+    },
+
+    # Affordability
+    'FIXHAI': {
+        'name': 'Housing Affordability Index',
+        'unit': 'Index',
+        'source': 'National Association of Realtors',
+        'sa': False,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'benchmark': {
+            'value': 100,
+            'comparison': 'below',
+            'text': "Index of 100 means a median-income family can exactly afford the median home. Above 100 = more affordable; below 100 = less affordable.",
+        },
+        'bullets': [
+            'The Housing Affordability Index combines home prices, mortgage rates, and median family income into a single measure. An index of 100 means a median-income family has exactly enough to qualify for a median-priced home.',
+            'Higher values mean housing is more affordable; lower values mean it\'s less affordable. The index fell sharply in 2022-23 as rates rose and prices stayed high, reaching the lowest levels since the 1980s.'
+        ]
+    },
+
+    # Metro Case-Shiller Indexes
+    'SFXRSA': {
+        'name': 'Case-Shiller Home Price Index: San Francisco',
+        'unit': 'Index Jan 2000=100',
+        'source': 'S&P Dow Jones Indices',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'SF Home Price Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks home prices in the San Francisco metro area using the Case-Shiller repeat-sales methodology.',
+            'San Francisco has some of the highest home prices in the nation, driven by tech industry wealth and constrained housing supply. Prices are highly sensitive to tech sector performance and interest rates.'
+        ]
+    },
+    'LXXRSA': {
+        'name': 'Case-Shiller Home Price Index: Los Angeles',
+        'unit': 'Index Jan 2000=100',
+        'source': 'S&P Dow Jones Indices',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'LA Home Price Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks home prices in the Los Angeles metro area using the Case-Shiller repeat-sales methodology.',
+            'LA is one of the least affordable major markets due to high prices relative to local incomes. The market experienced dramatic boom-bust cycles in both the early 1990s and 2008 financial crisis.'
+        ]
+    },
+    'NYXRSA': {
+        'name': 'Case-Shiller Home Price Index: New York',
+        'unit': 'Index Jan 2000=100',
+        'source': 'S&P Dow Jones Indices',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'NYC Home Price Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks home prices in the New York metro area using the Case-Shiller repeat-sales methodology.',
+            'New York prices tend to be more stable than other coastal metros, with smaller boom-bust swings. The market is driven by finance industry wealth and severe land constraints in Manhattan.'
+        ]
+    },
+    'CHXRSA': {
+        'name': 'Case-Shiller Home Price Index: Chicago',
+        'unit': 'Index Jan 2000=100',
+        'source': 'S&P Dow Jones Indices',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Chicago Home Price Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks home prices in the Chicago metro area using the Case-Shiller repeat-sales methodology.',
+            'Chicago has more moderate price levels than coastal cities, with prices that never fully recovered to pre-2008 peaks until recently. The market reflects Midwest economics and less constrained land supply.'
+        ]
+    },
+    'MIXRSA': {
+        'name': 'Case-Shiller Home Price Index: Miami',
+        'unit': 'Index Jan 2000=100',
+        'source': 'S&P Dow Jones Indices',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Miami Home Price Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks home prices in the Miami metro area using the Case-Shiller repeat-sales methodology.',
+            'Miami experienced one of the most extreme boom-bust cycles in 2008 and has seen strong appreciation since 2020 driven by pandemic migration from high-tax states.'
+        ]
+    },
+    'DAXRSA': {
+        'name': 'Case-Shiller Home Price Index: Dallas',
+        'unit': 'Index Jan 2000=100',
+        'source': 'S&P Dow Jones Indices',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Dallas Home Price Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks home prices in the Dallas metro area using the Case-Shiller repeat-sales methodology.',
+            'Dallas avoided the 2008 crash that hit coastal markets due to more conservative lending and abundant land for development. Has seen strong growth since 2020 from corporate relocations and population influx.'
+        ]
+    },
+    'SEXRSA': {
+        'name': 'Case-Shiller Home Price Index: Seattle',
+        'unit': 'Index Jan 2000=100',
+        'source': 'S&P Dow Jones Indices',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Seattle Home Price Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks home prices in the Seattle metro area using the Case-Shiller repeat-sales methodology.',
+            'Seattle prices are driven by tech industry wealth (Amazon, Microsoft) and geographic constraints. One of the fastest-appreciating markets of the 2010s.'
+        ]
+    },
+    'PHXRSA': {
+        'name': 'Case-Shiller Home Price Index: Phoenix',
+        'unit': 'Index Jan 2000=100',
+        'source': 'S&P Dow Jones Indices',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Phoenix Home Price Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Tracks home prices in the Phoenix metro area using the Case-Shiller repeat-sales methodology.',
+            'Phoenix experienced the most extreme boom-bust of any major market in 2008. Has seen rapid appreciation since 2020 due to remote work migration and relative affordability compared to California.'
         ]
     },
 
@@ -989,6 +1769,78 @@ SERIES_DB = {
             'Important caveats: This series is highly volatile month-to-month and subject to significant revisions. Look at 3-month trends rather than single months. Also note this is nominal (not inflation-adjusted), so real spending growth requires comparing against price increases.'
         ]
     },
+    'PSAVERT': {
+        'name': 'Personal Saving Rate',
+        'unit': 'Percent',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 7.0,
+            'comparison': 'below',
+            'text': "The long-run average is around 7%. Rates below 5% suggest stretched consumers; above 10% indicates elevated caution or forced saving.",
+        },
+        'bullets': [
+            'Shows what percentage of after-tax income Americans save rather than spend. The savings rate reflects both consumer confidence and financial cushion—low rates may signal households are stretched or confident; high rates often indicate uncertainty or inability to spend (as during lockdowns).',
+            'Historical context: The savings rate spiked to 33% in April 2020 when pandemic stimulus arrived but spending opportunities vanished. It then fell below 3% in 2022 as inflation eroded purchasing power and households drew down savings. Rates persistently below 5% can signal vulnerability—less buffer if job losses or unexpected expenses hit.'
+        ]
+    },
+
+    # Consumer Credit & Debt
+    'TOTALSL': {
+        'name': 'Total Consumer Credit Outstanding',
+        'unit': 'Billions of Dollars',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Total consumer credit includes all short- and intermediate-term credit extended to individuals, excluding loans secured by real estate. This covers credit cards, auto loans, student loans, and other personal loans.',
+            'Rising consumer credit can indicate confidence and spending power, but rapid growth may signal overextension. Total consumer credit topped $5 trillion in 2023, with growth driven largely by auto and student loans.'
+        ]
+    },
+    'REVOLSL': {
+        'name': 'Revolving Consumer Credit Outstanding',
+        'unit': 'Billions of Dollars',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Revolving credit is primarily credit card debt—credit that can be borrowed, repaid, and borrowed again. It\'s the most flexible and typically highest-interest form of consumer debt.',
+            'Credit card balances are a real-time indicator of consumer financial stress. Balances that grow faster than incomes may indicate stretched households relying on expensive credit to maintain spending.'
+        ]
+    },
+    'NONREVSL': {
+        'name': 'Nonrevolving Consumer Credit Outstanding',
+        'unit': 'Billions of Dollars',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'bullets': [
+            'Nonrevolving credit includes auto loans, student loans, and other installment loans with fixed payment schedules. These are typically larger, longer-term obligations than credit card debt.',
+            'Auto loan growth signals vehicle affordability and consumer confidence in making major purchases. Student loan growth reflects education costs and financing trends. Together they represent the bulk of non-mortgage consumer debt.'
+        ]
+    },
+    'TDSP': {
+        'name': 'Household Debt Service Payments as % of Disposable Income',
+        'unit': 'Percent',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 10.0,
+            'comparison': 'above',
+            'text': "Debt service above 12% historically signals stressed households. Below 10% suggests manageable debt loads.",
+        },
+        'bullets': [
+            'This ratio shows what percentage of after-tax income goes to required debt payments (mortgage and consumer debt). It\'s a key measure of household financial health and debt burden.',
+            'The debt service ratio peaked near 13% before the 2008 financial crisis, then fell to historic lows around 9% as households deleveraged and rates stayed low. Rising rates push this ratio higher even without new borrowing.'
+        ]
+    },
 
     # Stocks
     'SP500': {
@@ -1001,6 +1853,114 @@ SERIES_DB = {
         'bullets': [
             'The S&P 500 is the most widely followed stock market index in the world—the closest thing to a single number for "the stock market." It tracks 500 of the largest U.S. companies, representing roughly $40 trillion in market value and about 80% of total U.S. stock market capitalization.',
             'Stock prices are forward-looking, reflecting expectations about future corporate profits. The long-term average return is roughly 10% annually (7% after inflation), but with significant volatility. Stock wealth affects consumer spending: rising markets create a "wealth effect" that boosts confidence and spending, while crashes do the opposite.'
+        ]
+    },
+
+    # Industrial Production & Manufacturing
+    'INDPRO': {
+        'name': 'Industrial Production Index',
+        'unit': 'Index 2017=100',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Industrial Production Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Measures real output of the manufacturing, mining, and electric and gas utilities industries. This is the primary measure of industrial activity in the U.S.',
+            'Industrial production is more cyclical than GDP and often signals turning points earlier. A sustained decline often precedes or accompanies recession.'
+        ]
+    },
+    'IPMAN': {
+        'name': 'Industrial Production: Manufacturing',
+        'unit': 'Index 2017=100',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Manufacturing Output Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Measures physical output of the manufacturing sector specifically, excluding mining and utilities.',
+            'Manufacturing output is closely watched as a barometer of goods-producing activity and global trade competitiveness.'
+        ]
+    },
+    'TCU': {
+        'name': 'Capacity Utilization: Total Industry',
+        'unit': 'Percent of Capacity',
+        'source': 'Board of Governors of the Federal Reserve System',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 80.0,
+            'comparison': 'above',
+            'text': "Capacity utilization above 80% historically signals inflationary pressure; below 75% indicates significant slack.",
+        },
+        'bullets': [
+            'Shows what percentage of industrial capacity is being used. High utilization (above 80%) can signal inflationary pressure as firms hit production limits.',
+            'Low capacity utilization indicates economic slack and room for growth without inflation. The long-run average is around 78-80%.'
+        ]
+    },
+
+    # Leading Indicators
+    'USSLIND': {
+        'name': 'Leading Index for the United States',
+        'unit': 'Percent',
+        'source': 'Federal Reserve Bank of Philadelphia',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'benchmark': {
+            'value': 0.0,
+            'comparison': 'below',
+            'text': "Negative readings signal expected economic contraction in the coming months.",
+        },
+        'bullets': [
+            'The Leading Index forecasts economic growth 6 months ahead. It combines multiple indicators including housing permits, initial claims, and interest rate spreads into a single forward-looking measure.',
+            'Persistently negative readings have preceded recessions, though false signals do occur. The index is more reliable for predicting slowdowns than for timing the exact onset of recession.'
+        ]
+    },
+    'CFNAI': {
+        'name': 'Chicago Fed National Activity Index',
+        'unit': 'Index',
+        'source': 'Federal Reserve Bank of Chicago',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'benchmark': {
+            'value': -0.7,
+            'comparison': 'below',
+            'text': "Readings below -0.7 following a period of growth have historically been associated with recession.",
+        },
+        'bullets': [
+            'The CFNAI is a weighted average of 85 monthly indicators of national economic activity. A zero value means the economy is expanding at its historical trend; positive indicates above-trend growth.',
+            'The 3-month moving average (CFNAIMA3) is often preferred for reducing volatility. Readings above +0.7 may signal emerging inflationary pressure; below -0.7 following expansion suggests recession risk.'
+        ]
+    },
+
+    # Productivity
+    'OPHNFB': {
+        'name': 'Nonfarm Business Sector: Labor Productivity',
+        'unit': 'Index 2017=100',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'index',
+        'show_yoy': True,
+        'yoy_name': 'Labor Productivity Growth',
+        'yoy_unit': '% Change YoY',
+        'benchmark': {
+            'value': 2.0,
+            'comparison': 'above',
+            'text': "Long-run productivity growth averages 1.5-2% annually. Higher rates signal efficiency gains; sustained low rates limit real wage growth.",
+            'applies_to_yoy': True,
+        },
+        'bullets': [
+            'Labor productivity measures output per hour worked—the key to rising living standards over time. When workers produce more per hour, businesses can pay higher real wages without raising prices.',
+            'Productivity growth averaged 2.8% in the 1950s-60s, slowed to 1.5% from 1973-1995, surged to 2.5% during the late-1990s tech boom, then returned to ~1.5% through 2019. Some economists see AI potentially driving a new productivity acceleration.'
         ]
     },
 
@@ -1039,6 +1999,114 @@ SERIES_DB = {
         'bullets': [
             'One of the most dramatic economic transformations of the 20th century: women\'s labor force participation rose from 34% in 1950 to peak at 60% in 2000. This massive increase in the workforce powered decades of economic growth.',
             'After 2000, participation plateaued and slightly declined—unlike in peer countries where it continued rising. Researchers point to the U.S. lack of paid family leave, affordable childcare, and workplace flexibility policies that other developed nations provide. COVID caused a sharp drop as women absorbed caregiving responsibilities, though most of this decline has since reversed.'
+        ]
+    },
+
+    # Demographics - Men
+    'LNS14000001': {
+        'name': 'Unemployment Rate - Men',
+        'unit': 'Percent',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'bullets': [
+            'Tracks unemployment specifically for men aged 16 and over. Men\'s unemployment tends to be more cyclical than women\'s, rising faster during recessions (particularly in construction and manufacturing downturns) and falling faster in recoveries.',
+            'Historically, men had lower unemployment rates than women, but this pattern reversed in recent decades. Since 2010, women\'s unemployment has often been equal to or lower than men\'s, reflecting structural shifts in the economy toward service-sector jobs where women are more concentrated.'
+        ]
+    },
+    'LNS12300061': {
+        'name': 'Prime-Age Employment-Population Ratio - Men (25-54)',
+        'unit': 'Percent',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 86.0,
+            'comparison': 'below',
+            'text': "Prime-age men's employment ratio peaked at ~89% in the late 1990s. Levels below 86% indicate significant labor market weakness for men.",
+        },
+        'bullets': [
+            'The share of men aged 25-54 who are employed—the single best measure of men\'s labor market health. This metric has shown a troubling long-term decline, falling from 94% in 1960 to around 86% today.',
+            'The decline reflects structural changes: manufacturing job losses, increased disability claims, opioid crisis impacts, and rising incarceration. Unlike the unemployment rate, this measure captures men who have dropped out of the labor force entirely—a significant and often overlooked economic and social challenge.'
+        ]
+    },
+    'LNS11300001': {
+        'name': 'Labor Force Participation Rate - Men',
+        'unit': 'Percent',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'bullets': [
+            'The share of men aged 16 and over who are either working or actively looking for work. Men\'s participation has been declining steadily for decades—from 86% in 1950 to around 68% today.',
+            'This long-term decline has multiple causes: more men pursuing higher education, earlier retirement, rising disability enrollment, and discouraged workers dropping out. The decline is most pronounced among men without college degrees, reflecting the changing nature of the American economy.'
+        ]
+    },
+
+    # Demographics - By Race
+    'LNS14000003': {
+        'name': 'Unemployment Rate - White',
+        'unit': 'Percent',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'bullets': [
+            'Unemployment rate for White workers. This serves as a baseline for comparing labor market outcomes across racial groups, as White workers make up the largest share of the U.S. workforce.',
+            'White unemployment is typically lower than the overall rate and substantially lower than Black or Hispanic unemployment. During the pre-pandemic period of 2019, White unemployment fell to historic lows around 3.0%.'
+        ]
+    },
+    'LNS14000006': {
+        'name': 'Unemployment Rate - Black or African American',
+        'unit': 'Percent',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 6.0,
+            'comparison': 'above',
+            'text': "Black unemployment below 6% is historically exceptional—it only first occurred in 2019. The historical average is around 10-12%.",
+        },
+        'bullets': [
+            'Unemployment rate for Black or African American workers. Black unemployment has historically run about twice the White unemployment rate—a persistent gap that has existed since this data began in 1972.',
+            'This gap reflects systemic barriers including discrimination, geographic concentration in areas with fewer jobs, lower access to professional networks, and disparities in educational and training opportunities. When Black unemployment falls below 6%, as it did briefly in 2019 and again in 2023, it represents a historically strong labor market for Black workers.'
+        ]
+    },
+    'LNS14000009': {
+        'name': 'Unemployment Rate - Hispanic or Latino',
+        'unit': 'Percent',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 5.0,
+            'comparison': 'above',
+            'text': "Hispanic unemployment below 5% indicates a very strong labor market. The historical average is around 7-8%.",
+        },
+        'bullets': [
+            'Unemployment rate for Hispanic or Latino workers. Hispanic unemployment typically falls between White and Black rates, though this gap has narrowed over time.',
+            'Hispanic workers are heavily concentrated in construction, agriculture, and service industries—sectors that are particularly cyclical. This means Hispanic unemployment often rises faster during recessions and falls faster during recoveries. In recent years, Hispanic unemployment has reached historic lows, sometimes falling below the overall rate.'
+        ]
+    },
+    'U6RATE': {
+        'name': 'U-6 Unemployment Rate (Broad)',
+        'unit': 'Percent',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 8.0,
+            'comparison': 'above',
+            'text': "U-6 below 8% indicates a healthy labor market. It typically runs 3-4 percentage points above the headline U-3 rate.",
+        },
+        'bullets': [
+            'The broadest measure of unemployment, including: (1) unemployed workers, (2) discouraged workers who have stopped looking, (3) other marginally attached workers, and (4) part-time workers who want full-time jobs. This captures labor market slack that the headline U-3 rate misses.',
+            'U-6 is sometimes called the "real" unemployment rate because it includes people who want to work more but can\'t find opportunities. It typically runs 3-4 percentage points above the headline rate. During the depths of the 2009 recession, U-6 peaked at nearly 18%, even as the headline rate showed "only" 10%.'
         ]
     },
 
@@ -1113,11 +2181,17 @@ QUERY_MAP = {
     'rent inflation': {'series': ['CUSR0000SAH1'], 'combine': False},
     'shelter': {'series': ['CUSR0000SAH1'], 'combine': False},
 
-    # GDP - Always show growth rate (what users expect, the news headline)
-    'gdp': {'series': ['A191RL1Q225SBEA'], 'combine': False},
-    'gdp growth': {'series': ['A191RL1Q225SBEA'], 'combine': False},
-    'economic growth': {'series': ['A191RL1Q225SBEA'], 'combine': False},
-    'real gdp': {'series': ['A191RL1Q225SBEA'], 'combine': False},
+    # GDP - Show both quarterly and year-over-year growth rates
+    'gdp': {'series': ['A191RL1Q225SBEA', 'A191RO1Q156NBEA'], 'combine': True},
+    'gdp growth': {'series': ['A191RL1Q225SBEA', 'A191RO1Q156NBEA'], 'combine': True},
+    'economic growth': {'series': ['A191RL1Q225SBEA', 'A191RO1Q156NBEA'], 'combine': True},
+    'real gdp': {'series': ['GDPC1'], 'combine': False},
+    'annual gdp': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
+    'annual gdp growth': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
+    'yearly gdp': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
+    'core gdp': {'series': ['PB0000031Q225SBEA'], 'combine': False},
+    'private demand': {'series': ['PB0000031Q225SBEA'], 'combine': False},
+    'final sales': {'series': ['PB0000031Q225SBEA'], 'combine': False},
 
     # Interest rates
     'interest rates': {'series': ['FEDFUNDS', 'DGS10'], 'combine': True},
@@ -1220,8 +2294,11 @@ IMPORTANT: For ANY topic you don't have memorized series IDs for, ALWAYS provide
 - CUSR0000SETB01 = CPI Gasoline
 
 ### GDP & Output
-- GDPC1 = Real GDP
-- A191RL1Q225SBEA = Real GDP growth rate
+- GDPC1 = Real GDP level (billions of chained 2017 dollars)
+- A191RL1Q225SBEA = Real GDP growth rate (quarterly, annualized) - the headline number
+- A191RO1Q156NBEA = Real GDP growth (quarter vs same quarter last year) - more stable, shows 12-month trend
+- A191RL1A225NBEA = Annual real GDP growth (full year vs prior year) - the definitive annual measure
+- PB0000031Q225SBEA = Real Final Sales to Private Domestic Purchasers ("core GDP") - excludes volatile gov't, trade, inventories; better predictor of future growth per CEA
 - INDPRO = Industrial production
 
 ### Interest Rates
@@ -1436,15 +2513,41 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
         latest = values[-1]
         latest_date = dates[-1]
 
-        # Calculate some basic stats
-        if len(values) >= 12:
-            year_ago_val = values[-12] if len(values) >= 12 else values[0]
+        # For payroll changes, use original values for YoY calculation
+        # (transformed data is monthly changes, not levels)
+        monthly_change = None
+        avg_3mo_change = None
+        avg_12mo_change = None
+
+        if info.get('is_payroll_change') and info.get('original_values'):
+            orig_values = info['original_values']
+            # Monthly changes from original data
+            if len(orig_values) >= 2:
+                monthly_change = orig_values[-1] - orig_values[-2]
+            if len(orig_values) >= 4:
+                # Average of last 3 months
+                changes_3mo = [orig_values[i] - orig_values[i-1] for i in range(-3, 0)]
+                avg_3mo_change = sum(changes_3mo) / 3
+            if len(orig_values) >= 13:
+                # Average of last 12 months
+                changes_12mo = [orig_values[i] - orig_values[i-1] for i in range(-12, 0)]
+                avg_12mo_change = sum(changes_12mo) / 12
+                yoy_change = orig_values[-1] - orig_values[-12]
+            else:
+                yoy_change = None
+            # Also report the original latest value (total jobs)
+            latest = orig_values[-1]
+            unit = 'Thousands of Persons'
+            name = info.get('original_name', 'Total Nonfarm Payrolls')
+        elif len(values) >= 12:
+            year_ago_val = values[-12]
             yoy_change = latest - year_ago_val
         else:
             yoy_change = None
 
-        # Get min/max in recent period
-        recent_vals = values[-60:] if len(values) >= 60 else values  # Last 5 years
+        # Get min/max in recent period (use original values for payroll changes)
+        vals_for_stats = info.get('original_values', values) if info.get('is_payroll_change') else values
+        recent_vals = vals_for_stats[-60:] if len(vals_for_stats) >= 60 else vals_for_stats
         recent_min = min(recent_vals)
         recent_max = max(recent_vals)
 
@@ -1458,6 +2561,15 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
             'recent_5yr_min': round(recent_min, 2),
             'recent_5yr_max': round(recent_max, 2),
         }
+
+        # Add job growth stats for payroll data
+        if monthly_change is not None:
+            summary['monthly_job_change'] = round(monthly_change, 1)
+        if avg_3mo_change is not None:
+            summary['avg_monthly_change_3mo'] = round(avg_3mo_change, 1)
+        if avg_12mo_change is not None:
+            summary['avg_monthly_change_12mo'] = round(avg_12mo_change, 1)
+
         data_summary.append(summary)
 
     prompt = f"""You are an expert economist reviewing data for a user query. Your job is to write a clear, insightful 2-3 sentence explanation.
@@ -1475,9 +2587,9 @@ Write an improved explanation that:
 3. Answers the user's actual question directly
 4. Avoids jargon - write for a general audience
 5. Is factual and objective - no speculation or predictions
-6. For employment data, focus on monthly JOB GROWTH (change), not total levels - total jobs always grows with population
+6. For employment/payroll data: Focus on job GROWTH, not total levels. If monthly_job_change, avg_monthly_change_3mo, and avg_monthly_change_12mo are provided, mention: (a) the latest month's job gain/loss, (b) the 3-month average, and (c) the 12-month average. These are in thousands, so 150.0 = 150,000 jobs. Context: The economy needs ~100-150K jobs/month to keep up with population growth.
 
-Keep it to 2-3 concise sentences. Do not use bullet points. Just return the explanation text, nothing else."""
+Keep it to 3-4 concise sentences. Do not use bullet points. Just return the explanation text, nothing else."""
 
     url = 'https://api.anthropic.com/v1/messages'
     payload = {
@@ -1889,13 +3001,24 @@ def main():
 
     st.markdown("""
     <style>
-    /* Color palette: Primary #1F4FD8, Secondary #4B5563, Accent #22C55E, Warning #F59E0B */
-    @import url('https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&display=swap');
-    .stApp { font-family: 'Source Serif Pro', Georgia, serif; background-color: #fafafa; color: #1f2937 !important; }
-    .stApp p, .stApp span, .stApp div, .stApp li, .stApp label { color: #1f2937; }
-    .stApp h1, .stApp h2, .stApp h3, .stApp h4 { color: #111827 !important; }
-    h1 { font-weight: 400 !important; text-align: center; }
-    .subtitle { text-align: center; color: #4B5563; margin-top: -15px; margin-bottom: 20px; }
+    /* Color palette: Primary #2563eb, Secondary #4B5563, Accent #22C55E, Warning #F59E0B */
+    @import url('https://fonts.googleapis.com/css2?family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+    .stApp {
+        font-family: 'Source Serif Pro', Georgia, serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+        color: #1a1a2e !important;
+        min-height: 100vh;
+    }
+    .stApp p, .stApp span, .stApp div, .stApp li, .stApp label { color: #1a1a2e; }
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4 { color: #1a1a2e !important; }
+    h1 {
+        font-weight: 300 !important;
+        font-style: italic !important;
+        text-align: center;
+        font-size: 3.5rem !important;
+        letter-spacing: -1px;
+    }
+    .subtitle { text-align: center; color: #555; margin-top: -10px; margin-bottom: 20px; font-size: 1.1rem; }
     .header-divider { border-bottom: 1px solid #e5e7eb; margin-bottom: 25px; padding-bottom: 15px; }
     .narrative-box { background: #fff; border: 1px solid #e5e7eb; padding: 20px 25px; border-radius: 6px; margin-bottom: 20px; }
     .narrative-box p { color: #1f2937; line-height: 1.7; margin-bottom: 10px; }
@@ -1922,21 +3045,137 @@ def main():
     [data-testid="stChatMessageAvatarAssistant"],
     [data-testid="stChatMessageAvatarUser"] { display: none !important; }
 
-    /* Button styles - white text on primary blue */
+    /* Category pill buttons */
     .stButton button[kind="primary"],
-    .stButton button[data-testid="baseButton-primary"] {
+    .stButton button[data-testid="baseButton-primary"],
+    button[kind="primary"],
+    button.st-emotion-cache-primary,
+    .stFormSubmitButton button {
         color: #ffffff !important;
-        background-color: #1F4FD8 !important;
+        background-color: #2563eb !important;
         border: none !important;
+        border-radius: 25px !important;
     }
     .stButton button[kind="primary"]:hover,
-    .stButton button[data-testid="baseButton-primary"]:hover {
-        background-color: #1a43b8 !important;
+    .stButton button[data-testid="baseButton-primary"]:hover,
+    button[kind="primary"]:hover,
+    .stFormSubmitButton button:hover {
+        color: #ffffff !important;
+        background-color: #1d4ed8 !important;
     }
-    /* Secondary/default buttons */
-    .stButton button {
-        color: #1f2937 !important;
-        border-color: #d1d5db !important;
+    /* Category pill buttons - default state */
+    .stButton button:not([kind="primary"]) {
+        color: #344054 !important;
+        background-color: white !important;
+        border: 1.5px solid #d0d5dd !important;
+        border-radius: 25px !important;
+        padding: 0.6rem 1.5rem !important;
+        font-size: 0.95rem !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton button:not([kind="primary"]):hover {
+        border-color: #2563eb !important;
+        color: #2563eb !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+        background-color: white !important;
+    }
+
+    /* Example queries section */
+    .examples-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        margin-top: 1rem;
+    }
+    .examples-header {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6b7280;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        font-style: normal !important;
+    }
+    .example-query {
+        padding: 0.8rem 1rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-size: 0.9rem;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+    .example-query:hover {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1e40af;
+    }
+    /* Example query buttons - override pill style */
+    .examples-section + div .stButton button,
+    div[data-testid="column"] .stButton button[key^="example"] {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        color: #475569 !important;
+        text-align: left !important;
+        font-style: normal !important;
+        padding: 0.8rem 1rem !important;
+    }
+    .examples-section + div .stButton button:hover,
+    div[data-testid="column"] .stButton button[key^="example"]:hover {
+        background: #eff6ff !important;
+        border-color: #bfdbfe !important;
+        color: #1e40af !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Helper text under search */
+    .helper-text {
+        text-align: center;
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        font-style: normal !important;
+    }
+
+    /* Search bar - clean box design matching mockup */
+    .search-wrapper {
+        margin: 20px 0 10px 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+    }
+    div[data-testid="stTextInput"] input {
+        background: #ffffff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-size: 1rem !important;
+        padding: 1.1rem 1.5rem !important;
+        box-shadow: none !important;
+        transition: none !important;
+    }
+    div[data-testid="stTextInput"] input:focus {
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    div[data-testid="stTextInput"] input::placeholder {
+        color: #9ca3af !important;
+    }
+    /* Hide Streamlit's default input wrapper styling */
+    div[data-testid="stTextInput"] > div {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+    div[data-testid="stTextInput"] label {
+        display: none !important;
     }
 
     /* Mobile responsive styles */
@@ -1946,12 +3185,33 @@ def main():
         .chart-title { font-size: 1rem; }
         .chart-bullets { font-size: 0.9rem; margin-left: 15px; }
         .source-line { padding: 8px 15px; font-size: 0.8rem; }
-        h1 { font-size: 1.5rem !important; }
-        .subtitle { font-size: 0.9rem; }
+        h1 { font-size: 2.5rem !important; }
+        .subtitle { font-size: 0.95rem; }
         /* Prevent horizontal scroll */
         .stApp { overflow-x: hidden; }
-        /* Make buttons more touch-friendly */
-        .stButton button { min-height: 44px; padding: 8px 16px; }
+        /* Search bar on mobile */
+        .search-wrapper { margin: 15px 0 10px 0; }
+        div[data-testid="stTextInput"] input {
+            font-size: 16px !important;  /* Prevents iOS zoom */
+            padding: 1rem 1.25rem !important;
+            border-radius: 12px !important;
+        }
+        /* Category pill buttons on mobile */
+        .stButton button {
+            min-height: 44px !important;
+            font-size: 0.85rem !important;
+            padding: 0.5rem 1rem !important;
+        }
+        /* Examples section on mobile */
+        .examples-section { padding: 1rem; }
+        .example-query { font-size: 0.85rem; padding: 0.7rem 0.9rem; }
+        /* Hide sidebar on mobile */
+        section[data-testid="stSidebar"] { display: none; }
+    }
+    /* Very small screens */
+    @media (max-width: 480px) {
+        h1 { font-size: 2rem !important; }
+        .subtitle { font-size: 0.85rem; margin-bottom: 10px !important; }
     }
     </style>
     """, unsafe_allow_html=True)
@@ -2026,20 +3286,43 @@ def main():
 
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
-        # SEARCH BAR MODE - clean, simple interface
-        # Always show search bar so users can enter new queries
-        search_col, btn_col = st.columns([5, 1])
-        with search_col:
-            text_query = st.text_input(
-                "Search",
-                placeholder="Ask about the economy (e.g., inflation, jobs, GDP, housing)",
-                label_visibility="collapsed",
-                key="search_input"
-            )
-        with btn_col:
-            st.button("Search", type="primary", use_container_width=True)
-            # Enter key in text_input automatically submits
-        # Use text input if no pending query from button click
+        # SEARCH BAR MODE - single clean input field (no button needed, Enter submits)
+        st.markdown('<div class="search-wrapper">', unsafe_allow_html=True)
+        text_query = st.text_input(
+            "Search",
+            placeholder="Ask about the economy... (press Enter)",
+            label_visibility="collapsed",
+            key="search_input"
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # Helper text
+        st.markdown('<p class="helper-text">Ask questions in plain English — we\'ll pull the latest government data and explain what it means.</p>', unsafe_allow_html=True)
+
+        # Example queries section - only show when no results yet
+        if not st.session_state.last_query:
+            st.markdown('''
+            <div class="examples-section">
+                <div class="examples-header">Try these questions</div>
+            </div>
+            ''', unsafe_allow_html=True)
+
+            # Example query buttons in a grid
+            example_queries = [
+                "How is the economy?",
+                "Are wages keeping up with inflation?",
+                "Is the labor market cooling off?",
+                "How tight is the job market right now?",
+                "Is rent inflation coming down yet?",
+                "Compare the job market to pre-pandemic"
+            ]
+            cols = st.columns(2)
+            for i, eq in enumerate(example_queries):
+                with cols[i % 2]:
+                    if st.button(f"→ {eq}", key=f"example_{i}", use_container_width=True):
+                        st.session_state.pending_query = eq
+                        st.rerun()
+
         if not query:
             query = text_query
     else:
@@ -2084,8 +3367,8 @@ def main():
             }
 
         # First check pre-computed query plans (fast, no API call needed)
-        query_lower = query.lower().strip()
-        precomputed_plan = QUERY_PLANS.get(query_lower)
+        # Uses smart matching: normalization + fuzzy matching for typos
+        precomputed_plan = find_query_plan(query)
 
         # Check if this looks like a follow-up command (transformation, time range, etc.)
         local_parsed = parse_followup_command(query, st.session_state.last_series) if previous_context else None
@@ -2126,6 +3409,7 @@ def main():
                 'chart_type': local_parsed.get('chart_type'),
                 'normalize': local_parsed.get('normalize', False),
                 'pct_change_from_start': local_parsed.get('pct_change_from_start', False),
+                'filter_end_date': local_parsed.get('filter_end_date'),
             }
         else:
             # Fall back to Claude for unknown queries or follow-ups
@@ -2136,8 +3420,17 @@ def main():
         ai_explanation = interpretation.get('explanation', '')
         series_to_fetch = list(interpretation.get('series', []))  # Copy the list
         combine = interpretation.get('combine_chart', False)
-        show_yoy = interpretation.get('show_yoy', False)
-        show_yoy_series = interpretation.get('show_yoy_series', [])  # Specific series to apply YoY to
+
+        # Handle show_yoy - can be boolean OR array like [False, False, True]
+        show_yoy_config = interpretation.get('show_yoy', False)
+        if isinstance(show_yoy_config, list):
+            # Array-style: map True values to their corresponding series IDs
+            show_yoy = False  # Don't apply globally
+            show_yoy_series = [series_to_fetch[i] for i, apply_yoy in enumerate(show_yoy_config)
+                              if apply_yoy and i < len(series_to_fetch)]
+        else:
+            show_yoy = show_yoy_config
+            show_yoy_series = interpretation.get('show_yoy_series', [])  # Specific series to apply YoY to
         show_mom = interpretation.get('show_mom', False)
         show_avg_annual = interpretation.get('show_avg_annual', False)
         show_payroll_changes = interpretation.get('show_payroll_changes', False)
@@ -2159,6 +3452,9 @@ def main():
 
         # Handle percent change from start (cumulative change)
         pct_change_from_start = interpretation.get('pct_change_from_start', False)
+
+        # Handle date filtering (e.g., pre-covid filter)
+        filter_end_date = interpretation.get('filter_end_date')
 
         # Handle follow-up that keeps/adds to previous series
         if is_followup and (keep_previous_series or add_to_previous):
@@ -2218,6 +3514,17 @@ def main():
             for series_id in series_to_fetch[:4]:
                 dates, values, info = get_observations(series_id, years)
                 if dates and values:
+                    # Apply date filter if specified (e.g., pre-covid filter)
+                    if filter_end_date:
+                        filtered_dates, filtered_values = [], []
+                        for d, v in zip(dates, values):
+                            if d <= filter_end_date:
+                                filtered_dates.append(d)
+                                filtered_values.append(v)
+                        dates, values = filtered_dates, filtered_values
+                        if not dates:
+                            continue  # Skip series if no data in range
+
                     db_info = SERIES_DB.get(series_id, {})
                     series_name = info.get('name', info.get('title', series_id))
                     series_names_fetched.append(series_name)
@@ -2886,10 +4193,27 @@ def main():
         st.markdown('<span style="color: #666; font-size: 0.9em;">' + ' &bull; '.join(suggestions) + '</span>', unsafe_allow_html=True)
 
     elif not query:
-        # Show welcome message without bordered box
+        # Show welcome message with tappable example buttons (great for mobile)
         st.markdown("""
-        <p style='color: #666; margin-top: 20px;'>Ask questions about the economy in plain English, like "How is the economy doing?" or "What is inflation?"</p>
+        <p style='color: #666; margin-top: 15px; margin-bottom: 15px;'>Ask about the economy in plain English, or tap an example:</p>
         """, unsafe_allow_html=True)
+
+        # Example query buttons - 2 columns for mobile-friendly layout
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("📈 How is the economy?", use_container_width=True, key="ex1"):
+                st.session_state.pending_query = "how is the economy"
+                st.rerun()
+            if st.button("💼 Jobs report", use_container_width=True, key="ex3"):
+                st.session_state.pending_query = "jobs"
+                st.rerun()
+        with col2:
+            if st.button("💰 Inflation", use_container_width=True, key="ex2"):
+                st.session_state.pending_query = "inflation"
+                st.rerun()
+            if st.button("🏠 Housing market", use_container_width=True, key="ex4"):
+                st.session_state.pending_query = "housing market"
+                st.rerun()
 
 
 if __name__ == "__main__":

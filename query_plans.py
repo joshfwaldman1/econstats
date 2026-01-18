@@ -138,11 +138,11 @@ QUERY_PLANS = {
   "men unemployment": {
     "series": [
       "LNS14000001",
-      "LNS14000026"
+      "LNS12300061"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "LNS14000001 shows the overall unemployment rate for men 16+, while LNS14000026 shows unemployment for women 25-54 as a comparison point to understand how men's unemployment compares to prime-age women. This provides context for male unemployment performance in the labor market."
+    "combine_chart": False,
+    "explanation": "LNS14000001 shows the unemployment rate for men 16+, while LNS12300061 shows the employment-population ratio for prime-age men (25-54)—the best measure of men's labor market health since it captures both unemployment and labor force dropout. Prime-age employment ratio is the gold standard for assessing true employment conditions."
   },
   "male employment": {
     "series": [
@@ -583,9 +583,9 @@ QUERY_PLANS = {
       "JTSQUR",
       "JTSJOL"
     ],
-    "show_yoy": True,
-    "combine_chart": True,
-    "explanation": "JTSQUR (quits rate) directly measures job quits - the rate at which people voluntarily leave their jobs, which indicates worker confidence and labor market tightness. JTSJOL (job openings) provides crucial context since high quits typically coincide with abundant job opportunities. Together they show the 'Great Resignation' pattern and current quit dynamics relative to job availability."
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "JTSQUR (quits rate) directly measures job quits - the rate at which people voluntarily leave their jobs, which indicates worker confidence and labor market tightness. JTSJOL (job openings) provides crucial context since high quits typically coincide with abundant job opportunities. Shown separately since JTSQUR is a rate (%) while JTSJOL is a level (thousands)."
   },
   "quit rate": {
     "series": [
@@ -682,6 +682,7 @@ QUERY_PLANS = {
       "JTSJOL"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
     "explanation": "JTSHIR (hires rate) directly measures hiring activity - this is the most direct answer to your question. PAYEMS (total nonfarm payrolls) shows net job creation, which reflects successful hiring minus separations. JTSJOL (job openings) indicates employer demand and hiring intentions. Together, these three series paint the complete picture of hiring dynamics in the labor market."
   },
@@ -691,8 +692,8 @@ QUERY_PLANS = {
       "JTSQUR"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "JTSHIR is the direct measure of hiring rate from JOLTS data. JTSQUR (quits rate) is included because hiring and quits move together in healthy labor markets - when workers are confident about finding new jobs, they quit more, and when employers need workers, they hire more. These two rates together show labor market dynamism and worker mobility."
+    "combine_chart": False,
+    "explanation": "JTSHIR shows total hires from JOLTS data. JTSQUR (quits rate) shows worker mobility - when workers are confident about finding new jobs, they quit more. Shown separately since JTSHIR is in thousands while JTSQUR is a percent."
   },
   "job losses": {
     "series": [
@@ -700,6 +701,7 @@ QUERY_PLANS = {
       "ICSA"
     ],
     "show_yoy": False,
+    "show_payroll_changes": True,
     "combine_chart": False,
     "explanation": "PAYEMS (nonfarm payrolls) shows monthly net job changes - the definitive measure of job losses/gains from the establishment survey. ICSA (initial jobless claims) provides weekly real-time data on new unemployment filings, serving as the most immediate indicator of job losses as they happen."
   },
@@ -777,8 +779,8 @@ QUERY_PLANS = {
       "PSAVERT"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "These three series provide the most comprehensive view of overall consumer health: UMCSENT (University of Michigan Consumer Sentiment) captures consumer confidence and expectations, RSXFS (retail sales excluding food services) measures actual spending behavior as the cleanest retail metric, and PSAVERT (personal saving rate) indicates financial cushion and spending sustainability. Together they show both the psychological and behavioral aspects of consumer activity."
+    "combine_chart": False,
+    "explanation": "These three series provide the most comprehensive view of overall consumer health: UMCSENT (University of Michigan Consumer Sentiment) captures consumer confidence and expectations, RSXFS (retail sales excluding food services) measures actual spending behavior, and PSAVERT (personal saving rate) indicates financial cushion. Shown separately since they have different units (index, dollars, percent)."
   },
   "michigan consumer sentiment": {
     "series": [
@@ -1212,12 +1214,11 @@ QUERY_PLANS = {
   },
   "gas prices": {
     "series": [
-      "GASREGW",
-      "CUSR0000SETB01"
+      "GASREGW"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "GASREGW shows actual retail gasoline prices in dollars per gallon (what consumers pay at the pump), while CUSR0000SETB01 shows the CPI gasoline component which reflects how gas price changes contribute to overall inflation. Together they provide both the absolute price level and the inflation impact of gasoline."
+    "combine_chart": False,
+    "explanation": "GASREGW shows actual retail gasoline prices in dollars per gallon—what consumers pay at the pump. This is the most direct measure of gas prices."
   },
   "gasoline": {
     "series": [
@@ -1365,12 +1366,13 @@ QUERY_PLANS = {
   },
   "housing affordability": {
     "series": [
+      "FIXHAI",
       "MORTGAGE30US",
-      "CSUSHPINSA"
+      "MSPUS"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "Housing affordability is primarily driven by two key factors: mortgage rates (MORTGAGE30US) and home prices (CSUSHPINSA - Case-Shiller National Home Price Index). When mortgage rates rise or home prices increase, affordability decreases. These two series together provide the most comprehensive view of affordability conditions, as they represent the major cost components of homeownership - the price of the home and the cost of financing it."
+    "explanation": "FIXHAI is the NAR Housing Affordability Index—the gold standard composite measure combining prices, rates, and income. Above 100 means a median family can afford a median home; below 100 means they can't. Also showing 30-year mortgage rates (MORTGAGE30US) and median home prices (MSPUS) as the key affordability drivers."
   },
   "rent prices": {
     "series": [
@@ -1400,12 +1402,12 @@ QUERY_PLANS = {
   },
   "housing inventory": {
     "series": [
-      "MNMFS",
-      "MSACSR"
+      "RHVRUSQ156N",
+      "RRVRUSQ156N"
     ],
     "show_yoy": False,
     "combine_chart": True,
-    "explanation": "Housing inventory is best measured by months' supply metrics: MNMFS (months' supply of new homes) and MSACSR (months' supply of existing homes). These indicators show how long it would take to sell current inventory at the current sales pace. Lower months' supply indicates tight inventory (seller's market), while higher supply indicates looser inventory (buyer's market). The existing home supply (MSACSR) is particularly important as it represents the much larger segment of the market. Both series can be combined on one chart as they measure the same concept (months of supply) for different market segments."
+    "explanation": "Homeowner vacancy rate (RHVRUSQ156N) shows the percentage of for-sale homes that are vacant—currently at historic lows indicating severe shortage. Rental vacancy rate (RRVRUSQ156N) shows vacant rental units. Together they reveal housing market tightness across both ownership and rental segments."
   },
   "housing supply": {
     "series": [
@@ -1491,6 +1493,146 @@ QUERY_PLANS = {
     "combine_chart": False,
     "explanation": "A housing crash involves dramatic declines in home prices, construction activity, and sales volumes. The Case-Shiller National Home Price Index (CSUSHPINSA) with year-over-year changes will show price appreciation turning negative during crashes like 2008-2012. Housing starts (HOUST) reveal construction activity collapse as builders halt projects. Existing home sales (EXHOSLUSM495S) capture transaction volume drops as buyers disappear and sellers withdraw from market. Together, these three series provide the clearest picture of housing market distress across prices, supply, and demand."
   },
+  "median home price": {
+    "series": [
+      "MSPUS"
+    ],
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "MSPUS is the median sales price of houses sold in the United States—the most intuitive price measure showing what typical homes actually sell for. Half of homes sell above this price, half below. More relatable than Case-Shiller index values."
+  },
+  "median house price": {
+    "series": [
+      "MSPUS"
+    ],
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "MSPUS is the median sales price of houses sold in the United States—the most intuitive price measure showing what typical homes actually sell for. Half of homes sell above this price, half below."
+  },
+  "average home price": {
+    "series": [
+      "ASPUS"
+    ],
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "ASPUS is the average sales price of houses sold in the United States. Note that the average is pulled higher by expensive homes and tends to exceed the median."
+  },
+  "construction pipeline": {
+    "series": [
+      "PERMIT",
+      "HOUST",
+      "UNDCONTSA",
+      "COMPUTSA"
+    ],
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "The full construction pipeline: Permits (PERMIT) are approved future projects, Starts (HOUST) are projects beginning construction, Under Construction (UNDCONTSA) shows active building, and Completions (COMPUTSA) are finished units. This shows housing supply from planning through delivery."
+  },
+  "san francisco housing": {
+    "series": [
+      "SFXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "SFXRSA is the Case-Shiller Home Price Index for San Francisco—one of the most expensive and volatile housing markets in the country, driven by tech industry wealth."
+  },
+  "sf home prices": {
+    "series": [
+      "SFXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "SFXRSA is the Case-Shiller Home Price Index for San Francisco, tracking price changes using the repeat-sales methodology."
+  },
+  "los angeles housing": {
+    "series": [
+      "LXXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "LXXRSA is the Case-Shiller Home Price Index for Los Angeles—one of the least affordable major markets due to high prices relative to local incomes."
+  },
+  "la home prices": {
+    "series": [
+      "LXXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "LXXRSA is the Case-Shiller Home Price Index for Los Angeles, tracking price changes using the repeat-sales methodology."
+  },
+  "new york housing": {
+    "series": [
+      "NYXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "NYXRSA is the Case-Shiller Home Price Index for New York—prices tend to be more stable than other coastal metros with smaller boom-bust swings."
+  },
+  "nyc home prices": {
+    "series": [
+      "NYXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "NYXRSA is the Case-Shiller Home Price Index for New York City metro area."
+  },
+  "chicago housing": {
+    "series": [
+      "CHXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "CHXRSA is the Case-Shiller Home Price Index for Chicago—more moderate price levels than coastal cities."
+  },
+  "miami housing": {
+    "series": [
+      "MIXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "MIXRSA is the Case-Shiller Home Price Index for Miami—experienced extreme boom-bust in 2008 and strong appreciation since 2020 from pandemic migration."
+  },
+  "dallas housing": {
+    "series": [
+      "DAXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "DAXRSA is the Case-Shiller Home Price Index for Dallas—avoided the 2008 crash and has seen strong growth from corporate relocations."
+  },
+  "seattle housing": {
+    "series": [
+      "SEXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "SEXRSA is the Case-Shiller Home Price Index for Seattle—driven by tech wealth from Amazon and Microsoft."
+  },
+  "phoenix housing": {
+    "series": [
+      "PHXRSA"
+    ],
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "PHXRSA is the Case-Shiller Home Price Index for Phoenix—experienced the most extreme boom-bust of any major market in 2008, rapid appreciation since 2020."
+  },
+  "vacancy rate": {
+    "series": [
+      "RHVRUSQ156N",
+      "RRVRUSQ156N"
+    ],
+    "show_yoy": False,
+    "combine_chart": True,
+    "explanation": "RHVRUSQ156N is the homeowner vacancy rate (for-sale homes), RRVRUSQ156N is the rental vacancy rate. Both at historic lows indicating severe housing shortage."
+  },
+  "rental vacancy": {
+    "series": [
+      "RRVRUSQ156N"
+    ],
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "RRVRUSQ156N is the rental vacancy rate—the percentage of rental units that are vacant. Low vacancy gives landlords pricing power and pushes rents higher."
+  },
   "mortgage applications": {
     "series": [
       "MORTGAGE30US"
@@ -1557,11 +1699,12 @@ QUERY_PLANS = {
   "rates": {
     "series": [
       "FEDFUNDS",
-      "DGS10"
+      "DGS10",
+      "MORTGAGE30US"
     ],
     "show_yoy": False,
     "combine_chart": True,
-    "explanation": "For a general 'rates' query, I'm showing the two most important benchmark rates: the Federal funds rate (FEDFUNDS) which is the Fed's policy rate controlling short-term rates, and the 10-year Treasury yield (DGS10) which is the key long-term benchmark rate that influences mortgages, corporate bonds, and other long-term financing costs. Together, these capture the short-end and long-end of the interest rate spectrum and show the overall interest rate environment."
+    "explanation": "The three key rates most people care about: the Federal funds rate (FEDFUNDS) which is the Fed's policy rate, the 10-year Treasury yield (DGS10) which is the benchmark for long-term borrowing, and the 30-year mortgage rate (MORTGAGE30US) which directly affects home buying costs. Together they show policy rates, bond market rates, and consumer borrowing costs."
   },
   "fed": {
     "series": [
@@ -2744,27 +2887,30 @@ QUERY_PLANS = {
   },
   "gdp": {
     "series": [
-      "A191RL1Q225SBEA"
+      "A191RL1Q225SBEA",
+      "A191RO1Q156NBEA"
     ],
     "show_yoy": False,
-    "combine_chart": False,
-    "explanation": "For GDP queries, people typically want to see economic growth performance. A191RL1Q225SBEA shows the real GDP growth rate (quarterly, annualized), which is the headline economic growth measure that indicates whether the economy is expanding or contracting. This is more informative than static GDP levels since it shows the economy's momentum and direction."
+    "combine_chart": True,
+    "explanation": "Two complementary views of GDP growth: The quarterly annualized rate (A191RL1Q225SBEA) is the headline number in news reports—it shows what growth would be if the current quarter's pace continued for a year. The year-over-year rate (A191RO1Q156NBEA) shows actual growth compared to the same quarter last year, which is more stable and better reflects underlying economic momentum. Trend growth is ~2%; above 3% is robust."
   },
   "gdp growth": {
     "series": [
-      "A191RL1Q225SBEA"
+      "A191RL1Q225SBEA",
+      "A191RO1Q156NBEA"
     ],
     "show_yoy": False,
-    "combine_chart": False,
-    "explanation": "A191RL1Q225SBEA is the Real GDP growth rate (quarterly, annualized) - this is THE headline GDP growth measure that economists and media focus on. It's already expressed as a growth rate, so no YoY calculation needed."
+    "combine_chart": True,
+    "explanation": "Both key GDP growth measures: The quarterly annualized rate (headline number reported in news) shows the latest quarter's momentum extrapolated to a year. The year-over-year rate shows actual growth over 12 months—more stable and less prone to one-quarter distortions. Together they reveal both current momentum and underlying trend. Trend U.S. growth is ~2% annually."
   },
   "economic growth": {
     "series": [
-      "A191RL1Q225SBEA"
+      "A191RL1Q225SBEA",
+      "A191RO1Q156NBEA"
     ],
     "show_yoy": False,
-    "combine_chart": False,
-    "explanation": "A191RL1Q225SBEA is the Real GDP growth rate (quarterly, annualized) - this is THE definitive measure of economic growth that economists and policymakers focus on. It shows the pace at which the economy is expanding or contracting, already expressed as a growth rate, so no year-over-year calculation is needed."
+    "combine_chart": True,
+    "explanation": "Two essential measures of economic growth: The quarterly annualized rate captures turning points quickly—it's the headline number that moves markets. The year-over-year rate shows how much the economy has actually grown over 12 months, smoothing out quarterly volatility. Economists use both: quarterly for timeliness, annual for trend assessment. Trend growth is ~2%; above 3% is robust; negative signals contraction."
   },
   "real gdp": {
     "series": [
@@ -2777,11 +2923,53 @@ QUERY_PLANS = {
   "gdp report": {
     "series": [
       "A191RL1Q225SBEA",
-      "GDPC1"
+      "A191RO1Q156NBEA"
+    ],
+    "show_yoy": False,
+    "combine_chart": True,
+    "explanation": "The GDP report's two key numbers: The quarterly annualized rate is the headline figure that dominates news coverage—volatile but timely. The year-over-year rate shows actual 12-month growth, revealing the underlying trend. A strong quarterly print with weak YoY (or vice versa) tells an important story about economic momentum vs. trend."
+  },
+  "annual gdp growth": {
+    "series": [
+      "A191RL1A225NBEA",
+      "A191RO1Q156NBEA"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "For a GDP report, you need the headline growth rate (A191RL1Q225SBEA) which shows quarterly annualized real GDP growth - this is the key number everyone focuses on. GDPC1 shows the level of real GDP to provide context on the overall size and trend of the economy. Together these give you both the growth momentum and absolute output level."
+    "explanation": "Two views of annual GDP growth: The annual series (A191RL1A225NBEA, bar chart) shows the official year-over-year growth for completed years—the definitive measure economists use when comparing economic performance across years. The quarterly series (A191RO1Q156NBEA, line) shows each quarter vs the same quarter a year ago—its Q4 value approximates annual growth and provides a more current estimate. Trend U.S. growth is ~2%."
+  },
+  "yearly gdp": {
+    "series": [
+      "A191RL1A225NBEA",
+      "A191RO1Q156NBEA"
+    ],
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "Annual real GDP growth shown two ways: The official annual series (A191RL1A225NBEA) for completed calendar years, and the quarterly year-ago comparison (A191RO1Q156NBEA) for a more current read. The Q4 reading of the quarterly series approximates the full-year annual growth rate. Trend growth is approximately 2% annually."
+  },
+  "core gdp": {
+    "series": [
+      "PB0000031Q225SBEA"
+    ],
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "Real Final Sales to Private Domestic Purchasers—economists call this 'core GDP.' It strips out the most volatile components (government spending, exports, inventories) to focus on private demand: consumer spending plus business fixed investment. The Council of Economic Advisers has found it to be a better predictor of future growth than headline GDP."
+  },
+  "private demand": {
+    "series": [
+      "PB0000031Q225SBEA"
+    ],
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "Real Final Sales to Private Domestic Purchasers measures private domestic demand—consumer spending plus business fixed investment—excluding government, trade, and inventory swings. This 'core GDP' measure is less volatile and has been found by the CEA to better predict future economic growth than headline GDP."
+  },
+  "final sales to private domestic purchasers": {
+    "series": [
+      "PB0000031Q225SBEA"
+    ],
+    "show_yoy": False,
+    "combine_chart": False,
+    "explanation": "This 'core GDP' measure focuses on sustainable private demand by excluding government spending, exports, and inventory changes. It captures consumer spending plus business fixed investment—the engine of economic growth. The Council of Economic Advisers has noted it's a better predictor of future growth than headline GDP."
   },
   "quarterly gdp": {
     "series": [
