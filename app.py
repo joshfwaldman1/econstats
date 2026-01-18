@@ -3999,7 +3999,11 @@ def main():
 
                     with col1:
                         st.markdown("**Monthly Job Change**")
-                        fig_bar = create_chart([(series_id, dates, values, info)], combine=False, chart_type='bar')
+                        # Limit to last 5 years to avoid COVID crash dominating scale
+                        recent_count = min(60, len(dates))
+                        recent_dates = dates[-recent_count:]
+                        recent_values = values[-recent_count:]
+                        fig_bar = create_chart([(series_id, recent_dates, recent_values, info)], combine=False, chart_type='bar')
                         fig_bar.update_layout(
                             height=350,
                             margin=dict(l=50, r=20, t=30, b=50),
