@@ -2586,8 +2586,8 @@ Write an improved explanation that:
 2. Provides meaningful context (is this high/low historically? trending up/down?)
 3. Answers the user's actual question directly
 4. Avoids jargon - write for a general audience
-5. CRITICAL: Be objective and descriptive, NOT editorial. Describe what the data shows without value judgments like "strong", "weak", "healthy", or "solid" unless the data clearly supports it. If signals are mixed (e.g., slowing job growth but low unemployment), say the signals are mixed and describe both sides. Let the reader draw conclusions.
-6. For employment/payroll data: Focus on job GROWTH, not total levels. If monthly_job_change, avg_monthly_change_3mo, and avg_monthly_change_12mo are provided, mention: (a) the latest month's job gain/loss, (b) the 3-month average, and (c) the 12-month average. These are in thousands, so 150.0 = 150,000 jobs. Context: The economy needs ~100-150K jobs/month to keep up with population growth. If the 3-month average is negative or below 100K, that's a cooling signal - don't call the job market "strong".
+5. Be fact-based. You CAN characterize things as "strong", "weak", "cooling", etc. - but only if the data supports it. If signals are mixed (e.g., slowing job growth but still-low unemployment), acknowledge the mixed picture honestly rather than cherry-picking one narrative.
+6. For employment/payroll data: Focus on job GROWTH, not total levels. If monthly_job_change, avg_monthly_change_3mo, and avg_monthly_change_12mo are provided, mention: (a) the latest month's job gain/loss, (b) the 3-month average, and (c) the 12-month average. These are in thousands, so 150.0 = 150,000 jobs. Context: The economy needs ~100-150K jobs/month to keep up with population growth. If the 3-month average is negative or well below the 12-month average, that's a cooling signal worth noting.
 
 Keep it to 3-4 concise sentences. Do not use bullet points. Just return the explanation text, nothing else."""
 
