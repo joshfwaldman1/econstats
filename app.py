@@ -3291,7 +3291,7 @@ def main():
         st.markdown('</div>', unsafe_allow_html=True)
 
         # Helper text
-        st.markdown('<p class="helper-text">Ask questions in plain English — we\'ll pull the latest government data and explain what it means.</p>', unsafe_allow_html=True)
+        st.markdown('<p class="helper-text">Ask questions in plain English — we\'ll pull the latest economic data and explain what it means.</p>', unsafe_allow_html=True)
 
         # Example queries section - only show when no results yet
         if not st.session_state.last_query:
