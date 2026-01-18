@@ -913,7 +913,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": True,
     "combine_chart": True,
-    "explanation": "Comparing average hourly earnings growth (CES0500000003) to CPI inflation (CPIAUCSL). When wage growth exceeds inflation, workers gain purchasing power; when inflation exceeds wage growth, real wages are falling. Both shown as year-over-year percent change for direct comparison."
+    "explanation": "Comparing wage growth vs inflation (YoY %). When the wage line is above inflation, workers are currently gaining purchasing power. Note: This shows the current pace. To see if wages have cumulatively kept up since a starting point (e.g., pre-pandemic), try 'normalize' or 'cumulative change'."
   },
   "real wages": {
     "series": [
@@ -922,7 +922,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": True,
     "combine_chart": True,
-    "explanation": "Real wage growth = nominal wage growth minus inflation. Showing average hourly earnings growth (CES0500000003) vs CPI inflation (CPIAUCSL) as year-over-year percent changes. If the wage line is above the inflation line, real wages are rising."
+    "explanation": "Wage growth vs inflation (YoY %). When wages grow faster than prices, real purchasing power rises. This shows the current pace - try 'normalize' to see cumulative effects over time."
   },
   "wages vs inflation": {
     "series": [
@@ -931,7 +931,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": True,
     "combine_chart": True,
-    "explanation": "Comparing average hourly earnings growth to CPI inflation. When the wage growth line is above the inflation line, workers are gaining purchasing power. Both shown as year-over-year percent change."
+    "explanation": "Wage growth vs CPI inflation (YoY %). The gap shows whether workers are gaining or losing purchasing power at the current pace."
   },
   "real wage growth": {
     "series": [
@@ -940,7 +940,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": True,
     "combine_chart": True,
-    "explanation": "Real wage growth is nominal wage growth minus inflation. Showing average hourly earnings (CES0500000003) and CPI (CPIAUCSL) as year-over-year changes. The gap between the lines shows real wage growth (positive if wages above inflation)."
+    "explanation": "Wage growth minus inflation = real wage growth. Showing both as YoY % - if wages are above CPI, real wages are rising. Try 'normalize' to see cumulative change indexed to a starting point."
   },
   "income growth": {
     "series": [
