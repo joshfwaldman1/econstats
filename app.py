@@ -2589,6 +2589,8 @@ Write an improved explanation that:
 5. Be fact-based. You CAN characterize things as "strong", "weak", "cooling", etc. - but only if the data supports it. If signals are mixed (e.g., slowing job growth but still-low unemployment), acknowledge the mixed picture honestly rather than cherry-picking one narrative.
 6. For employment/payroll data: Focus on job GROWTH, not total levels. If monthly_job_change, avg_monthly_change_3mo, and avg_monthly_change_12mo are provided, mention: (a) the latest month's job gain/loss, (b) the 3-month average, and (c) the 12-month average. These are in thousands, so 150.0 = 150,000 jobs. Context: The economy needs ~100-150K jobs/month to keep up with population growth. If the 3-month average is negative or well below the 12-month average, that's a cooling signal worth noting.
 
+CRITICAL: Do NOT start with meta-commentary like "I notice the data..." or "The data provided shows..." or "Looking at the data...". Just answer the question directly using the data. Start with the answer, not with observations about what data you have.
+
 Keep it to 3-4 concise sentences. Do not use bullet points. Just return the explanation text, nothing else."""
 
     url = 'https://api.anthropic.com/v1/messages'
