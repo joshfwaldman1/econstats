@@ -5,6 +5,8 @@ Ask questions in plain English and get charts of economic data from FRED.
 Incorporates economist intuitions for proper data selection and presentation.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -17,6 +19,9 @@ import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
+
+# LangGraph deep analysis agent
+from langgraph_agent import run_query as run_deep_analysis
 
 
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
@@ -3627,6 +3632,7 @@ def main():
                 'search_terms': [],
                 'used_precomputed': True,
                 'show_payroll_changes': precomputed_plan.get('show_payroll_changes', False),
+                'chart_groups': precomputed_plan.get('chart_groups', None),
             }
         elif local_parsed:
             # Try local parser for common follow-up commands (no API call needed)
@@ -3690,6 +3696,9 @@ def main():
 
         # Handle percent change from start (cumulative change)
         pct_change_from_start = interpretation.get('pct_change_from_start', False)
+
+        # Handle chart groups (multiple charts with different series/transformations)
+        chart_groups = interpretation.get('chart_groups', None)
 
         # Handle date filtering (e.g., pre-covid filter)
         filter_end_date = interpretation.get('filter_end_date')
@@ -4178,8 +4187,104 @@ def main():
         if has_narrative_content:
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # Charts
-        if combine and len(series_data) > 1:
+        # Chart Groups handling - allows multiple charts with different series/transformations
+        if chart_groups and len(chart_groups) > 0:
+            # Build a lookup dict from the already-fetched series_data
+            series_lookup = {sid: (sid, dates, values, info) for sid, dates, values, info in series_data}
+
+            for group_idx, group in enumerate(chart_groups):
+                group_series_ids = group.get('series', [])
+                group_show_yoy = group.get('show_yoy', False)
+                group_pct_from_start = group.get('pct_change_from_start', False)
+                group_title = group.get('title', '')
+
+                # Filter to series in this group
+                group_data = []
+                for sid in group_series_ids:
+                    if sid in series_lookup:
+                        group_data.append(series_lookup[sid])
+                    else:
+                        # Need to fetch this series
+                        dates_g, values_g, info_g = get_observations(sid, years)
+                        if dates_g and values_g:
+                            group_data.append((sid, dates_g, values_g, info_g))
+
+                if not group_data:
+                    continue
+
+                # Apply YoY transformation if requested for this group
+                if group_show_yoy:
+                    transformed = []
+                    for sid, dates_g, values_g, info_g in group_data:
+                        new_dates, new_values = apply_yoy_transform(dates_g, values_g)
+                        new_info = dict(info_g)
+                        new_info['is_yoy'] = True
+                        new_info['unit'] = 'YoY % Change'
+                        transformed.append((sid, new_dates, new_values, new_info))
+                    group_data = transformed
+
+                # Apply pct_change_from_start transformation if requested
+                if group_pct_from_start:
+                    pct_data = []
+                    for sid, dates_g, values_g, info_g in group_data:
+                        if values_g and len(values_g) > 0:
+                            base_value = values_g[0]
+                            if base_value != 0:
+                                pct_values = [((v - base_value) / base_value) * 100 for v in values_g]
+                                new_info = dict(info_g)
+                                new_info['unit'] = '% Change from Start'
+                                new_info['is_pct_from_start'] = True
+                                pct_data.append((sid, dates_g, pct_values, new_info))
+                    group_data = pct_data if pct_data else group_data
+
+                # Render the chart for this group
+                st.markdown("<div class='chart-section'>", unsafe_allow_html=True)
+
+                # Generate chart title
+                if group_title:
+                    chart_title = group_title
+                else:
+                    chart_title = ' vs '.join([generate_chart_title(sid, info)[:40] for sid, _, _, info in group_data])
+
+                # Generate bullets
+                dynamic_bullets = []
+                for sid, d, v, i in group_data:
+                    desc = generate_chart_description(sid, d, v, i)
+                    if desc:
+                        series_name = generate_chart_title(sid, i)[:30]
+                        dynamic_bullets.append(f"<strong>{series_name}:</strong> {desc}")
+
+                if dynamic_bullets:
+                    bullets_html = ''.join([f'<li>{b}</li>' for b in dynamic_bullets])
+                    st.markdown(f"""
+                    <div class='chart-header'>
+                        <div class='chart-title'>{chart_title}</div>
+                        <ul class='chart-bullets'>{bullets_html}</ul>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div class='chart-header'>
+                        <div class='chart-title'>{chart_title}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                # Always combine for groups with multiple series
+                combine_group = len(group_data) > 1
+                fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
+                st.plotly_chart(fig, use_container_width=True)
+
+                source = group_data[0][3].get('source', 'FRED') if group_data else 'FRED'
+                transform_note = ""
+                if group_show_yoy:
+                    transform_note = " Showing year-over-year percent change."
+                elif group_pct_from_start:
+                    transform_note = " Indexed to start of period."
+                st.markdown(f"<div class='source-line'>Source: {source}.{transform_note} Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+
+        # Regular Charts (when not using chart_groups)
+        elif combine and len(series_data) > 1:
             st.markdown("<div class='chart-section'>", unsafe_allow_html=True)
 
             # Generate dynamic chart title and descriptions
@@ -4391,6 +4496,39 @@ def main():
             st.session_state.chat_mode = True
             st.session_state.pending_query = followup_query
             st.rerun()
+
+        # Deep Analysis section
+        st.markdown("---")
+        deep_analysis_key = f"deep_analysis_{hash(query)}"
+        if deep_analysis_key not in st.session_state:
+            st.session_state[deep_analysis_key] = {'running': False, 'result': None}
+
+        col_deep1, col_deep2 = st.columns([2, 4])
+        with col_deep1:
+            if st.button("🔬 Deep Analysis", key=f"deep_btn_{hash(query)}",
+                        disabled=st.session_state[deep_analysis_key]['running']):
+                st.session_state[deep_analysis_key]['running'] = True
+                st.rerun()
+
+        with col_deep2:
+            st.markdown("<span style='color: #666; font-size: 0.85em;'>Get multi-step AI analysis with real-time data</span>", unsafe_allow_html=True)
+
+        # Run deep analysis if triggered
+        if st.session_state[deep_analysis_key]['running'] and not st.session_state[deep_analysis_key]['result']:
+            with st.spinner("🔬 Running deep analysis... (fetching data, analyzing trends)"):
+                try:
+                    analysis_result = run_deep_analysis(query, verbose=False)
+                    st.session_state[deep_analysis_key]['result'] = analysis_result
+                    st.session_state[deep_analysis_key]['running'] = False
+                    st.rerun()
+                except Exception as e:
+                    st.session_state[deep_analysis_key]['result'] = f"Analysis failed: {str(e)}"
+                    st.session_state[deep_analysis_key]['running'] = False
+
+        # Display deep analysis result
+        if st.session_state[deep_analysis_key]['result']:
+            st.markdown("### 🔬 Deep Analysis")
+            st.markdown(f"<div style='background-color: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid #667eea;'>{st.session_state[deep_analysis_key]['result']}</div>", unsafe_allow_html=True)
 
         # Feedback section
         st.markdown("---")

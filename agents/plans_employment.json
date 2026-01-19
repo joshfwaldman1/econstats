@@ -386,7 +386,12 @@
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "LES1252881600Q shows real (inflation-adjusted) median weekly earnings - the definitive answer to 'are wages keeping up.' When this rises, purchasing power is increasing. Also showing nominal wage growth (CES0500000003) vs inflation (CPIAUCSL) for context. All as YoY % change."
+    "explanation": "• **Real Median Weekly Earnings** (LES1252881600Q): The definitive measure of whether wages are keeping up with inflation. When this rises, workers' purchasing power is genuinely increasing.\n• **Wages vs Inflation (YoY)**: Compares nominal wage growth (Average Hourly Earnings) directly against CPI inflation. When the wage line is above inflation, workers are gaining ground.\n• **Wages vs Inflation (Indexed)**: Both series indexed to the same starting point to show cumulative gains. If wages stay above inflation, purchasing power has increased over the period.",
+    "chart_groups": [
+      {"series": ["LES1252881600Q"], "show_yoy": true, "title": "Real Wages (Inflation-Adjusted)"},
+      {"series": ["CES0500000003", "CPIAUCSL"], "show_yoy": true, "title": "Wage Growth vs Inflation (YoY %)"},
+      {"series": ["CES0500000003", "CPIAUCSL"], "pct_change_from_start": true, "title": "Wage Growth vs Inflation (Indexed)"}
+    ]
   },
   "wages vs inflation": {
     "series": [
@@ -396,7 +401,12 @@
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "LES1252881600Q shows real (inflation-adjusted) median weekly earnings - when this rises, workers are gaining purchasing power. Also showing nominal wage growth (CES0500000003) vs inflation (CPIAUCSL) for the full picture. All as YoY % change."
+    "explanation": "• **Real Median Weekly Earnings** (LES1252881600Q): The definitive measure of whether wages are keeping up with inflation. When this rises, workers' purchasing power is genuinely increasing.\n• **Wages vs Inflation (YoY)**: Compares nominal wage growth (Average Hourly Earnings) directly against CPI inflation. When the wage line is above inflation, workers are gaining ground.\n• **Wages vs Inflation (Indexed)**: Both series indexed to the same starting point to show cumulative gains. If wages stay above inflation, purchasing power has increased over the period.",
+    "chart_groups": [
+      {"series": ["LES1252881600Q"], "show_yoy": true, "title": "Real Wages (Inflation-Adjusted)"},
+      {"series": ["CES0500000003", "CPIAUCSL"], "show_yoy": true, "title": "Wage Growth vs Inflation (YoY %)"},
+      {"series": ["CES0500000003", "CPIAUCSL"], "pct_change_from_start": true, "title": "Wage Growth vs Inflation (Indexed)"}
+    ]
   },
   "real wages": {
     "series": [
