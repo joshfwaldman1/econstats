@@ -3,11 +3,12 @@
     "series": [
       "CPIAUCSL",
       "CPILFESL",
-      "PCEPILFE"
+      "PCEPILFE",
+      "LES1252881600Q"
     ],
-    "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "Headline CPI (CPIAUCSL) is the most commonly cited inflation measure - what consumers actually experience. Core CPI (CPILFESL) strips out volatile food and energy. Core PCE (PCEPILFE) is the Federal Reserve's official 2% inflation target - when this exceeds 2%, the Fed typically tightens policy. All shown as year-over-year rates."
+    "show_yoy": [true, true, true, true],
+    "combine_chart": false,
+    "explanation": "• CPI All Items: Headline inflation - what consumers actually pay. The most widely cited measure.\n• Core CPI: Strips out volatile food and energy to show underlying price trends.\n• Core PCE: The Federal Reserve's official 2% inflation target - this is what drives monetary policy.\n• Real Median Weekly Earnings: Shows whether wages are keeping up with inflation. Rising = workers gaining purchasing power; falling = inflation outpacing wages."
   },
   "cpi": {
     "series": [

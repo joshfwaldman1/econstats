@@ -2347,6 +2347,7 @@ IMPORTANT: For ANY topic you don't have memorized series IDs for, ALWAYS provide
 2. USE SEASONALLY ADJUSTED DATA by default.
 3. For topics you don't know exact series for, provide SPECIFIC search terms that would find them in FRED.
 4. Each series you include should tell a different part of the story - don't include redundant series.
+5. EVERY CHART MUST HAVE AN EXPLANATORY BULLET - each series needs a clear explanation of what it shows and why it matters.
 
 ## WELL-KNOWN SERIES
 
@@ -2669,7 +2670,7 @@ Write an improved explanation that:
 4. Avoids jargon - write for a general audience
 5. Be fact-based. You CAN characterize things as "strong", "weak", "cooling", etc. - but only if the data supports it. If signals are mixed (e.g., slowing job growth but still-low unemployment), acknowledge the mixed picture honestly rather than cherry-picking one narrative.
 6. For employment/payroll data: Focus on job GROWTH, not total levels. If monthly_job_change, avg_monthly_change_3mo, and avg_monthly_change_12mo are provided, mention: (a) the latest month's job gain/loss, (b) the 3-month average, and (c) the 12-month average. These are in thousands, so 150.0 = 150,000 jobs. Context: The economy needs ~100-150K jobs/month to keep up with population growth. If the 3-month average is negative or well below the 12-month average, that's a cooling signal worth noting.
-7. IMPORTANT: If multiple series are shown, briefly explain what EACH one measures and why it matters. Don't just focus on one chart - acknowledge all the data being presented.
+7. IMPORTANT: EVERY CHART MUST HAVE AN EXPLANATORY BULLET. If multiple series are shown, provide a bullet point for EACH one explaining what it measures and why it matters. Don't just focus on one chart - acknowledge all the data being presented.
 
 CRITICAL DATE RULE: You MUST use the exact dates from the "latest_date" field in the DATA SUMMARY above. Do NOT guess or hallucinate dates. If the data says "2025-12-01", write "December 2025". NEVER write a different year than what the data shows.
 

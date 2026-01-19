@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
-"""Base utilities for QA testing agents."""
+"""
+Base utilities for QA testing - tests query plans and FRED data fetching.
+Standalone tests that don't require importing from app.py.
+"""
 
 import json
 import os
-import sys
-import time
-from urllib.request import urlopen, Request
-
-sys.path.insert(0, '/Users/josh/Desktop/econstats')
 import glob
+import time
+from datetime import datetime, timedelta
+from urllib.request import urlopen, Request
+from urllib.parse import urlencode
+
+# FRED API configuration
+FRED_API_KEY = os.environ.get('FRED_API_KEY', 'c43c82548c611ec46800c51f898026d6')
+FRED_BASE = 'https://api.stlouisfed.org/fred'
+
 
 def load_query_plans():
     """Load all query plans from agents/*.json files."""
@@ -18,17 +25,20 @@ def load_query_plans():
         try:
             with open(plan_file, 'r') as f:
                 plans.update(json.load(f))
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Warning: Failed to load {plan_file}: {e}")
     return plans
+
 
 QUERY_PLANS = load_query_plans()
 
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
-# Series name lookup for evaluation
+# Series name lookup for display
 SERIES_NAMES = {
-    'A191RL1Q225SBEA': 'Real GDP Growth Rate',
+    'A191RL1Q225SBEA': 'Real GDP Growth Rate (Quarterly)',
+    'A191RO1Q156NBEA': 'Real GDP Growth Rate (YoY)',
+    'PB0000031Q225SBEA': 'Core GDP (Private Demand)',
+    'GDPNOW': 'GDPNow (Atlanta Fed)',
     'GDPC1': 'Real GDP Level',
     'UNRATE': 'Unemployment Rate (U-3)',
     'U6RATE': 'Unemployment Rate (U-6)',
@@ -36,6 +46,10 @@ SERIES_NAMES = {
     'LNS12300060': 'Prime-Age Employment-Pop Ratio (25-54)',
     'LNS11300060': 'Prime-Age Labor Force Participation',
     'LNS11300000': 'Labor Force Participation Rate',
+    'JTSJOL': 'Job Openings (JOLTS)',
+    'JTSQUR': 'Quits Rate (JOLTS)',
+    'JTSHIR': 'Hires Rate (JOLTS)',
+    'ICSA': 'Initial Jobless Claims',
     'CPIAUCSL': 'CPI All Items',
     'CPILFESL': 'Core CPI',
     'PCEPILFE': 'Core PCE (Fed Target)',
@@ -49,99 +63,238 @@ SERIES_NAMES = {
     'MORTGAGE30US': '30-Year Mortgage Rate',
     'CSUSHPINSA': 'Case-Shiller Home Price Index',
     'HOUST': 'Housing Starts',
-    'RSXFS': 'Retail Sales',
+    'EXHOSLUSM495S': 'Existing Home Sales',
+    'RSXFS': 'Retail Sales (ex Food Services)',
     'UMCSENT': 'Consumer Sentiment',
     'SP500': 'S&P 500',
-    'JTSJOL': 'Job Openings (JOLTS)',
-    'JTSQUR': 'Quits Rate (JOLTS)',
-    'ICSA': 'Initial Jobless Claims',
     'DCOILWTICO': 'WTI Crude Oil Price',
     'GASREGW': 'Gas Price',
     'BOPGSTB': 'Trade Balance',
     'IMPCH': 'Imports from China',
+    'PSAVERT': 'Personal Savings Rate',
+    'INDPRO': 'Industrial Production',
     'LNS14000002': 'Unemployment Rate - Women',
     'LNS12300062': 'Prime-Age Emp-Pop Ratio - Women',
     'LNS11300002': 'LFPR - Women',
     'LNS14000001': 'Unemployment Rate - Men',
     'LNS14000006': 'Unemployment Rate - Black',
     'LNS14000009': 'Unemployment Rate - Hispanic',
-    'PSAVERT': 'Personal Savings Rate',
-    'INDPRO': 'Industrial Production',
 }
+
+
+def get_series_name(series_id):
+    """Get human-readable name for a series."""
+    return SERIES_NAMES.get(series_id, series_id)
 
 
 def get_series_names(series_ids):
     """Convert series IDs to human-readable names."""
-    return [SERIES_NAMES.get(s, s) for s in series_ids]
+    return [get_series_name(s) for s in series_ids]
 
 
-def call_evaluator(query: str, series: list, show_yoy: bool) -> dict:
-    """Call Claude to evaluate if the series are appropriate for the query."""
-
-    series_desc = ', '.join(get_series_names(series))
-
-    prompt = f"""You are a senior economist evaluating an economic data dashboard.
-
-A user asked: "{query}"
-The system returned these FRED series: {series}
-Series names: {series_desc}
-Show as year-over-year: {show_yoy}
-
-Rate this response on a scale of 1-5:
-- 5: Perfect - exactly the right data for this query
-- 4: Good - appropriate data, maybe missing one minor thing
-- 3: Acceptable - relevant but could be better
-- 2: Poor - missing key data or showing wrong series
-- 1: Bad - completely wrong data for this query
-
-Also flag these issues if present:
-- WRONG_SERIES: Shows data that doesn't answer the question
-- MISSING_KEY: Missing an obviously important series
-- AGGREGATE_FOR_DEMOGRAPHIC: Uses aggregate data (PAYEMS, UNRATE) for a demographic question (women, Black, etc.)
-- TOO_MANY: More than 4 series (overwhelming)
-- TOO_FEW: Should show more context
-- WRONG_YOY: Should/shouldn't show YoY transformation
-
-Return JSON only:
-{{
-  "score": 4,
-  "issues": [],
-  "explanation": "Brief explanation",
-  "suggested_fix": "What would make it better (if anything)"
-}}"""
-
-    url = 'https://api.anthropic.com/v1/messages'
-    payload = {
-        'model': 'claude-sonnet-4-20250514',
-        'max_tokens': 500,
-        'messages': [{'role': 'user', 'content': prompt}]
-    }
-    headers = {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-    }
-
+def fred_request(endpoint, params):
+    """Make a request to the FRED API."""
+    params['api_key'] = FRED_API_KEY
+    params['file_type'] = 'json'
+    url = f"{FRED_BASE}/{endpoint}?{urlencode(params)}"
     try:
-        req = Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers, method='POST')
-        with urlopen(req, timeout=60) as response:
-            result = json.loads(response.read().decode('utf-8'))
-            content = result['content'][0]['text']
-            if '```json' in content:
-                content = content.split('```json')[1].split('```')[0]
-            elif '```' in content:
-                content = content.split('```')[1].split('```')[0]
-            return json.loads(content.strip())
+        req = Request(url, headers={'User-Agent': 'EconStats-QA/1.0'})
+        with urlopen(req, timeout=30) as response:
+            return json.loads(response.read().decode('utf-8'))
     except Exception as e:
-        return {'score': 0, 'issues': ['EVAL_ERROR'], 'explanation': str(e), 'suggested_fix': ''}
+        return {'error': str(e)}
 
 
-def evaluate_queries(queries: list, category: str, output_file: str):
+def get_observations(series_id, years=5):
+    """Get observations for a series from FRED."""
+    params = {
+        'series_id': series_id,
+        'limit': 10000,
+        'sort_order': 'asc'
+    }
+    if years:
+        start_date = (datetime.now() - timedelta(days=years * 365)).strftime('%Y-%m-%d')
+        params['observation_start'] = start_date
+
+    data = fred_request('series/observations', params)
+    if 'error' in data:
+        return [], [], {'error': data['error']}
+
+    observations = data.get('observations', [])
+    dates, values = [], []
+    for obs in observations:
+        try:
+            val = float(obs['value'])
+            dates.append(obs['date'])
+            values.append(val)
+        except (ValueError, KeyError):
+            continue
+
+    return dates, values, {}
+
+
+def find_query_plan(query):
+    """
+    Find the best matching query plan.
+    Simplified version that checks exact and synonym matches.
+    """
+    if not QUERY_PLANS:
+        return None
+
+    q = query.lower().strip()
+
+    # 1. Exact match
+    if q in QUERY_PLANS:
+        return QUERY_PLANS[q]
+
+    # 2. Check synonyms
+    for plan_key, plan in QUERY_PLANS.items():
+        synonyms = plan.get('synonyms', [])
+        if q in synonyms:
+            return plan
+
+    # 3. Partial match - find plans containing the query as a word
+    for plan_key, plan in QUERY_PLANS.items():
+        if q in plan_key or plan_key in q:
+            return plan
+
+    return None
+
+
+def test_query(query, verbose=True):
+    """
+    Test a single query through the full pipeline.
+
+    Returns dict with:
+    - query: the input query
+    - plan_found: bool
+    - series: list of series IDs
+    - series_names: human-readable names
+    - data_fetched: bool for each series
+    - data_points: count of data points for each series
+    - score: 1-5 based on results
+    - issues: list of any problems
+    """
+    result = {
+        'query': query,
+        'plan_found': False,
+        'series': [],
+        'series_names': [],
+        'show_yoy': False,
+        'data_results': [],
+        'score': 0,
+        'issues': [],
+        'explanation': ''
+    }
+
+    # Step 1: Find query plan
+    plan = find_query_plan(query)
+
+    if not plan:
+        result['issues'].append('NO_PLAN')
+        result['explanation'] = f'No query plan found for "{query}"'
+        result['score'] = 1
+        if verbose:
+            print(f"  NO PLAN found")
+        return result
+
+    result['plan_found'] = True
+    result['series'] = plan.get('series', [])
+    result['series_names'] = get_series_names(result['series'])
+    result['show_yoy'] = plan.get('show_yoy', False)
+
+    if verbose:
+        print(f"  Plan: {len(result['series'])} series - {result['series']}")
+
+    if not result['series']:
+        result['issues'].append('EMPTY_PLAN')
+        result['explanation'] = 'Query plan has no series'
+        result['score'] = 1
+        return result
+
+    # Step 2: Fetch data for each series
+    all_success = True
+    total_points = 0
+
+    for idx, series_id in enumerate(result['series']):
+        if idx > 0:
+            time.sleep(0.3)  # Rate limit between series
+        try:
+            dates, values, info = get_observations(series_id, years=5)
+
+            if dates and values:
+                result['data_results'].append({
+                    'series_id': series_id,
+                    'name': get_series_name(series_id),
+                    'success': True,
+                    'data_points': len(values),
+                    'latest_date': dates[-1] if dates else None,
+                    'latest_value': values[-1] if values else None
+                })
+                total_points += len(values)
+                if verbose:
+                    print(f"    {series_id}: {len(values)} points, latest: {dates[-1]} = {values[-1]:.2f}")
+            else:
+                result['data_results'].append({
+                    'series_id': series_id,
+                    'name': get_series_name(series_id),
+                    'success': False,
+                    'error': info.get('error', 'No data returned')
+                })
+                result['issues'].append(f'NO_DATA:{series_id}')
+                all_success = False
+                if verbose:
+                    print(f"    {series_id}: NO DATA - {info.get('error', 'unknown')}")
+
+        except Exception as e:
+            result['data_results'].append({
+                'series_id': series_id,
+                'name': get_series_name(series_id),
+                'success': False,
+                'error': str(e)
+            })
+            result['issues'].append(f'FETCH_ERROR:{series_id}')
+            all_success = False
+            if verbose:
+                print(f"    {series_id}: ERROR - {e}")
+
+    # Step 3: Score the result
+    if all_success and total_points > 0:
+        # Check if we have reasonable number of series
+        num_series = len(result['series'])
+        if num_series >= 2 and num_series <= 4:
+            result['score'] = 5
+            result['explanation'] = f'Excellent: {num_series} series, {total_points} total data points'
+        elif num_series == 1:
+            result['score'] = 4
+            result['explanation'] = f'Good: Single series with {total_points} data points'
+        elif num_series > 4:
+            result['score'] = 3
+            result['issues'].append('TOO_MANY_SERIES')
+            result['explanation'] = f'OK but {num_series} series may be overwhelming'
+        else:
+            result['score'] = 4
+            result['explanation'] = f'Good: {num_series} series fetched successfully'
+    elif total_points > 0:
+        # Some series failed
+        success_count = sum(1 for r in result['data_results'] if r.get('success'))
+        result['score'] = 3 if success_count > 0 else 2
+        result['explanation'] = f'Partial: {success_count}/{len(result["series"])} series fetched'
+    else:
+        result['score'] = 1
+        result['explanation'] = 'Failed: No data could be fetched'
+
+    return result
+
+
+def evaluate_queries(queries, category, output_file):
     """Evaluate a list of queries and save results."""
     print(f"\n{'='*60}")
     print(f"QA AGENT: {category}")
     print(f"{'='*60}")
-    print(f"Evaluating {len(queries)} queries...")
+    print(f"Testing {len(queries)} queries with FRED API...")
+    print(f"FRED API Key: {FRED_API_KEY[:8]}..." if FRED_API_KEY else "NO API KEY!")
+    print(f"Loaded {len(QUERY_PLANS)} query plans")
 
     results = []
     scores = []
@@ -150,49 +303,23 @@ def evaluate_queries(queries: list, category: str, output_file: str):
     for i, query in enumerate(queries):
         print(f"\n[{i+1}/{len(queries)}] Testing: '{query}'")
 
-        # Get what the app would return
-        plan = QUERY_PLANS.get(query.lower().strip(), {})
+        result = test_query(query, verbose=True)
 
-        if not plan:
-            print(f"  ⚠️  No pre-computed plan found")
-            results.append({
-                'query': query,
-                'series': [],
-                'score': 0,
-                'issues': ['NO_PLAN'],
-                'explanation': 'No pre-computed plan exists for this query',
-                'suggested_fix': 'Add this query to the plans'
-            })
-            continue
+        scores.append(result['score'])
+        for issue in result['issues']:
+            # Normalize issue names (strip series IDs for counting)
+            issue_type = issue.split(':')[0]
+            issues_count[issue_type] = issues_count.get(issue_type, 0) + 1
 
-        series = plan.get('series', [])
-        show_yoy = plan.get('show_yoy', False)
+        score_icon = ['', '!', '!', '~', '+', '*'][min(result['score'], 5)]
+        print(f"  Score: {result['score']}/5 {score_icon}")
+        if result['issues']:
+            print(f"  Issues: {result['issues']}")
 
-        print(f"  Series: {series}")
+        results.append(result)
 
-        # Evaluate with Claude
-        eval_result = call_evaluator(query, series, show_yoy)
-
-        score = eval_result.get('score', 0)
-        issues = eval_result.get('issues', [])
-
-        scores.append(score)
-        for issue in issues:
-            issues_count[issue] = issues_count.get(issue, 0) + 1
-
-        print(f"  Score: {score}/5 {['❌','⚠️','😐','✓','✓✓','⭐'][min(score,5)]}")
-        if issues:
-            print(f"  Issues: {issues}")
-
-        results.append({
-            'query': query,
-            'series': series,
-            'series_names': get_series_names(series),
-            'show_yoy': show_yoy,
-            **eval_result
-        })
-
-        time.sleep(0.3)  # Rate limiting
+        # Delay between queries to respect FRED rate limits (~120 requests/min)
+        time.sleep(0.6)
 
     # Calculate summary stats
     avg_score = sum(scores) / len(scores) if scores else 0
