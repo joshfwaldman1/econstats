@@ -4286,28 +4286,15 @@ def main():
                 else:
                     chart_title = ' vs '.join([generate_chart_title(sid, info)[:40] for sid, _, _, info in group_data])
 
-                # Generate bullets
-                dynamic_bullets = []
+                # Render title using native Streamlit (more reliable)
+                st.markdown(f"**{chart_title}**")
+
+                # Generate bullets for each series
                 for sid, d, v, i in group_data:
                     desc = generate_chart_description(sid, d, v, i)
                     if desc:
                         series_name = generate_chart_title(sid, i)[:30]
-                        dynamic_bullets.append(f"<strong>{series_name}:</strong> {desc}")
-
-                if dynamic_bullets:
-                    bullets_html = ''.join([f'<li>{b}</li>' for b in dynamic_bullets])
-                    st.markdown(f"""
-                    <div class='chart-header'>
-                        <div class='chart-title'>{chart_title}</div>
-                        <ul class='chart-bullets'>{bullets_html}</ul>
-                    </div>
-                    """, unsafe_allow_html=True)
-                else:
-                    st.markdown(f"""
-                    <div class='chart-header'>
-                        <div class='chart-title'>{chart_title}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                        st.markdown(f"- **{series_name}:** {desc}")
 
                 # Always combine for groups with multiple series
                 combine_group = len(group_data) > 1
@@ -4330,28 +4317,15 @@ def main():
             # Generate dynamic chart title and descriptions
             chart_title = ' vs '.join([generate_chart_title(sid, info)[:40] for sid, _, _, info in series_data])
 
-            # Generate dynamic bullet points for each series in combined chart
-            dynamic_bullets = []
+            # Render title using native Streamlit (more reliable)
+            st.markdown(f"**{chart_title}**")
+
+            # Generate bullet points for each series
             for sid, d, v, i in series_data:
                 desc = generate_chart_description(sid, d, v, i)
                 if desc:
                     series_name = generate_chart_title(sid, i)[:30]
-                    dynamic_bullets.append(f"<strong>{series_name}:</strong> {desc}")
-
-            if dynamic_bullets:
-                bullets_html = ''.join([f'<li>{b}</li>' for b in dynamic_bullets])
-                st.markdown(f"""
-                <div class='chart-header'>
-                    <div class='chart-title'>{chart_title}</div>
-                    <ul class='chart-bullets'>{bullets_html}</ul>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div class='chart-header'>
-                    <div class='chart-title'>{chart_title}</div>
-                </div>
-                """, unsafe_allow_html=True)
+                    st.markdown(f"- **{series_name}:** {desc}")
 
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
             st.plotly_chart(fig, use_container_width=True)
@@ -4434,28 +4408,20 @@ def main():
                     static_bullets = db_info.get('bullets', [])
                     educational_bullet = static_bullets[0] if static_bullets else None
 
-                    # Combine dynamic trend + educational context
-                    bullets_html = ""
-                    if chart_desc:
-                        bullets_html += f"<li><strong>Current:</strong> {chart_desc}</li>"
-                    if educational_bullet and educational_bullet.strip():
-                        # Truncate if too long
-                        edu_text = educational_bullet[:300] + "..." if len(educational_bullet) > 300 else educational_bullet
-                        bullets_html += f"<li>{edu_text}</li>"
+                    # Render title using native Streamlit (more reliable)
+                    st.markdown(f"**{chart_title}**")
 
-                    if bullets_html:
-                        st.markdown(f"""
-                        <div class='chart-header'>
-                            <div class='chart-title'>{chart_title}</div>
-                            <ul class='chart-bullets'>{bullets_html}</ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    else:
-                        st.markdown(f"""
-                        <div class='chart-header'>
-                            <div class='chart-title'>{chart_title}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
+                    # Combine dynamic trend + educational context as bullet list
+                    bullet_items = []
+                    if chart_desc:
+                        bullet_items.append(f"**Current:** {chart_desc}")
+                    if educational_bullet and educational_bullet.strip():
+                        edu_text = educational_bullet[:300] + "..." if len(educational_bullet) > 300 else educational_bullet
+                        bullet_items.append(edu_text)
+
+                    if bullet_items:
+                        for bullet in bullet_items:
+                            st.markdown(f"- {bullet}")
 
                     fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                     st.plotly_chart(fig, use_container_width=True)
