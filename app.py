@@ -2510,7 +2510,7 @@ def call_claude(query: str, previous_context: dict = None) -> dict:
 
     url = 'https://api.anthropic.com/v1/messages'
     payload = {
-        'model': 'claude-sonnet-4-20250514',
+        'model': 'claude-opus-4-5-20251101',
         'max_tokens': 1024,
         'messages': [{'role': 'user', 'content': prompt}]
     }
@@ -2649,7 +2649,7 @@ Keep it to 3-4 concise sentences. Do not use bullet points. Just return the expl
 
     url = 'https://api.anthropic.com/v1/messages'
     payload = {
-        'model': 'claude-sonnet-4-20250514',
+        'model': 'claude-opus-4-5-20251101',
         'max_tokens': 300,
         'messages': [{'role': 'user', 'content': prompt}]
     }
