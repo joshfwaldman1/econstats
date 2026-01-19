@@ -371,23 +371,23 @@
   },
   "are wages keeping up with inflation": {
     "series": [
+      "LES1252881600Q",
       "CES0500000003",
-      "AHETPI",
       "CPIAUCSL"
     ],
     "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "Direct comparison of wage growth vs inflation: CES0500000003 tracks hourly earnings growth for all private employees, AHETPI tracks production/nonsupervisory workers (80% of workforce). CPIAUCSL shows inflation. If wage growth (blue/red lines) exceeds inflation (green line), workers are gaining purchasing power. All shown as year-over-year percent change for apples-to-apples comparison."
+    "combine_chart": false,
+    "explanation": "LES1252881600Q shows real (inflation-adjusted) median weekly earnings - the definitive answer to 'are wages keeping up.' When this rises, purchasing power is increasing. Also showing nominal wage growth (CES0500000003) vs inflation (CPIAUCSL) for context. All as YoY % change."
   },
   "wages vs inflation": {
     "series": [
+      "LES1252881600Q",
       "CES0500000003",
-      "AHETPI",
       "CPIAUCSL"
     ],
     "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "Direct comparison: CES0500000003 (all employees) and AHETPI (production workers) show wage growth rates, CPIAUCSL shows inflation. When wage growth > inflation, real wages are rising. When inflation > wage growth, purchasing power is falling. All shown as year-over-year percent change."
+    "combine_chart": false,
+    "explanation": "LES1252881600Q shows real (inflation-adjusted) median weekly earnings - when this rises, workers are gaining purchasing power. Also showing nominal wage growth (CES0500000003) vs inflation (CPIAUCSL) for the full picture. All as YoY % change."
   },
   "real wages": {
     "series": [

@@ -909,13 +909,13 @@ QUERY_PLANS = {
   },
   "are wages keeping up with inflation": {
     "series": [
+      "LES1252881600Q",
       "CES0500000003",
-      "AHETPI",
       "CPIAUCSL"
     ],
     "show_yoy": True,
-    "combine_chart": True,
-    "explanation": "Direct comparison of wage growth vs inflation: CES0500000003 tracks hourly earnings growth for all private employees, AHETPI tracks production/nonsupervisory workers (80% of workforce). CPIAUCSL shows inflation. If wage growth (blue/red lines) exceeds inflation (green line), workers are gaining purchasing power. All shown as year-over-year percent change for apples-to-apples comparison."
+    "combine_chart": False,
+    "explanation": "LES1252881600Q shows real (inflation-adjusted) median weekly earnings - the definitive answer to 'are wages keeping up.' When this rises, purchasing power is increasing. Also showing nominal wage growth (CES0500000003) vs inflation (CPIAUCSL) for context. All as YoY % change."
   },
   "real wages": {
     "series": [
@@ -927,23 +927,21 @@ QUERY_PLANS = {
   },
   "wages vs inflation": {
     "series": [
+      "LES1252881600Q",
       "CES0500000003",
-      "AHETPI",
       "CPIAUCSL"
     ],
     "show_yoy": True,
-    "combine_chart": True,
-    "explanation": "Direct comparison: CES0500000003 (all employees) and AHETPI (production workers) show wage growth rates, CPIAUCSL shows inflation. When wage growth > inflation, real wages are rising. When inflation > wage growth, purchasing power is falling. All shown as year-over-year percent change."
+    "combine_chart": False,
+    "explanation": "LES1252881600Q shows real (inflation-adjusted) median weekly earnings - when this rises, workers are gaining purchasing power. Also showing nominal wage growth (CES0500000003) vs inflation (CPIAUCSL) for the full picture. All as YoY % change."
   },
   "real wage growth": {
     "series": [
-      "CES0500000003",
-      "AHETPI",
-      "CPIAUCSL"
+      "LES1252881600Q"
     ],
     "show_yoy": True,
-    "combine_chart": True,
-    "explanation": "Compare nominal wage growth to inflation to see real wage growth: If CES0500000003 (all employees) or AHETPI (production workers) exceed CPIAUCSL (inflation), workers have real wage gains. The gap between wage growth and inflation IS real wage growth."
+    "combine_chart": False,
+    "explanation": "LES1252881600Q is real (inflation-adjusted) median weekly earnings for full-time workers. This directly measures real wage growth - no need to compare nominal wages to inflation separately. When this rises, workers' purchasing power is increasing. YoY % change shows the pace of real wage gains or losses."
   },
   "wages vs prices since feb 2020": {
     "series": [
@@ -1247,27 +1245,30 @@ QUERY_PLANS = {
   },
   "oil": {
     "series": [
-      "DCOILWTICO"
+      "DCOILWTICO",
+      "DCOILBRENTEU"
     ],
     "show_yoy": False,
-    "combine_chart": False,
-    "explanation": "WTI crude oil price is the primary benchmark for oil prices in the US market. Financial market data like oil prices are typically analyzed in levels rather than year-over-year changes to show current market conditions and price trends."
+    "combine_chart": True,
+    "explanation": "WTI (West Texas Intermediate) is the US benchmark, Brent is the global benchmark. WTI reflects US supply/demand while Brent tracks international markets. The spread between them can indicate US export competitiveness. Oil prices directly affect gasoline costs, inflation, and energy sector health."
   },
   "oil prices": {
     "series": [
-      "DCOILWTICO"
+      "DCOILWTICO",
+      "DCOILBRENTEU"
     ],
     "show_yoy": False,
-    "combine_chart": False,
-    "explanation": "WTI crude oil price (DCOILWTICO) is the benchmark for US oil prices. Oil prices are typically analyzed in dollar terms rather than year-over-year changes, as traders and economists focus on the absolute price level for supply/demand dynamics, geopolitical impacts, and effects on gasoline/energy costs."
+    "combine_chart": True,
+    "explanation": "WTI (West Texas Intermediate) is the US oil benchmark, Brent is the global benchmark used for ~2/3 of world oil pricing. Showing both reveals whether US prices are tracking global markets. The WTI-Brent spread can signal US supply conditions - when WTI trades below Brent, US production is abundant."
   },
   "crude oil": {
     "series": [
-      "DCOILWTICO"
+      "DCOILWTICO",
+      "DCOILBRENTEU"
     ],
     "show_yoy": False,
-    "combine_chart": False,
-    "explanation": "WTI crude oil price is the primary benchmark for US oil prices and most relevant for analyzing crude oil market trends. Financial/commodity data typically doesn't need YoY transformation as the raw price levels and volatility are what matter most for market analysis."
+    "combine_chart": True,
+    "explanation": "WTI crude is the US benchmark, Brent crude is the global benchmark. Combined they show both US and international oil market conditions. Oil prices are shown in levels (not YoY) because traders focus on absolute price for trading decisions and economic impact."
   },
   "gas prices": {
     "series": [

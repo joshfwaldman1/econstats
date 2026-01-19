@@ -211,27 +211,30 @@
   },
   "oil": {
     "series": [
-      "DCOILWTICO"
+      "DCOILWTICO",
+      "DCOILBRENTEU"
     ],
     "show_yoy": false,
-    "combine_chart": false,
-    "explanation": "WTI crude oil price is the primary benchmark for oil prices in the US market. Financial market data like oil prices are typically analyzed in levels rather than year-over-year changes to show current market conditions and price trends."
+    "combine_chart": true,
+    "explanation": "WTI (West Texas Intermediate) is the US benchmark, Brent is the global benchmark. WTI reflects US supply/demand while Brent tracks international markets. The spread between them can indicate US export competitiveness. Oil prices directly affect gasoline costs, inflation, and energy sector health."
   },
   "oil prices": {
     "series": [
-      "DCOILWTICO"
+      "DCOILWTICO",
+      "DCOILBRENTEU"
     ],
     "show_yoy": false,
-    "combine_chart": false,
-    "explanation": "WTI crude oil price is the primary benchmark for oil prices in the US market. Oil prices are typically analyzed in nominal terms rather than year-over-year changes, as traders and analysts focus on absolute price levels for trading and economic impact assessment."
+    "combine_chart": true,
+    "explanation": "WTI (West Texas Intermediate) is the US oil benchmark, Brent is the global benchmark used for ~2/3 of world oil pricing. Showing both reveals whether US prices are tracking global markets. The WTI-Brent spread can signal US supply conditions - when WTI trades below Brent, US production is abundant."
   },
   "crude oil": {
     "series": [
-      "DCOILWTICO"
+      "DCOILWTICO",
+      "DCOILBRENTEU"
     ],
     "show_yoy": false,
-    "combine_chart": false,
-    "explanation": "WTI crude oil price is the primary benchmark for US oil prices and most relevant for analyzing crude oil market trends. Financial/commodity data typically doesn't need YoY transformation as the raw price levels and volatility are what matter most for market analysis."
+    "combine_chart": true,
+    "explanation": "WTI crude is the US benchmark, Brent crude is the global benchmark. Combined they show both US and international oil market conditions. Oil prices are shown in levels (not YoY) because traders focus on absolute price for trading decisions and economic impact."
   },
   "gas prices": {
     "series": [

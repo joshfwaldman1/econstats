@@ -461,5 +461,47 @@
     ],
     "combine_chart": false,
     "explanation": "The economic status is best assessed through the Holy Trinity: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price pressures. These three core indicators provide the definitive picture of where the economy stands."
+  },
+  "small business optimism": {
+    "series": [
+      "UMCSENT",
+      "UNRATE",
+      "RSXFS"
+    ],
+    "show_yoy": [
+      false,
+      false,
+      true
+    ],
+    "combine_chart": false,
+    "explanation": "Note: The NFIB Small Business Optimism Index is not available in FRED. As proxies, we show: Consumer Sentiment (UMCSENT) which correlates with business confidence, Unemployment Rate which affects hiring decisions, and Retail Sales growth which reflects consumer demand that small businesses depend on. For the actual NFIB index, visit nfib.com directly."
+  },
+  "business confidence": {
+    "series": [
+      "UMCSENT",
+      "INDPRO",
+      "UNRATE"
+    ],
+    "show_yoy": [
+      false,
+      true,
+      false
+    ],
+    "combine_chart": false,
+    "explanation": "Business confidence indicators: Consumer Sentiment (UMCSENT) reflects overall economic optimism, Industrial Production growth (INDPRO YoY) shows manufacturing activity that businesses respond to, and Unemployment Rate indicates labor market conditions affecting hiring plans. Note: The NFIB Small Business Optimism Index is not available in FRED."
+  },
+  "small business": {
+    "series": [
+      "UMCSENT",
+      "RSXFS",
+      "UNRATE"
+    ],
+    "show_yoy": [
+      false,
+      true,
+      false
+    ],
+    "combine_chart": false,
+    "explanation": "Key indicators affecting small businesses: Consumer Sentiment shows demand outlook, Retail Sales growth indicates consumer spending that drives small business revenue, and Unemployment Rate reflects labor market conditions. Note: The NFIB Small Business Optimism Index is not directly available in FRED - visit nfib.com for that specific survey."
   }
 }

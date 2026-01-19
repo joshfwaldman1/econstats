@@ -239,8 +239,8 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
             'mortgage rates': ['MORTGAGE30US'],
             'wages': ['CES0500000003'],
             'wage growth': ['CES0500000003'],
-            'oil': ['DCOILWTICO'],
-            'oil prices': ['DCOILWTICO'],
+            'oil': ['DCOILWTICO', 'DCOILBRENTEU'],
+            'oil prices': ['DCOILWTICO', 'DCOILBRENTEU'],
             'gas': ['GASREGW'],
             'gas prices': ['GASREGW'],
             'housing': ['CSUSHPINSA'],
@@ -768,6 +768,18 @@ SERIES_DB = {
         'bullets': [
             'Measures the average hourly pay for private-sector workers—a key indicator of whether economic gains are reaching American households. When wage growth outpaces inflation, workers see real improvements in living standards.',
             'The Federal Reserve watches wage growth closely as part of its inflation mandate. Wage growth of 3-3.5% is generally consistent with the Fed\'s 2% inflation target (accounting for productivity growth). Sustained wage growth above 4-5% can signal inflationary pressure, while stagnant wages—even with low unemployment—suggest workers lack bargaining power.'
+        ]
+    },
+    'LES1252881600Q': {
+        'name': 'Real Median Weekly Earnings',
+        'unit': '1982-84 Dollars',
+        'source': 'U.S. Bureau of Labor Statistics',
+        'sa': True,
+        'frequency': 'quarterly',
+        'data_type': 'level',
+        'bullets': [
+            'Real median weekly earnings directly measure purchasing power—what workers can actually buy with their paychecks after accounting for inflation. When this rises, the typical full-time worker is getting ahead; when it falls, inflation is eating into living standards.',
+            'This is the definitive answer to "are wages keeping up with inflation." Unlike comparing nominal wage growth to CPI separately, this series already does the math. The median (not average) ensures results aren\'t skewed by high earners.'
         ]
     },
 
@@ -1951,6 +1963,23 @@ SERIES_DB = {
             'The 3-month moving average (CFNAIMA3) is often preferred for reducing volatility. Readings above +0.7 may signal emerging inflationary pressure; below -0.7 following expansion suggests recession risk.'
         ]
     },
+    'SAHMREALTIME': {
+        'name': 'Sahm Rule Recession Indicator',
+        'unit': 'Percentage Points',
+        'source': 'Federal Reserve Bank of St. Louis',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'benchmark': {
+            'value': 0.5,
+            'comparison': 'above',
+            'text': "A reading of 0.5 or higher signals recession has likely begun.",
+        },
+        'bullets': [
+            'The Sahm Rule triggers when the 3-month average unemployment rate rises 0.5 percentage points above its low from the prior 12 months. It has identified every U.S. recession since 1970 with no false positives.',
+            'Named after economist Claudia Sahm, who developed it as a trigger for automatic stabilizers. Unlike yield curve inversion which leads by 12-18 months, the Sahm Rule signals recession has already started—useful for fast policy response.'
+        ]
+    },
 
     # Productivity
     'OPHNFB': {
@@ -2134,6 +2163,18 @@ SERIES_DB = {
             'Oil prices directly affect consumers through gasoline costs and ripple through the economy via transportation and production costs. Sharp price increases act like a tax on consumers and businesses, often tipping economies into recession. The U.S. shale revolution has made America the world\'s largest oil producer, reducing (but not eliminating) vulnerability to global supply disruptions.'
         ]
     },
+    'DCOILBRENTEU': {
+        'name': 'Crude Oil Prices: Brent',
+        'unit': 'Dollars per Barrel',
+        'source': 'Federal Reserve Bank of St. Louis',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'price',
+        'bullets': [
+            'Brent crude is the global benchmark for oil prices, used to price roughly two-thirds of the world\'s internationally traded crude. Named after the Brent oilfield in the North Sea, it represents European and African crude supply.',
+            'The WTI-Brent spread reveals U.S. supply conditions: when WTI trades below Brent, U.S. production is abundant. When they converge, the U.S. is more connected to global markets. Brent often leads WTI in reacting to Middle East geopolitical events.'
+        ]
+    },
     'IMPCH': {
         'name': 'U.S. Imports from China',
         'unit': 'Millions of Dollars',
@@ -2233,8 +2274,8 @@ QUERY_MAP = {
     'women employment': {'series': ['LNS14000002', 'LNS12300062'], 'combine': False},
 
     # Trade & Commodities
-    'oil': {'series': ['DCOILWTICO'], 'combine': False},
-    'oil prices': {'series': ['DCOILWTICO'], 'combine': False},
+    'oil': {'series': ['DCOILWTICO', 'DCOILBRENTEU'], 'combine': True},
+    'oil prices': {'series': ['DCOILWTICO', 'DCOILBRENTEU'], 'combine': True},
     'china': {'series': ['IMPCH'], 'combine': False},
     'china trade': {'series': ['IMPCH'], 'combine': False},
     'trade': {'series': ['BOPGSTB'], 'combine': False},
@@ -2634,7 +2675,7 @@ def generate_chart_description(series_id: str, dates: list, values: list, info: 
     """Generate a dynamic one-line description of recent trends for a chart.
 
     This creates a bullet point describing the recent reading and trend direction,
-    to be displayed above each chart.
+    with historical context comparing to recent peaks/troughs.
 
     Args:
         series_id: FRED series ID
@@ -2643,7 +2684,7 @@ def generate_chart_description(series_id: str, dates: list, values: list, info: 
         info: Series metadata dict
 
     Returns:
-        A single sentence describing the current value and recent trend
+        A single sentence describing the current value, trend, and historical context
     """
     if not values or len(values) < 2:
         return ""
@@ -2669,26 +2710,29 @@ def generate_chart_description(series_id: str, dates: list, values: list, info: 
     except:
         date_str = latest_date
 
-    # Format the value based on data type
-    if data_type in ['rate', 'growth_rate'] or info.get('is_yoy') or info.get('is_mom'):
-        value_str = f"{latest:.1f}%"
-    elif data_type == 'price':
-        value_str = f"${latest:.2f}"
-    elif data_type == 'spread':
-        value_str = f"{latest:.2f} pp"
-    elif 'Thousands' in unit:
-        if latest >= 1000:
-            value_str = f"{latest/1000:.1f} million"
+    # Helper to format values consistently
+    def format_val(v):
+        if data_type in ['rate', 'growth_rate'] or info.get('is_yoy') or info.get('is_mom'):
+            return f"{v:.1f}%"
+        elif data_type == 'price':
+            return f"${v:.2f}"
+        elif data_type == 'spread':
+            return f"{v:.2f} pp"
+        elif 'Thousands' in unit:
+            if v >= 1000:
+                return f"{v/1000:.1f}M"
+            else:
+                return f"{v:,.0f}K"
+        elif 'Index' in unit or data_type == 'index':
+            return f"{v:.1f}"
         else:
-            value_str = f"{latest:,.0f}K"
-    elif 'Index' in unit or data_type == 'index':
-        value_str = f"{latest:.1f}"
-    else:
-        value_str = format_number(latest, unit)
+            return format_number(v, unit)
 
-    # Determine trend direction (compare to 3 months ago or 6 months depending on data)
+    value_str = format_val(latest)
+
+    # Determine trend direction (compare to 3 months ago or 1 quarter)
     trend = ""
-    lookback = 3 if frequency == 'monthly' else 1  # 3 months or 1 quarter
+    lookback = 3 if frequency == 'monthly' else 1
     if len(values) > lookback:
         prior = values[-(lookback + 1)]
         if prior != 0:
@@ -2704,11 +2748,59 @@ def generate_chart_description(series_id: str, dates: list, values: list, info: 
             else:
                 trend = "trending down"
 
-    # Build description
+    # Calculate historical context (5-year high/low if enough data)
+    historical_context = ""
+    # Get approximately 5 years of data (60 months or 20 quarters)
+    lookback_periods = 60 if frequency == 'monthly' else 20
+    if len(values) >= lookback_periods:
+        recent_values = values[-lookback_periods:]
+        recent_dates = dates[-lookback_periods:]
+
+        five_yr_max = max(recent_values)
+        five_yr_min = min(recent_values)
+        max_idx = recent_values.index(five_yr_max)
+        min_idx = recent_values.index(five_yr_min)
+
+        # Only add context if current value is meaningfully different from peak/trough
+        if five_yr_max != 0:
+            pct_from_max = ((latest - five_yr_max) / abs(five_yr_max)) * 100
+            pct_from_min = ((latest - five_yr_min) / abs(five_yr_min)) * 100 if five_yr_min != 0 else 0
+
+            try:
+                max_date_obj = datetime.strptime(recent_dates[max_idx], '%Y-%m-%d')
+                min_date_obj = datetime.strptime(recent_dates[min_idx], '%Y-%m-%d')
+                max_date_str = max_date_obj.strftime('%b %Y')
+                min_date_str = min_date_obj.strftime('%b %Y')
+            except:
+                max_date_str = recent_dates[max_idx]
+                min_date_str = recent_dates[min_idx]
+
+            # If we're down significantly from peak, mention it
+            if pct_from_max < -10 and trend in ["trending down", "falling sharply", "roughly flat"]:
+                historical_context = f"down from {format_val(five_yr_max)} peak ({max_date_str})"
+            # If we're up significantly from trough, mention it
+            elif pct_from_min > 10 and trend in ["trending up", "rising sharply", "roughly flat"]:
+                historical_context = f"up from {format_val(five_yr_min)} low ({min_date_str})"
+            # If near 5-year high (within 5%)
+            elif abs(pct_from_max) < 5:
+                historical_context = "near 5-year high"
+            # If near 5-year low (within 5%)
+            elif abs(pct_from_min) < 5:
+                historical_context = "near 5-year low"
+
+    # Build description with historical context
+    parts = [f"Currently at {value_str} as of {date_str}"]
+    if historical_context:
+        parts.append(historical_context)
     if trend:
-        return f"Currently at {value_str} as of {date_str}, {trend} in recent months."
+        parts.append(f"{trend} in recent months")
+
+    if len(parts) == 1:
+        return parts[0] + "."
+    elif len(parts) == 2:
+        return f"{parts[0]}, {parts[1]}."
     else:
-        return f"Currently at {value_str} as of {date_str}."
+        return f"{parts[0]} ({parts[1]}), {parts[2]}."
 
 
 def generate_chart_title(series_id: str, info: dict) -> str:
@@ -4162,12 +4254,24 @@ def main():
                     chart_title = generate_chart_title(series_id, info)
                     chart_desc = generate_chart_description(series_id, dates, values, info)
 
-                    # Use dynamic description as the bullet point
+                    # Get educational bullet from SERIES_DB if available
+                    static_bullets = db_info.get('bullets', [])
+                    educational_bullet = static_bullets[0] if static_bullets else None
+
+                    # Combine dynamic trend + educational context
+                    bullets_html = ""
                     if chart_desc:
+                        bullets_html += f"<li><strong>Current:</strong> {chart_desc}</li>"
+                    if educational_bullet and educational_bullet.strip():
+                        # Truncate if too long
+                        edu_text = educational_bullet[:300] + "..." if len(educational_bullet) > 300 else educational_bullet
+                        bullets_html += f"<li>{edu_text}</li>"
+
+                    if bullets_html:
                         st.markdown(f"""
                         <div class='chart-header'>
                             <div class='chart-title'>{chart_title}</div>
-                            <ul class='chart-bullets'><li>{chart_desc}</li></ul>
+                            <ul class='chart-bullets'>{bullets_html}</ul>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
@@ -4196,14 +4300,9 @@ def main():
         csv = df.to_csv(index=False)
 
         # Action buttons row
-        btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 2])
+        btn_col1, btn_col2 = st.columns([1, 3])
         with btn_col1:
             st.download_button("Download CSV", csv, "econstats_data.csv", "text/csv")
-        with btn_col2:
-            if not st.session_state.chat_mode:
-                if st.button("💬 Ask Follow-up", key="enter_chat"):
-                    st.session_state.chat_mode = True
-                    st.rerun()
 
         # Debug info expander
         with st.expander("🔧 Debug Info", expanded=False):
@@ -4249,6 +4348,18 @@ def main():
         suggestions.append('"add unemployment" - add another series')
         suggestions.append('"bar chart" - switch visualization')
         st.markdown('<span style="color: #666; font-size: 0.9em;">' + ' &bull; '.join(suggestions[:4]) + '</span>', unsafe_allow_html=True)
+
+        # Inline follow-up input (auto-pivot to chat experience)
+        followup_query = st.text_input(
+            "Follow-up",
+            placeholder="Type a follow-up: 'last 5 years', 'add unemployment', 'year over year'...",
+            label_visibility="collapsed",
+            key="followup_input"
+        )
+        if followup_query:
+            st.session_state.chat_mode = True
+            st.session_state.pending_query = followup_query
+            st.rerun()
 
         # Feedback section
         st.markdown("---")
@@ -4321,6 +4432,17 @@ def main():
         suggestions = ['"year over year"', '"last 5 years"', '"add unemployment"', '"bar chart"']
         st.markdown('<span style="color: #666; font-size: 0.9em;">' + ' &bull; '.join(suggestions) + '</span>', unsafe_allow_html=True)
 
+        # Inline follow-up input for cached results
+        cached_followup = st.text_input(
+            "Follow-up",
+            placeholder="Type a follow-up: 'last 5 years', 'add unemployment', 'year over year'...",
+            label_visibility="collapsed",
+            key="cached_followup_input"
+        )
+        if cached_followup:
+            st.session_state.chat_mode = True
+            st.session_state.pending_query = cached_followup
+            st.rerun()
 
 
 if __name__ == "__main__":

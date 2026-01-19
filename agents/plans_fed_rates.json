@@ -164,15 +164,15 @@
     ],
     "show_yoy": false,
     "combine_chart": true,
-    "explanation": "These are the two primary mortgage rate benchmarks that consumers encounter. The 30-year fixed mortgage rate (MORTGAGE30US) is the most common and widely quoted mortgage product, while the 15-year fixed rate (MORTGAGE15US) is the second most popular option. Both rates move together but the 15-year typically trades at a discount to the 30-year due to lower duration risk. These rates are surveyed by Freddie Mac and represent the rates actually offered to consumers, making them the most relevant for understanding mortgage market conditions."
+    "explanation": "The 30-year fixed rate is America's most common mortgage. Small rate changes have big affordability impacts: at 3%, a $400K home costs ~$1,686/month; at 7%, the same home costs ~$2,661/month (+58%). The 15-year rate is typically 0.5-0.75% lower but with higher payments. Current rates affect both homebuyers and existing owners considering refinancing."
   },
   "30 year mortgage": {
     "series": [
       "MORTGAGE30US"
     ],
     "show_yoy": false,
-    "combine_chart": true,
-    "explanation": "MORTGAGE30US is the 30-year fixed mortgage rate from Freddie Mac, which is the primary benchmark rate that consumers pay for home loans. This is the most direct and relevant series for understanding 30-year mortgage costs over time."
+    "combine_chart": false,
+    "explanation": "The 30-year fixed mortgage rate determines home affordability for most Americans. Example: at 3%, a $400K home costs ~$1,686/month in principal and interest; at 7%, it costs ~$2,661/month. Rates above 7% are historically normal (pre-2008 average) but feel high after the 2020-21 lows of 2.7%."
   },
   "borrowing costs": {
     "series": [
