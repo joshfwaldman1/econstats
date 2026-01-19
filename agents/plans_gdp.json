@@ -1,27 +1,36 @@
 {
   "gdp": {
     "series": [
-      "A191RL1Q225SBEA"
+      "A191RO1Q156NBEA",
+      "A191RL1Q225SBEA",
+      "PB0000031Q225SBEA",
+      "GDPNOW"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "For GDP queries, people typically want to see economic growth performance. A191RL1Q225SBEA shows the real GDP growth rate (quarterly, annualized), which is the headline economic growth measure that indicates whether the economy is expanding or contracting. This is more informative than static GDP levels since it shows the economy's momentum and direction."
+    "explanation": "Four views of GDP: (1) Year-over-year growth is the most stable and meaningful measure of economic performance. (2) Quarterly annualized rate is the headline number but can be volatile. (3) Core GDP (Final Sales to Private Domestic Purchasers) strips out volatile government, trade, and inventories—the CEA considers it a better predictor of underlying growth. (4) GDPNow is the Atlanta Fed's real-time estimate of current-quarter growth."
   },
   "gdp growth": {
     "series": [
-      "A191RL1Q225SBEA"
+      "A191RO1Q156NBEA",
+      "A191RL1Q225SBEA",
+      "PB0000031Q225SBEA",
+      "GDPNOW"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "A191RL1Q225SBEA is the Real GDP growth rate (quarterly, annualized) - this is THE headline GDP growth measure that economists and media focus on. It's already expressed as a growth rate, so no YoY calculation needed."
+    "explanation": "Four complementary GDP measures: (1) Annual growth (YoY) shows the stable underlying trend. (2) Quarterly annualized rate is timely but volatile. (3) Core GDP focuses on private domestic demand, excluding volatile components—a better predictor of future growth. (4) GDPNow provides the Atlanta Fed's real-time tracking estimate. Together they give a complete picture. Trend growth is ~2%."
   },
   "economic growth": {
     "series": [
-      "A191RL1Q225SBEA"
+      "A191RO1Q156NBEA",
+      "A191RL1Q225SBEA",
+      "PB0000031Q225SBEA",
+      "GDPNOW"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "A191RL1Q225SBEA is the Real GDP growth rate (quarterly, annualized) - this is THE definitive measure of economic growth that economists and policymakers focus on. It shows the pace at which the economy is expanding or contracting, already expressed as a growth rate, so no year-over-year calculation is needed."
+    "explanation": "Comprehensive GDP analysis: (1) Year-over-year growth is the most reliable measure of economic momentum. (2) Quarterly annualized rate is the headline number but swings widely. (3) Core GDP (private domestic demand) is what the CEA watches as a leading indicator. (4) GDPNow shows where current-quarter growth is tracking in real-time. Trend U.S. growth is ~2%; above 3% is strong."
   },
   "real gdp": {
     "series": [
