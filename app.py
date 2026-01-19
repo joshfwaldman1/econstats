@@ -2600,6 +2600,8 @@ Write an improved explanation that:
 5. Be fact-based. You CAN characterize things as "strong", "weak", "cooling", etc. - but only if the data supports it. If signals are mixed (e.g., slowing job growth but still-low unemployment), acknowledge the mixed picture honestly rather than cherry-picking one narrative.
 6. For employment/payroll data: Focus on job GROWTH, not total levels. If monthly_job_change, avg_monthly_change_3mo, and avg_monthly_change_12mo are provided, mention: (a) the latest month's job gain/loss, (b) the 3-month average, and (c) the 12-month average. These are in thousands, so 150.0 = 150,000 jobs. Context: The economy needs ~100-150K jobs/month to keep up with population growth. If the 3-month average is negative or well below the 12-month average, that's a cooling signal worth noting.
 
+CRITICAL DATE RULE: You MUST use the exact dates from the "latest_date" field in the DATA SUMMARY above. Do NOT guess or hallucinate dates. If the data says "2025-12-01", write "December 2025". NEVER write a different year than what the data shows.
+
 CRITICAL: Do NOT start with meta-commentary like "I notice the data..." or "The data provided shows..." or "Looking at the data...". Just answer the question directly using the data. Start with the answer, not with observations about what data you have.
 
 Keep it to 3-4 concise sentences. Do not use bullet points. Just return the explanation text, nothing else."""
@@ -2626,6 +2628,116 @@ Keep it to 3-4 concise sentences. Do not use bullet points. Just return the expl
             return improved if improved else original_explanation
     except Exception as e:
         return original_explanation
+
+
+def generate_chart_description(series_id: str, dates: list, values: list, info: dict) -> str:
+    """Generate a dynamic one-line description of recent trends for a chart.
+
+    This creates a bullet point describing the recent reading and trend direction,
+    to be displayed above each chart.
+
+    Args:
+        series_id: FRED series ID
+        dates: List of date strings
+        values: List of numeric values
+        info: Series metadata dict
+
+    Returns:
+        A single sentence describing the current value and recent trend
+    """
+    if not values or len(values) < 2:
+        return ""
+
+    name = info.get('name', info.get('title', series_id))
+    unit = info.get('unit', info.get('units', ''))
+    latest = values[-1]
+    latest_date = dates[-1]
+
+    # Get database info for data type
+    db_info = SERIES_DB.get(series_id, {})
+    data_type = db_info.get('data_type', 'level')
+    frequency = db_info.get('frequency', 'monthly')
+
+    # Format latest date
+    try:
+        latest_date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
+        if frequency == 'quarterly':
+            quarter = (latest_date_obj.month - 1) // 3 + 1
+            date_str = f"Q{quarter} {latest_date_obj.year}"
+        else:
+            date_str = latest_date_obj.strftime('%b %Y')
+    except:
+        date_str = latest_date
+
+    # Format the value based on data type
+    if data_type in ['rate', 'growth_rate'] or info.get('is_yoy') or info.get('is_mom'):
+        value_str = f"{latest:.1f}%"
+    elif data_type == 'price':
+        value_str = f"${latest:.2f}"
+    elif data_type == 'spread':
+        value_str = f"{latest:.2f} pp"
+    elif 'Thousands' in unit:
+        if latest >= 1000:
+            value_str = f"{latest/1000:.1f} million"
+        else:
+            value_str = f"{latest:,.0f}K"
+    elif 'Index' in unit or data_type == 'index':
+        value_str = f"{latest:.1f}"
+    else:
+        value_str = format_number(latest, unit)
+
+    # Determine trend direction (compare to 3 months ago or 6 months depending on data)
+    trend = ""
+    lookback = 3 if frequency == 'monthly' else 1  # 3 months or 1 quarter
+    if len(values) > lookback:
+        prior = values[-(lookback + 1)]
+        if prior != 0:
+            change_pct = ((latest - prior) / abs(prior)) * 100
+            if abs(change_pct) < 1:
+                trend = "roughly flat"
+            elif change_pct > 5:
+                trend = "rising sharply"
+            elif change_pct > 0:
+                trend = "trending up"
+            elif change_pct < -5:
+                trend = "falling sharply"
+            else:
+                trend = "trending down"
+
+    # Build description
+    if trend:
+        return f"Currently at {value_str} as of {date_str}, {trend} in recent months."
+    else:
+        return f"Currently at {value_str} as of {date_str}."
+
+
+def generate_chart_title(series_id: str, info: dict) -> str:
+    """Generate a clear, understandable title for a chart.
+
+    Args:
+        series_id: FRED series ID
+        info: Series metadata dict
+
+    Returns:
+        A user-friendly chart title
+    """
+    # Check if there's a custom friendly name in SERIES_DB
+    db_info = SERIES_DB.get(series_id, {})
+
+    # Use friendly name if available, otherwise use the series name
+    name = db_info.get('name', info.get('name', info.get('title', series_id)))
+
+    # Add transformation info to title
+    if info.get('is_yoy'):
+        if '(YoY' not in name and 'Year-over-Year' not in name:
+            name = f"{name} (YoY %)"
+    elif info.get('is_mom'):
+        if '(MoM' not in name and 'Month-over-Month' not in name:
+            name = f"{name} (MoM %)"
+    elif info.get('is_avg_annual'):
+        name = f"{name} (Annual Average)"
+
+    return name
 
 
 def fred_request(endpoint: str, params: dict) -> dict:
@@ -3945,15 +4057,21 @@ def main():
 
         # Charts
         if combine and len(series_data) > 1:
-            db_info = SERIES_DB.get(series_data[0][0], {})
-            bullets = db_info.get('bullets', [])
-            # Filter out empty bullets
-            bullets = [b for b in bullets if b and b.strip()]
-
             st.markdown("<div class='chart-section'>", unsafe_allow_html=True)
-            chart_title = ' vs '.join([info.get('name', info.get('title', sid))[:40] for sid, _, _, info in series_data])
-            if bullets:
-                bullets_html = ''.join([f'<li>{b}</li>' for b in bullets[:2]])
+
+            # Generate dynamic chart title and descriptions
+            chart_title = ' vs '.join([generate_chart_title(sid, info)[:40] for sid, _, _, info in series_data])
+
+            # Generate dynamic bullet points for each series in combined chart
+            dynamic_bullets = []
+            for sid, d, v, i in series_data:
+                desc = generate_chart_description(sid, d, v, i)
+                if desc:
+                    series_name = generate_chart_title(sid, i)[:30]
+                    dynamic_bullets.append(f"<strong>{series_name}:</strong> {desc}")
+
+            if dynamic_bullets:
+                bullets_html = ''.join([f'<li>{b}</li>' for b in dynamic_bullets])
                 st.markdown(f"""
                 <div class='chart-header'>
                     <div class='chart-title'>{chart_title}</div>
@@ -4040,18 +4158,22 @@ def main():
                         )
                         st.plotly_chart(fig_line, use_container_width=True)
                 else:
-                    if bullets:
-                        bullets_html = ''.join([f'<li>{b}</li>' for b in bullets[:2]])
+                    # Generate dynamic chart title and description
+                    chart_title = generate_chart_title(series_id, info)
+                    chart_desc = generate_chart_description(series_id, dates, values, info)
+
+                    # Use dynamic description as the bullet point
+                    if chart_desc:
                         st.markdown(f"""
                         <div class='chart-header'>
-                            <div class='chart-title'>{name}</div>
-                            <ul class='chart-bullets'>{bullets_html}</ul>
+                            <div class='chart-title'>{chart_title}</div>
+                            <ul class='chart-bullets'><li>{chart_desc}</li></ul>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
                         st.markdown(f"""
                         <div class='chart-header'>
-                            <div class='chart-title'>{name}</div>
+                            <div class='chart-title'>{chart_title}</div>
                         </div>
                         """, unsafe_allow_html=True)
 
