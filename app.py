@@ -3761,6 +3761,7 @@ def main():
 
         # Fetch data
         series_data = []
+        raw_series_data = {}  # Store raw data for chart_groups
         series_names_fetched = []
         with st.spinner("Fetching data from FRED..."):
             for series_id in series_to_fetch[:4]:
@@ -3780,6 +3781,10 @@ def main():
                     db_info = SERIES_DB.get(series_id, {})
                     series_name = info.get('name', info.get('title', series_id))
                     series_names_fetched.append(series_name)
+
+                    # Store raw data for chart_groups (before any transformations)
+                    if chart_groups:
+                        raw_series_data[series_id] = (series_id, list(dates), list(values), dict(info))
 
                     # Apply transformations based on user request or series config
                     if show_payroll_changes and series_id == 'PAYEMS' and len(dates) > 1:
@@ -4194,8 +4199,8 @@ def main():
 
         # Chart Groups handling - allows multiple charts with different series/transformations
         if chart_groups and len(chart_groups) > 0:
-            # Build a lookup dict from the already-fetched series_data
-            series_lookup = {sid: (sid, dates, values, info) for sid, dates, values, info in series_data}
+            # Use raw_series_data (untransformed) for chart groups
+            series_lookup = raw_series_data
 
             for group_idx, group in enumerate(chart_groups):
                 group_series_ids = group.get('series', [])
