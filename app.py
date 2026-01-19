@@ -4233,8 +4233,38 @@ def main():
                         transformed.append((sid, new_dates, new_values, new_info))
                     group_data = transformed
 
+                # Apply normalize transformation (index to 100 at common start date)
+                group_normalize = group.get('normalize', False)
+                if group_normalize and len(group_data) > 0:
+                    # Find the latest start date among all series (so all have data)
+                    start_dates = [dates_g[0] for sid, dates_g, values_g, info_g in group_data if dates_g]
+                    common_start = max(start_dates) if start_dates else None
+
+                    norm_data = []
+                    for sid, dates_g, values_g, info_g in group_data:
+                        if values_g and len(values_g) > 0 and dates_g:
+                            # Find index of common start date (or closest date after)
+                            start_idx = 0
+                            for i, d in enumerate(dates_g):
+                                if d >= common_start:
+                                    start_idx = i
+                                    break
+
+                            # Trim to common start and index to 100
+                            trimmed_dates = dates_g[start_idx:]
+                            trimmed_values = values_g[start_idx:]
+
+                            if trimmed_values and trimmed_values[0] != 0:
+                                base_value = trimmed_values[0]
+                                indexed_values = [(v / base_value) * 100 for v in trimmed_values]
+                                new_info = dict(info_g)
+                                new_info['unit'] = 'Index (Start = 100)'
+                                new_info['is_normalized'] = True
+                                norm_data.append((sid, trimmed_dates, indexed_values, new_info))
+                    group_data = norm_data if norm_data else group_data
+
                 # Apply pct_change_from_start transformation if requested
-                if group_pct_from_start:
+                elif group_pct_from_start:
                     pct_data = []
                     for sid, dates_g, values_g, info_g in group_data:
                         if values_g and len(values_g) > 0:
