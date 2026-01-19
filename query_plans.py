@@ -909,48 +909,51 @@ QUERY_PLANS = {
   },
   "are wages keeping up with inflation": {
     "series": [
-      "CES0500000013",
-      "CES0500000032"
+      "CES0500000003",
+      "AHETPI",
+      "CPIAUCSL"
     ],
-    "show_yoy": False,
+    "show_yoy": True,
     "combine_chart": True,
-    "explanation": "These are REAL (inflation-adjusted) average hourly earnings indexes that directly show purchasing power. CES0500000013 tracks all private employees, CES0500000032 tracks production/nonsupervisory workers. When the line rises, real wages are rising; when it falls, inflation is outpacing wage growth. Compare current levels to Feb 2020 to see whether workers have recovered purchasing power since the pandemic. Note: The 2020 spike is a 'composition effect' from low-wage job losses."
+    "explanation": "Direct comparison of wage growth vs inflation: CES0500000003 tracks hourly earnings growth for all private employees, AHETPI tracks production/nonsupervisory workers (80% of workforce). CPIAUCSL shows inflation. If wage growth (blue/red lines) exceeds inflation (green line), workers are gaining purchasing power. All shown as year-over-year percent change for apples-to-apples comparison."
   },
   "real wages": {
     "series": [
-      "CES0500000013",
-      "CES0500000032"
+      "LES1252881600Q"
     ],
-    "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "Real average hourly earnings in constant (1982-84) dollars - already adjusted for inflation. CES0500000013 covers all private employees, CES0500000032 covers production and nonsupervisory workers (about 80% of private workforce). These indexes directly measure purchasing power: if nominal wages rise 4% but inflation is 3%, the real wage index rises ~1%. Compare current levels to historical peaks to assess worker purchasing power."
+    "show_yoy": True,
+    "combine_chart": False,
+    "explanation": "LES1252881600Q is real (inflation-adjusted) median weekly earnings for full-time workers, in constant 1982-84 dollars. This quarterly series from the BLS directly measures purchasing power - when it rises, workers can buy more with their earnings. Year-over-year change shows the pace of real wage growth."
   },
   "wages vs inflation": {
     "series": [
-      "CES0500000013",
-      "CES0500000032"
+      "CES0500000003",
+      "AHETPI",
+      "CPIAUCSL"
     ],
-    "show_yoy": False,
+    "show_yoy": True,
     "combine_chart": True,
-    "explanation": "These are REAL (inflation-adjusted) average hourly earnings indexes that directly show purchasing power. CES0500000013 tracks all private employees, CES0500000032 tracks production/nonsupervisory workers. Rising line = wages beating inflation. Falling line = inflation eroding purchasing power."
+    "explanation": "Direct comparison: CES0500000003 (all employees) and AHETPI (production workers) show wage growth rates, CPIAUCSL shows inflation. When wage growth > inflation, real wages are rising. When inflation > wage growth, purchasing power is falling. All shown as year-over-year percent change."
   },
   "real wage growth": {
     "series": [
-      "CES0500000013",
-      "CES0500000032"
+      "CES0500000003",
+      "AHETPI",
+      "CPIAUCSL"
     ],
-    "show_yoy": False,
+    "show_yoy": True,
     "combine_chart": True,
-    "explanation": "Real (inflation-adjusted) average hourly earnings indexes. CES0500000013 covers all private employees, CES0500000032 covers production/nonsupervisory workers. Rising line = real wages growing. The slope shows the pace of real wage growth."
+    "explanation": "Compare nominal wage growth to inflation to see real wage growth: If CES0500000003 (all employees) or AHETPI (production workers) exceed CPIAUCSL (inflation), workers have real wage gains. The gap between wage growth and inflation IS real wage growth."
   },
   "wages vs prices since feb 2020": {
     "series": [
-      "CES0500000013",
-      "CES0500000032"
+      "CES0500000003",
+      "AHETPI",
+      "CPIAUCSL"
     ],
-    "show_yoy": False,
+    "show_yoy": True,
     "combine_chart": True,
-    "explanation": "Directly tracks purchasing power relative to the pre-Covid baseline. CES0500000013 (All Employees) and CES0500000032 (Production and Nonsupervisory) are shown in inflation-adjusted dollars. Note: The massive spike in 2020 is a 'composition effect' caused by low-wage workers losing jobs (which raised the average); look at the current level versus Feb 2020 to see the true recovery."
+    "explanation": "Compare wage growth to inflation: CES0500000003 (all employees) and AHETPI (production workers) show nominal wage growth rates, while CPIAUCSL shows inflation. When wage growth exceeds inflation, workers gain purchasing power. All shown as year-over-year rates for direct comparison."
   },
   "wage growth": {
     "series": [
@@ -2713,15 +2716,14 @@ QUERY_PLANS = {
   },
   "recession risk": {
     "series": [
-      "A191RL1Q225SBEA",
-      "PAYEMS",
+      "USSLIND",
       "T10Y2Y",
-      "UNRATE"
+      "ICSA",
+      "SAHMREALTIME"
     ],
     "show_yoy": False,
-    "show_payroll_changes": True,
     "combine_chart": False,
-    "explanation": "The four key recession indicators: Real GDP growth shows economic momentum, nonfarm payrolls track job creation, the yield curve spread (10Y-2Y) is a leading indicator where inversions precede recessions, and unemployment rate captures labor market health."
+    "explanation": "Leading Economic Index (USSLIND) predicts turning points 6-9 months ahead - consecutive declines signal recession. Yield curve (T10Y2Y) inversion has preceded every recession since 1970. Initial claims (ICSA) show real-time layoffs - spikes signal trouble. Sahm Rule (SAHMREALTIME) triggers when unemployment rises enough to indicate recession has likely begun."
   },
   "recession indicators": {
     "series": [
