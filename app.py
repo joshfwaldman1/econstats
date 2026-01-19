@@ -343,7 +343,17 @@ def find_query_plan(query: str, threshold: float = 0.85) -> dict | None:
     if normalized in QUERY_PLANS:
         return QUERY_PLANS[normalized]
 
-    # 3. Fuzzy match - find closest query in plans
+    # 3. Check synonyms - some plans have a "synonyms" list for alternate names
+    for plan_key, plan in QUERY_PLANS.items():
+        synonyms = plan.get('synonyms', [])
+        if original_lower in synonyms or normalized in synonyms:
+            return plan
+        # Also check if query is a fuzzy match to any synonym
+        for syn in synonyms:
+            if difflib.SequenceMatcher(None, normalized, syn).ratio() > 0.85:
+                return plan
+
+    # 4. Fuzzy match - find closest query in plans
     all_queries = list(QUERY_PLANS.keys())
 
     # Try matching against normalized query
@@ -356,7 +366,7 @@ def find_query_plan(query: str, threshold: float = 0.85) -> dict | None:
     if matches:
         return QUERY_PLANS[matches[0]]
 
-    # 4. Word-based matching for longer queries
+    # 5. Word-based matching for longer queries
     # If query contains key economic terms, try to match those
     key_terms = ['inflation', 'unemployment', 'gdp', 'jobs', 'rates', 'housing',
                  'wages', 'recession', 'fed', 'cpi', 'pce', 'payrolls']

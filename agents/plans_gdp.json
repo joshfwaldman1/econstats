@@ -281,23 +281,8 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Real Final Sales to Private Domestic Purchasers\u2014economists call this 'core GDP.' It strips out the most volatile components (government spending, exports, inventories) to focus on private demand: consumer spending plus business fixed investment. The Council of Economic Advisers has found it to be a better predictor of future growth than headline GDP."
-  },
-  "final sales to private domestic purchasers": {
-    "series": [
-      "PB0000031Q225SBEA"
-    ],
-    "show_yoy": false,
-    "combine_chart": false,
-    "explanation": "This 'core GDP' measure focuses on sustainable private demand by excluding government spending, exports, and inventory changes. It captures consumer spending plus business fixed investment\u2014the engine of economic growth. The Council of Economic Advisers has noted it's a better predictor of future growth than headline GDP."
-  },
-  "private demand": {
-    "series": [
-      "PB0000031Q225SBEA"
-    ],
-    "show_yoy": false,
-    "combine_chart": false,
-    "explanation": "Real Final Sales to Private Domestic Purchasers measures private domestic demand\u2014consumer spending plus business fixed investment\u2014excluding government, trade, and inventory swings. This 'core GDP' measure is less volatile and has been found by the CEA to better predict future economic growth than headline GDP."
+    "synonyms": ["private demand", "final sales to private domestic purchasers", "final sales"],
+    "explanation": "Real Final Sales to Private Domestic Purchasers (also called 'core GDP' or 'private demand') strips out volatile components (government spending, exports, inventories) to focus on consumer spending plus business fixed investment. The CEA considers it a better predictor of future growth than headline GDP."
   },
   "yearly gdp": {
     "series": [
