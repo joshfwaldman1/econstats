@@ -2945,29 +2945,35 @@ QUERY_PLANS = {
   "gdp": {
     "series": [
       "A191RO1Q156NBEA",
-      "A191RL1Q225SBEA"
+      "A191RL1Q225SBEA",
+      "PB0000031Q225SBEA",
+      "GDPNOW"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "Annual GDP growth (year-over-year) is the most meaningful measure of economic performance—it shows how much the economy has actually grown compared to a year ago, smoothing out quarterly noise. The quarterly annualized rate is also shown for timeliness but can be volatile (it swung from -28% to +35% during COVID). Trend U.S. growth is ~2%; above 3% is strong; below 1% signals weakness."
+    "explanation": "Four views of GDP: (1) Year-over-year growth is the most stable and meaningful measure. (2) Quarterly annualized rate is the headline number but volatile. (3) Core GDP (Final Sales to Private Domestic Purchasers) strips out volatile government, trade, and inventories—the CEA considers it a better predictor of underlying growth. (4) GDPNow is the Atlanta Fed's real-time estimate of current-quarter growth. Trend U.S. growth is ~2%."
   },
   "gdp growth": {
     "series": [
       "A191RO1Q156NBEA",
-      "A191RL1Q225SBEA"
+      "A191RL1Q225SBEA",
+      "PB0000031Q225SBEA",
+      "GDPNOW"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "Annual GDP growth (year-over-year) is the primary measure economists use to assess economic performance—it shows actual growth over 4 quarters and is far more stable than the volatile quarterly rate. The quarterly annualized figure is included for timeliness but should be interpreted with caution as it can swing wildly quarter-to-quarter. Trend U.S. growth is ~2% annually; above 3% is robust."
+    "explanation": "Four complementary GDP measures: (1) Annual growth (YoY) shows stable underlying trend. (2) Quarterly annualized rate is timely but volatile. (3) Core GDP focuses on private domestic demand, excluding volatile components—a better predictor of future growth. (4) GDPNow provides the Atlanta Fed's real-time tracking estimate. Together they give a complete picture of economic growth. Trend is ~2%."
   },
   "economic growth": {
     "series": [
       "A191RO1Q156NBEA",
-      "A191RL1Q225SBEA"
+      "A191RL1Q225SBEA",
+      "PB0000031Q225SBEA",
+      "GDPNOW"
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "Year-over-year GDP growth is the most reliable measure of economic expansion—it shows how much the economy has actually grown compared to a year ago. The quarterly annualized rate (the 'headline' number) is more timely but can be misleading due to volatility. Trend growth is ~2%; sustained growth above 3% is strong; negative readings signal contraction."
+    "explanation": "Comprehensive GDP analysis: (1) Year-over-year growth is the most reliable measure of economic momentum. (2) Quarterly annualized rate is the headline number but swings widely. (3) Core GDP (private domestic demand) is what the CEA watches as a leading indicator. (4) GDPNow shows where current-quarter growth is tracking in real-time. Trend U.S. growth is ~2%; above 3% is strong."
   },
   "real gdp": {
     "series": [

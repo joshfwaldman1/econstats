@@ -1217,6 +1217,24 @@ SERIES_DB = {
             'Why it matters: The Council of Economic Advisers has found this to be a better predictor of future growth than headline GDP. When core GDP is strong but headline GDP is weak (due to inventory drawdown or trade deficit), it often signals the economy is healthier than the headline suggests. Watch for divergences between this and headline GDP.'
         ]
     },
+    'GDPNOW': {
+        'name': 'Atlanta Fed GDPNow Estimate',
+        'unit': '% Change (SAAR)',
+        'source': 'Federal Reserve Bank of Atlanta',
+        'sa': True,
+        'frequency': 'daily',
+        'data_type': 'growth_rate',
+        'benchmark': {
+            'value': 2.0,
+            'text': "GDPNow is a real-time estimate of current-quarter GDP growth. Compare to trend growth of ~2%.",
+            'comparison': 'above',
+            'ranges': [(0, 2, 'below trend'), (2, 3, 'trend'), (3, 4, 'strong'), (4, 100, 'very strong')],
+        },
+        'bullets': [
+            'GDPNow is the Atlanta Fed\'s "nowcast" of real GDP growth for the current quarter, updated as new economic data comes in. It provides the most timely estimate of where GDP is tracking before the official BEA release.',
+            'Unlike official GDP (released ~1 month after quarter ends), GDPNow updates continuously. It\'s not a forecast—it\'s a model-based estimate using the same methodology as BEA. Watch how it evolves as data releases come in.'
+        ]
+    },
 
     # GDP Components (for "gdp components" query)
     'PCECC96': {
@@ -2233,10 +2251,10 @@ QUERY_MAP = {
     'rent inflation': {'series': ['CUSR0000SAH1'], 'combine': False},
     'shelter': {'series': ['CUSR0000SAH1'], 'combine': False},
 
-    # GDP - Annual (YoY) first for stability, quarterly second for timeliness
-    'gdp': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'], 'combine': False},
-    'gdp growth': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'], 'combine': False},
-    'economic growth': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'], 'combine': False},
+    # GDP - Annual (YoY), quarterly, core GDP, and GDPNow
+    'gdp': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA', 'PB0000031Q225SBEA', 'GDPNOW'], 'combine': False},
+    'gdp growth': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA', 'PB0000031Q225SBEA', 'GDPNOW'], 'combine': False},
+    'economic growth': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA', 'PB0000031Q225SBEA', 'GDPNOW'], 'combine': False},
     'real gdp': {'series': ['GDPC1'], 'combine': False},
     'annual gdp': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
     'annual gdp growth': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
