@@ -6,7 +6,12 @@
       "MORTGAGE30US",
       "HOUST"
     ],
-    "show_yoy": [true, true, false, true],
+    "show_yoy": [
+      true,
+      true,
+      false,
+      true
+    ],
     "combine_chart": false,
     "explanation": "Four angles on housing: (1) Case-Shiller home prices show property values. (2) Existing home sales reveal actual transaction volume and demand. (3) 30-year mortgage rates determine affordability - high rates crush sales even when prices stay elevated. (4) Housing starts show new construction and future supply. Together they capture price, demand, affordability, and supply."
   },
@@ -16,7 +21,11 @@
       "EXHOSLUSM495S",
       "MORTGAGE30US"
     ],
-    "show_yoy": [true, true, false],
+    "show_yoy": [
+      true,
+      true,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Case-Shiller (CSUSHPINSA) shows home prices. Existing home sales (EXHOSLUSM495S) shows actual market activity and demand. 30-year mortgage rates (MORTGAGE30US) determine affordability. High rates crush sales even if prices stay elevated - these three together show the full picture of price, demand, and affordability."
   },
@@ -265,5 +274,145 @@
     "show_yoy": false,
     "combine_chart": true,
     "explanation": "RRVRUSQ156N (rental vacancy rate) and RHVRUSQ156N (homeowner vacancy rate) are the two primary measures of housing vacancy rates in the US. The rental vacancy rate shows the percentage of rental housing units that are vacant and available for rent, while the homeowner vacancy rate shows the percentage of homeowner housing units that are vacant and for sale. Both are quarterly data and combining them provides a complete picture of housing market tightness across both rental and ownership markets. Lower vacancy rates indicate tighter housing supply, while higher rates suggest more available housing stock."
+  },
+  "average home price": {
+    "series": [
+      "ASPUS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "ASPUS is the average sales price of houses sold in the United States. Note that the average is pulled higher by expensive homes and tends to exceed the median."
+  },
+  "chicago housing": {
+    "series": [
+      "CHXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CHXRSA is the Case-Shiller Home Price Index for Chicago\u2014more moderate price levels than coastal cities."
+  },
+  "construction pipeline": {
+    "series": [
+      "PERMIT",
+      "HOUST",
+      "UNDCONTSA",
+      "COMPUTSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The full construction pipeline: Permits (PERMIT) are approved future projects, Starts (HOUST) are projects beginning construction, Under Construction (UNDCONTSA) shows active building, and Completions (COMPUTSA) are finished units. This shows housing supply from planning through delivery."
+  },
+  "dallas housing": {
+    "series": [
+      "DAXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "DAXRSA is the Case-Shiller Home Price Index for Dallas\u2014avoided the 2008 crash and has seen strong growth from corporate relocations."
+  },
+  "la home prices": {
+    "series": [
+      "LXXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "LXXRSA is the Case-Shiller Home Price Index for Los Angeles, tracking price changes using the repeat-sales methodology."
+  },
+  "los angeles housing": {
+    "series": [
+      "LXXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "LXXRSA is the Case-Shiller Home Price Index for Los Angeles\u2014one of the least affordable major markets due to high prices relative to local incomes."
+  },
+  "median home price": {
+    "series": [
+      "MSPUS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "MSPUS is the median sales price of houses sold in the United States\u2014the most intuitive price measure showing what typical homes actually sell for. Half of homes sell above this price, half below. More relatable than Case-Shiller index values."
+  },
+  "median house price": {
+    "series": [
+      "MSPUS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "MSPUS is the median sales price of houses sold in the United States\u2014the most intuitive price measure showing what typical homes actually sell for. Half of homes sell above this price, half below."
+  },
+  "miami housing": {
+    "series": [
+      "MIXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "MIXRSA is the Case-Shiller Home Price Index for Miami\u2014experienced extreme boom-bust in 2008 and strong appreciation since 2020 from pandemic migration."
+  },
+  "new york housing": {
+    "series": [
+      "NYXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "NYXRSA is the Case-Shiller Home Price Index for New York\u2014prices tend to be more stable than other coastal metros with smaller boom-bust swings."
+  },
+  "nyc home prices": {
+    "series": [
+      "NYXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "NYXRSA is the Case-Shiller Home Price Index for New York City metro area."
+  },
+  "phoenix housing": {
+    "series": [
+      "PHXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "PHXRSA is the Case-Shiller Home Price Index for Phoenix\u2014experienced the most extreme boom-bust of any major market in 2008, rapid appreciation since 2020."
+  },
+  "san francisco housing": {
+    "series": [
+      "SFXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "SFXRSA is the Case-Shiller Home Price Index for San Francisco\u2014one of the most expensive and volatile housing markets in the country, driven by tech industry wealth."
+  },
+  "seattle housing": {
+    "series": [
+      "SEXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "SEXRSA is the Case-Shiller Home Price Index for Seattle\u2014driven by tech wealth from Amazon and Microsoft."
+  },
+  "sf home prices": {
+    "series": [
+      "SFXRSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "SFXRSA is the Case-Shiller Home Price Index for San Francisco, tracking price changes using the repeat-sales methodology."
+  },
+  "rental vacancy": {
+    "series": [
+      "RRVRUSQ156N"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "RRVRUSQ156N is the rental vacancy rate\u2014the percentage of rental units that are vacant. Low vacancy gives landlords pricing power and pushes rents higher."
+  },
+  "vacancy rate": {
+    "series": [
+      "RHVRUSQ156N",
+      "RRVRUSQ156N"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "RHVRUSQ156N is the homeowner vacancy rate (for-sale homes), RRVRUSQ156N is the rental vacancy rate. Both at historic lows indicating severe housing shortage."
   }
 }

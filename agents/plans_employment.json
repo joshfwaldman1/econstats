@@ -413,5 +413,13 @@
     "show_yoy": true,
     "combine_chart": false,
     "explanation": "CES0500000003 (Average Hourly Earnings of All Employees, Total Private) is the primary measure of wage growth from the establishment survey. Year-over-year growth shows the pace of wage increases across the private sector."
+  },
+  "real wage growth": {
+    "series": [
+      "LES1252881600Q"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "LES1252881600Q is real (inflation-adjusted) median weekly earnings for full-time workers. This directly measures real wage growth - no need to compare nominal wages to inflation separately. When this rises, workers' purchasing power is increasing. YoY % change shows the pace of real wage gains or losses."
   }
 }

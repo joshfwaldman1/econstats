@@ -8,7 +8,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Four views of GDP: (1) Year-over-year growth is the most stable and meaningful measure of economic performance. (2) Quarterly annualized rate is the headline number but can be volatile. (3) Core GDP (Final Sales to Private Domestic Purchasers) strips out volatile government, trade, and inventories—the CEA considers it a better predictor of underlying growth. (4) GDPNow is the Atlanta Fed's real-time estimate of current-quarter growth."
+    "explanation": "Four views of GDP: (1) Year-over-year growth is the most stable and meaningful measure of economic performance. (2) Quarterly annualized rate is the headline number but can be volatile. (3) Core GDP (Final Sales to Private Domestic Purchasers) strips out volatile government, trade, and inventories\u2014the CEA considers it a better predictor of underlying growth. (4) GDPNow is the Atlanta Fed's real-time estimate of current-quarter growth."
   },
   "gdp growth": {
     "series": [
@@ -19,7 +19,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Four complementary GDP measures: (1) Annual growth (YoY) shows the stable underlying trend. (2) Quarterly annualized rate is timely but volatile. (3) Core GDP focuses on private domestic demand, excluding volatile components—a better predictor of future growth. (4) GDPNow provides the Atlanta Fed's real-time tracking estimate. Together they give a complete picture. Trend growth is ~2%."
+    "explanation": "Four complementary GDP measures: (1) Annual growth (YoY) shows the stable underlying trend. (2) Quarterly annualized rate is timely but volatile. (3) Core GDP focuses on private domestic demand, excluding volatile components\u2014a better predictor of future growth. (4) GDPNow provides the Atlanta Fed's real-time tracking estimate. Together they give a complete picture. Trend growth is ~2%."
   },
   "economic growth": {
     "series": [
@@ -265,5 +265,47 @@
     "show_yoy": true,
     "combine_chart": false,
     "explanation": "GCEC1 (Real Government Consumption Expenditures and Gross Investment) is the comprehensive measure of government spending in the GDP accounts. This captures all government purchases of goods and services at federal, state, and local levels in real terms. Year-over-year growth shows the trend in government fiscal activity and its contribution to economic growth."
+  },
+  "annual gdp growth": {
+    "series": [
+      "A191RL1A225NBEA",
+      "A191RO1Q156NBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Two views of annual GDP growth: The annual series (A191RL1A225NBEA, bar chart) shows the official year-over-year growth for completed years\u2014the definitive measure economists use when comparing economic performance across years. The quarterly series (A191RO1Q156NBEA, line) shows each quarter vs the same quarter a year ago\u2014its Q4 value approximates annual growth and provides a more current estimate. Trend U.S. growth is ~2%."
+  },
+  "core gdp": {
+    "series": [
+      "PB0000031Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Real Final Sales to Private Domestic Purchasers\u2014economists call this 'core GDP.' It strips out the most volatile components (government spending, exports, inventories) to focus on private demand: consumer spending plus business fixed investment. The Council of Economic Advisers has found it to be a better predictor of future growth than headline GDP."
+  },
+  "final sales to private domestic purchasers": {
+    "series": [
+      "PB0000031Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "This 'core GDP' measure focuses on sustainable private demand by excluding government spending, exports, and inventory changes. It captures consumer spending plus business fixed investment\u2014the engine of economic growth. The Council of Economic Advisers has noted it's a better predictor of future growth than headline GDP."
+  },
+  "private demand": {
+    "series": [
+      "PB0000031Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Real Final Sales to Private Domestic Purchasers measures private domestic demand\u2014consumer spending plus business fixed investment\u2014excluding government, trade, and inventory swings. This 'core GDP' measure is less volatile and has been found by the CEA to better predict future economic growth than headline GDP."
+  },
+  "yearly gdp": {
+    "series": [
+      "A191RL1A225NBEA",
+      "A191RO1Q156NBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Annual real GDP growth shown two ways: The official annual series (A191RL1A225NBEA) for completed calendar years, and the quarterly year-ago comparison (A191RO1Q156NBEA) for a more current read. The Q4 reading of the quarterly series approximates the full-year annual growth rate. Trend growth is approximately 2% annually."
   }
 }
