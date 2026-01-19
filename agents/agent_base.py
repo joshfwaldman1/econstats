@@ -44,6 +44,21 @@ def call_claude(prompt: str, retries: int = 3) -> dict:
     return None
 
 
+MULTI_CHART_GUIDANCE = """
+
+## CRITICAL: COMPREHENSIVE RESPONSES
+When there are multiple relevant series that tell different parts of the story, include ALL of them (up to 4 series). Do NOT be lazy and just pick one.
+
+For example:
+- "GDP" should include: annual growth (YoY), quarterly growth, core GDP (private demand), and GDPNow
+- "Inflation" should include: headline CPI, core CPI, and possibly PCE
+- "Jobs" should include: payrolls AND unemployment rate
+- Each series should add unique insight - don't include redundant measures
+
+The explanation field should briefly describe what EACH series measures and why it's included.
+"""
+
+
 def process_prompts(prompts: list, expert_prompt: str, output_file: str, category: str):
     """Process a list of prompts with the given expert prompt."""
     print(f"\n{'='*60}")
@@ -57,7 +72,7 @@ def process_prompts(prompts: list, expert_prompt: str, output_file: str, categor
     for i, prompt in enumerate(prompts):
         print(f"[{i+1}/{len(prompts)}] '{prompt}'")
 
-        full_prompt = expert_prompt + f"\n\nUSER QUERY: {prompt}"
+        full_prompt = expert_prompt + MULTI_CHART_GUIDANCE + f"\n\nUSER QUERY: {prompt}"
         result = call_claude(full_prompt)
 
         if result and result.get('series'):

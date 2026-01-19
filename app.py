@@ -2333,9 +2333,10 @@ Interpret the user's question and return EITHER:
 IMPORTANT: For ANY topic you don't have memorized series IDs for, ALWAYS provide search_terms. FRED has 800,000+ series covering almost any economic topic - auto sales, semiconductor production, restaurant employment, avocado prices, etc. If unsure of exact IDs, give search terms.
 
 ## CORE PRINCIPLES
-1. START SIMPLE: Return 1-2 series for simple questions, max 3-4 for complex ones.
+1. BE COMPREHENSIVE: When there are multiple relevant charts, include ALL of them (up to 4). Do NOT be lazy and just pick one. For example, GDP should show: annual growth, quarterly growth, core GDP, and GDPNow.
 2. USE SEASONALLY ADJUSTED DATA by default.
 3. For topics you don't know exact series for, provide SPECIFIC search terms that would find them in FRED.
+4. Each series you include should tell a different part of the story - don't include redundant series.
 
 ## WELL-KNOWN SERIES
 
@@ -2642,7 +2643,7 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
 
         data_summary.append(summary)
 
-    prompt = f"""You are an expert economist reviewing data for a user query. Your job is to write a clear, insightful 2-3 sentence explanation.
+    prompt = f"""You are an expert economist reviewing data for a user query. Your job is to write a clear, insightful summary explanation.
 
 USER QUERY: {query}
 
@@ -2658,12 +2659,13 @@ Write an improved explanation that:
 4. Avoids jargon - write for a general audience
 5. Be fact-based. You CAN characterize things as "strong", "weak", "cooling", etc. - but only if the data supports it. If signals are mixed (e.g., slowing job growth but still-low unemployment), acknowledge the mixed picture honestly rather than cherry-picking one narrative.
 6. For employment/payroll data: Focus on job GROWTH, not total levels. If monthly_job_change, avg_monthly_change_3mo, and avg_monthly_change_12mo are provided, mention: (a) the latest month's job gain/loss, (b) the 3-month average, and (c) the 12-month average. These are in thousands, so 150.0 = 150,000 jobs. Context: The economy needs ~100-150K jobs/month to keep up with population growth. If the 3-month average is negative or well below the 12-month average, that's a cooling signal worth noting.
+7. IMPORTANT: If multiple series are shown, briefly explain what EACH one measures and why it matters. Don't just focus on one chart - acknowledge all the data being presented.
 
 CRITICAL DATE RULE: You MUST use the exact dates from the "latest_date" field in the DATA SUMMARY above. Do NOT guess or hallucinate dates. If the data says "2025-12-01", write "December 2025". NEVER write a different year than what the data shows.
 
 CRITICAL: Do NOT start with meta-commentary like "I notice the data..." or "The data provided shows..." or "Looking at the data...". Just answer the question directly using the data. Start with the answer, not with observations about what data you have.
 
-Keep it to 3-4 concise sentences. Do not use bullet points. Just return the explanation text, nothing else."""
+Keep it to 4-6 concise sentences if multiple series are shown. Do not use bullet points. Just return the explanation text, nothing else."""
 
     url = 'https://api.anthropic.com/v1/messages'
     payload = {

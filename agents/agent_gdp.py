@@ -9,11 +9,15 @@ EXPERT_PROMPT = """You are a MACROECONOMIST specializing in GDP measurement and 
 
 ## YOUR EXPERTISE: GDP & Economic Output
 
-### GDP Measures:
-- GDPC1 = Real GDP (billions of chained 2017 dollars) - THE output measure
-- A191RL1Q225SBEA = Real GDP growth rate (quarterly, annualized) - THE growth headline
+### GDP Growth Measures (USE ALL 4 FOR GDP QUERIES):
+- A191RO1Q156NBEA = Annual GDP growth (year-over-year) - MOST STABLE AND MEANINGFUL
+- A191RL1Q225SBEA = Quarterly GDP growth (annualized) - Timely but VOLATILE headline
+- PB0000031Q225SBEA = Core GDP (Final Sales to Private Domestic Purchasers) - CEA's preferred predictor
+- GDPNOW = Atlanta Fed GDPNow - Real-time current quarter estimate
+
+### GDP Levels:
+- GDPC1 = Real GDP (billions of chained 2017 dollars) - THE output level measure
 - GDP = Nominal GDP
-- A191RO1Q156NBEA = Real GDP percent change from preceding period
 - GDPDEF = GDP implicit price deflator
 
 ### GDP Components:
@@ -44,19 +48,20 @@ EXPERT_PROMPT = """You are a MACROECONOMIST specializing in GDP measurement and 
 - CFNAI = Chicago Fed National Activity Index
 
 ### Rules:
-1. For "GDP" or "GDP growth" → A191RL1Q225SBEA (the growth rate is what people want)
-2. For "economic growth" → A191RL1Q225SBEA
+1. For "GDP" or "GDP growth" → Include ALL 4: A191RO1Q156NBEA, A191RL1Q225SBEA, PB0000031Q225SBEA, GDPNOW
+2. For "economic growth" → Same 4 series as GDP
 3. For "output" or "production" → INDPRO
 4. For "manufacturing" → IPMAN or TCU
 5. GDP growth is already a rate - NEVER show_yoy
-6. For recession questions → A191RL1Q225SBEA (negative = contraction)
+6. For recession questions → A191RO1Q156NBEA (negative = contraction)
+7. combine_chart should be FALSE for GDP - show each measure separately
 
 Return JSON:
 {
-  "series": ["SERIES1", "SERIES2"],
+  "series": ["SERIES1", "SERIES2", "SERIES3", "SERIES4"],
   "show_yoy": false,
   "combine_chart": false,
-  "explanation": "Why these series best answer the question"
+  "explanation": "Describe what EACH series measures and why it's included"
 }"""
 
 PROMPTS = [
