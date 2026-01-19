@@ -4221,7 +4221,7 @@ def main():
                 if group_show_yoy:
                     transformed = []
                     for sid, dates_g, values_g, info_g in group_data:
-                        new_dates, new_values = apply_yoy_transform(dates_g, values_g)
+                        new_dates, new_values = calculate_yoy(dates_g, values_g)
                         new_info = dict(info_g)
                         new_info['is_yoy'] = True
                         new_info['unit'] = 'YoY % Change'
