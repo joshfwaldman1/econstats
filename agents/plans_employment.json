@@ -2,29 +2,38 @@
   "jobs": {
     "series": [
       "PAYEMS",
-      "UNRATE"
+      "UNRATE",
+      "JTSJOL",
+      "LNS12300060"
     ],
     "show_yoy": false,
+    "show_payroll_changes": true,
     "combine_chart": false,
-    "explanation": "PAYEMS (nonfarm payrolls) is THE jobs number - the monthly change shows job creation/loss from the establishment survey. UNRATE (unemployment rate) provides the complementary household survey perspective. Together they give the complete picture of the job market that markets and policymakers focus on."
+    "explanation": "Four key labor market views: (1) Nonfarm payrolls shows monthly job gains/losses - THE jobs number. (2) Unemployment rate is the headline jobless measure. (3) Job openings (JOLTS) shows labor demand - high openings signal a tight market. (4) Prime-age employment ratio (25-54) is the best measure of labor market health, avoiding distortions from retirement and school enrollment."
   },
   "job market": {
     "series": [
       "PAYEMS",
-      "UNRATE"
+      "UNRATE",
+      "JTSJOL",
+      "LNS12300060"
     ],
     "show_yoy": false,
+    "show_payroll_changes": true,
     "combine_chart": false,
-    "explanation": "For a general job market overview, PAYEMS (total nonfarm payrolls) shows job creation - the headline 'jobs number' that gets the most attention. UNRATE (unemployment rate) shows the percentage of people actively looking for work who can't find it. Together, these two series give the clearest, most widely-followed picture of overall job market conditions."
+    "explanation": "Comprehensive job market view: (1) Payrolls show monthly job creation. (2) Unemployment rate shows joblessness. (3) Job openings reveal employer demand for workers. (4) Prime-age employment-population ratio is economists' preferred measure of true labor market strength - it shows what share of prime working-age adults are actually employed."
   },
   "employment": {
     "series": [
       "PAYEMS",
-      "UNRATE"
+      "UNRATE",
+      "JTSJOL",
+      "LNS12300060"
     ],
     "show_yoy": false,
+    "show_payroll_changes": true,
     "combine_chart": false,
-    "explanation": "For a general employment query, these are the two most important headline indicators: PAYEMS (total nonfarm payrolls) shows the monthly change in jobs - this is THE jobs number that moves markets. UNRATE is the headline unemployment rate (U-3) that measures the percentage of labor force actively seeking work. Together they give the complete picture of employment conditions."
+    "explanation": "Four angles on employment: (1) Nonfarm payrolls - the headline job creation number. (2) Unemployment rate - standard measure of joblessness. (3) JOLTS job openings - shows how many positions employers are trying to fill. (4) Prime-age employment ratio - the most comprehensive measure of labor utilization for working-age adults."
   },
   "unemployment": {
     "series": [

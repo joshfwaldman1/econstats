@@ -2,11 +2,13 @@
   "housing": {
     "series": [
       "CSUSHPINSA",
+      "EXHOSLUSM495S",
+      "MORTGAGE30US",
       "HOUST"
     ],
-    "show_yoy": false,
+    "show_yoy": [true, true, false, true],
     "combine_chart": false,
-    "explanation": "For a general 'housing' query, these two series provide the most comprehensive overview of the housing market. CSUSHPINSA (S&P/Case-Shiller National Home Price Index) is the gold standard for tracking home price trends nationwide. HOUST (Housing Starts) measures new construction activity, indicating supply-side dynamics and future housing inventory. Together, they capture both the price and activity dimensions of the housing market - showing what's happening to home values and how much new supply is being added."
+    "explanation": "Four angles on housing: (1) Case-Shiller home prices show property values. (2) Existing home sales reveal actual transaction volume and demand. (3) 30-year mortgage rates determine affordability - high rates crush sales even when prices stay elevated. (4) Housing starts show new construction and future supply. Together they capture price, demand, affordability, and supply."
   },
   "housing market": {
     "series": [
