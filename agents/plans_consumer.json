@@ -1,11 +1,12 @@
 {
   "consumer spending": {
     "series": [
+      "PCE",
       "RSXFS"
     ],
-    "show_yoy": false,
+    "show_yoy": true,
     "combine_chart": false,
-    "explanation": "RSXFS (Retail Sales Excluding Food Services) is the cleanest measure of consumer spending trends. It captures discretionary retail purchases while excluding the more volatile food services component, providing a clear view of underlying consumer demand patterns and spending behavior."
+    "explanation": "PCE (Personal Consumption Expenditures) is the comprehensive measure of consumer spending covering all goods and services - this is what economists use for total consumer spending. RSXFS (Retail Sales Excluding Food Services) provides timelier monthly data focused on goods purchases. Together they show both the complete spending picture (PCE) and the timely retail indicator (RSXFS)."
   },
   "retail sales": {
     "series": [

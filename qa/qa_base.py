@@ -8,7 +8,21 @@ import time
 from urllib.request import urlopen, Request
 
 sys.path.insert(0, '/Users/josh/Desktop/econstats')
-from query_plans import QUERY_PLANS
+import glob
+
+def load_query_plans():
+    """Load all query plans from agents/*.json files."""
+    plans = {}
+    agents_dir = '/Users/josh/Desktop/econstats/agents'
+    for plan_file in glob.glob(os.path.join(agents_dir, 'plans_*.json')):
+        try:
+            with open(plan_file, 'r') as f:
+                plans.update(json.load(f))
+        except Exception:
+            pass
+    return plans
+
+QUERY_PLANS = load_query_plans()
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 

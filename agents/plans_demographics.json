@@ -131,11 +131,11 @@
   "men unemployment": {
     "series": [
       "LNS14000001",
-      "LNS14000026"
+      "LNS14000025"
     ],
     "show_yoy": false,
     "combine_chart": true,
-    "explanation": "LNS14000001 shows the overall unemployment rate for men 16+, while LNS14000026 shows unemployment for women 25-54 as a comparison point to understand how men's unemployment compares to prime-age women. This provides context for male unemployment performance in the labor market."
+    "explanation": "LNS14000001 shows the overall unemployment rate for men 16+, while LNS14000025 shows unemployment for prime-age men 25-54, which is the most economically meaningful measure as it excludes students and early retirees. Together they provide a complete view of male unemployment across age groups."
   },
   "male employment": {
     "series": [

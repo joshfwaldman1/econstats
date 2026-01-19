@@ -226,24 +226,25 @@
   },
   "quantitative easing": {
     "series": [
-      "FEDFUNDS",
-      "DGS10",
-      "BAMLC0A0CM",
-      "BAMLH0A0HYM2"
-    ],
-    "show_yoy": false,
-    "combine_chart": false,
-    "explanation": "Quantitative easing (QE) is unconventional monetary policy where the Fed purchases long-term securities to lower long-term rates when short rates are at zero. FEDFUNDS shows when conventional policy hit zero bound, DGS10 shows QE's primary transmission mechanism (lowering long-term Treasury yields), and corporate credit spreads (BAMLC0A0CM for investment grade, BAMLH0A0HYM2 for high yield) demonstrate QE's portfolio balance effects - as the Fed bought Treasuries, investors moved into riskier assets, compressing credit spreads. These four series together illustrate QE's complete transmission: zero short rates necessitating QE, falling long-term Treasury yields from Fed purchases, and tighter credit spreads from portfolio rebalancing effects."
-  },
-  "quantitative tightening": {
-    "series": [
+      "WALCL",
       "FEDFUNDS",
       "DGS10",
       "BAMLC0A0CM"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Quantitative tightening (QT) involves the Fed reducing its balance sheet and raising rates to tighten monetary conditions. FEDFUNDS shows the direct policy rate increases, DGS10 captures how QT affects long-term borrowing costs and bond markets, and BAMLC0A0CM (investment grade credit spreads) shows how tighter monetary policy impacts corporate borrowing conditions and financial stress. These three series together illustrate the transmission mechanism of QT from policy rates to long-term rates to credit markets. Using separate charts allows better visualization of how spreads widen during tightening cycles while rate levels rise."
+    "explanation": "Quantitative easing (QE) is unconventional monetary policy where the Fed purchases securities to expand its balance sheet. WALCL (Fed total assets) is the direct measure of QE - balance sheet expansion IS quantitative easing. FEDFUNDS shows when conventional policy hit zero bound (necessitating QE), DGS10 shows QE's primary transmission mechanism (lowering long-term Treasury yields), and corporate credit spreads (BAMLC0A0CM) demonstrate portfolio balance effects as investors moved into riskier assets."
+  },
+  "quantitative tightening": {
+    "series": [
+      "WALCL",
+      "FEDFUNDS",
+      "DGS10",
+      "BAMLC0A0CM"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Quantitative tightening (QT) involves the Fed reducing its balance sheet to tighten monetary conditions. WALCL (Fed total assets) is the direct measure of QT - balance sheet reduction IS quantitative tightening. FEDFUNDS shows rate hikes that typically accompany QT, DGS10 captures how QT affects long-term borrowing costs, and BAMLC0A0CM (investment grade credit spreads) shows the impact on corporate borrowing conditions."
   },
   "fed balance sheet": {
     "series": [

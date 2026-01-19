@@ -159,12 +159,11 @@
   },
   "grocery prices": {
     "series": [
-      "CUSR0000SAF11",
-      "CUSR0000SEFV"
+      "CUSR0000SAF11"
     ],
     "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "For grocery prices, I'm showing CPI Food at home (CUSR0000SAF11) which measures supermarket/grocery store food prices, and CPI Food away from home (CUSR0000SEFV) which covers restaurants. Food at home is the primary grocery price measure. Both shown as year-over-year inflation rates to see how grocery costs are changing over time. Combined chart allows comparison between home vs restaurant food inflation trends."
+    "combine_chart": false,
+    "explanation": "CUSR0000SAF11 (CPI Food at home) is the definitive measure of grocery prices, capturing prices at supermarkets and grocery stores. This excludes restaurants and dining out, which is exactly what 'grocery prices' should measure. Shown as year-over-year inflation rate to reveal how grocery costs are changing over time."
   },
   "gas prices": {
     "series": [
@@ -362,7 +361,7 @@
     ],
     "show_yoy": true,
     "combine_chart": true,
-    "explanation": "CUSR0000SETA02 is the CPI component for Motor Vehicle Insurance which includes used car price impacts, shown alongside headline CPI (CPIAUCSL) for context. Used cars were a major inflation driver in 2021-2022 as supply chain issues and chip shortages created massive price spikes. While I don't have the exact used car CPI series code in my knowledge base, this insurance component captures much of the used vehicle price volatility that significantly impacted overall inflation during the pandemic recovery period."
+    "explanation": "CUSR0000SETA02 is the CPI component for used cars and trucks, directly measuring used vehicle price changes. Shown alongside headline CPI (CPIAUCSL) for context since used cars were a major inflation driver in 2021-2022 as supply chain issues and chip shortages created massive price spikes. The comparison reveals how used car inflation has contributed to overall price pressures."
   },
   "new car prices": {
     "series": [

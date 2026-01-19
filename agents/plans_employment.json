@@ -246,13 +246,13 @@
   },
   "layoffs": {
     "series": [
+      "JTSLDL",
       "ICSA",
-      "CCSA",
-      "JTSQUR"
+      "CCSA"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "For layoffs, ICSA (initial jobless claims) is the most timely weekly indicator of new layoffs and job losses. CCSA (continuing claims) shows the persistence of unemployment from layoffs. JTSQUR (quits rate) provides context - when layoffs increase, quits typically decrease as workers become more cautious about leaving jobs voluntarily. These three series together give the clearest picture of layoff activity and labor market stress."
+    "explanation": "JTSLDL (JOLTS Layoffs and Discharges) is the definitive monthly measure of layoffs from the Job Openings and Labor Turnover Survey. ICSA (initial jobless claims) provides the most timely weekly indicator of new layoffs as they happen. CCSA (continuing claims) shows the persistence of unemployment from layoffs. Together these capture both the official layoffs count and real-time labor market stress."
   },
   "job cuts": {
     "series": [
@@ -357,5 +357,49 @@
     "show_yoy": true,
     "combine_chart": false,
     "explanation": "CES0500000011 is average weekly hours for all employees on private nonfarm payrolls - the primary measure of weekly hours worked. This series tracks labor intensity and is a key leading indicator of employment changes. YoY comparison helps show whether employers are adjusting hours (easier than hiring/firing) in response to economic conditions."
+  },
+  "wages vs prices since feb 2020": {
+    "series": [
+      "CES0500000013",
+      "CES0500000032"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Directly tracks purchasing power relative to the pre-Covid baseline. CES0500000013 (All Employees) and CES0500000032 (Production and Nonsupervisory) are shown in inflation-adjusted dollars. Note: The massive spike in 2020 is a 'composition effect' caused by low-wage workers losing jobs (which raised the average); look at the current level versus Feb 2020 to see the true recovery."
+  },
+  "are wages keeping up with inflation": {
+    "series": [
+      "CES0500000013",
+      "CES0500000032"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "These are REAL (inflation-adjusted) average hourly earnings indexes that directly show purchasing power. CES0500000013 tracks all private employees, CES0500000032 tracks production/nonsupervisory workers. When the line rises, real wages are rising; when it falls, inflation is outpacing wage growth. Compare current levels to Feb 2020 to see whether workers have recovered purchasing power since the pandemic. Note: The 2020 spike is a 'composition effect' from low-wage job losses."
+  },
+  "wages vs inflation": {
+    "series": [
+      "CES0500000013",
+      "CES0500000032"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "These are REAL (inflation-adjusted) average hourly earnings indexes that directly show purchasing power. CES0500000013 tracks all private employees, CES0500000032 tracks production/nonsupervisory workers. Rising line = wages beating inflation. Falling line = inflation eroding purchasing power. The index accounts for both nominal wage changes and price increases."
+  },
+  "real wages": {
+    "series": [
+      "CES0500000013",
+      "CES0500000032"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Real average hourly earnings in constant (1982-84) dollars - already adjusted for inflation. CES0500000013 covers all private employees, CES0500000032 covers production and nonsupervisory workers (about 80% of private workforce). These indexes directly measure purchasing power: if nominal wages rise 4% but inflation is 3%, the real wage index rises ~1%. Compare current levels to historical peaks to assess worker purchasing power."
+  },
+  "wage growth": {
+    "series": [
+      "CES0500000003"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CES0500000003 (Average Hourly Earnings of All Employees, Total Private) is the primary measure of wage growth from the establishment survey. Year-over-year growth shows the pace of wage increases across the private sector."
   }
 }

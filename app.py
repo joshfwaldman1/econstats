@@ -286,11 +286,22 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
 
     return result
 
-# Import pre-computed query plans (314 common queries)
-try:
-    from query_plans import QUERY_PLANS
-except ImportError:
-    QUERY_PLANS = {}
+# Load pre-computed query plans directly from JSON files (no merge step needed)
+import glob
+
+def load_query_plans():
+    """Load all query plans from agents/*.json files."""
+    plans = {}
+    agents_dir = os.path.join(os.path.dirname(__file__), 'agents')
+    for plan_file in glob.glob(os.path.join(agents_dir, 'plans_*.json')):
+        try:
+            with open(plan_file, 'r') as f:
+                plans.update(json.load(f))
+        except Exception as e:
+            print(f"Warning: Could not load {plan_file}: {e}")
+    return plans
+
+QUERY_PLANS = load_query_plans()
 
 # Smart query matching with normalization and fuzzy matching
 import difflib

@@ -138,11 +138,11 @@ QUERY_PLANS = {
   "men unemployment": {
     "series": [
       "LNS14000001",
-      "LNS12300061"
+      "LNS14000025"
     ],
     "show_yoy": False,
-    "combine_chart": False,
-    "explanation": "LNS14000001 shows the unemployment rate for men 16+, while LNS12300061 shows the employment-population ratio for prime-age men (25-54)—the best measure of men's labor market health since it captures both unemployment and labor force dropout. Prime-age employment ratio is the gold standard for assessing true employment conditions."
+    "combine_chart": True,
+    "explanation": "LNS14000001 shows the overall unemployment rate for men 16+, while LNS14000025 shows unemployment for prime-age men 25-54, which is the most economically meaningful measure as it excludes students and early retirees. Together they provide a complete view of male unemployment across age groups."
   },
   "male employment": {
     "series": [
@@ -715,11 +715,12 @@ QUERY_PLANS = {
   },
   "consumer spending": {
     "series": [
+      "PCE",
       "RSXFS"
     ],
-    "show_yoy": False,
+    "show_yoy": True,
     "combine_chart": False,
-    "explanation": "RSXFS (Retail Sales Excluding Food Services) is the cleanest measure of consumer spending trends. It captures discretionary retail purchases while excluding the more volatile food services component, providing a clear view of underlying consumer demand patterns and spending behavior."
+    "explanation": "PCE (Personal Consumption Expenditures) is the comprehensive measure of consumer spending covering all goods and services - this is what economists use for total consumer spending. RSXFS (Retail Sales Excluding Food Services) provides timelier monthly data focused on goods purchases. Together they show both the complete spending picture (PCE) and the timely retail indicator (RSXFS)."
   },
   "retail sales": {
     "series": [
@@ -908,39 +909,56 @@ QUERY_PLANS = {
   },
   "are wages keeping up with inflation": {
     "series": [
-      "CES0500000003",
-      "CPIAUCSL"
+      "CES0500000013",
+      "CES0500000032"
     ],
-    "show_yoy": True,
+    "show_yoy": False,
     "combine_chart": True,
-    "explanation": "Comparing wage growth vs inflation (YoY %). When the wage line is above inflation, workers are currently gaining purchasing power. Note: This shows the current pace. To see if wages have cumulatively kept up since a starting point (e.g., pre-pandemic), try 'normalize' or 'cumulative change'."
+    "explanation": "These are REAL (inflation-adjusted) average hourly earnings indexes that directly show purchasing power. CES0500000013 tracks all private employees, CES0500000032 tracks production/nonsupervisory workers. When the line rises, real wages are rising; when it falls, inflation is outpacing wage growth. Compare current levels to Feb 2020 to see whether workers have recovered purchasing power since the pandemic. Note: The 2020 spike is a 'composition effect' from low-wage job losses."
   },
   "real wages": {
     "series": [
-      "CES0500000003",
-      "CPIAUCSL"
+      "CES0500000013",
+      "CES0500000032"
     ],
-    "show_yoy": True,
+    "show_yoy": False,
     "combine_chart": True,
-    "explanation": "Wage growth vs inflation (YoY %). When wages grow faster than prices, real purchasing power rises. This shows the current pace - try 'normalize' to see cumulative effects over time."
+    "explanation": "Real average hourly earnings in constant (1982-84) dollars - already adjusted for inflation. CES0500000013 covers all private employees, CES0500000032 covers production and nonsupervisory workers (about 80% of private workforce). These indexes directly measure purchasing power: if nominal wages rise 4% but inflation is 3%, the real wage index rises ~1%. Compare current levels to historical peaks to assess worker purchasing power."
   },
   "wages vs inflation": {
     "series": [
-      "CES0500000003",
-      "CPIAUCSL"
+      "CES0500000013",
+      "CES0500000032"
     ],
-    "show_yoy": True,
+    "show_yoy": False,
     "combine_chart": True,
-    "explanation": "Wage growth vs CPI inflation (YoY %). The gap shows whether workers are gaining or losing purchasing power at the current pace."
+    "explanation": "These are REAL (inflation-adjusted) average hourly earnings indexes that directly show purchasing power. CES0500000013 tracks all private employees, CES0500000032 tracks production/nonsupervisory workers. Rising line = wages beating inflation. Falling line = inflation eroding purchasing power."
   },
   "real wage growth": {
     "series": [
-      "CES0500000003",
-      "CPIAUCSL"
+      "CES0500000013",
+      "CES0500000032"
+    ],
+    "show_yoy": False,
+    "combine_chart": True,
+    "explanation": "Real (inflation-adjusted) average hourly earnings indexes. CES0500000013 covers all private employees, CES0500000032 covers production/nonsupervisory workers. Rising line = real wages growing. The slope shows the pace of real wage growth."
+  },
+  "wages vs prices since feb 2020": {
+    "series": [
+      "CES0500000013",
+      "CES0500000032"
+    ],
+    "show_yoy": False,
+    "combine_chart": True,
+    "explanation": "Directly tracks purchasing power relative to the pre-Covid baseline. CES0500000013 (All Employees) and CES0500000032 (Production and Nonsupervisory) are shown in inflation-adjusted dollars. Note: The massive spike in 2020 is a 'composition effect' caused by low-wage workers losing jobs (which raised the average); look at the current level versus Feb 2020 to see the true recovery."
+  },
+  "wage growth": {
+    "series": [
+      "CES0500000003"
     ],
     "show_yoy": True,
-    "combine_chart": True,
-    "explanation": "Wage growth minus inflation = real wage growth. Showing both as YoY % - if wages are above CPI, real wages are rising. Try 'normalize' to see cumulative change indexed to a starting point."
+    "combine_chart": False,
+    "explanation": "CES0500000003 (Average Hourly Earnings of All Employees, Total Private) is the primary measure of nominal wage growth from the establishment survey. Year-over-year growth shows the pace of wage increases across the private sector."
   },
   "income growth": {
     "series": [
@@ -1951,10 +1969,10 @@ QUERY_PLANS = {
   },
   "quantitative easing": {
     "series": [
+      "WALCL",
       "FEDFUNDS",
       "DGS10",
-      "BAMLC0A0CM",
-      "BAMLH0A0HYM2"
+      "BAMLC0A0CM"
     ],
     "show_yoy": False,
     "combine_chart": False,
@@ -1962,6 +1980,7 @@ QUERY_PLANS = {
   },
   "quantitative tightening": {
     "series": [
+      "WALCL",
       "FEDFUNDS",
       "DGS10",
       "BAMLC0A0CM"
@@ -2262,12 +2281,11 @@ QUERY_PLANS = {
   },
   "grocery prices": {
     "series": [
-      "CUSR0000SAF11",
-      "CUSR0000SEFV"
+      "CUSR0000SAF11"
     ],
     "show_yoy": True,
-    "combine_chart": True,
-    "explanation": "For grocery prices, I'm showing CPI Food at home (CUSR0000SAF11) which measures supermarket/grocery store food prices, and CPI Food away from home (CUSR0000SEFV) which covers restaurants. Food at home is the primary grocery price measure. Both shown as year-over-year inflation rates to see how grocery costs are changing over time. Combined chart allows comparison between home vs restaurant food inflation trends."
+    "combine_chart": False,
+    "explanation": "CUSR0000SAF11 (CPI Food at home) is the definitive measure of grocery prices, capturing prices at supermarkets and grocery stores. This excludes restaurants and dining out, which is exactly what 'grocery prices' should measure. Shown as year-over-year inflation rate to reveal how grocery costs are changing over time."
   },
   "gasoline prices": {
     "series": [
@@ -2451,7 +2469,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": True,
     "combine_chart": True,
-    "explanation": "CUSR0000SETA02 is the CPI component for Motor Vehicle Insurance which includes used car price impacts, shown alongside headline CPI (CPIAUCSL) for context. Used cars were a major inflation driver in 2021-2022 as supply chain issues and chip shortages created massive price spikes. While I don't have the exact used car CPI series code in my knowledge base, this insurance component captures much of the used vehicle price volatility that significantly impacted overall inflation during the pandemic recovery period."
+    "explanation": "CUSR0000SETA02 is the CPI component for used cars and trucks, directly measuring used vehicle price changes. Shown alongside headline CPI (CPIAUCSL) for context since used cars were a major inflation driver in 2021-2022 as supply chain issues and chip shortages created massive price spikes. The comparison reveals how used car inflation has contributed to overall price pressures."
   },
   "new car prices": {
     "series": [
@@ -2665,7 +2683,7 @@ QUERY_PLANS = {
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
-    "show_yoy": True,
+    "show_yoy": [False, False, True],
     "combine_chart": False,
     "explanation": "For economic forecasting, I'm showing the Leading Economic Index (USSLIND) which is designed to predict turning points in the business cycle 6-9 months ahead, current GDP growth to establish the baseline trajectory, and CPI inflation year-over-year to assess price pressures. The LEI combines 10 forward-looking indicators and is the gold standard for economic forecasting used by the Conference Board and federal agencies."
   },
@@ -3029,7 +3047,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": False,
     "combine_chart": False,
-    "explanation": "Industrial Production Index (INDPRO) is the primary measure of US economic output, tracking real output across manufacturing, mining, and utilities sectors. This index directly measures physical production and is the standard metric for analyzing output trends in the economy."
+    "explanation": "Industrial Production Index (INDPRO) measures output in the industrial sector (manufacturing, mining, and utilities), which represents roughly 20% of GDP. This is the standard metric for tracking industrial output trends. For total US economic output, see GDP (GDPC1) which captures all sectors including services."
   },
   "production": {
     "series": [
@@ -3197,7 +3215,7 @@ QUERY_PLANS = {
     ],
     "show_yoy": False,
     "combine_chart": True,
-    "explanation": "These are the five main components of real GDP: personal consumption expenditures (PCECC96), gross private domestic investment (GPDIC1), government consumption (GCEC1), exports (EXPGSC1), and imports (IMPGSC1). All are in real terms (chained 2017 dollars) to match how GDP is measured. Combined chart shows their relative magnitudes and how each component contributes to total economic output."
+    "explanation": "These are the five main components of real GDP: personal consumption expenditures (PCECC96), gross private domestic investment (GPDIC1), government consumption (GCEC1), exports (EXPGSC1), and imports (IMPGSC1). Note: GDP = C + I + G + (X - M), meaning imports are SUBTRACTED from GDP as they represent spending on foreign production. All are in real terms (chained 2017 dollars)."
   },
   "consumer spending share of gdp": {
     "series": [

@@ -211,7 +211,11 @@
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
-    "show_yoy": true,
+    "show_yoy": [
+      false,
+      false,
+      true
+    ],
     "combine_chart": false,
     "explanation": "For economic forecasting, I'm showing the Leading Economic Index (USSLIND) which is designed to predict turning points in the business cycle 6-9 months ahead, current GDP growth to establish the baseline trajectory, and CPI inflation year-over-year to assess price pressures. The LEI combines 10 forward-looking indicators and is the gold standard for economic forecasting used by the Conference Board and federal agencies."
   },

@@ -62,7 +62,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Industrial Production Index (INDPRO) is the primary measure of US economic output, tracking real output across manufacturing, mining, and utilities sectors. This index directly measures physical production and is the standard metric for analyzing output trends in the economy."
+    "explanation": "Industrial Production Index (INDPRO) measures output in the industrial sector (manufacturing, mining, and utilities), which represents roughly 20% of GDP. This is the standard metric for tracking industrial output trends. For total US economic output, see GDP (GDPC1) which captures all sectors including services."
   },
   "production": {
     "series": [
@@ -230,7 +230,7 @@
     ],
     "show_yoy": false,
     "combine_chart": true,
-    "explanation": "These are the five main components of real GDP: personal consumption expenditures (PCECC96), gross private domestic investment (GPDIC1), government consumption (GCEC1), exports (EXPGSC1), and imports (IMPGSC1). All are in real terms (chained 2017 dollars) to match how GDP is measured. Combined chart shows their relative magnitudes and how each component contributes to total economic output."
+    "explanation": "These are the five main components of real GDP: personal consumption expenditures (PCECC96), gross private domestic investment (GPDIC1), government consumption (GCEC1), exports (EXPGSC1), and imports (IMPGSC1). Note: GDP = C + I + G + (X - M), meaning imports are SUBTRACTED from GDP as they represent spending on foreign production. All are in real terms (chained 2017 dollars)."
   },
   "consumer spending share of gdp": {
     "series": [
