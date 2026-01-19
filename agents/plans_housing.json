@@ -11,11 +11,12 @@
   "housing market": {
     "series": [
       "CSUSHPINSA",
-      "HOUST"
+      "EXHOSLUSM495S",
+      "MORTGAGE30US"
     ],
-    "show_yoy": false,
+    "show_yoy": [true, true, false],
     "combine_chart": false,
-    "explanation": "The housing market is best captured by these two fundamental indicators: the S&P/Case-Shiller National Home Price Index (CSUSHPINSA) shows the price trends across the market, while Housing Starts (HOUST) reveals construction activity and supply dynamics. Together they provide a comprehensive view of both demand pressures (reflected in prices) and supply response (new construction activity)."
+    "explanation": "Case-Shiller (CSUSHPINSA) shows home prices. Existing home sales (EXHOSLUSM495S) shows actual market activity and demand. 30-year mortgage rates (MORTGAGE30US) determine affordability. High rates crush sales even if prices stay elevated - these three together show the full picture of price, demand, and affordability."
   },
   "home prices": {
     "series": [

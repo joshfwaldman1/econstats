@@ -119,11 +119,12 @@
   },
   "stock market": {
     "series": [
-      "SP500"
+      "SP500",
+      "VIXCLS"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "The S&P 500 is the most comprehensive and widely-followed U.S. stock market index, representing approximately 80% of the total market capitalization of U.S. equities. It provides the best single measure of overall stock market performance and is what most analysts and investors reference when discussing 'the stock market'."
+    "explanation": "S&P 500 index level and VIX (volatility/fear index). Note: FRED has limited stock data - no real-time quotes, earnings, valuations, or sector breakdowns. FRED updates daily with a lag. For detailed market analysis, real-time data, or individual stocks, use Yahoo Finance, Bloomberg, or a brokerage platform."
   },
   "stocks": {
     "series": [

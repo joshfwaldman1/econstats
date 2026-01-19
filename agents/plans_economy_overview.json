@@ -241,13 +241,14 @@
   },
   "recession risk": {
     "series": [
-      "A191RL1Q225SBEA",
+      "USSLIND",
       "T10Y2Y",
-      "UNRATE"
+      "ICSA",
+      "SAHMREALTIME"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "These three series provide the essential recession risk assessment: Real GDP growth shows current economic momentum, the yield curve spread (10Y-2Y) is a proven leading indicator where inversions (negative values) historically precede recessions, and unemployment rate captures labor market health - rising unemployment often signals recession onset."
+    "explanation": "Leading Economic Index (USSLIND) predicts turning points 6-9 months ahead - consecutive declines signal recession. Yield curve (T10Y2Y) inversion has preceded every recession since 1970. Initial claims (ICSA) show real-time layoffs - spikes signal trouble. Sahm Rule (SAHMREALTIME) triggers when unemployment rises enough to indicate recession has likely begun."
   },
   "recession indicators": {
     "series": [

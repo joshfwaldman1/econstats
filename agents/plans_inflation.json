@@ -2,11 +2,12 @@
   "inflation": {
     "series": [
       "CPIAUCSL",
-      "CPILFESL"
+      "CPILFESL",
+      "PCEPILFE"
     ],
     "show_yoy": true,
     "combine_chart": true,
-    "explanation": "For a general inflation query, I'm showing both headline CPI (CPIAUCSL) and core CPI (CPILFESL) as year-over-year rates. Headline CPI captures the full inflation experience including volatile food and energy, while core CPI strips out those volatile components to show underlying inflation trends. This gives you the complete picture - what consumers actually experience (headline) versus the underlying inflationary pressures (core). Both are displayed as YoY rates since that's how inflation is typically measured and discussed."
+    "explanation": "Headline CPI (CPIAUCSL) is the most commonly cited inflation measure - what consumers actually experience. Core CPI (CPILFESL) strips out volatile food and energy. Core PCE (PCEPILFE) is the Federal Reserve's official 2% inflation target - when this exceeds 2%, the Fed typically tightens policy. All shown as year-over-year rates."
   },
   "cpi": {
     "series": [
@@ -203,13 +204,12 @@
   },
   "rent inflation": {
     "series": [
-      "CUSR0000SAH1",
       "CUSR0000SEHA",
       "CUSR0000SEHC"
     ],
     "show_yoy": true,
     "combine_chart": true,
-    "explanation": "For rent inflation, I'm showing the three key CPI shelter components: CPI Shelter (the broad category that's ~1/3 of total CPI), Rent of Primary Residence (actual rental payments), and Owners' Equivalent Rent (what homeowners would pay to rent their home). Together these capture the full picture of housing cost inflation, with shelter being the dominant driver of overall CPI in recent years."
+    "explanation": "CPI Rent of Primary Residence (CUSR0000SEHA) and Owners' Equivalent Rent (CUSR0000SEHC). CRITICAL: CPI rent data LAGS actual market rents by 12+ months because BLS surveys existing leases that turn over slowly. If market rents are falling today, CPI won't show it for a year. For current rent trends, check Zillow or Apartment List indexes."
   },
   "shelter inflation": {
     "series": [

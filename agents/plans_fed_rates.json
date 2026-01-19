@@ -2,11 +2,13 @@
   "interest rates": {
     "series": [
       "FEDFUNDS",
-      "DGS10"
+      "DGS2",
+      "DGS10",
+      "T10Y2Y"
     ],
     "show_yoy": false,
-    "combine_chart": true,
-    "explanation": "The federal funds rate (FEDFUNDS) is the Fed's primary policy tool and represents short-term rates, while the 10-year Treasury (DGS10) is the benchmark long-term rate that influences mortgages, corporate bonds, and broader economic conditions. Together, they show the complete interest rate picture - what the Fed controls directly versus what markets determine for longer-term borrowing."
+    "combine_chart": false,
+    "explanation": "FEDFUNDS is the Fed's policy rate. DGS2 (2-year Treasury) reflects market expectations of near-term Fed policy. DGS10 (10-year) is the benchmark long-term rate affecting mortgages and corporate bonds. T10Y2Y is the yield curve spread - when negative (inverted), it has historically preceded recessions."
   },
   "rates": {
     "series": [

@@ -46,11 +46,12 @@
   "how is the job market": {
     "series": [
       "PAYEMS",
-      "UNRATE"
+      "UNRATE",
+      "LNS12300060"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "PAYEMS (nonfarm payrolls) shows monthly job creation - the headline jobs number that indicates labor demand. UNRATE (unemployment rate) shows the percentage of labor force actively seeking work. Together, these two series provide the clearest, most digestible snapshot of overall job market conditions."
+    "explanation": "PAYEMS shows monthly job gains (the headline jobs number). UNRATE is the unemployment rate. LNS12300060 (prime-age employment ratio, ages 25-54) is the gold standard for labor market health - it captures both unemployment AND people who've dropped out of the workforce. When prime-age employment is high, the job market is genuinely strong."
   },
   "labor market": {
     "series": [

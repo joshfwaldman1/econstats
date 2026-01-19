@@ -115,21 +115,21 @@
     "series": [
       "TOTALSL",
       "REVOLSL",
-      "NONREVSL"
+      "TDSP"
     ],
-    "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "TOTALSL shows overall consumer debt levels, while REVOLSL (credit cards) and NONREVSL (auto/student loans) break down the two main components. Year-over-year growth rates reveal borrowing trends and consumer leverage changes over time."
+    "show_yoy": [true, true, false],
+    "combine_chart": false,
+    "explanation": "TOTALSL and REVOLSL (credit cards) show debt levels, but TDSP (debt service ratio) is what really matters - it shows what percentage of income goes to debt payments. High debt with low TDSP means households can handle it; rising TDSP signals financial stress. Debt levels alone don't tell you if households are struggling."
   },
   "household debt": {
     "series": [
       "TOTALSL",
       "REVOLSL",
-      "NONREVSL"
+      "TDSP"
     ],
-    "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "TOTALSL shows the overall household debt burden, while REVOLSL (credit cards) and NONREVSL (auto/student loans) break down the key components. Year-over-year growth rates reveal debt accumulation trends, and combining on one chart shows how different types of consumer credit are growing relative to each other."
+    "show_yoy": [true, true, false],
+    "combine_chart": false,
+    "explanation": "TOTALSL and REVOLSL (credit cards) show debt levels, but TDSP (debt service ratio) is the key stress indicator - it shows what percentage of disposable income goes to debt payments. Rising TDSP means households are increasingly strained; low TDSP means debt is manageable even if levels are high."
   },
   "credit card debt": {
     "series": [
