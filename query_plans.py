@@ -2944,30 +2944,30 @@ QUERY_PLANS = {
   },
   "gdp": {
     "series": [
-      "A191RL1Q225SBEA",
-      "A191RO1Q156NBEA"
+      "A191RO1Q156NBEA",
+      "A191RL1Q225SBEA"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "Two complementary views of GDP growth: The quarterly annualized rate (A191RL1Q225SBEA) is the headline number in news reports—it shows what growth would be if the current quarter's pace continued for a year. The year-over-year rate (A191RO1Q156NBEA) shows actual growth compared to the same quarter last year, which is more stable and better reflects underlying economic momentum. Trend growth is ~2%; above 3% is robust."
+    "combine_chart": False,
+    "explanation": "Annual GDP growth (year-over-year) is the most meaningful measure of economic performance—it shows how much the economy has actually grown compared to a year ago, smoothing out quarterly noise. The quarterly annualized rate is also shown for timeliness but can be volatile (it swung from -28% to +35% during COVID). Trend U.S. growth is ~2%; above 3% is strong; below 1% signals weakness."
   },
   "gdp growth": {
     "series": [
-      "A191RL1Q225SBEA",
-      "A191RO1Q156NBEA"
+      "A191RO1Q156NBEA",
+      "A191RL1Q225SBEA"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "Both key GDP growth measures: The quarterly annualized rate (headline number reported in news) shows the latest quarter's momentum extrapolated to a year. The year-over-year rate shows actual growth over 12 months—more stable and less prone to one-quarter distortions. Together they reveal both current momentum and underlying trend. Trend U.S. growth is ~2% annually."
+    "combine_chart": False,
+    "explanation": "Annual GDP growth (year-over-year) is the primary measure economists use to assess economic performance—it shows actual growth over 4 quarters and is far more stable than the volatile quarterly rate. The quarterly annualized figure is included for timeliness but should be interpreted with caution as it can swing wildly quarter-to-quarter. Trend U.S. growth is ~2% annually; above 3% is robust."
   },
   "economic growth": {
     "series": [
-      "A191RL1Q225SBEA",
-      "A191RO1Q156NBEA"
+      "A191RO1Q156NBEA",
+      "A191RL1Q225SBEA"
     ],
     "show_yoy": False,
-    "combine_chart": True,
-    "explanation": "Two essential measures of economic growth: The quarterly annualized rate captures turning points quickly—it's the headline number that moves markets. The year-over-year rate shows how much the economy has actually grown over 12 months, smoothing out quarterly volatility. Economists use both: quarterly for timeliness, annual for trend assessment. Trend growth is ~2%; above 3% is robust; negative signals contraction."
+    "combine_chart": False,
+    "explanation": "Year-over-year GDP growth is the most reliable measure of economic expansion—it shows how much the economy has actually grown compared to a year ago. The quarterly annualized rate (the 'headline' number) is more timely but can be misleading due to volatility. Trend growth is ~2%; sustained growth above 3% is strong; negative readings signal contraction."
   },
   "real gdp": {
     "series": [

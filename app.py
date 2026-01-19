@@ -1146,7 +1146,7 @@ SERIES_DB = {
         ]
     },
     'A191RL1Q225SBEA': {
-        'name': 'Real GDP Growth Rate',
+        'name': 'Quarterly GDP Growth (Annualized)',
         'unit': '% Change (SAAR)',
         'source': 'U.S. Bureau of Economic Analysis',
         'sa': True,
@@ -1154,31 +1154,31 @@ SERIES_DB = {
         'data_type': 'growth_rate',
         'benchmark': {
             'value': 2.0,
-            'text': "Trend U.S. growth is ~2% annually. Above 3% is robust; above 4% is a boom; negative is contraction.",
+            'text': "This is the volatile quarterly rate. Trend growth is ~2% annualized, but this measure swings widely quarter to quarter.",
             'comparison': 'above',
             'ranges': [(0, 2, 'below trend'), (2, 3, 'trend growth'), (3, 4, 'robust'), (4, 100, 'boom pace')],
         },
         'bullets': [
-            'This measures how fast the economy is expanding or contracting, expressed as an annualized rate (what growth would be if the quarterly pace continued for a full year). It\'s the headline GDP number reported in the news.',
-            'Historical context: Trend U.S. growth is around 2% annually. Growth above 3% is considered robust; above 4% is a boom. Negative growth signals contraction. Consumer spending drives roughly 70% of GDP, so consumer health is paramount. Note: GDP is released in three estimates (advance, second, third) and can be significantly revised.'
+            'This is the headline GDP number reported in the news—it shows one quarter\'s growth extrapolated to an annual rate. While timely, it can be volatile and misleading (it swung from -28% to +35% during COVID).',
+            'For a more stable picture of economic growth, the year-over-year measure is more reliable. This quarterly rate is best used to spot turning points, not to assess underlying economic health.'
         ]
     },
     'A191RO1Q156NBEA': {
-        'name': 'Real GDP Growth (Q/Q Year Ago)',
-        'unit': '% Change from Same Quarter Year Ago',
+        'name': 'Annual GDP Growth (Year-over-Year)',
+        'unit': '% Change from Year Ago',
         'source': 'U.S. Bureau of Economic Analysis',
         'sa': True,
         'frequency': 'quarterly',
         'data_type': 'growth_rate',
         'benchmark': {
             'value': 2.0,
-            'text': "Trend U.S. growth is ~2% annually. This quarterly YoY measure updates more frequently than annual data.",
+            'text': "Trend U.S. growth is ~2% annually. Above 3% is strong; below 1% signals weakness.",
             'comparison': 'above',
-            'ranges': [(0, 2, 'below trend'), (2, 3, 'trend growth'), (3, 4, 'robust'), (4, 100, 'boom pace')],
+            'ranges': [(0, 1, 'weak'), (1, 2, 'below trend'), (2, 3, 'trend growth'), (3, 4, 'strong'), (4, 100, 'boom')],
         },
         'bullets': [
-            'Shows how much real GDP has grown compared to the same quarter one year ago (e.g., Q3 2024 vs Q3 2023). This is updated quarterly, giving a more timely but still smoothed view of economic growth.',
-            'Note: This is different from "annual GDP growth." For the Q4/Q4 measure (Q4 vs Q4 of prior year) or total annual growth (full year vs full year), see A191RL1A225NBEA which is released annually.'
+            'This is the most meaningful measure of economic growth—it shows how much the economy has actually expanded compared to a year ago, smoothing out quarterly volatility.',
+            'Unlike the quarterly annualized rate (which can swing wildly), year-over-year growth provides a stable picture of economic momentum. Trend U.S. growth is ~2%; sustained growth above 3% is strong.'
         ]
     },
     'A191RL1A225NBEA': {
@@ -2203,11 +2203,11 @@ SERIES_DB = {
 
 # Query mappings with economist intuitions
 QUERY_MAP = {
-    # Economy overview - show the big picture
-    'economy': {'series': ['A191RL1Q225SBEA', 'UNRATE', 'CPIAUCSL'], 'combine': False},
-    'how is the economy': {'series': ['A191RL1Q225SBEA', 'UNRATE', 'CPIAUCSL'], 'combine': False},
-    'economic overview': {'series': ['A191RL1Q225SBEA', 'UNRATE', 'CPIAUCSL'], 'combine': False},
-    'recession': {'series': ['A191RL1Q225SBEA', 'UNRATE', 'T10Y2Y'], 'combine': False},
+    # Economy overview - show the big picture (annual GDP for stability)
+    'economy': {'series': ['A191RO1Q156NBEA', 'UNRATE', 'CPIAUCSL'], 'combine': False},
+    'how is the economy': {'series': ['A191RO1Q156NBEA', 'UNRATE', 'CPIAUCSL'], 'combine': False},
+    'economic overview': {'series': ['A191RO1Q156NBEA', 'UNRATE', 'CPIAUCSL'], 'combine': False},
+    'recession': {'series': ['A191RO1Q156NBEA', 'UNRATE', 'T10Y2Y'], 'combine': False},
 
     # Jobs - start simple with payrolls + unemployment
     'job market': {'series': ['PAYEMS', 'UNRATE'], 'combine': False},
@@ -2233,10 +2233,10 @@ QUERY_MAP = {
     'rent inflation': {'series': ['CUSR0000SAH1'], 'combine': False},
     'shelter': {'series': ['CUSR0000SAH1'], 'combine': False},
 
-    # GDP - Show both quarterly and year-over-year growth rates
-    'gdp': {'series': ['A191RL1Q225SBEA', 'A191RO1Q156NBEA'], 'combine': True},
-    'gdp growth': {'series': ['A191RL1Q225SBEA', 'A191RO1Q156NBEA'], 'combine': True},
-    'economic growth': {'series': ['A191RL1Q225SBEA', 'A191RO1Q156NBEA'], 'combine': True},
+    # GDP - Annual (YoY) first for stability, quarterly second for timeliness
+    'gdp': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'], 'combine': False},
+    'gdp growth': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'], 'combine': False},
+    'economic growth': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'], 'combine': False},
     'real gdp': {'series': ['GDPC1'], 'combine': False},
     'annual gdp': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
     'annual gdp growth': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
