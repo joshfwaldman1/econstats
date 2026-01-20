@@ -140,6 +140,7 @@ def get_fred_data(series_id: str, years: int = None) -> tuple:
         db_info = SERIES_DB.get(series_id, {})
         info['name'] = db_info.get('name', info.get('title', series_id))
         info['unit'] = db_info.get('unit', info.get('units', ''))
+        # Keep FRED notes for AI context (already in info from API response)
 
         return dates, values, info
     except Exception as e:
@@ -167,7 +168,7 @@ def get_ai_summary(query: str, series_data: list) -> str:
     if not ANTHROPIC_API_KEY:
         return "Economic data loaded successfully."
 
-    # Build context
+    # Build context with current values
     context_parts = []
     for sid, dates, values, info in series_data:
         if values:
@@ -179,12 +180,27 @@ def get_ai_summary(query: str, series_data: list) -> str:
 
     context = "\n".join(context_parts)
 
+    # Build background info from FRED notes
+    background_parts = []
+    for sid, dates, values, info in series_data:
+        notes = info.get('notes', '')
+        if notes:
+            name = info.get('name', sid)
+            # Truncate very long notes
+            if len(notes) > 500:
+                notes = notes[:500] + "..."
+            background_parts.append(f"**{name}**: {notes}")
+
+    background = "\n\n".join(background_parts) if background_parts else ""
+
     prompt = f"""You are an economist writing a brief summary for a general audience.
 
 User asked: "{query}"
 
 Current data:
 {context}
+
+{"Background on these indicators (from FRED):" + chr(10) + background if background else ""}
 
 Write a 2-3 sentence summary that:
 1. Directly answers their question
