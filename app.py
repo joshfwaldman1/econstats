@@ -3507,19 +3507,19 @@ def main():
     # Quick search buttons - single compact row
     col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
     with col1:
-        if st.button("Jobs", use_container_width=True, key="btn_jobs"):
+        if st.button("Jobs", width='stretch', key="btn_jobs"):
             st.session_state.pending_query = "job market"
     with col2:
-        if st.button("Inflation", use_container_width=True, key="btn_inflation"):
+        if st.button("Inflation", width='stretch', key="btn_inflation"):
             st.session_state.pending_query = "inflation"
     with col3:
-        if st.button("GDP", use_container_width=True, key="btn_gdp"):
+        if st.button("GDP", width='stretch', key="btn_gdp"):
             st.session_state.pending_query = "gdp growth"
     with col4:
-        if st.button("Rates", use_container_width=True, key="btn_rates"):
+        if st.button("Rates", width='stretch', key="btn_rates"):
             st.session_state.pending_query = "interest rates"
     with col5:
-        if st.button("Recession?", use_container_width=True, key="btn_recession"):
+        if st.button("Recession?", width='stretch', key="btn_recession"):
             st.session_state.pending_query = "are we in a recession"
 
     # Default timeframe - show all available data for full historical context
@@ -3562,7 +3562,7 @@ def main():
             cols = st.columns(2)
             for i, eq in enumerate(example_queries):
                 with cols[i % 2]:
-                    if st.button(eq, key=f"example_{i}", use_container_width=True):
+                    if st.button(eq, key=f"example_{i}", width='stretch'):
                         st.session_state.pending_query = eq
                         st.rerun()
 
@@ -4294,7 +4294,7 @@ def main():
                 # Always combine for groups with multiple series
                 combine_group = len(group_data) > 1
                 fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
 
                 source = group_data[0][3].get('source', 'FRED') if group_data else 'FRED'
                 transform_note = ""
@@ -4323,7 +4323,7 @@ def main():
                     st.markdown(f"- **{series_name}:** {desc}")
 
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
 
             source = series_data[0][3].get('source', 'FRED')
             st.markdown(f"<div class='source-line'>Source: {source}. Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
@@ -4377,7 +4377,7 @@ def main():
                             margin=dict(l=50, r=20, t=30, b=50),
                             yaxis_title='Thousands'
                         )
-                        st.plotly_chart(fig_bar, use_container_width=True)
+                        st.plotly_chart(fig_bar, width='stretch')
 
                     with col2:
                         st.markdown("**Total Nonfarm Payrolls**")
@@ -4393,7 +4393,7 @@ def main():
                             margin=dict(l=50, r=20, t=30, b=50),
                             yaxis_title='Thousands'
                         )
-                        st.plotly_chart(fig_line, use_container_width=True)
+                        st.plotly_chart(fig_line, width='stretch')
                 else:
                     # Generate dynamic chart title and description
                     chart_title = generate_chart_title(series_id, info)
@@ -4419,7 +4419,7 @@ def main():
                             st.markdown(f"- {bullet}")
 
                     fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
 
                 st.markdown(f"<div class='source-line'>Source: {source}. {sa_note}{transform_note} Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
@@ -4593,11 +4593,11 @@ def main():
         # Charts
         if combine and len(series_data) > 1:
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         else:
             for series_id, dates, values, info in series_data:
                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
 
         # Follow-up suggestions
         st.markdown("---")
