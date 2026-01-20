@@ -332,6 +332,12 @@ async def search(request: Request, query: str = Form(...)):
     })
 
 
+@app.get("/about", response_class=HTMLResponse)
+async def about(request: Request):
+    """About page."""
+    return templates.TemplateResponse("about.html", {"request": request})
+
+
 @app.get("/health")
 async def health():
     """Health check endpoint."""
