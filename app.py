@@ -20,14 +20,8 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 
-# LangGraph deep analysis agent (optional - requires langchain/langgraph dependencies)
-try:
-    from langgraph_agent import run_query as run_deep_analysis
-    DEEP_ANALYSIS_AVAILABLE = True
-except Exception:
-    # Catch all errors (ImportError, KeyError, etc.) - Deep Analysis is optional
-    DEEP_ANALYSIS_AVAILABLE = False
-    run_deep_analysis = None
+# LangGraph deep analysis is available (lazy import when used)
+DEEP_ANALYSIS_AVAILABLE = True
 
 
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
@@ -4525,6 +4519,8 @@ def main():
             if st.session_state[deep_analysis_key]['running'] and not st.session_state[deep_analysis_key]['result']:
                 with st.spinner("🔬 Running deep analysis... (fetching data, analyzing trends)"):
                     try:
+                        # Lazy import to avoid startup issues
+                        from langgraph_agent import run_query as run_deep_analysis
                         analysis_result = run_deep_analysis(query, verbose=False)
                         st.session_state[deep_analysis_key]['result'] = analysis_result
                         st.session_state[deep_analysis_key]['running'] = False
