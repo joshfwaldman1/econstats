@@ -3459,9 +3459,6 @@ def main():
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<h1 style='margin-bottom: 0;'>EconStats</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='subtitle' style='margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
-
     # About section in sidebar
     with st.sidebar:
         st.markdown("### About EconStats.org")
@@ -3511,7 +3508,11 @@ def main():
 
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
-        # LANDING PAGE MODE - Quick search buttons in a single compact row
+        # LANDING PAGE MODE - Show title
+        st.markdown("<h1 style='margin-bottom: 0;'>EconStats</h1>", unsafe_allow_html=True)
+        st.markdown("<p class='subtitle' style='margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
+
+        # Quick search buttons in a single compact row
         col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
         with col1:
             if st.button("Jobs", width='stretch', key="btn_jobs"):
@@ -3609,8 +3610,46 @@ def main():
                             if not values:
                                 continue
                             name = info.get('name', info.get('title', series_id))
+                            unit = info.get('unit', info.get('units', ''))
+                            latest = values[-1]
+                            latest_date = dates[-1]
 
-                            # Create simple line chart
+                            # Chart title
+                            st.markdown(f"**{name}**")
+
+                            # Generate bullet points about the data
+                            bullets = []
+
+                            # Current value bullet
+                            try:
+                                from datetime import datetime
+                                date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
+                                date_str = date_obj.strftime('%b %Y')
+                            except:
+                                date_str = latest_date
+
+                            if 'Percent' in unit or '%' in unit or info.get('is_yoy') or info.get('is_mom'):
+                                bullets.append(f"**Current:** {latest:.1f}% as of {date_str}")
+                            elif unit and '$' in unit:
+                                bullets.append(f"**Current:** ${latest:,.2f} as of {date_str}")
+                            elif latest >= 1000:
+                                bullets.append(f"**Current:** {latest:,.0f} as of {date_str}")
+                            else:
+                                bullets.append(f"**Current:** {latest:.2f} as of {date_str}")
+
+                            # Trend bullet (compare to year ago if enough data)
+                            if len(values) > 12:
+                                year_ago = values[-13] if len(values) >= 13 else values[0]
+                                if year_ago != 0:
+                                    pct_change = ((latest - year_ago) / abs(year_ago)) * 100
+                                    direction = "up" if pct_change > 0 else "down"
+                                    bullets.append(f"**Trend:** {direction} {abs(pct_change):.1f}% from a year ago")
+
+                            # Display bullets
+                            for bullet in bullets:
+                                st.markdown(f"- {bullet}")
+
+                            # Create chart (no title in plotly since we have markdown title)
                             fig = go.Figure()
                             fig.add_trace(go.Scatter(
                                 x=dates,
@@ -3620,9 +3659,8 @@ def main():
                                 line=dict(width=2)
                             ))
                             fig.update_layout(
-                                title=name,
                                 height=300,
-                                margin=dict(l=40, r=40, t=40, b=40),
+                                margin=dict(l=40, r=40, t=20, b=40),
                                 showlegend=False
                             )
                             st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
