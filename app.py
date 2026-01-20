@@ -2888,66 +2888,6 @@ def validate_query_series_alignment(query: str, series: list) -> dict:
     }
 
 
-def call_gemini_validator(query: str, series: list, explanation: str) -> dict:
-    """
-    Call Gemini as a second opinion validator.
-
-    Returns dict with:
-        - agrees: bool
-        - confidence: float
-        - alternative_series: list (if it disagrees)
-        - reasoning: str
-    """
-    gemini_api_key = os.environ.get('GEMINI_API_KEY')
-    if not gemini_api_key:
-        return {'agrees': True, 'confidence': 0.5, 'alternative_series': [], 'reasoning': 'Gemini API key not configured'}
-
-    # Gemini validation prompt
-    prompt = f"""You are validating an economic data query response.
-
-USER QUERY: "{query}"
-
-SERIES RETURNED: {series}
-
-EXPLANATION: {explanation}
-
-Evaluate if the returned FRED series are appropriate for this query. Consider:
-1. Do the series directly answer what the user asked?
-2. Are there better/more standard series for this question?
-3. Is anything missing that an economist would expect?
-
-Respond with ONLY valid JSON:
-{{
-    "agrees": true/false,
-    "confidence": 0.0-1.0,
-    "alternative_series": ["SERIES1", "SERIES2"] or [],
-    "reasoning": "brief explanation"
-}}"""
-
-    try:
-        # Use gemini-2.0-flash-lite for better rate limits on free tier
-        url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={gemini_api_key}'
-        payload = {
-            'contents': [{'parts': [{'text': prompt}]}],
-            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 300}
-        }
-
-        req = Request(url, data=json.dumps(payload).encode('utf-8'),
-                     headers={'Content-Type': 'application/json'}, method='POST')
-
-        with urlopen(req, timeout=10) as response:
-            result = json.loads(response.read().decode('utf-8'))
-            text = result['candidates'][0]['content']['parts'][0]['text']
-            # Extract JSON from response
-            if '```json' in text:
-                text = text.split('```json')[1].split('```')[0]
-            elif '```' in text:
-                text = text.split('```')[1].split('```')[0]
-            return json.loads(text.strip())
-    except Exception as e:
-        return {'agrees': True, 'confidence': 0.5, 'alternative_series': [], 'reasoning': f'Validation error: {str(e)[:50]}'}
-
-
 def log_query_resolution(query: str, source: str, series: list, validation: dict = None):
     """
     Log query resolutions for analysis and improvement.
@@ -3344,8 +3284,19 @@ def generate_dynamic_ai_bullets(series_id: str, dates: list, values: list, info:
     # Short description
     short_desc = SHORT_DESCRIPTIONS.get(series_id, "")
 
+    # Check for benchmark context
+    benchmark_info = ""
+    if 'benchmark' in db_info:
+        bench = db_info['benchmark']
+        bench_val = bench.get('value')
+        if bench_val is not None:
+            if latest > bench_val:
+                benchmark_info = f"Currently ABOVE the {bench_val} benchmark ({bench.get('text', '')})"
+            else:
+                benchmark_info = f"Currently BELOW the {bench_val} benchmark ({bench.get('text', '')})"
+
     # Build the prompt
-    prompt = f"""Generate 2-3 concise, data-driven bullet points for an economic chart.
+    prompt = f"""Generate 2-3 insightful bullet points that INTERPRET what this economic data means.
 
 SERIES: {name} ({series_id})
 DESCRIPTION: {short_desc}
@@ -3353,17 +3304,22 @@ CURRENT VALUE: {latest:.2f} {unit} as of {date_str}
 {trend_info}
 {recent_trend}
 {historical_context}
+{benchmark_info}
 
-STATIC GUIDANCE (use as domain expertise, but make dynamic):
+STATIC GUIDANCE (domain expertise to inform your analysis):
 {static_guidance}
 
 {"USER QUESTION: " + user_query if user_query else ""}
 
 Write 2-3 bullets that:
-1. Lead with the current data reality (actual numbers, dates)
-2. Provide context an economist would find relevant
-3. Are specific to what's happening NOW, not generic explanations
-4. Keep each bullet to 1-2 sentences max
+1. INTERPRET what the trend means in plain language (e.g., "wages rising faster than inflation means workers are gaining purchasing power")
+2. Explain the "SO WHAT" - what this means for workers, consumers, businesses, or the economy
+3. Note any unusual context (e.g., "excluding the pandemic dip" or "since the Fed started hiking")
+4. Reference specific numbers but focus on MEANING not just data description
+5. Keep each bullet to 1-2 sentences max
+
+BAD example: "CPI is at 3.2% as of December 2024, up from 2.9% a year ago."
+GOOD example: "Inflation has reaccelerated to 3.2%, moving away from the Fed's 2% target—suggesting rate cuts may be delayed."
 
 Format: Return ONLY the bullets as a JSON array of strings, like:
 ["First bullet here.", "Second bullet here."]"""
@@ -4708,22 +4664,6 @@ def main():
             'local_followup' if interpretation.get('used_local_parser') else 'claude'
         )
         log_query_resolution(query, source, series_for_validation, validation_result)
-
-        # If validation confidence is low and Gemini is configured, get second opinion
-        if validation_result['confidence'] < 0.5 and os.environ.get('GEMINI_API_KEY'):
-            gemini_result = call_gemini_validator(
-                query,
-                series_for_validation,
-                interpretation.get('explanation', '')
-            )
-            # If Gemini disagrees and suggests alternatives, consider using them
-            if not gemini_result.get('agrees') and gemini_result.get('alternative_series'):
-                # Log the disagreement but don't override (for now - could be enabled)
-                log_query_resolution(
-                    query, 'gemini_disagree',
-                    gemini_result.get('alternative_series', []),
-                    {'gemini_reasoning': gemini_result.get('reasoning', '')}
-                )
 
         ai_explanation = interpretation.get('explanation', '')
         series_to_fetch = list(interpretation.get('series', []))  # Copy the list
