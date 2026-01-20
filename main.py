@@ -278,12 +278,35 @@ def format_chart_data(series_data: list) -> list:
         latest = values[-1]
         latest_date = dates[-1]
 
-        # YoY change if enough data
+        # Special handling for PAYEMS - show monthly job gains, not level
+        # PAYEMS is in thousands, so MoM change is jobs added in thousands
+        display_value = latest
+        display_unit = info.get('unit', '')
+        is_job_change = False
+
+        if sid == 'PAYEMS' and len(values) >= 2:
+            mom_change = values[-1] - values[-2]  # Monthly change in thousands
+            display_value = mom_change
+            display_unit = 'Monthly Job Gains (Thousands)'
+            is_job_change = True
+            # Calculate 3-month average for context
+            if len(values) >= 4:
+                three_mo_avg = (values[-1] - values[-4]) / 3
+            else:
+                three_mo_avg = mom_change
+        else:
+            three_mo_avg = None
+
+        # YoY change if enough data (skip for job change display)
         yoy_change = None
-        if len(values) >= 13:
+        if not is_job_change and len(values) >= 13:
             prev = values[-13]
             if prev != 0:
                 yoy_change = ((latest - prev) / abs(prev)) * 100
+        elif is_job_change and len(values) >= 13:
+            # For payrolls, show YoY total jobs added
+            yoy_jobs_added = values[-1] - values[-13]
+            yoy_change = yoy_jobs_added  # Store as raw number, not percent
 
         # Get recessions for this date range
         recessions = get_recessions_in_range(dates[0], dates[-1]) if dates else []
@@ -303,16 +326,18 @@ def format_chart_data(series_data: list) -> list:
         charts.append({
             'series_id': sid,
             'name': info.get('name', sid),
-            'unit': info.get('unit', ''),
+            'unit': display_unit,
             'dates': dates,
             'values': values,
-            'latest': latest,
+            'latest': display_value,  # For PAYEMS, this is MoM change
             'latest_date': latest_date,
             'yoy_change': yoy_change,
             'recessions': recessions,
             'source': source,
             'sa': sa,
             'notes': notes,
+            'is_job_change': is_job_change,
+            'three_mo_avg': three_mo_avg,
         })
 
     return charts

@@ -53,10 +53,12 @@
     {% for chart in charts %}
     <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1 leading-tight" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-            {{ chart.name }}
+            {% if chart.is_job_change %}Monthly Job Gains{% else %}{{ chart.name }}{% endif %}
         </p>
-        <p class="text-2xl font-bold text-slate-900">
-            {% if 'Percent' in chart.unit or '%' in chart.unit %}
+        <p class="text-2xl font-bold {% if chart.is_job_change %}{{ 'text-emerald-600' if chart.latest >= 0 else 'text-red-600' }}{% else %}text-slate-900{% endif %}">
+            {% if chart.is_job_change %}
+                {{ "%+.0f"|format(chart.latest) }}K
+            {% elif 'Percent' in chart.unit or '%' in chart.unit %}
                 {{ "%.1f"|format(chart.latest) }}%
             {% elif chart.latest > 1000000 %}
                 {{ "%.1f"|format(chart.latest / 1000000) }}M
@@ -66,9 +68,17 @@
                 {{ "%.1f"|format(chart.latest) }}
             {% endif %}
         </p>
-        {% if chart.yoy_change is not none %}
+        {% if chart.is_job_change and chart.three_mo_avg is not none %}
+        <p class="text-sm mt-1 text-slate-500">
+            3-mo avg: {{ "%+.0f"|format(chart.three_mo_avg) }}K
+        </p>
+        {% elif chart.yoy_change is not none %}
         <p class="text-sm mt-1 {% if chart.yoy_change >= 0 %}text-emerald-600{% else %}text-red-600{% endif %}">
-            {{ "%+.1f"|format(chart.yoy_change) }}% YoY
+            {% if chart.is_job_change %}
+                YoY: {{ "%+.0f"|format(chart.yoy_change) }}K jobs
+            {% else %}
+                {{ "%+.1f"|format(chart.yoy_change) }}% YoY
+            {% endif %}
         </p>
         {% endif %}
     </div>
@@ -84,11 +94,15 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="font-semibold text-slate-900">{{ chart.name }}</h3>
-                <p class="text-sm text-slate-500">{{ chart.unit }}</p>
+                <p class="text-sm text-slate-500">
+                    {% if chart.is_job_change %}Total Employment (chart) · Monthly gains highlighted{% else %}{{ chart.unit }}{% endif %}
+                </p>
             </div>
             <div class="text-right">
-                <p class="text-xl font-bold text-slate-900">
-                    {% if 'Percent' in chart.unit or '%' in chart.unit %}
+                <p class="text-xl font-bold {% if chart.is_job_change %}{{ 'text-emerald-600' if chart.latest >= 0 else 'text-red-600' }}{% else %}text-slate-900{% endif %}">
+                    {% if chart.is_job_change %}
+                        {{ "%+.0f"|format(chart.latest) }}K jobs
+                    {% elif 'Percent' in chart.unit or '%' in chart.unit %}
                         {{ "%.2f"|format(chart.latest) }}%
                     {% elif chart.latest > 1000000 %}
                         {{ "%.2f"|format(chart.latest / 1000000) }}M
@@ -96,7 +110,7 @@
                         {{ "%.2f"|format(chart.latest) }}
                     {% endif %}
                 </p>
-                <p class="text-xs text-slate-400">as of {{ chart.latest_date }}</p>
+                <p class="text-xs text-slate-400">{{ chart.latest_date }}</p>
             </div>
         </div>
     </div>
