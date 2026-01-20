@@ -4520,7 +4520,7 @@ def main():
                 with st.spinner("🔬 Running deep analysis... (fetching data, analyzing trends)"):
                     try:
                         # Lazy import to avoid startup issues
-                        from langgraph_agent import run_query as run_deep_analysis
+                        from deep_analysis_agent import run_query as run_deep_analysis
                         analysis_result = run_deep_analysis(query, verbose=False)
                         st.session_state[deep_analysis_key]['result'] = analysis_result
                         st.session_state[deep_analysis_key]['running'] = False
