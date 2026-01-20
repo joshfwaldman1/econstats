@@ -310,27 +310,47 @@ def format_chart_data(series_data: list) -> list:
         yoy_change = None
         yoy_type = 'percent'  # 'percent', 'pp', 'jobs', or None
 
+        # For chart data - may be transformed for PAYEMS
+        chart_dates = dates
+        chart_values = values
+
         if sid == 'PAYEMS' and len(values) >= 4:
             # Show 3-month average job gains (more stable than single month)
             three_mo_avg = (values[-1] - values[-4]) / 3
             mom_change = values[-1] - values[-2]  # Keep single month for reference
             display_value = three_mo_avg  # Headline is 3-mo avg
-            display_unit = 'Avg Monthly Job Gains (3-mo)'
+            display_unit = 'Thousands of Jobs (Monthly Change)'
             is_job_change = True
             # YoY: total jobs added over the year
             if len(values) >= 13:
                 yoy_change = values[-1] - values[-13]
                 yoy_type = 'jobs'
+
+            # Compute monthly changes for the CHART (not just the headline)
+            # This makes the chart show job gains/losses over time
+            chart_values = []
+            chart_dates = []
+            for i in range(1, len(values)):
+                chart_values.append(values[i] - values[i-1])
+                chart_dates.append(dates[i])
+
         elif sid == 'PAYEMS' and len(values) >= 2:
             # Fallback if not enough data for 3-mo avg
             mom_change = values[-1] - values[-2]
             three_mo_avg = mom_change
             display_value = mom_change
-            display_unit = 'Monthly Job Gains'
+            display_unit = 'Thousands of Jobs (Monthly Change)'
             is_job_change = True
             if len(values) >= 13:
                 yoy_change = values[-1] - values[-13]
                 yoy_type = 'jobs'
+
+            # Compute monthly changes for chart
+            chart_values = []
+            chart_dates = []
+            for i in range(1, len(values)):
+                chart_values.append(values[i] - values[i-1])
+                chart_dates.append(dates[i])
 
         elif is_already_yoy or is_growth_rate:
             # Already a rate/change - don't show any YoY comparison
@@ -370,9 +390,9 @@ def format_chart_data(series_data: list) -> list:
             'series_id': sid,
             'name': info.get('name', sid),
             'unit': display_unit,
-            'dates': dates,
-            'values': values,
-            'latest': display_value,  # For PAYEMS, this is MoM change
+            'dates': chart_dates,
+            'values': chart_values,
+            'latest': display_value,  # For PAYEMS, this is 3-mo avg change
             'latest_date': latest_date,
             'yoy_change': yoy_change,
             'yoy_type': yoy_type,  # 'percent', 'pp', 'jobs', or None
