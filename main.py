@@ -187,17 +187,58 @@ def get_ai_summary(query: str, series_data: list, conversation_history: list = N
     if not ANTHROPIC_API_KEY:
         return default_response
 
-    # Build context with current values
+    # Build RICH context with analytics for better descriptions
     context_parts = []
     for sid, dates, values, info in series_data:
-        if values:
+        if values and len(values) > 0:
             latest = values[-1]
             latest_date = dates[-1]
             name = info.get('name', sid)
             unit = info.get('unit', '')
-            context_parts.append(f"- {name} ({sid}): {latest:.2f} {unit} as of {latest_date}")
 
-    context = "\n".join(context_parts)
+            # Start with basic info
+            lines = [f"**{name} ({sid})**: {latest:.2f} {unit} as of {latest_date}"]
+
+            # Add YoY change if enough data
+            if len(values) >= 13:
+                prev_year = values[-13]
+                if prev_year != 0:
+                    yoy_change = values[-1] - prev_year
+                    yoy_pct = (yoy_change / abs(prev_year)) * 100
+                    lines.append(f"  - YoY change: {yoy_change:+.2f} ({yoy_pct:+.1f}%)")
+
+            # Add 3-month change
+            if len(values) >= 4:
+                three_mo_ago = values[-4]
+                if three_mo_ago != 0:
+                    three_mo_change = values[-1] - three_mo_ago
+                    three_mo_pct = (three_mo_change / abs(three_mo_ago)) * 100
+                    trend = "rising" if three_mo_pct > 0.5 else ("falling" if three_mo_pct < -0.5 else "flat")
+                    lines.append(f"  - 3-month trend: {trend} ({three_mo_pct:+.1f}%)")
+
+            # Add 52-week high/low (or available data)
+            lookback = min(52, len(values))
+            if lookback > 12:
+                recent_vals = values[-lookback:]
+                recent_dates = dates[-lookback:]
+                peak_val = max(recent_vals)
+                trough_val = min(recent_vals)
+                peak_idx = recent_vals.index(peak_val)
+                trough_idx = recent_vals.index(trough_val)
+
+                if peak_val != 0:
+                    pct_from_peak = ((latest - peak_val) / abs(peak_val)) * 100
+                    if abs(pct_from_peak) > 2:  # Only mention if >2% from peak
+                        lines.append(f"  - 52-week high: {peak_val:.2f} ({recent_dates[peak_idx]}), currently {pct_from_peak:.1f}% from peak")
+
+                if trough_val != 0:
+                    pct_from_trough = ((latest - trough_val) / abs(trough_val)) * 100
+                    if pct_from_trough > 2:  # Only mention if notably above trough
+                        lines.append(f"  - 52-week low: {trough_val:.2f} ({recent_dates[trough_idx]}), currently {pct_from_trough:+.1f}% above")
+
+            context_parts.append("\n".join(lines))
+
+    context = "\n\n".join(context_parts)
 
     # Build background info from FRED notes
     background_parts = []
@@ -241,8 +282,21 @@ Respond with JSON in exactly this format:
 }}
 
 Guidelines:
-- Summary: Be concise, avoid jargon, use flowing prose (no bullets). Directly answer their question.
-- Chart descriptions: For EACH series, write 1-2 sentences explaining what this indicator measures and why it matters in the context of their question. Make it educational but accessible.
+- Summary: Be concise, avoid jargon, use flowing prose (no bullets). Directly answer their question using the analytics provided.
+- Chart descriptions: For EACH series, write 1-2 sentences putting the value in meaningful RECENT context:
+
+  CRITICAL RULES FOR CHART DESCRIPTIONS:
+  1. NEVER reference ancient base periods for index series. Do NOT say "282 means prices are 2.8x higher than 1982-84." The base period is irrelevant to users.
+  2. For index series (CPI, PPI, etc.), focus on CHANGE not level. The absolute index value is meaningless. Describe YoY change, recent trend, or distance from recent peaks.
+  3. Put values in context of the past 1-5 years, NOT decades. Compare to: year-ago, recent peaks/troughs, or pre-pandemic if relevant.
+  4. For rates (unemployment, interest rates, inflation %), describe the recent trajectory: "has ticked up 0.3pp over 6 months" or "declining from 4.5% to 2.8%".
+  5. Lead with what matters: direction and magnitude of recent change, then context.
+
+  GOOD: "Gas prices are down 8% from a year ago and 15% below their June 2022 peak."
+  BAD: "The CPI for gasoline is 282.98, meaning prices are nearly 3x higher than in the 1980s."
+  GOOD: "Unemployment has ticked up 0.3pp over the past 6 months but remains historically low."
+  BAD: "The unemployment rate is 4.1%."
+
 - Suggestions: Ask specific, relevant follow-ups (e.g., "How does this compare to pre-pandemic levels?" not "What is GDP?")
 
 Return only valid JSON, no other text."""
