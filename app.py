@@ -377,6 +377,15 @@ QUERY_SYNONYMS = {
     'house prices': 'housing prices',
     'real estate': 'housing',
     'property prices': 'housing prices',
+    'housing costs': 'shelter inflation',
+    'rent costs': 'rent inflation',
+    'housing expenses': 'shelter inflation',
+    'home affordability': 'housing affordability',
+
+    # Natural language queries
+    'is the economy growing': 'economic growth',
+    'is the economy good': 'economic outlook',
+    'how is the economy': 'economic outlook',
 
     # Other common synonyms
     'stock market': 'stocks',
@@ -2693,6 +2702,201 @@ def call_claude(query: str, previous_context: dict = None) -> dict:
         return default_response
 
 
+# ============================================================================
+# QA VALIDATION LAYER
+# Validates query-series alignment and optionally uses Gemini as second opinion
+# ============================================================================
+
+# Keywords that should map to specific series categories
+QUERY_SERIES_ALIGNMENT = {
+    # Inflation keywords should return inflation series
+    'inflation': ['CPIAUCSL', 'CPILFESL', 'PCEPI', 'PCEPILFE', 'CUSR0000'],
+    'prices': ['CPIAUCSL', 'CPILFESL', 'PCEPI', 'CUSR0000', 'CSUSHPINSA'],
+    'cpi': ['CPIAUCSL', 'CPILFESL', 'CUSR0000'],
+    'pce': ['PCEPI', 'PCEPILFE', 'PCE'],
+
+    # Employment keywords should return employment series
+    'unemployment': ['UNRATE', 'U6RATE', 'LNS'],
+    'jobs': ['PAYEMS', 'UNRATE', 'JTS', 'LNS'],
+    'employment': ['PAYEMS', 'UNRATE', 'LNS', 'EPOP'],
+    'labor': ['PAYEMS', 'UNRATE', 'LNS', 'LFPR', 'JTS'],
+    'payroll': ['PAYEMS', 'CES'],
+
+    # GDP/growth keywords
+    'gdp': ['GDP', 'A191', 'GDPC1', 'GDPNOW'],
+    'growth': ['GDP', 'A191', 'GDPC1'],
+    'recession': ['GDP', 'SAHM', 'T10Y2Y', 'CFNAI', 'BBKMLEIX'],
+
+    # Rates keywords should return rate series
+    'interest rate': ['FEDFUNDS', 'DFF', 'DGS', 'T10Y'],
+    'fed fund': ['FEDFUNDS', 'DFF'],
+    'mortgage': ['MORTGAGE', 'MORTGAGE30US', 'MORTGAGE15US'],
+    'treasury': ['DGS', 'T10Y', 'T5Y'],
+    'yield': ['DGS', 'T10Y', 'T5Y', 'T10Y2Y'],
+
+    # Housing keywords
+    'housing': ['CSUSHPINSA', 'HOUST', 'MORTGAGE', 'PERMIT', 'HSN'],
+    'home price': ['CSUSHPINSA', 'MSPUS', 'ASPUS'],
+    'rent': ['CUSR0000SEHA', 'CUSR0000SEHC', 'CUSR0000SAH'],
+    'shelter': ['CUSR0000SAH', 'CUSR0000SEHA', 'CUSR0000SEHC'],
+
+    # Wage keywords
+    'wage': ['CES0500000003', 'LES1252881600', 'AHETPI'],
+    'earnings': ['CES0500000003', 'LES1252881600', 'AHETPI'],
+    'income': ['PI', 'DSPIC', 'MEHOINUSA'],
+}
+
+
+def validate_query_series_alignment(query: str, series: list) -> dict:
+    """
+    Validate that returned series make sense for the query.
+
+    Returns dict with:
+        - is_valid: bool
+        - confidence: float (0-1)
+        - issues: list of potential problems
+        - suggestion: str if there's a better match
+    """
+    if not series:
+        return {'is_valid': False, 'confidence': 0, 'issues': ['No series returned'], 'suggestion': None}
+
+    q = query.lower()
+    issues = []
+    matches_found = 0
+
+    # Check if query keywords align with returned series
+    for keyword, expected_prefixes in QUERY_SERIES_ALIGNMENT.items():
+        if keyword in q:
+            # Check if any returned series matches expected prefixes
+            keyword_matched = False
+            for s in series:
+                for prefix in expected_prefixes:
+                    if s.startswith(prefix) or prefix in s:
+                        keyword_matched = True
+                        matches_found += 1
+                        break
+                if keyword_matched:
+                    break
+
+            if not keyword_matched:
+                issues.append(f"Query mentions '{keyword}' but no matching series found")
+
+    # Calculate confidence
+    if matches_found > 0:
+        confidence = min(1.0, 0.5 + (matches_found * 0.2))
+    elif not issues:
+        confidence = 0.7  # No keywords matched, but no issues either
+    else:
+        confidence = 0.3
+
+    return {
+        'is_valid': len(issues) == 0 or matches_found > 0,
+        'confidence': confidence,
+        'issues': issues,
+        'suggestion': None
+    }
+
+
+def call_gemini_validator(query: str, series: list, explanation: str) -> dict:
+    """
+    Call Gemini as a second opinion validator.
+
+    Returns dict with:
+        - agrees: bool
+        - confidence: float
+        - alternative_series: list (if it disagrees)
+        - reasoning: str
+    """
+    gemini_api_key = os.environ.get('GEMINI_API_KEY')
+    if not gemini_api_key:
+        return {'agrees': True, 'confidence': 0.5, 'alternative_series': [], 'reasoning': 'Gemini API key not configured'}
+
+    # Gemini validation prompt
+    prompt = f"""You are validating an economic data query response.
+
+USER QUERY: "{query}"
+
+SERIES RETURNED: {series}
+
+EXPLANATION: {explanation}
+
+Evaluate if the returned FRED series are appropriate for this query. Consider:
+1. Do the series directly answer what the user asked?
+2. Are there better/more standard series for this question?
+3. Is anything missing that an economist would expect?
+
+Respond with ONLY valid JSON:
+{{
+    "agrees": true/false,
+    "confidence": 0.0-1.0,
+    "alternative_series": ["SERIES1", "SERIES2"] or [],
+    "reasoning": "brief explanation"
+}}"""
+
+    try:
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_api_key}'
+        payload = {
+            'contents': [{'parts': [{'text': prompt}]}],
+            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 500}
+        }
+
+        req = Request(url, data=json.dumps(payload).encode('utf-8'),
+                     headers={'Content-Type': 'application/json'}, method='POST')
+
+        with urlopen(req, timeout=10) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            text = result['candidates'][0]['content']['parts'][0]['text']
+            # Extract JSON from response
+            if '```json' in text:
+                text = text.split('```json')[1].split('```')[0]
+            elif '```' in text:
+                text = text.split('```')[1].split('```')[0]
+            return json.loads(text.strip())
+    except Exception as e:
+        return {'agrees': True, 'confidence': 0.5, 'alternative_series': [], 'reasoning': f'Validation error: {str(e)[:50]}'}
+
+
+def log_query_resolution(query: str, source: str, series: list, validation: dict = None):
+    """
+    Log query resolutions for analysis and improvement.
+
+    Logs to a JSON file that can be analyzed to find patterns in:
+    - Which queries use precomputed plans vs Claude API
+    - Validation failures
+    - Common query patterns that need new plans
+    """
+    log_file = os.path.join(os.path.dirname(__file__), 'query_log.json')
+
+    entry = {
+        'timestamp': datetime.now().isoformat(),
+        'query': query,
+        'source': source,  # 'precomputed', 'claude', 'local_followup'
+        'series': series,
+        'validation': validation
+    }
+
+    try:
+        # Append to log file (create if doesn't exist)
+        logs = []
+        if os.path.exists(log_file):
+            try:
+                with open(log_file, 'r') as f:
+                    logs = json.load(f)
+            except:
+                logs = []
+
+        logs.append(entry)
+
+        # Keep only last 1000 entries
+        if len(logs) > 1000:
+            logs = logs[-1000:]
+
+        with open(log_file, 'w') as f:
+            json.dump(logs, f, indent=2)
+    except:
+        pass  # Don't fail on logging errors
+
+
 def call_economist_reviewer(query: str, series_data: list, original_explanation: str) -> str:
     """Call a second Claude agent to review and improve the explanation.
 
@@ -3357,13 +3561,17 @@ def add_direct_labels(fig, series_data: list, colors: list):
 # Key economic events for chart annotations
 ECONOMIC_EVENTS = [
     # Fed Policy Changes
-    {'date': '2022-03-17', 'label': 'Fed rate hikes begin', 'type': 'fed'},
+    {'date': '2022-03-17', 'label': 'Fed hikes begin', 'type': 'fed'},
     {'date': '2020-03-15', 'label': 'Emergency cut to 0%', 'type': 'fed'},
+    {'date': '2019-07-31', 'label': 'Fed cuts rates', 'type': 'fed'},
     {'date': '2015-12-16', 'label': 'First hike since 2008', 'type': 'fed'},
     {'date': '2008-12-16', 'label': 'Fed cuts to zero', 'type': 'fed'},
 
-    # Major Crises
+    # Major Crises & Peaks
+    {'date': '2022-06-01', 'label': 'Inflation peaks 9.1%', 'type': 'crisis'},
+    {'date': '2020-04-01', 'label': 'Unemployment hits 14.7%', 'type': 'crisis'},
     {'date': '2020-03-11', 'label': 'COVID pandemic', 'type': 'crisis'},
+    {'date': '2023-03-10', 'label': 'SVB collapse', 'type': 'crisis'},
     {'date': '2008-09-15', 'label': 'Lehman collapse', 'type': 'crisis'},
 
     # Policy Milestones
@@ -3466,12 +3674,21 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
         if use_direct_labels:
             add_direct_labels(fig, series_data, colors)
 
-        # Add event annotations for single-series rate charts
+        # Add event annotations for single-series charts
         if len(series_data) == 1:
             series_id = series_data[0][0]
+            # Fed events for rate series
             rate_series = ['FEDFUNDS', 'DFF', 'DGS10', 'DGS2', 'T10Y2Y', 'MORTGAGE30US', 'MORTGAGE15US']
             if series_id in rate_series:
                 add_event_annotations(fig, min_date, max_date, event_types=['fed'])
+            # Crisis events for unemployment and labor series
+            labor_series = ['UNRATE', 'U6RATE', 'ICSA', 'CCSA', 'PAYEMS']
+            if series_id in labor_series:
+                add_event_annotations(fig, min_date, max_date, event_types=['crisis'])
+            # Crisis events for inflation series (show inflation peak)
+            inflation_series = ['CPIAUCSL', 'CPILFESL', 'PCEPI', 'PCEPILFE']
+            if series_id in inflation_series:
+                add_event_annotations(fig, min_date, max_date, event_types=['crisis'])
 
         unit = series_data[0][3].get('unit', series_data[0][3].get('units', ''))
         fig.update_layout(
@@ -3479,7 +3696,7 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
             hovermode='x unified',
             showlegend=len(series_data) > 1 and not use_direct_labels,
             legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
-            margin=dict(l=60, r=100 if use_direct_labels else 20, t=20, b=60),
+            margin=dict(l=60, r=150 if use_direct_labels else 20, t=20, b=60),
             yaxis_title=unit[:30] if len(unit) > 30 else unit,
             xaxis=dict(
                 tickformat='%Y',
@@ -4188,6 +4405,32 @@ def main():
             with st.spinner("Analyzing your question with AI economist..."):
                 interpretation = call_claude(query, previous_context)
             interpretation['used_precomputed'] = False
+
+        # QA Validation Layer: Check query-series alignment
+        series_for_validation = interpretation.get('series', [])
+        validation_result = validate_query_series_alignment(query, series_for_validation)
+
+        # Log query resolution for analysis
+        source = 'precomputed' if interpretation.get('used_precomputed') else (
+            'local_followup' if interpretation.get('used_local_parser') else 'claude'
+        )
+        log_query_resolution(query, source, series_for_validation, validation_result)
+
+        # If validation confidence is low and Gemini is configured, get second opinion
+        if validation_result['confidence'] < 0.5 and os.environ.get('GEMINI_API_KEY'):
+            gemini_result = call_gemini_validator(
+                query,
+                series_for_validation,
+                interpretation.get('explanation', '')
+            )
+            # If Gemini disagrees and suggests alternatives, consider using them
+            if not gemini_result.get('agrees') and gemini_result.get('alternative_series'):
+                # Log the disagreement but don't override (for now - could be enabled)
+                log_query_resolution(
+                    query, 'gemini_disagree',
+                    gemini_result.get('alternative_series', []),
+                    {'gemini_reasoning': gemini_result.get('reasoning', '')}
+                )
 
         ai_explanation = interpretation.get('explanation', '')
         series_to_fetch = list(interpretation.get('series', []))  # Copy the list
