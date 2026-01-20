@@ -3826,11 +3826,17 @@ ECONOMIC_EVENTS = [
 ]
 
 
-def add_event_annotations(fig, min_date: str, max_date: str, event_types: list = None):
-    """Add key economic event annotations to a chart."""
+def add_event_annotations(fig, min_date: str, max_date: str, event_types: list = None, max_annotations: int = 2):
+    """Add key economic event annotations to a chart.
+
+    Limits to max_annotations to avoid cluttering the chart, and staggers
+    positions if events are close together.
+    """
     min_dt = datetime.strptime(min_date, '%Y-%m-%d')
     max_dt = datetime.strptime(max_date, '%Y-%m-%d')
 
+    # Collect eligible events
+    eligible_events = []
     for event in ECONOMIC_EVENTS:
         event_dt = datetime.strptime(event['date'], '%Y-%m-%d')
 
@@ -3842,6 +3848,15 @@ def add_event_annotations(fig, min_date: str, max_date: str, event_types: list =
         if event_types and event['type'] not in event_types:
             continue
 
+        eligible_events.append((event_dt, event))
+
+    # Sort by date (most recent first) and limit to max_annotations
+    eligible_events.sort(key=lambda x: x[0], reverse=True)
+    eligible_events = eligible_events[:max_annotations]
+
+    # Add annotations with staggered y-positions if close together
+    y_offsets = [-25, -45, -65]  # Stagger vertically
+    for idx, (event_dt, event) in enumerate(eligible_events):
         fig.add_annotation(
             x=event['date'],
             y=1.0,
@@ -3853,7 +3868,7 @@ def add_event_annotations(fig, min_date: str, max_date: str, event_types: list =
             arrowwidth=1,
             arrowcolor='#999',
             ax=0,
-            ay=-25,
+            ay=y_offsets[idx % len(y_offsets)],
             font=dict(size=9, color='#666'),
             bgcolor='rgba(255,255,255,0.9)',
             borderpad=2,

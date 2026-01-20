@@ -33,6 +33,23 @@
     "combine_chart": false,
     "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates how many Americans are looking for work, GDP growth shows economic expansion, and CPI inflation reveals price pressures."
   },
+  "economy": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "A191RO1Q156NBEA",
+      "CPIAUCSL"
+    ],
+    "show_yoy": [
+      false,
+      false,
+      false,
+      true
+    ],
+    "show_mom": true,
+    "combine_chart": false,
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market slack, GDP growth shows the economy's expansion pace, and CPI inflation (year-over-year) reveals price stability."
+  },
   "economic overview": {
     "series": [
       "PAYEMS",
