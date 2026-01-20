@@ -163,10 +163,15 @@ def calculate_yoy(dates: list, values: list) -> tuple:
     return yoy_dates, yoy_values
 
 
-def get_ai_summary(query: str, series_data: list) -> str:
-    """Get AI-generated summary from Claude."""
+def get_ai_summary(query: str, series_data: list, conversation_history: list = None) -> dict:
+    """Get AI-generated summary and follow-up suggestions from Claude."""
+    default_response = {
+        "summary": "Economic data loaded successfully.",
+        "suggestions": ["How is inflation trending?", "What's the unemployment rate?"]
+    }
+
     if not ANTHROPIC_API_KEY:
-        return "Economic data loaded successfully."
+        return default_response
 
     # Build context with current values
     context_parts = []
@@ -193,33 +198,51 @@ def get_ai_summary(query: str, series_data: list) -> str:
 
     background = "\n\n".join(background_parts) if background_parts else ""
 
-    prompt = f"""You are an economist writing a brief summary for a general audience.
+    # Build conversation context if this is a follow-up
+    conv_context = ""
+    if conversation_history:
+        conv_parts = []
+        for item in conversation_history[-3:]:  # Last 3 exchanges max
+            conv_parts.append(f"User: {item.get('query', '')}")
+            conv_parts.append(f"Assistant: {item.get('summary', '')}")
+        conv_context = "Previous conversation:\n" + "\n".join(conv_parts) + "\n\n"
 
-User asked: "{query}"
+    prompt = f"""You are an economist assistant helping users explore U.S. economic data.
+
+{conv_context}User asked: "{query}"
 
 Current data:
 {context}
 
 {"Background on these indicators (from FRED):" + chr(10) + background if background else ""}
 
-Write a 2-3 sentence summary that:
-1. Directly answers their question
-2. Mentions specific numbers
-3. Provides context (is this good/bad, up/down from last year)
+Respond with JSON in exactly this format:
+{{
+  "summary": "Your 2-3 sentence summary here. Directly answer their question, mention specific numbers, and provide context.",
+  "suggestions": ["First follow-up question?", "Second follow-up question?"]
+}}
 
-Be concise and avoid jargon. No bullet points - just flowing prose."""
+Guidelines:
+- Summary: Be concise, avoid jargon, use flowing prose (no bullets)
+- Suggestions: Ask specific, relevant follow-ups based on what they just learned (e.g., "How does this compare to pre-pandemic levels?" not generic questions like "What is GDP?")
+
+Return only valid JSON, no other text."""
 
     try:
         client = Anthropic(api_key=ANTHROPIC_API_KEY)
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=300,
+            max_tokens=400,
             messages=[{"role": "user", "content": prompt}]
         )
-        return response.content[0].text
+        result = json.loads(response.content[0].text)
+        return {
+            "summary": result.get("summary", default_response["summary"]),
+            "suggestions": result.get("suggestions", default_response["suggestions"])[:2]
+        }
     except Exception as e:
         print(f"Claude error: {e}")
-        return "Economic data loaded successfully."
+        return default_response
 
 
 def get_recessions_in_range(min_date: str, max_date: str) -> list:
@@ -294,8 +317,16 @@ async def home(request: Request):
 
 
 @app.post("/search", response_class=HTMLResponse)
-async def search(request: Request, query: str = Form(...)):
+async def search(request: Request, query: str = Form(...), history: str = Form(default="")):
     """Handle search query - returns HTMX partial."""
+
+    # Parse conversation history from JSON
+    conversation_history = []
+    if history:
+        try:
+            conversation_history = json.loads(history)
+        except json.JSONDecodeError:
+            pass
 
     # Find query plan
     plan = find_query_plan(query)
@@ -329,29 +360,26 @@ async def search(request: Request, query: str = Form(...)):
 
             series_data.append((sid, dates, values, info))
 
-    # Get AI summary
-    summary = get_ai_summary(query, series_data)
+    # Get AI summary and suggestions
+    ai_response = get_ai_summary(query, series_data, conversation_history)
+    summary = ai_response["summary"]
+    suggestions = ai_response["suggestions"]
 
     # Format for frontend
     charts = format_chart_data(series_data)
 
-    # Related questions based on context
-    query_lower = query.lower()
-    if 'job' in query_lower or 'employ' in query_lower or 'economy' in query_lower:
-        related = [("Recession risk?", "recession risk"), ("Wages vs inflation?", "wages vs inflation")]
-    elif 'inflation' in query_lower or 'cpi' in query_lower:
-        related = [("Are wages keeping up?", "wages vs inflation"), ("Fed funds rate?", "fed funds rate")]
-    elif 'gdp' in query_lower or 'growth' in query_lower:
-        related = [("Is a recession coming?", "recession risk"), ("Job market?", "job market")]
-    else:
-        related = [("How is the economy?", "how is the economy"), ("Inflation?", "inflation")]
+    # Update conversation history for next request
+    new_history = conversation_history + [{"query": query, "summary": summary}]
+    # Keep last 5 exchanges
+    new_history = new_history[-5:]
 
     return templates.TemplateResponse("partials/results.html", {
         "request": request,
         "query": query,
         "summary": summary,
         "charts": charts,
-        "related": related,
+        "suggestions": suggestions,
+        "history": json.dumps(new_history),
     })
 
 
