@@ -98,12 +98,13 @@
   },
   "housing affordability": {
     "series": [
+      "FIXHAI",
       "MORTGAGE30US",
       "CSUSHPINSA"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Housing affordability is primarily driven by two key factors: mortgage rates (MORTGAGE30US) and home prices (CSUSHPINSA - Case-Shiller National Home Price Index). When mortgage rates rise or home prices increase, affordability decreases. These two series together provide the most comprehensive view of affordability conditions, as they represent the major cost components of homeownership - the price of the home and the cost of financing it."
+    "explanation": "Housing affordability from three angles: (1) FIXHAI (Housing Affordability Index) directly measures whether a typical family can qualify for a mortgage on a typical home - values above 100 mean the median family has more than enough income to qualify. (2) Mortgage rates determine financing costs. (3) Home prices determine purchase costs. When rates and prices rise, affordability (FIXHAI) falls."
   },
   "rent prices": {
     "series": [
@@ -177,13 +178,13 @@
   },
   "first time homebuyers": {
     "series": [
+      "FIXHAI",
       "MORTGAGE30US",
-      "CSUSHPINSA",
-      "FIXHAI"
+      "CSUSHPINSA"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "First-time homebuyers are most sensitive to affordability constraints. The 30-year mortgage rate directly affects monthly payments, the Case-Shiller price index shows home price levels they must afford, and the housing affordability index specifically measures how accessible homeownership is for typical buyers. Together, these three series capture the key financial barriers first-time buyers face when entering the housing market."
+    "explanation": "First-time homebuyers are most sensitive to affordability constraints. FIXHAI (Housing Affordability Index) directly measures whether a typical family can qualify for a mortgage - values above 100 mean they can. The 30-year mortgage rate directly affects monthly payments, and Case-Shiller shows price levels. When FIXHAI falls below 100, homeownership becomes out of reach for most first-time buyers."
   },
   "housing construction": {
     "series": [

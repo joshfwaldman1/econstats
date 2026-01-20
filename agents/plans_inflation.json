@@ -392,5 +392,34 @@
     "show_yoy": true,
     "combine_chart": true,
     "explanation": "CUSR0000SETA01 is CPI for new vehicles, which directly measures new car price inflation. CUSR0000SETA02 is CPI for used cars and trucks, included for context since used car prices significantly influence new car markets and Fed policy discussions. Both shown as year-over-year changes to display inflation rates rather than index levels, which is how economists and policymakers analyze vehicle price trends."
+  },
+  "inflation expectations": {
+    "series": [
+      "MICH",
+      "T5YIE",
+      "T10YIE"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Three key inflation expectations measures: (1) University of Michigan Consumer Inflation Expectations (MICH) - what consumers expect, important because expectations can become self-fulfilling. (2) 5-Year Breakeven Inflation (T5YIE) - what bond markets expect over 5 years. (3) 10-Year Breakeven Inflation (T10YIE) - longer-term market expectations. The Fed closely monitors these as 'anchored' expectations near 2% are crucial for price stability."
+  },
+  "expected inflation": {
+    "series": [
+      "MICH",
+      "T5YIE",
+      "T10YIE"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Inflation expectations from different perspectives: Consumer expectations (MICH from UMich survey), and market-based expectations (T5YIE and T10YIE breakeven rates from Treasury Inflation-Protected Securities). When these stay near 2%, expectations are 'well-anchored' - a key goal for the Fed."
+  },
+  "breakeven inflation": {
+    "series": [
+      "T5YIE",
+      "T10YIE"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Breakeven inflation rates derived from Treasury Inflation-Protected Securities (TIPS): T5YIE shows what markets expect inflation to average over 5 years, T10YIE shows 10-year expectations. These market-based measures are closely watched by the Fed. When breakevens rise sharply, it signals markets expect higher inflation ahead."
   }
 }

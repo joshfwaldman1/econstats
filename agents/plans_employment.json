@@ -431,5 +431,40 @@
     "show_yoy": true,
     "combine_chart": false,
     "explanation": "LES1252881600Q is real (inflation-adjusted) median weekly earnings for full-time workers. This directly measures real wage growth - no need to compare nominal wages to inflation separately. When this rises, workers' purchasing power is increasing. YoY % change shows the pace of real wage gains or losses."
+  },
+  "sahm rule": {
+    "series": [
+      "SAHMREALTIME",
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Sahm Rule (SAHMREALTIME) is a real-time recession indicator created by economist Claudia Sahm. It triggers when the 3-month moving average of unemployment rises 0.5 percentage points or more above its low from the prior 12 months. When SAHMREALTIME crosses above 0.5, it signals a recession has likely begun. Shown alongside unemployment rate for context."
+  },
+  "sahm recession indicator": {
+    "series": [
+      "SAHMREALTIME"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Sahm Rule recession indicator triggers when it rises above 0.5 (shown by benchmark line). This happens when unemployment rises sufficiently fast - specifically when the 3-month average unemployment rate exceeds its 12-month low by 0.5 percentage points or more. It has accurately identified every recession since 1970 with no false positives."
+  },
+  "jobless claims": {
+    "series": [
+      "ICSA",
+      "CCSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Initial Claims (ICSA) shows new unemployment filings each week - the most timely indicator of layoffs. Continuing Claims (CCSA) shows ongoing claims - how many remain unemployed. Together they provide a real-time view of labor market stress. Spikes in initial claims often signal recession onset."
+  },
+  "unemployment claims": {
+    "series": [
+      "ICSA",
+      "CCSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Initial unemployment claims (ICSA) measure new filings for unemployment benefits - the timeliest labor market indicator. Continuing claims (CCSA) show how many people remain on unemployment. Rising claims signal weakening labor market; falling claims indicate improvement."
   }
 }

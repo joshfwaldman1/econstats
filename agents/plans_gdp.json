@@ -292,5 +292,77 @@
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "Annual real GDP growth shown two ways: The official annual series (A191RL1A225NBEA) for completed calendar years, and the quarterly year-ago comparison (A191RO1Q156NBEA) for a more current read. The Q4 reading of the quarterly series approximates the full-year annual growth rate. Trend growth is approximately 2% annually."
+  },
+  "real gdp vs nominal gdp": {
+    "series": [
+      "GDPC1",
+      "GDP"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Real GDP (GDPC1) removes inflation effects using chained 2017 dollars - this measures actual economic output growth. Nominal GDP (GDP) includes inflation - it grows faster when prices rise. The difference between nominal and real GDP growth is essentially inflation. Real GDP is what economists use to measure true economic growth.",
+    "chart_groups": [
+      {"series": ["GDPC1", "GDP"], "show_yoy": true, "title": "Real vs Nominal GDP Growth (YoY %)"},
+      {"series": ["GDPC1", "GDP"], "normalize": true, "title": "Real vs Nominal GDP (Indexed to 100)"}
+    ]
+  },
+  "nominal vs real gdp": {
+    "series": [
+      "GDPC1",
+      "GDP"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Real GDP (GDPC1) removes inflation effects using chained 2017 dollars - this measures actual economic output growth. Nominal GDP (GDP) includes inflation - it grows faster when prices rise. The difference between nominal and real GDP growth is essentially inflation. Real GDP is what economists use to measure true economic growth.",
+    "chart_groups": [
+      {"series": ["GDPC1", "GDP"], "show_yoy": true, "title": "Real vs Nominal GDP Growth (YoY %)"},
+      {"series": ["GDPC1", "GDP"], "normalize": true, "title": "Nominal vs Real GDP (Indexed to 100)"}
+    ]
+  },
+  "exports vs imports": {
+    "series": [
+      "EXPGSC1",
+      "IMPGSC1",
+      "NETEXP"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "U.S. trade flows: Exports (EXPGSC1) are goods and services sold abroad, Imports (IMPGSC1) are purchased from abroad. Net Exports (NETEXP) = Exports - Imports. The U.S. typically runs a trade deficit (negative net exports), meaning we import more than we export. This deficit subtracts from GDP.",
+    "chart_groups": [
+      {"series": ["EXPGSC1", "IMPGSC1"], "show_yoy": false, "title": "Exports vs Imports (Real, Billions $)"},
+      {"series": ["NETEXP"], "show_yoy": false, "title": "Net Exports (Trade Balance)"}
+    ]
+  },
+  "imports vs exports": {
+    "series": [
+      "EXPGSC1",
+      "IMPGSC1",
+      "NETEXP"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "U.S. trade flows: Exports (EXPGSC1) are goods and services sold abroad, Imports (IMPGSC1) are purchased from abroad. Net Exports (NETEXP) = Exports - Imports. The U.S. typically runs a trade deficit (negative net exports), meaning we import more than we export. This deficit subtracts from GDP.",
+    "chart_groups": [
+      {"series": ["EXPGSC1", "IMPGSC1"], "show_yoy": false, "title": "Imports vs Exports (Real, Billions $)"},
+      {"series": ["NETEXP"], "show_yoy": false, "title": "Net Exports (Trade Balance)"}
+    ]
+  },
+  "trade deficit": {
+    "series": [
+      "NETEXP",
+      "BOPGSTB"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Two views of the trade deficit: NETEXP shows net exports from the GDP accounts (real, quarterly), while BOPGSTB shows the goods and services trade balance from balance of payments data (nominal, monthly). Negative values indicate a deficit - the U.S. imports more than it exports. Large deficits can drag on GDP growth."
+  },
+  "trade balance": {
+    "series": [
+      "BOPGSTB",
+      "NETEXP"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "BOPGSTB is the monthly trade balance (goods and services) from balance of payments data - the most timely trade indicator. NETEXP is quarterly net exports from GDP accounts. Negative values = trade deficit, positive = surplus. The U.S. has run persistent deficits since the 1970s."
   }
 }

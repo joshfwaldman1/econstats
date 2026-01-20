@@ -1493,6 +1493,57 @@ SERIES_DB = {
             'An inverted yield curve has predicted every U.S. recession since 1970 with remarkable accuracy. The logic: investors accept lower long-term rates because they expect the Fed will need to cut rates to fight a recession. The spread was deeply inverted through much of 2023, though the lag between inversion and recession varies from several months to two years.'
         ]
     },
+    'T5YIE': {
+        'name': '5-Year Breakeven Inflation Rate',
+        'unit': 'Percent',
+        'source': 'Federal Reserve Bank of St. Louis',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 2.0,
+            'comparison': 'above',
+            'text': "When breakevens rise significantly above 2%, markets expect inflation to exceed the Fed's target.",
+        },
+        'bullets': [
+            "Derived from the difference between nominal 5-year Treasuries and 5-year TIPS (inflation-protected securities). Shows what bond markets expect average inflation to be over the next 5 years.",
+            "This market-based measure of inflation expectations is closely watched by the Fed. Well-anchored expectations near 2% support price stability; rising breakevens can signal inflation concerns are building."
+        ]
+    },
+    'T10YIE': {
+        'name': '10-Year Breakeven Inflation Rate',
+        'unit': 'Percent',
+        'source': 'Federal Reserve Bank of St. Louis',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 2.0,
+            'comparison': 'above',
+            'text': "Values persistently above 2.5% suggest markets expect inflation to exceed the Fed's target over the long run.",
+        },
+        'bullets': [
+            "The difference between 10-year nominal Treasury yields and 10-year TIPS yields. Represents what markets expect annual inflation to average over the next decade.",
+            "Long-term breakevens are particularly important because they reflect deep structural expectations about inflation. When these stay near 2%, it suggests the Fed retains credibility on its inflation-fighting commitment."
+        ]
+    },
+    'MICH': {
+        'name': 'University of Michigan: Inflation Expectation',
+        'unit': 'Percent',
+        'source': 'University of Michigan',
+        'sa': False,
+        'frequency': 'monthly',
+        'data_type': 'rate',
+        'benchmark': {
+            'value': 3.0,
+            'comparison': 'above',
+            'text': "Consumer inflation expectations above 3% are concerning because they can become self-fulfilling.",
+        },
+        'bullets': [
+            "Measures what consumers expect inflation to be over the next year, based on the University of Michigan's Surveys of Consumers. This is one of the most closely watched measures of inflation expectations.",
+            "Consumer expectations matter because they influence behavior: if people expect higher prices, they may demand higher wages and spend sooner, potentially making inflation worse. The Fed monitors this closely as part of keeping expectations 'anchored' near 2%."
+        ]
+    },
     'MORTGAGE30US': {
         'name': '30-Year Fixed Mortgage Rate',
         'unit': 'Percent',
@@ -3085,7 +3136,13 @@ SHORT_DESCRIPTIONS = {
     'UNRATE': "share of the labor force jobless and actively seeking work; ~4-4.5% is full employment",
     'U6RATE': "broader unemployment including discouraged and underemployed workers",
     'JTSJOL': "job openings, measuring employer demand for labor",
+    'JTSQUR': "quits rate; workers quit more when confident about job market",
+    'JTSHIR': "hires rate; measures actual hiring activity",
+    'JTSLDL': "layoffs and discharges; measures involuntary separations",
     'ICSA': "new unemployment filings, the most timely labor market indicator",
+    'CCSA': "continuing unemployment claims; how many remain unemployed",
+    'CIVPART': "labor force participation rate; share of adults working or looking",
+    'LNS11300060': "prime-age (25-54) participation rate; cleanest participation measure",
     'LNS12300060': "prime-age (25-54) employment rate, the cleanest measure of labor market health",
     'CES0500000003': "average hourly earnings for private workers",
     'AHETPI': "hourly earnings for production/nonsupervisory workers",
@@ -3099,6 +3156,9 @@ SHORT_DESCRIPTIONS = {
     'DGS10': "the benchmark rate for mortgages and long-term borrowing",
     'DGS2': "reflects market expectations for near-term Fed policy",
     'T10Y2Y': "yield spread between 10yr and 2yr Treasuries; inversion has historically preceded recessions",
+    'T5YIE': "5-year breakeven inflation rate from TIPS; shows market inflation expectations",
+    'T10YIE': "10-year breakeven inflation rate; long-term market inflation expectations",
+    'MICH': "consumer inflation expectations from University of Michigan survey",
     'MORTGAGE30US': "determines monthly payments for most homebuyers",
     'MORTGAGE15US': "15-year mortgage rate, lower than 30-year for faster payoff",
     # Housing
@@ -3106,6 +3166,7 @@ SHORT_DESCRIPTIONS = {
     'HOUST': "new construction starts, a leading economic indicator",
     'EXHOSLUSM495S': "existing home sales volume",
     'PERMIT': "building permits, signaling future construction activity",
+    'FIXHAI': "housing affordability index; above 100 means typical family can afford typical home",
     # Consumer
     'UMCSENT': "consumer sentiment; spending drives ~70% of GDP",
     'PCE': "total consumer spending in dollars",
@@ -3911,7 +3972,10 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
             if series_id in rate_series:
                 add_event_annotations(fig, min_date, max_date, event_types=['fed'])
             # Crisis events for unemployment and labor series
-            labor_series = ['UNRATE', 'U6RATE', 'ICSA', 'CCSA', 'PAYEMS']
+            labor_series = ['UNRATE', 'U6RATE', 'ICSA', 'CCSA', 'PAYEMS',
+                            'JTSJOL', 'JTSQUR', 'JTSHIR', 'JTSLDL',  # JOLTS series
+                            'LNS11300000', 'LNS11300060', 'CIVPART',  # Participation rates
+                            'LNS12300060', 'EMRATIO']  # Employment-population ratios
             if series_id in labor_series:
                 add_event_annotations(fig, min_date, max_date, event_types=['crisis'])
             # Crisis events for inflation series (show inflation peak)
