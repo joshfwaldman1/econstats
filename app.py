@@ -2745,6 +2745,45 @@ QUERY_SERIES_ALIGNMENT = {
     'wage': ['CES0500000003', 'LES1252881600', 'AHETPI'],
     'earnings': ['CES0500000003', 'LES1252881600', 'AHETPI'],
     'income': ['PI', 'DSPIC', 'MEHOINUSA'],
+
+    # Trade/International
+    'trade': ['BOPGSTB', 'NETEXP', 'EXPGS', 'IMPGS'],
+    'export': ['EXPGS', 'BOPTEXP', 'BOPGEXP'],
+    'import': ['IMPGS', 'BOPTIMP', 'BOPGIMP'],
+    'deficit': ['BOPGSTB', 'FYFSD'],
+
+    # Consumer Behavior
+    'consumer confidence': ['UMCSENT', 'CSCICP'],
+    'consumer sentiment': ['UMCSENT', 'CSCICP'],
+    'consumer spending': ['PCE', 'PCEC96', 'RSAFS'],
+    'retail': ['RSAFS', 'MRTSSM', 'RRSFS'],
+    'spending': ['PCE', 'PCEC96', 'RSAFS'],
+
+    # Manufacturing/Production
+    'manufacturing': ['IPMAN', 'INDPRO', 'NAPMPI', 'MANEMP'],
+    'industrial': ['INDPRO', 'IPMAN', 'IPB50001'],
+    'production': ['INDPRO', 'IPMAN', 'OUTMS'],
+
+    # Savings/Debt
+    'savings': ['PSAVERT', 'PMSAVE'],
+    'debt': ['TDSP', 'GFDEBTN', 'CCLACBW027SBOG'],
+    'credit': ['CCLACBW027SBOG', 'BUSLOANS', 'TOTCI'],
+
+    # Markets
+    'stock': ['SP500', 'DJIA', 'NASDAQCOM', 'VIXCLS'],
+    'market': ['SP500', 'DJIA', 'NASDAQCOM'],
+
+    # Money/Fed Policy
+    'money supply': ['M2SL', 'M1SL', 'BOGMBASE'],
+    'm2': ['M2SL', 'M2V'],
+
+    # Producer Prices
+    'ppi': ['PPIACO', 'PPIFIS', 'WPSID62'],
+    'producer price': ['PPIACO', 'PPIFIS'],
+
+    # Business
+    'corporate profit': ['CP', 'CPROFIT'],
+    'business investment': ['PRFI', 'PNFI'],
 }
 
 
