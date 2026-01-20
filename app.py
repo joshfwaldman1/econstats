@@ -3881,9 +3881,9 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
     if combine or len(series_data) == 1:
         fig = go.Figure()
         for i, (series_id, dates, values, info) in enumerate(series_data):
-            name = info.get('name', info.get('title', series_id))
-            if len(name) > 50:
-                name = name[:47] + "..."
+            full_name = info.get('name', info.get('title', series_id))
+            # Include series ID in legend for clarity
+            name = f"{full_name[:45]} ({series_id})" if len(full_name) > 45 else f"{full_name} ({series_id})"
 
             if chart_type == 'bar':
                 fig.add_trace(go.Bar(
@@ -3944,8 +3944,16 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
             template='plotly_white',
             hovermode='x unified',
             showlegend=len(series_data) > 1 and not use_direct_labels,
-            legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
-            margin=dict(l=60, r=150 if use_direct_labels else 20, t=20, b=60),
+            legend=dict(
+                orientation='h',
+                yanchor='top',
+                y=-0.15,  # Position below the chart
+                xanchor='center',
+                x=0.5,
+                font=dict(size=11),
+                bgcolor='rgba(255,255,255,0.8)',
+            ),
+            margin=dict(l=60, r=150 if use_direct_labels else 20, t=20, b=80),  # More bottom margin for legend
             yaxis_title=unit[:30] if len(unit) > 30 else unit,
             xaxis=dict(
                 tickformat='%Y',
@@ -3954,7 +3962,7 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                 rangeslider=dict(visible=True, thickness=0.05),
             ),
             yaxis=dict(gridcolor='#e5e5e5'),
-            height=350,
+            height=380,  # Slightly taller to accommodate legend below
         )
     else:
         fig = make_subplots(
@@ -4409,8 +4417,8 @@ def main():
         # Render conversation history with full charts
         for msg_idx, msg in enumerate(st.session_state.messages):
             if msg["role"] == "user":
-                with st.chat_message("user"):
-                    st.markdown(msg["content"])
+                with st.chat_message("user", avatar="🔍"):
+                    st.markdown(f"<div style='background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%); padding: 12px 18px; border-radius: 12px; border-left: 4px solid #0072B2; font-size: 1.1em;'><strong>{msg['content']}</strong></div>", unsafe_allow_html=True)
             else:
                 # Assistant message with summary and charts
                 with st.chat_message("assistant"):
@@ -5337,13 +5345,16 @@ def main():
                 fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
                 st.plotly_chart(fig, width='stretch')
 
-                source = group_data[0][3].get('source', 'FRED') if group_data else 'FRED'
+                sources = set(s[3].get('source', 'FRED') for s in group_data) if group_data else {'FRED'}
+                source_str = ', '.join(sources)
+                series_ids = [s[0] for s in group_data] if group_data else []
+                series_list = ' | '.join(series_ids)
                 transform_note = ""
                 if group_show_yoy:
-                    transform_note = " Showing year-over-year percent change."
+                    transform_note = " YoY % change."
                 elif group_pct_from_start:
-                    transform_note = " Indexed to start of period."
-                st.markdown(f"<div class='source-line'>Source: {source}.{transform_note} Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
+                    transform_note = " Indexed."
+                st.markdown(f"<div class='source-line'>Source: {source_str} | Series: {series_list}.{transform_note} Shaded = recessions.</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
 
         # Regular Charts (when not using chart_groups)
@@ -5367,8 +5378,12 @@ def main():
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
             st.plotly_chart(fig, width='stretch')
 
-            source = series_data[0][3].get('source', 'FRED')
-            st.markdown(f"<div class='source-line'>Source: {source}. Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
+            # Build source line with series IDs
+            sources = set(s[3].get('source', 'FRED') for s in series_data)
+            source_str = ', '.join(sources) if sources else 'FRED'
+            series_ids = [f"{s[0]}" for s in series_data]
+            series_list = ' | '.join(series_ids)
+            st.markdown(f"<div class='source-line'>Source: {source_str} | Series: {series_list}. Shaded areas = recessions.</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
         else:
             for series_id, dates, values, info in series_data:
@@ -5451,7 +5466,7 @@ def main():
                     fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                     st.plotly_chart(fig, width='stretch')
 
-                st.markdown(f"<div class='source-line'>Source: {source}. {sa_note}{transform_note} Shaded areas indicate U.S. recessions (NBER).</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='source-line'>Source: {source} | Series: {series_id}. {sa_note}{transform_note} Shaded = recessions.</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
 
         # Download button
