@@ -406,73 +406,83 @@ async def home(request: Request):
 @app.post("/search", response_class=HTMLResponse)
 async def search(request: Request, query: str = Form(...), history: str = Form(default="")):
     """Handle search query - returns HTMX partial."""
+    import traceback
 
-    # Parse conversation history from JSON
-    conversation_history = []
-    if history:
-        try:
-            conversation_history = json.loads(history)
-        except json.JSONDecodeError:
-            pass
+    try:
+        # Parse conversation history from JSON
+        conversation_history = []
+        if history:
+            try:
+                conversation_history = json.loads(history)
+            except json.JSONDecodeError:
+                pass
 
-    # Find query plan
-    plan = find_query_plan(query)
+        # Find query plan
+        plan = find_query_plan(query)
 
-    if plan:
-        series_ids = plan.get('series', [])[:4]
-        show_yoy = plan.get('show_yoy', False)
-    else:
-        # Default to economy overview
-        series_ids = ['PAYEMS', 'UNRATE', 'A191RO1Q156NBEA', 'CPIAUCSL']
-        show_yoy = [False, False, False, True]
+        if plan:
+            series_ids = plan.get('series', [])[:4]
+            show_yoy = plan.get('show_yoy', False)
+        else:
+            # Default to economy overview
+            series_ids = ['PAYEMS', 'UNRATE', 'A191RO1Q156NBEA', 'CPIAUCSL']
+            show_yoy = [False, False, False, True]
 
-    # Fetch data
-    series_data = []
-    for i, sid in enumerate(series_ids):
-        dates, values, info = get_fred_data(sid)
-        if dates and values:
-            # Apply YoY if needed
-            apply_yoy = False
-            if isinstance(show_yoy, list) and i < len(show_yoy):
-                apply_yoy = show_yoy[i]
-            elif isinstance(show_yoy, bool):
-                apply_yoy = show_yoy
-            elif SERIES_DB.get(sid, {}).get('show_yoy', False):
-                apply_yoy = True
+        # Fetch data
+        series_data = []
+        for i, sid in enumerate(series_ids):
+            dates, values, info = get_fred_data(sid)
+            if dates and values:
+                # Apply YoY if needed
+                apply_yoy = False
+                if isinstance(show_yoy, list) and i < len(show_yoy):
+                    apply_yoy = show_yoy[i]
+                elif isinstance(show_yoy, bool):
+                    apply_yoy = show_yoy
+                elif SERIES_DB.get(sid, {}).get('show_yoy', False):
+                    apply_yoy = True
 
-            if apply_yoy and len(dates) > 12:
-                dates, values = calculate_yoy(dates, values)
-                info['name'] = info.get('name', sid) + ' (YoY %)'
-                info['unit'] = '% Change YoY'
+                if apply_yoy and len(dates) > 12:
+                    dates, values = calculate_yoy(dates, values)
+                    info['name'] = info.get('name', sid) + ' (YoY %)'
+                    info['unit'] = '% Change YoY'
 
-            series_data.append((sid, dates, values, info))
+                series_data.append((sid, dates, values, info))
 
-    # Get AI summary and suggestions
-    ai_response = get_ai_summary(query, series_data, conversation_history)
-    summary = ai_response["summary"]
-    suggestions = ai_response["suggestions"]
-    chart_descriptions = ai_response.get("chart_descriptions", {})
+        # Get AI summary and suggestions
+        ai_response = get_ai_summary(query, series_data, conversation_history)
+        summary = ai_response["summary"]
+        suggestions = ai_response["suggestions"]
+        chart_descriptions = ai_response.get("chart_descriptions", {})
 
-    # Format for frontend
-    charts = format_chart_data(series_data)
+        # Format for frontend
+        charts = format_chart_data(series_data)
 
-    # Add Claude's descriptions to each chart
-    for chart in charts:
-        chart['description'] = chart_descriptions.get(chart['series_id'], '')
+        # Add Claude's descriptions to each chart
+        for chart in charts:
+            chart['description'] = chart_descriptions.get(chart['series_id'], '')
 
-    # Update conversation history for next request
-    new_history = conversation_history + [{"query": query, "summary": summary}]
-    # Keep last 5 exchanges
-    new_history = new_history[-5:]
+        # Update conversation history for next request
+        new_history = conversation_history + [{"query": query, "summary": summary}]
+        # Keep last 5 exchanges
+        new_history = new_history[-5:]
 
-    return templates.TemplateResponse("partials/results.html", {
-        "request": request,
-        "query": query,
-        "summary": summary,
-        "charts": charts,
-        "suggestions": suggestions,
-        "history": json.dumps(new_history),
-    })
+        return templates.TemplateResponse("partials/results.html", {
+            "request": request,
+            "query": query,
+            "summary": summary,
+            "charts": charts,
+            "suggestions": suggestions,
+            "history": json.dumps(new_history),
+        })
+    except Exception as e:
+        print(f"Search error: {e}")
+        print(traceback.format_exc())
+        # Return a simple error response
+        return HTMLResponse(
+            content=f"<div class='p-4 text-red-600'>Error: {str(e)}</div>",
+            status_code=500
+        )
 
 
 @app.get("/about", response_class=HTMLResponse)
