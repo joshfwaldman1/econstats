@@ -4111,18 +4111,37 @@ def main():
             except:
                 pass
 
-            # Sentence 3: Pre-COVID comparison (Feb 2020) for seasonally adjusted data
+            # Sentence 3: Pre-COVID comparison (Dec 2019/Jan 2020) for seasonally adjusted data
+            # Use late 2019/early 2020 as the baseline - before any pandemic impact
             if db_info.get('sa', False):
                 try:
-                    covid_idx = next(i for i, d in enumerate(dates) if d >= '2020-02-01')
-                    pre_covid = values[covid_idx]
-                    if data_type in ['rate', 'spread', 'growth_rate']:
+                    # Find the last data point before March 2020 (when pandemic hit US)
+                    # This handles quarterly data (finds Q4 2019 or Q1 2020) and monthly data (finds Jan/Feb 2020)
+                    pre_covid_candidates = [(i, d) for i, d in enumerate(dates) if d < '2020-03-01' and d >= '2019-10-01']
+                    if pre_covid_candidates:
+                        covid_idx = pre_covid_candidates[-1][0]  # Get the most recent pre-pandemic point
+                        pre_covid = values[covid_idx]
+                        pre_covid_date = dates[covid_idx]
+                        # Format the date nicely
+                        from datetime import datetime
+                        try:
+                            dt = datetime.strptime(pre_covid_date[:10], '%Y-%m-%d')
+                            date_label = dt.strftime('%b %Y')  # e.g., "Jan 2020" or "Dec 2019"
+                        except:
+                            date_label = "pre-pandemic"
+                    else:
+                        raise StopIteration
+
+                    # Skip this comparison for growth rates - it's confusing to compare YoY% to a specific month's YoY%
+                    if data_type == 'growth_rate':
+                        pass  # Don't show this comparison for growth rates
+                    elif data_type in ['rate', 'spread']:
                         diff = latest - pre_covid
                         if abs(diff) >= 0.2:
                             if diff > 0.2:
-                                sentences.append(f"This is {abs(diff):.1f} pp above the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
+                                sentences.append(f"This is {abs(diff):.1f} pp above the {pre_covid:.1f}% level from {date_label}, before the pandemic.")
                             elif diff < -0.2:
-                                sentences.append(f"This is {abs(diff):.1f} pp below the {pre_covid:.1f}% level from February 2020, just before the pandemic.")
+                                sentences.append(f"This is {abs(diff):.1f} pp below the {pre_covid:.1f}% level from {date_label}, before the pandemic.")
                     elif db_info.get('show_absolute_change', False):
                         # Employment counts like PAYEMS - show absolute change
                         diff = latest - pre_covid
@@ -4134,20 +4153,20 @@ def main():
                                 diff_str = f"{full_diff/1000000:.1f} million jobs"
                             else:
                                 diff_str = f"{full_diff:,.0f} jobs"
-                            sentences.append(f"Employment is {diff_str} {direction} the pre-pandemic level (Feb 2020).")
+                            sentences.append(f"Employment is {diff_str} {direction} the pre-pandemic level ({date_label}).")
                     elif pre_covid != 0:
                         pct_diff = ((latest - pre_covid) / abs(pre_covid)) * 100
                         if abs(pct_diff) >= 3:
                             if pct_diff > 3:
                                 if data_type == 'price':
-                                    sentences.append(f"This is {pct_diff:.0f}% above the ${pre_covid:.2f} level from February 2020, just before the pandemic.")
+                                    sentences.append(f"This is {pct_diff:.0f}% above the ${pre_covid:.2f} level from {date_label}, before the pandemic.")
                                 else:
-                                    sentences.append(f"This is {pct_diff:.0f}% above the {format_number(pre_covid, unit)} level from February 2020, just before the pandemic.")
+                                    sentences.append(f"This is {pct_diff:.0f}% above the {format_number(pre_covid, unit)} level from {date_label}, before the pandemic.")
                             elif pct_diff < -3:
                                 if data_type == 'price':
-                                    sentences.append(f"This is {abs(pct_diff):.0f}% below the ${pre_covid:.2f} level from February 2020, just before the pandemic.")
+                                    sentences.append(f"This is {abs(pct_diff):.0f}% below the ${pre_covid:.2f} level from {date_label}, before the pandemic.")
                                 else:
-                                    sentences.append(f"This is {abs(pct_diff):.0f}% below the {format_number(pre_covid, unit)} level from February 2020, just before the pandemic.")
+                                    sentences.append(f"This is {abs(pct_diff):.0f}% below the {format_number(pre_covid, unit)} level from {date_label}, before the pandemic.")
                 except (StopIteration, IndexError):
                     pass
 

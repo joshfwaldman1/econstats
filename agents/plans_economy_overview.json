@@ -1,199 +1,199 @@
 {
   "how is the economy": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three metrics provide the definitive assessment of overall economic conditions that any Chair of the Council of Economic Advisers would present."
+    "explanation": "Jobs come first: Nonfarm payrolls show total employment and job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) reveals price stability. Jobs are the most tangible measure of economic health for most Americans—when employers are hiring, the economy is working."
   },
   "how is the economy doing": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "This is the holy trinity of economic assessment that every CEA uses: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI year-over-year inflation reveals price stability. Together, these three metrics provide the complete picture of economic performance that policymakers and economists rely on."
+    "explanation": "Jobs come first: Nonfarm payrolls show total employment and hiring trends, unemployment rate indicates how many Americans are looking for work, and CPI inflation reveals price pressures. Employment is the most direct measure of economic health that affects everyday life."
   },
   "economic overview": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "This is the Holy Trinity of economic assessment that every CEA briefing starts with: Real GDP growth shows whether the economy is expanding, unemployment rate indicates labor market health, and year-over-year CPI inflation reveals price stability. These three metrics capture the fundamental dimensions of economic performance and provide a comprehensive snapshot of current economic conditions."
+    "explanation": "Jobs come first in any economic overview: Nonfarm payrolls show total employment and hiring momentum, unemployment rate indicates labor market slack, and CPI inflation reveals price pressures. These three metrics capture employment health and inflation—the two things that matter most to everyday Americans."
   },
   "state of the economy": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The state of the economy is best captured by the holy trinity of economic indicators: Real GDP growth shows whether the economy is expanding or contracting, unemployment rate reveals labor market health and job availability, and CPI inflation (year-over-year) indicates price stability and purchasing power. Together, these three metrics provide the comprehensive snapshot that economists and policymakers use to assess overall economic performance."
+    "explanation": "Jobs are the best measure of economic state: Nonfarm payrolls show how many Americans have jobs and whether employers are hiring, unemployment rate reveals how many are looking for work, and CPI inflation indicates price stability. Employment is the most tangible indicator of economic health."
   },
   "is the economy good": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "To assess whether the economy is 'good,' we need the Holy Trinity of economic indicators: Real GDP growth shows if the economy is expanding, unemployment rate reveals job market health, and CPI inflation (year-over-year) indicates price stability. These three core metrics provide the definitive answer to overall economic performance - positive GDP growth, low unemployment, and controlled inflation signal a healthy economy."
+    "explanation": "To assess whether the economy is 'good,' jobs matter most: Strong payroll growth, low unemployment, and controlled inflation signal a healthy economy. Nonfarm payrolls show hiring trends, unemployment rate reveals job availability, and CPI inflation indicates whether prices are stable."
   },
   "is the economy bad": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "To assess if the economy is 'bad,' we need the Holy Trinity: Real GDP growth shows if the economy is expanding or contracting, unemployment rate indicates job market health, and CPI inflation (year-over-year) reveals price stability. Positive GDP growth, low unemployment, and moderate inflation suggest a healthy economy, while negative growth, high unemployment, and extreme inflation levels indicate problems."
+    "explanation": "Jobs are the clearest signal of economic trouble: Falling payrolls, rising unemployment, and extreme inflation indicate problems. Nonfarm payrolls show whether employers are hiring or laying off, unemployment rate reveals job market weakness, and CPI inflation indicates price pressures hurting purchasing power."
   },
   "economy today": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The Holy Trinity of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These three metrics provide the complete picture of current economic conditions that any economist or policymaker uses to assess 'how the economy is doing today.'"
+    "explanation": "Jobs come first: Nonfarm payrolls show total employment and recent hiring trends, unemployment rate reveals how many Americans are seeking work, and CPI inflation indicates price pressures. Employment is the most tangible daily measure of economic health."
   },
   "current economic conditions": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The holy trinity of economic assessment: Real GDP growth shows the economy's pace of expansion, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price stability. These three indicators provide the complete picture of current economic conditions that any economist or policymaker would reference first."
+    "explanation": "Jobs are the foundation of current conditions: Nonfarm payrolls show total employment and hiring momentum, unemployment rate indicates labor market slack, and CPI inflation reveals price stability. These three capture what matters most to American workers and families."
   },
   "economic health": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Economic health is best assessed through the holy trinity of economic indicators: GDP growth shows if the economy is expanding, unemployment reveals labor market strength, and inflation (year-over-year) indicates price stability. Together, these three metrics provide the comprehensive picture that economists and policymakers use to evaluate overall economic performance."
+    "explanation": "Jobs are the best barometer of economic health: Nonfarm payrolls show whether employers are hiring, unemployment rate reveals labor market slack, and inflation indicates price stability. A healthy economy means strong job growth, low unemployment, and stable prices."
   },
   "how's the economy": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The Holy Trinity of economic health: Real GDP growth shows if the economy is expanding, unemployment rate reveals job market strength, and CPI inflation (year-over-year) indicates price stability. These three metrics provide the comprehensive snapshot that economists use to assess overall economic performance."
+    "explanation": "Jobs come first: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals job market health, and CPI inflation indicates price pressures. Employment is the most direct answer to 'how's the economy'—if people have jobs, the economy is working."
   },
   "economy 2024": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The holy trinity of economic assessment for 2024: Real GDP growth shows the economy's expansion pace, unemployment rate reveals labor market health, and CPI year-over-year inflation indicates price stability. These three indicators provide the comprehensive snapshot that defines overall economic performance."
+    "explanation": "Jobs tell the 2024 story: Nonfarm payrolls show employment trends and hiring momentum, unemployment rate reveals labor market health, and CPI inflation indicates price pressures. Employment growth has been the defining economic narrative."
   },
   "economy 2025": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "These are the three fundamental indicators that define economic health: GDP growth shows if the economy is expanding, unemployment reveals labor market strength, and CPI inflation indicates price stability. Together, they provide the complete picture of where the economy stands heading into 2025."
+    "explanation": "Jobs are the key to 2025: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals labor market slack, and CPI inflation indicates price stability. The jobs picture will define whether the economy stays strong heading into 2025."
   },
   "us economy": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The holy trinity of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These three indicators provide the essential snapshot any economist would use to assess overall economic performance."
+    "explanation": "Jobs come first for the US economy: Nonfarm payrolls show total employment and hiring momentum, unemployment rate reveals how many Americans are seeking work, and CPI inflation indicates price pressures. Employment is the most direct measure of economic health."
   },
   "american economy": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three metrics provide the comprehensive overview that economists use to assess overall economic conditions."
+    "explanation": "Jobs define the American economy: Nonfarm payrolls show total employment, unemployment rate reveals labor market health, and CPI inflation indicates price stability. For American workers and families, jobs are what matter most."
   },
   "economic outlook": {
     "series": [
@@ -272,17 +272,17 @@
   },
   "soft landing": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "A 'soft landing' means the Fed successfully slows inflation without causing a recession. These three series show the key evidence: GDP growth staying positive (avoiding recession), unemployment remaining low (no major job losses), and inflation declining back toward target. This is the textbook definition of whether we're achieving the soft landing the Fed is attempting."
+    "explanation": "A 'soft landing' means the Fed slows inflation without causing job losses. Jobs are the key evidence: Nonfarm payrolls show whether employers are still hiring, unemployment remaining low means no major layoffs, and inflation declining toward target. The jobs picture defines whether we're achieving a soft landing."
   },
   "hard landing": {
     "series": [
@@ -296,171 +296,171 @@
   },
   "economic conditions": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Economic conditions are best assessed through the holy trinity: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price stability. These three core indicators provide a comprehensive snapshot of current economic conditions."
+    "explanation": "Jobs define economic conditions: Nonfarm payrolls show total employment and hiring trends, unemployment rate indicates labor market slack, and CPI inflation reveals price pressures. Employment is the most tangible indicator of economic conditions for American workers."
   },
   "macroeconomic conditions": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "These are the three pillars of macroeconomic assessment: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price stability. Together, these metrics provide the essential picture of current macroeconomic conditions that policymakers and economists monitor most closely."
+    "explanation": "Jobs are central to macroeconomic conditions: Nonfarm payrolls show employment levels and hiring momentum, unemployment rate indicates labor market health, and CPI inflation reveals price stability. These capture the employment and inflation picture that defines the macro environment."
   },
   "overall economy": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The holy trinity of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price stability. These three metrics provide the comprehensive overview that any Chair of the Council of Economic Advisers would present when asked about the overall state of the economy."
+    "explanation": "Jobs come first for the overall economy: Nonfarm payrolls show total employment, unemployment rate reveals labor market health, and CPI inflation indicates price stability. Employment is the most direct measure of whether the economy is working for Americans."
   },
   "big picture economy": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The big picture economy is captured by the Holy Trinity: Real GDP growth shows if we're expanding or contracting, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These three metrics provide the comprehensive economic snapshot that policymakers and analysts rely on for assessing overall economic performance."
+    "explanation": "Jobs are the big picture: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals labor market slack, and CPI inflation indicates price pressures. For most Americans, jobs and prices are what define the economy."
   },
   "economy summary": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The Holy Trinity of economic health: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three core indicators provide the essential economic summary that captures growth, employment, and inflation - the fundamental pillars any Chair of the Council of Economic Advisers would present for an economy overview."
+    "explanation": "Jobs lead the economy summary: Nonfarm payrolls show employment and hiring, unemployment rate indicates labor market health, and CPI inflation reveals price stability. These three capture what matters most—jobs and inflation."
   },
   "economic dashboard": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The economic dashboard requires the Holy Trinity: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price pressures. These three indicators provide a comprehensive snapshot of economic performance that any CEA would present to assess overall economic conditions."
+    "explanation": "Jobs top the economic dashboard: Nonfarm payrolls show employment levels and hiring momentum, unemployment rate indicates labor market slack, and CPI inflation reveals price pressures. Employment is the most watched indicator of economic health."
   },
   "key economic indicators": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The three pillars of economic assessment: Real GDP growth shows if the economy is expanding, unemployment rate reveals labor market health, and CPI inflation (year-over-year) indicates price stability. These are the key indicators every economist looks at first to understand the economy's current state and trajectory."
+    "explanation": "Jobs are the key indicator: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals labor market health, and CPI inflation indicates price stability. Employment is what every economist looks at first."
   },
   "main economic indicators": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "These are the three main economic indicators that form the foundation of any economic assessment: Real GDP growth rate shows how fast the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) measures price stability. Together, they provide the essential picture of economic performance that policymakers, businesses, and markets watch most closely."
+    "explanation": "Jobs are the main indicator: Nonfarm payrolls show employment levels and hiring momentum, unemployment rate indicates labor market slack, and CPI inflation reveals price pressures. Employment and inflation are what policymakers, businesses, and markets watch most."
   },
   "economy at a glance": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The economy at a glance requires the Holy Trinity: Real GDP growth shows if we're expanding or contracting, unemployment rate reveals labor market health, and year-over-year CPI inflation indicates price pressures. These three indicators provide the essential snapshot that any Chair of the CEA would lead with in an economic briefing."
+    "explanation": "Jobs at a glance: Nonfarm payrolls show total employment, unemployment rate reveals labor market slack, and CPI inflation indicates price pressures. Employment is the first thing any economic briefing covers."
   },
   "economic snapshot": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate reveals labor market strength, and CPI inflation (year-over-year) indicates price stability. These three metrics provide the essential economic snapshot that captures growth momentum, employment conditions, and inflationary pressures - the core indicators any Chair of the Council of Economic Advisers would present for a comprehensive economic overview."
+    "explanation": "Jobs lead the economic snapshot: Nonfarm payrolls show employment and hiring momentum, unemployment rate reveals labor market health, and CPI inflation indicates price stability. Employment is the most direct measure of economic health."
   },
   "economy check": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The holy trinity of economic health: Real GDP growth shows how fast the economy is expanding, unemployment rate indicates labor market strength, and CPI inflation (year-over-year) reveals price stability. These three indicators give you the complete economic picture that any Chair of the Council of Economic Advisers would present."
+    "explanation": "Jobs are the economy check: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals labor market slack, and CPI inflation indicates price pressures. If jobs are strong, the economy is working."
   },
   "economic status": {
     "series": [
-      "A191RO1Q156NBEA",
+      "PAYEMS",
       "UNRATE",
       "CPIAUCSL"
     ],
     "show_yoy": [
-      false,
+      true,
       false,
       true
     ],
     "combine_chart": false,
-    "explanation": "The economic status is best assessed through the Holy Trinity: Real GDP growth shows if the economy is expanding, unemployment rate indicates labor market health, and CPI inflation (year-over-year) reveals price pressures. These three core indicators provide the definitive picture of where the economy stands."
+    "explanation": "Jobs define economic status: Nonfarm payrolls show employment levels, unemployment rate indicates labor market health, and CPI inflation reveals price pressures. Employment is the clearest signal of where the economy stands."
   },
   "small business optimism": {
     "series": [
