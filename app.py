@@ -4550,31 +4550,6 @@ def main():
             if is_followup:
                 st.write("**Follow-up query:** Yes")
 
-        # Follow-up suggestions
-        st.markdown("---")
-        st.markdown("**Try a follow-up:**")
-        suggestions = []
-        if len(series_data) > 1:
-            suggestions.append('"combine" - overlay on one chart')
-            suggestions.append('"normalize" - index to 100 for comparison')
-        suggestions.append('"year over year" - show % change')
-        suggestions.append('"last 5 years" - zoom to recent data')
-        suggestions.append('"add unemployment" - add another series')
-        suggestions.append('"bar chart" - switch visualization')
-        st.markdown('<span style="color: #666; font-size: 0.9em;">' + ' &bull; '.join(suggestions[:4]) + '</span>', unsafe_allow_html=True)
-
-        # Inline follow-up input (auto-pivot to chat experience)
-        followup_query = st.text_input(
-            "Follow-up",
-            placeholder="Type a follow-up: 'last 5 years', 'add unemployment', 'year over year'...",
-            label_visibility="collapsed",
-            key="followup_input"
-        )
-        if followup_query:
-            st.session_state.chat_mode = True
-            st.session_state.pending_query = followup_query
-            st.rerun()
-
         # Feedback section
         st.markdown("---")
         st.markdown("**Was this helpful?**")
@@ -4639,24 +4614,6 @@ def main():
             for series_id, dates, values, info in series_data:
                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                 st.plotly_chart(fig, width='stretch')
-
-        # Follow-up suggestions
-        st.markdown("---")
-        st.markdown("**Try a follow-up:**")
-        suggestions = ['"year over year"', '"last 5 years"', '"add unemployment"', '"bar chart"']
-        st.markdown('<span style="color: #666; font-size: 0.9em;">' + ' &bull; '.join(suggestions) + '</span>', unsafe_allow_html=True)
-
-        # Inline follow-up input for cached results
-        cached_followup = st.text_input(
-            "Follow-up",
-            placeholder="Type a follow-up: 'last 5 years', 'add unemployment', 'year over year'...",
-            label_visibility="collapsed",
-            key="cached_followup_input"
-        )
-        if cached_followup:
-            st.session_state.chat_mode = True
-            st.session_state.pending_query = cached_followup
-            st.rerun()
 
 
 if __name__ == "__main__":
