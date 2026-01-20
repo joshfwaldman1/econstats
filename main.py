@@ -164,10 +164,14 @@ def calculate_yoy(dates: list, values: list) -> tuple:
 
 
 def get_ai_summary(query: str, series_data: list, conversation_history: list = None) -> dict:
-    """Get AI-generated summary and follow-up suggestions from Claude."""
+    """Get AI-generated summary, chart descriptions, and follow-up suggestions from Claude."""
+    # Build series IDs list for default response
+    series_ids = [sid for sid, dates, values, info in series_data if values]
+
     default_response = {
         "summary": "Economic data loaded successfully.",
-        "suggestions": ["How is inflation trending?", "What's the unemployment rate?"]
+        "suggestions": ["How is inflation trending?", "What's the unemployment rate?"],
+        "chart_descriptions": {sid: "" for sid in series_ids}
     }
 
     if not ANTHROPIC_API_KEY:
@@ -194,7 +198,7 @@ def get_ai_summary(query: str, series_data: list, conversation_history: list = N
             # Truncate very long notes
             if len(notes) > 500:
                 notes = notes[:500] + "..."
-            background_parts.append(f"**{name}**: {notes}")
+            background_parts.append(f"**{name} ({sid})**: {notes}")
 
     background = "\n\n".join(background_parts) if background_parts else ""
 
@@ -207,6 +211,9 @@ def get_ai_summary(query: str, series_data: list, conversation_history: list = N
             conv_parts.append(f"Assistant: {item.get('summary', '')}")
         conv_context = "Previous conversation:\n" + "\n".join(conv_parts) + "\n\n"
 
+    # Build chart descriptions format hint
+    chart_desc_format = ", ".join([f'"{sid}": "description"' for sid in series_ids])
+
     prompt = f"""You are an economist assistant helping users explore U.S. economic data.
 
 {conv_context}User asked: "{query}"
@@ -218,13 +225,15 @@ Current data:
 
 Respond with JSON in exactly this format:
 {{
-  "summary": "Your 2-3 sentence summary here. Directly answer their question, mention specific numbers, and provide context.",
+  "summary": "Your 2-3 sentence summary answering their question with specific numbers and context.",
+  "chart_descriptions": {{{chart_desc_format}}},
   "suggestions": ["First follow-up question?", "Second follow-up question?"]
 }}
 
 Guidelines:
-- Summary: Be concise, avoid jargon, use flowing prose (no bullets)
-- Suggestions: Ask specific, relevant follow-ups based on what they just learned (e.g., "How does this compare to pre-pandemic levels?" not generic questions like "What is GDP?")
+- Summary: Be concise, avoid jargon, use flowing prose (no bullets). Directly answer their question.
+- Chart descriptions: For EACH series, write 1-2 sentences explaining what this indicator measures and why it matters in the context of their question. Make it educational but accessible.
+- Suggestions: Ask specific, relevant follow-ups (e.g., "How does this compare to pre-pandemic levels?" not "What is GDP?")
 
 Return only valid JSON, no other text."""
 
@@ -232,13 +241,14 @@ Return only valid JSON, no other text."""
         client = Anthropic(api_key=ANTHROPIC_API_KEY)
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=400,
+            max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
         result = json.loads(response.content[0].text)
         return {
             "summary": result.get("summary", default_response["summary"]),
-            "suggestions": result.get("suggestions", default_response["suggestions"])[:2]
+            "suggestions": result.get("suggestions", default_response["suggestions"])[:2],
+            "chart_descriptions": result.get("chart_descriptions", default_response["chart_descriptions"])
         }
     except Exception as e:
         print(f"Claude error: {e}")
@@ -372,9 +382,14 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
     ai_response = get_ai_summary(query, series_data, conversation_history)
     summary = ai_response["summary"]
     suggestions = ai_response["suggestions"]
+    chart_descriptions = ai_response.get("chart_descriptions", {})
 
     # Format for frontend
     charts = format_chart_data(series_data)
+
+    # Add Claude's descriptions to each chart
+    for chart in charts:
+        chart['description'] = chart_descriptions.get(chart['series_id'], '')
 
     # Update conversation history for next request
     new_history = conversation_history + [{"query": query, "summary": summary}]
