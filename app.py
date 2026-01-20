@@ -3977,7 +3977,7 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                 rangeslider=dict(visible=True, thickness=0.05),
             ),
             yaxis=dict(gridcolor='#e5e5e5'),
-            height=380,  # Slightly taller to accommodate legend below
+            height=320,  # Compact chart height
         )
     else:
         fig = make_subplots(
@@ -4118,15 +4118,15 @@ def main():
 
     /* Summary Callout Box - prominent at top */
     .summary-callout {
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
         color: white !important;
-        padding: 20px 24px;
-        border-radius: 12px;
-        margin-bottom: 24px;
-        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
+        padding: 24px 28px;
+        border-radius: 16px;
+        margin-bottom: 28px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
     }
-    .summary-callout h3 { color: white !important; margin: 0 0 8px 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; }
-    .summary-callout p { color: white !important; margin: 0; font-size: 1.05rem; line-height: 1.6; }
+    .summary-callout h3 { color: rgba(255,255,255,0.8) !important; margin: 0 0 12px 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .summary-callout p { color: white !important; margin: 0; font-size: 1.1rem; line-height: 1.7; font-weight: 400; }
 
     /* Dashboard Cards */
     .metric-card {
@@ -4155,15 +4155,17 @@ def main():
     [data-testid="stMetricDelta"] svg { display: none; }
     [data-testid="stMetricDelta"] > div { font-weight: 500 !important; }
 
-    /* Chart sections */
+    /* Chart sections - prominent card styling */
     .chart-section {
         background: #fff;
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        margin-bottom: 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
         overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
     }
+    .chart-section h3 { margin-top: 0; font-size: 1.1rem; color: #0f172a; font-weight: 600; }
     .chart-header { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; }
     .chart-title { font-size: 1rem; color: #0f172a; margin-bottom: 8px; font-weight: 600; }
     .chart-bullets { color: #475569; font-size: 0.9rem; margin-left: 16px; line-height: 1.5; }
@@ -4177,16 +4179,19 @@ def main():
         font-family: 'Inter', monospace;
     }
 
-    /* AI Insight box */
+    /* AI Insight box - bold, not italic */
     .ai-explanation {
-        color: #1e293b;
-        padding: 16px 20px;
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border-left: 4px solid #3b82f6;
-        border-radius: 0 8px 8px 0;
-        margin-bottom: 16px;
-        font-size: 0.95rem;
-        line-height: 1.6;
+        color: #0f172a;
+        padding: 20px 24px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #0f172a;
+        border-radius: 0 12px 12px 0;
+        margin-bottom: 20px;
+        font-size: 1rem;
+        line-height: 1.7;
+        font-weight: 400;
+        font-style: normal !important;
     }
 
     /* Query display - search card style */
@@ -4563,6 +4568,28 @@ def main():
                                     else:
                                         val_str = f"{latest_val:,.2f}"
                                     st.metric(label=label, value=val_str, delta=delta, delta_color=delta_color)
+
+                    # Inline related questions - right after summary, before charts
+                    if msg_idx == len(st.session_state.messages) - 1:  # Only show for latest message
+                        msg_query = msg.get('content', '').lower()
+                        # Determine contextual follow-ups
+                        if 'job' in msg_query or 'employ' in msg_query or 'economy' in msg_query:
+                            suggestions = [("Recession risk?", "recession risk"), ("Wages vs inflation?", "wages vs inflation")]
+                        elif 'inflation' in msg_query or 'cpi' in msg_query or 'price' in msg_query:
+                            suggestions = [("Are wages keeping up?", "wages vs inflation"), ("Core inflation?", "core inflation")]
+                        elif 'gdp' in msg_query or 'growth' in msg_query:
+                            suggestions = [("Recession risk?", "recession risk"), ("Job market?", "jobs")]
+                        else:
+                            suggestions = [("How is the economy?", "economy"), ("Inflation?", "inflation")]
+
+                        st.markdown("<div style='margin: 16px 0;'>", unsafe_allow_html=True)
+                        q_cols = st.columns(len(suggestions))
+                        for q_idx, (label, q_value) in enumerate(suggestions):
+                            with q_cols[q_idx]:
+                                if st.button(label, key=f"inline_q_{msg_idx}_{q_idx}", use_container_width=True):
+                                    st.session_state.pending_query = q_value
+                                    st.rerun()
+                        st.markdown("</div>", unsafe_allow_html=True)
 
                     # Render charts from stored series_data
                     if msg.get("series_data"):
