@@ -2734,9 +2734,10 @@ QUERY_SERIES_ALIGNMENT = {
     'treasury': ['DGS', 'T10Y', 'T5Y'],
     'yield': ['DGS', 'T10Y', 'T5Y', 'T10Y2Y'],
 
-    # Housing keywords
-    'housing': ['CSUSHPINSA', 'HOUST', 'MORTGAGE', 'PERMIT', 'HSN'],
+    # Housing keywords - distinguish between prices vs costs
+    'housing': ['CSUSHPINSA', 'HOUST', 'MORTGAGE', 'PERMIT', 'HSN', 'CUSR0000SAH'],
     'home price': ['CSUSHPINSA', 'MSPUS', 'ASPUS'],
+    'housing cost': ['CUSR0000SAH', 'CUSR0000SEHA', 'CUSR0000SEHC'],  # Shelter/rent inflation
     'rent': ['CUSR0000SEHA', 'CUSR0000SEHC', 'CUSR0000SAH'],
     'shelter': ['CUSR0000SAH', 'CUSR0000SEHA', 'CUSR0000SEHC'],
 
@@ -2834,10 +2835,11 @@ Respond with ONLY valid JSON:
 }}"""
 
     try:
-        url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_api_key}'
+        # Use gemini-2.0-flash-lite for better rate limits on free tier
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={gemini_api_key}'
         payload = {
             'contents': [{'parts': [{'text': prompt}]}],
-            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 500}
+            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 300}
         }
 
         req = Request(url, data=json.dumps(payload).encode('utf-8'),
