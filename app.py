@@ -3203,10 +3203,198 @@ def generate_clear_analysis(series_id: str, dates: list, values: list, info: dic
     return {'title': title, 'bullets': [bullet]}
 
 
+def generate_dynamic_ai_bullets(series_id: str, dates: list, values: list, info: dict, user_query: str = None) -> list:
+    """Generate dynamic AI-powered bullets using Claude, with static bullets as guidance.
+
+    This function creates contextual, data-aware bullets that:
+    1. Reference actual current values and trends
+    2. Use static bullet guidance for domain expertise
+    3. Are tailored to the user's specific question
+    4. Provide timely economic context
+
+    Args:
+        series_id: FRED series ID
+        dates: List of date strings
+        values: List of numeric values
+        info: Series metadata dict
+        user_query: Optional user's original question for context
+
+    Returns:
+        List of 2-3 dynamic bullet strings
+    """
+    if not ANTHROPIC_API_KEY or not values or len(values) < 2:
+        # Fall back to static bullets
+        db_info = SERIES_DB.get(series_id, {})
+        return db_info.get('bullets', [])
+
+    # Gather data context
+    db_info = SERIES_DB.get(series_id, {})
+    name = info.get('name', info.get('title', series_id))
+    unit = info.get('unit', info.get('units', ''))
+    latest = values[-1]
+    latest_date = dates[-1]
+    data_type = db_info.get('data_type', 'level')
+    frequency = db_info.get('frequency', 'monthly')
+
+    # Format date
+    try:
+        latest_date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
+        if frequency == 'quarterly':
+            quarter = (latest_date_obj.month - 1) // 3 + 1
+            date_str = f"Q{quarter} {latest_date_obj.year}"
+        else:
+            date_str = latest_date_obj.strftime('%B %Y')
+    except:
+        date_str = latest_date
+
+    # Calculate trend and changes
+    trend_info = ""
+    if len(values) >= 13:  # Have at least a year of data
+        year_ago = values[-13] if frequency == 'monthly' else values[-5] if frequency == 'quarterly' else values[-2]
+        yoy_change = latest - year_ago
+        if year_ago != 0:
+            yoy_pct = ((latest - year_ago) / abs(year_ago)) * 100
+            trend_info = f"Year-over-year change: {yoy_change:+.2f} ({yoy_pct:+.1f}%)"
+
+    # Recent trend (3 months)
+    recent_trend = ""
+    if len(values) >= 4:
+        three_mo_ago = values[-4]
+        if three_mo_ago != 0:
+            recent_change = ((latest - three_mo_ago) / abs(three_mo_ago)) * 100
+            if recent_change > 2:
+                recent_trend = "Rising over past 3 months"
+            elif recent_change < -2:
+                recent_trend = "Falling over past 3 months"
+            else:
+                recent_trend = "Roughly flat over past 3 months"
+
+    # Historical context
+    historical_context = ""
+    if len(values) >= 60:  # 5 years of monthly data
+        five_yr_high = max(values[-60:])
+        five_yr_low = min(values[-60:])
+        historical_context = f"5-year range: {five_yr_low:.2f} to {five_yr_high:.2f}"
+
+    # Get static bullet guidance
+    static_bullets = db_info.get('bullets', [])
+    static_guidance = "\n".join([f"- {b}" for b in static_bullets]) if static_bullets else "No static guidance available."
+
+    # Short description
+    short_desc = SHORT_DESCRIPTIONS.get(series_id, "")
+
+    # Build the prompt
+    prompt = f"""Generate 2-3 concise, data-driven bullet points for an economic chart.
+
+SERIES: {name} ({series_id})
+DESCRIPTION: {short_desc}
+CURRENT VALUE: {latest:.2f} {unit} as of {date_str}
+{trend_info}
+{recent_trend}
+{historical_context}
+
+STATIC GUIDANCE (use as domain expertise, but make dynamic):
+{static_guidance}
+
+{"USER QUESTION: " + user_query if user_query else ""}
+
+Write 2-3 bullets that:
+1. Lead with the current data reality (actual numbers, dates)
+2. Provide context an economist would find relevant
+3. Are specific to what's happening NOW, not generic explanations
+4. Keep each bullet to 1-2 sentences max
+
+Format: Return ONLY the bullets as a JSON array of strings, like:
+["First bullet here.", "Second bullet here."]"""
+
+    try:
+        url = "https://api.anthropic.com/v1/messages"
+        headers = {
+            "x-api-key": ANTHROPIC_API_KEY,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json"
+        }
+        payload = {
+            "model": "claude-sonnet-4-20250514",
+            "max_tokens": 400,
+            "messages": [{"role": "user", "content": prompt}]
+        }
+
+        req = Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers, method='POST')
+        with urlopen(req, timeout=8) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            text = result['content'][0]['text']
+
+            # Parse JSON array from response
+            if '[' in text and ']' in text:
+                start = text.index('[')
+                end = text.rindex(']') + 1
+                bullets = json.loads(text[start:end])
+                if isinstance(bullets, list) and len(bullets) > 0:
+                    return bullets[:3]  # Max 3 bullets
+    except Exception as e:
+        pass  # Fall through to static bullets
+
+    # Fallback to static bullets
+    return static_bullets if static_bullets else []
+
+
+# Session state for caching dynamic bullets
+_dynamic_bullet_cache = {}
+
+def get_dynamic_bullets(series_id: str, dates: list, values: list, info: dict, user_query: str = None, use_ai: bool = True) -> list:
+    """Get bullets for a chart, using AI if enabled or falling back to static.
+
+    Caches results per session to avoid repeated API calls for same data.
+    """
+    if not use_ai:
+        db_info = SERIES_DB.get(series_id, {})
+        return db_info.get('bullets', [])
+
+    # Create cache key from series and latest value
+    cache_key = f"{series_id}_{values[-1] if values else 'empty'}_{user_query or ''}"
+
+    if cache_key in _dynamic_bullet_cache:
+        return _dynamic_bullet_cache[cache_key]
+
+    bullets = generate_dynamic_ai_bullets(series_id, dates, values, info, user_query)
+    _dynamic_bullet_cache[cache_key] = bullets
+
+    # Limit cache size
+    if len(_dynamic_bullet_cache) > 100:
+        # Remove oldest entries
+        keys = list(_dynamic_bullet_cache.keys())
+        for k in keys[:50]:
+            del _dynamic_bullet_cache[k]
+
+    return bullets
+
+
 # Alias for backward compatibility
-def generate_goldman_style_analysis(series_id: str, dates: list, values: list, info: dict) -> dict:
-    """Deprecated: Use generate_clear_analysis instead."""
-    return generate_clear_analysis(series_id, dates, values, info)
+def generate_goldman_style_analysis(series_id: str, dates: list, values: list, info: dict, user_query: str = None, use_dynamic_ai: bool = True) -> dict:
+    """Generate chart analysis with optional dynamic AI bullets.
+
+    Args:
+        use_dynamic_ai: If True, generates AI-powered contextual bullets.
+                       If False, uses basic template approach.
+    """
+    name = info.get('name', info.get('title', series_id))
+    title = name
+    if info.get('is_yoy'):
+        if 'YoY' not in title and 'Year' not in title:
+            title = f"{title} (Year-over-Year Change)"
+
+    if not values or len(values) < 2:
+        return {'title': title, 'bullets': []}
+
+    if use_dynamic_ai:
+        bullets = get_dynamic_bullets(series_id, dates, values, info, user_query)
+    else:
+        # Fall back to basic clear analysis
+        result = generate_clear_analysis(series_id, dates, values, info)
+        bullets = result.get('bullets', [])
+
+    return {'title': title, 'bullets': bullets}
 
 
 def generate_chart_description(series_id: str, dates: list, values: list, info: dict) -> str:
@@ -4283,7 +4471,7 @@ def main():
 
                                 # Concise bullet for each series in group
                                 for sid, d, v, i in group_data:
-                                    analysis = generate_goldman_style_analysis(sid, d, v, i)
+                                    analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
                                     bullets = analysis.get('bullets', [])
                                     series_name = analysis.get('title', i.get('name', sid))[:40]
                                     if bullets:
@@ -4299,7 +4487,7 @@ def main():
                             st.markdown(f"**{' vs '.join(title_parts)}**")
 
                             for sid, d, v, i in series_data:
-                                analysis = generate_goldman_style_analysis(sid, d, v, i)
+                                analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
                                 bullets = analysis.get('bullets', [])
                                 series_name = analysis.get('title', i.get('name', sid))[:40]
                                 if bullets:
@@ -4314,7 +4502,7 @@ def main():
                                 if not values:
                                     continue
 
-                                analysis = generate_goldman_style_analysis(series_id, dates, values, info)
+                                analysis = generate_goldman_style_analysis(series_id, dates, values, info, user_query=query)
                                 chart_title = analysis.get('title', info.get('name', series_id))
                                 bullets = analysis.get('bullets', [])
 
@@ -5134,7 +5322,7 @@ def main():
 
                 # Generate concise bullet for each series
                 for sid, d, v, i in group_data:
-                    analysis = generate_goldman_style_analysis(sid, d, v, i)
+                    analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
                     bullets = analysis.get('bullets', [])
                     series_name = analysis.get('title', i.get('name', sid))[:40]
                     if bullets:
@@ -5166,7 +5354,7 @@ def main():
 
             # Generate concise bullet for each series
             for sid, d, v, i in series_data:
-                analysis = generate_goldman_style_analysis(sid, d, v, i)
+                analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
                 bullets = analysis.get('bullets', [])
                 series_name = analysis.get('title', i.get('name', sid))[:40]
                 if bullets:
@@ -5201,7 +5389,7 @@ def main():
                 # Special side-by-side layout for payroll changes
                 if info.get('is_payroll_change') and info.get('original_dates'):
                     # Generate Goldman-style analysis for monthly job changes
-                    goldman_analysis = generate_goldman_style_analysis(series_id, dates, values, info)
+                    goldman_analysis = generate_goldman_style_analysis(series_id, dates, values, info, user_query=query)
                     payroll_title = goldman_analysis.get('title', 'Nonfarm Payrolls')
                     payroll_bullets = goldman_analysis.get('bullets', [])
 
@@ -5242,8 +5430,8 @@ def main():
                         )
                         st.plotly_chart(fig_line, width='stretch')
                 else:
-                    # Generate Goldman Sachs-style title and bullets using 3-layer AI analysis
-                    goldman_analysis = generate_goldman_style_analysis(series_id, dates, values, info)
+                    # Generate dynamic AI-powered bullets based on current data and user query
+                    goldman_analysis = generate_goldman_style_analysis(series_id, dates, values, info, user_query=query)
                     chart_title = goldman_analysis.get('title', info.get('name', series_id))
                     goldman_bullets = goldman_analysis.get('bullets', [])
 
