@@ -3882,8 +3882,8 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
         fig = go.Figure()
         for i, (series_id, dates, values, info) in enumerate(series_data):
             full_name = info.get('name', info.get('title', series_id))
-            # Include series ID in legend for clarity
-            name = f"{full_name[:45]} ({series_id})" if len(full_name) > 45 else f"{full_name} ({series_id})"
+            # Include series ID in legend - no truncation for full readability
+            name = f"{full_name} ({series_id})"
 
             if chart_type == 'bar':
                 fig.add_trace(go.Bar(
@@ -4075,42 +4075,126 @@ def main():
 
     st.markdown("""
     <style>
-    /* Color palette: Primary #2563eb, Secondary #4B5563, Accent #22C55E, Warning #F59E0B */
-    @import url('https://fonts.googleapis.com/css2?family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+    /* Financial Dashboard Theme - Inter font, professional colors */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     .stApp {
-        font-family: 'Source Serif Pro', Georgia, serif;
-        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-        color: #1a1a2e !important;
-        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f8fafc;
+        color: #1e293b !important;
     }
-    .stApp p, .stApp span, .stApp div, .stApp li, .stApp label { color: #1a1a2e; }
-    .stApp h1, .stApp h2, .stApp h3, .stApp h4 { color: #1a1a2e !important; }
+    .stApp p, .stApp span, .stApp div, .stApp li, .stApp label {
+        color: #1e293b;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4 {
+        color: #0f172a !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 600 !important;
+    }
     h1 {
-        font-weight: 300 !important;
-        font-style: italic !important;
+        font-weight: 700 !important;
+        font-style: normal !important;
         text-align: center;
-        font-size: 3.5rem !important;
-        letter-spacing: -1px;
+        font-size: 2.5rem !important;
+        letter-spacing: -0.5px;
     }
-    .subtitle { text-align: center; color: #555; margin-top: -10px; margin-bottom: 20px; font-size: 1.1rem; }
-    .header-divider { border-bottom: 1px solid #e5e7eb; margin-bottom: 25px; padding-bottom: 15px; }
-    .narrative-box { background: #fff; border: 1px solid #e5e7eb; padding: 20px 25px; border-radius: 6px; margin-bottom: 20px; }
-    .narrative-box p { color: #1f2937; line-height: 1.7; margin-bottom: 10px; }
-    .narrative-box:empty { display: none; }
+    .subtitle { text-align: center; color: #64748b; margin-top: -5px; margin-bottom: 20px; font-size: 1rem; font-weight: 400; }
+
+    /* Summary Callout Box - prominent at top */
+    .summary-callout {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white !important;
+        padding: 20px 24px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
+    }
+    .summary-callout h3 { color: white !important; margin: 0 0 8px 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; }
+    .summary-callout p { color: white !important; margin: 0; font-size: 1.05rem; line-height: 1.6; }
+
+    /* Dashboard Cards */
+    .metric-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .metric-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .metric-value { font-size: 1.8rem; font-weight: 700; color: #0f172a; }
+    .metric-delta-up { font-size: 0.85rem; color: #16a34a; font-weight: 500; }
+    .metric-delta-down { font-size: 0.85rem; color: #dc2626; font-weight: 500; }
+
+    /* Streamlit metric overrides */
+    [data-testid="stMetric"] {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    [data-testid="stMetricLabel"] { font-size: 0.8rem !important; color: #64748b !important; text-transform: uppercase; letter-spacing: 0.5px; }
+    [data-testid="stMetricValue"] { font-size: 1.6rem !important; font-weight: 700 !important; color: #0f172a !important; }
+    [data-testid="stMetricDelta"] svg { display: none; }
+    [data-testid="stMetricDelta"] > div { font-weight: 500 !important; }
+
+    /* Chart sections */
+    .chart-section {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .chart-header { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; }
+    .chart-title { font-size: 1rem; color: #0f172a; margin-bottom: 8px; font-weight: 600; }
+    .chart-bullets { color: #475569; font-size: 0.9rem; margin-left: 16px; line-height: 1.5; }
+    .chart-bullets li { margin-bottom: 6px; }
+    .source-line {
+        padding: 12px 20px;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.8rem;
+        color: #64748b;
+        background: #f8fafc;
+        font-family: 'Inter', monospace;
+    }
+
+    /* AI Insight box */
+    .ai-explanation {
+        color: #1e293b;
+        padding: 16px 20px;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border-left: 4px solid #3b82f6;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 16px;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    /* Query display - search card style */
+    .query-card {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        padding: 14px 20px;
+        border-radius: 12px;
+        border-left: 4px solid #3b82f6;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 16px;
+    }
+
     /* Hide empty Streamlit containers */
     .stMarkdown:empty, div[data-testid="stVerticalBlock"]:empty { display: none !important; }
     div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
-    .highlight { font-weight: 600; color: #1F4FD8; }
-    .up { color: #22C55E; font-weight: 600; }
-    .down { color: #DC2626; font-weight: 600; }
-    .caution { color: #F59E0B; font-weight: 600; }
-    .chart-section { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
-    .chart-header { padding: 15px 20px; border-bottom: 1px solid #e5e7eb; }
-    .chart-title { font-size: 1.1rem; color: #111827; margin-bottom: 10px; font-weight: 600; }
-    .chart-bullets { color: #4B5563; font-size: 0.95rem; margin-left: 20px; }
-    .chart-bullets li { margin-bottom: 4px; }
-    .source-line { padding: 10px 20px; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #6B7280; background: #f9fafb; }
-    .ai-explanation { font-style: italic; color: #374151; padding: 10px 15px; background: #f0f7ff; border-left: 3px solid #1F4FD8; margin-bottom: 15px; }
+
+    /* Status colors */
+    .highlight { font-weight: 600; color: #2563eb; }
+    .up { color: #16a34a; font-weight: 600; }
+    .down { color: #dc2626; font-weight: 600; }
+    .caution { color: #d97706; font-weight: 600; }
     /* Hide chat message avatars */
     .stChatMessage [data-testid="chatAvatarIcon-assistant"],
     .stChatMessage [data-testid="chatAvatarIcon-user"],
@@ -4420,11 +4504,50 @@ def main():
                 with st.chat_message("user", avatar="🔍"):
                     st.markdown(f"<div style='background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%); padding: 12px 18px; border-radius: 12px; border-left: 4px solid #0072B2; font-size: 1.1em;'><strong>{msg['content']}</strong></div>", unsafe_allow_html=True)
             else:
-                # Assistant message with summary and charts
+                # Assistant message with summary and charts - Dashboard layout
                 with st.chat_message("assistant"):
-                    # Show explanation/summary
+                    # Summary callout box at top
                     if msg.get("explanation"):
-                        st.markdown(f"<div class='ai-explanation'>{msg['explanation']}</div>", unsafe_allow_html=True)
+                        st.markdown(f"""<div class='summary-callout'>
+                            <h3>Summary</h3>
+                            <p>{msg['explanation']}</p>
+                        </div>""", unsafe_allow_html=True)
+
+                    # Key metrics row using st.metric cards
+                    if msg.get("series_data"):
+                        series_data = msg["series_data"]
+                        metric_cols = st.columns(min(len(series_data), 4))
+                        for idx, (sid, d, v, i) in enumerate(series_data[:4]):
+                            if v and len(v) > 0:
+                                latest_val = v[-1]
+                                name = i.get('name', sid)
+                                # Truncate name for metric label
+                                label = name[:28] + "..." if len(name) > 28 else name
+                                unit = i.get('unit', '')
+
+                                # Calculate delta if we have enough data
+                                delta = None
+                                delta_color = "normal"
+                                if len(v) >= 13:  # YoY comparison
+                                    prev_val = v[-13]
+                                    if prev_val != 0:
+                                        pct_change = ((latest_val - prev_val) / abs(prev_val)) * 100
+                                        delta = f"{pct_change:+.1f}% YoY"
+                                        # For unemployment, down is good
+                                        if 'unemployment' in name.lower() or 'jobless' in name.lower():
+                                            delta_color = "inverse"
+
+                                with metric_cols[idx % len(metric_cols)]:
+                                    # Format value based on type
+                                    if 'percent' in unit.lower() or '%' in unit:
+                                        val_str = f"{latest_val:.2f}%"
+                                    elif latest_val > 1000000:
+                                        val_str = f"{latest_val/1000000:.1f}M"
+                                    elif latest_val > 1000:
+                                        val_str = f"{latest_val/1000:.1f}K"
+                                    else:
+                                        val_str = f"{latest_val:,.2f}"
+                                    st.metric(label=label, value=val_str, delta=delta, delta_color=delta_color)
 
                     # Render charts from stored series_data
                     if msg.get("series_data"):
@@ -4490,56 +4613,80 @@ def main():
                                                 norm_data.append((sid, trimmed_dates, indexed_values, new_info))
                                     group_data = norm_data if norm_data else group_data
 
-                                # Display title
-                                if group_title:
-                                    st.markdown(f"**{group_title}**")
-                                else:
-                                    title_parts = [info.get('name', sid)[:40] for sid, _, _, info in group_data]
-                                    st.markdown(f"**{' vs '.join(title_parts)}**")
+                                # Dashboard layout: insights column + chart column
+                                st.markdown("---")
+                                insight_col, chart_col = st.columns([1, 2])
 
-                                # Concise bullet for each series in group
-                                for sid, d, v, i in group_data:
-                                    analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
-                                    bullets = analysis.get('bullets', [])
-                                    series_name = analysis.get('title', i.get('name', sid))[:40]
-                                    if bullets:
-                                        st.markdown(f"- **{series_name}:** {bullets[0]}")
+                                with insight_col:
+                                    # Display title
+                                    if group_title:
+                                        st.markdown(f"### {group_title}")
+                                    else:
+                                        title_parts = [info.get('name', sid) for sid, _, _, info in group_data]
+                                        st.markdown(f"### {' vs '.join(title_parts)}")
 
-                                # Create combined chart for this group
-                                fig = create_chart(group_data, combine=len(group_data) > 1, chart_type=chart_type)
-                                st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_group_{group_idx}")
+                                    # Insights for each series in group
+                                    msg_query = msg.get('content', '')  # Use stored query from message
+                                    for sid, d, v, i in group_data:
+                                        analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=msg_query)
+                                        bullets = analysis.get('bullets', [])
+                                        series_name = analysis.get('title', i.get('name', sid))
+                                        st.markdown(f"**{series_name}**")
+                                        if bullets:
+                                            for bullet in bullets[:2]:
+                                                st.markdown(f"- {bullet}")
+
+                                with chart_col:
+                                    # Create combined chart for this group
+                                    fig = create_chart(group_data, combine=len(group_data) > 1, chart_type=chart_type)
+                                    st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_group_{group_idx}")
 
                         elif combine and len(series_data) > 1:
-                            # Combine all series on one chart
-                            title_parts = [info.get('name', sid)[:40] for sid, _, _, info in series_data]
-                            st.markdown(f"**{' vs '.join(title_parts)}**")
+                            # Dashboard layout for combined chart
+                            st.markdown("---")
+                            insight_col, chart_col = st.columns([1, 2])
 
-                            for sid, d, v, i in series_data:
-                                analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
-                                bullets = analysis.get('bullets', [])
-                                series_name = analysis.get('title', i.get('name', sid))[:40]
-                                if bullets:
-                                    st.markdown(f"- **{series_name}:** {bullets[0]}")
+                            with insight_col:
+                                title_parts = [info.get('name', sid) for sid, _, _, info in series_data]
+                                st.markdown(f"### {' vs '.join(title_parts)}")
 
-                            fig = create_chart(series_data, combine=True, chart_type=chart_type)
-                            st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_combined")
+                                msg_query = msg.get('content', '')  # Use stored query from message
+                                for sid, d, v, i in series_data:
+                                    analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=msg_query)
+                                    bullets = analysis.get('bullets', [])
+                                    series_name = analysis.get('title', i.get('name', sid))
+                                    st.markdown(f"**{series_name}**")
+                                    if bullets:
+                                        for bullet in bullets[:2]:
+                                            st.markdown(f"- {bullet}")
+
+                            with chart_col:
+                                fig = create_chart(series_data, combine=True, chart_type=chart_type)
+                                st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_combined")
 
                         else:
-                            # Individual charts for each series
-                            for series_id, dates, values, info in series_data:
+                            # Individual charts for each series - dashboard layout
+                            msg_query = msg.get('content', '')  # Use stored query from message
+                            for series_idx, (series_id, dates, values, info) in enumerate(series_data):
                                 if not values:
                                     continue
 
-                                analysis = generate_goldman_style_analysis(series_id, dates, values, info, user_query=query)
+                                analysis = generate_goldman_style_analysis(series_id, dates, values, info, user_query=msg_query)
                                 chart_title = analysis.get('title', info.get('name', series_id))
                                 bullets = analysis.get('bullets', [])
 
-                                st.markdown(f"**{chart_title}**")
-                                if bullets:
-                                    st.markdown(f"- {bullets[0]}")
+                                st.markdown("---")
+                                insight_col, chart_col = st.columns([1, 2])
 
-                                fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
-                                st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
+                                with insight_col:
+                                    st.markdown(f"### {chart_title}")
+                                    if bullets:
+                                        for bullet in bullets:
+                                            st.markdown(f"- {bullet}")
+
+                                with chart_col:
+                                    fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
+                                    st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_{series_id}")
 
         # Suggested follow-up buttons - contextual related questions
         if not query and st.session_state.messages:
@@ -4952,14 +5099,48 @@ def main():
 
         # Display response in chat message format (legacy - kept for fallback)
         with st.chat_message("assistant"):
-            # Narrative summary - only render if there's content
+            # Summary callout at top - prominent dashboard style
             has_narrative_content = ai_explanation or any(values for _, _, values, _ in series_data)
             if has_narrative_content:
-                st.markdown("<div class='narrative-box'>", unsafe_allow_html=True)
-                st.markdown("<h3 style='margin-top:0'>Summary</h3>", unsafe_allow_html=True)
-
+                # Summary callout box
                 if ai_explanation:
-                    st.markdown(f"<div class='ai-explanation'>{ai_explanation}</div>", unsafe_allow_html=True)
+                    st.markdown(f"""<div class='summary-callout'>
+                        <h3>📊 Summary</h3>
+                        <p>{ai_explanation}</p>
+                    </div>""", unsafe_allow_html=True)
+
+                # Key metrics row using st.metric
+                if series_data:
+                    metric_cols = st.columns(min(len(series_data), 4))
+                    for idx, (sid, d, v, i) in enumerate(series_data[:4]):
+                        if v and len(v) > 0:
+                            latest_val = v[-1]
+                            name = i.get('name', sid)[:25]
+                            unit = i.get('unit', '')
+
+                            # Calculate delta if we have enough data
+                            delta = None
+                            delta_color = "normal"
+                            if len(v) >= 13:  # YoY comparison
+                                prev_val = v[-13]
+                                if prev_val != 0:
+                                    pct_change = ((latest_val - prev_val) / abs(prev_val)) * 100
+                                    delta = f"{pct_change:+.1f}% YoY"
+                                    # For rates like unemployment, down is good
+                                    if 'unemployment' in name.lower() or 'jobless' in name.lower():
+                                        delta_color = "inverse"
+
+                            with metric_cols[idx % len(metric_cols)]:
+                                # Format value based on type
+                                if 'percent' in unit.lower() or '%' in unit:
+                                    val_str = f"{latest_val:.2f}%"
+                                elif latest_val > 1000000:
+                                    val_str = f"{latest_val/1000000:.1f}M"
+                                elif latest_val > 1000:
+                                    val_str = f"{latest_val/1000:.1f}K"
+                                else:
+                                    val_str = f"{latest_val:,.2f}"
+                                st.metric(label=name, value=val_str, delta=delta, delta_color=delta_color)
 
         for series_id, dates, values, info in series_data:
             if not values:
