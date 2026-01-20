@@ -3782,21 +3782,22 @@ def main():
             query = text_query
     else:
         # CHAT MODE - conversational interface
-        # Header with Home button
-        header_col1, header_col2 = st.columns([1, 5])
-        with header_col1:
-            if st.button("🏠 Home", key="home_btn"):
-                st.session_state.chat_mode = False
-                st.session_state.messages = []
-                st.session_state.last_query = ''
-                st.session_state.last_series = []
-                st.session_state.last_series_data = []
-                st.session_state.last_explanation = ''
-                st.rerun()
-        with header_col2:
-            st.markdown("### EconStats")
+        # Professional header bar
+        st.markdown("""
+        <div style="display: flex; align-items: center; padding: 0.75rem 0; margin-bottom: 1rem; border-bottom: 1px solid #e0e0e0;">
+            <span style="font-size: 1.5rem; font-weight: 600; color: #1a1a2e; letter-spacing: -0.5px;">EconStats</span>
+        </div>
+        """, unsafe_allow_html=True)
 
-        st.divider()
+        # Home button (smaller, professional style)
+        if st.button("← New Search", key="home_btn", type="secondary"):
+            st.session_state.chat_mode = False
+            st.session_state.messages = []
+            st.session_state.last_query = ''
+            st.session_state.last_series = []
+            st.session_state.last_series_data = []
+            st.session_state.last_explanation = ''
+            st.rerun()
 
         # Render conversation history with full charts
         for msg_idx, msg in enumerate(st.session_state.messages):
