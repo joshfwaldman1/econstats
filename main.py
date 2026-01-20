@@ -270,6 +270,14 @@ def get_recessions_in_range(min_date: str, max_date: str) -> list:
 def format_chart_data(series_data: list) -> list:
     """Format series data for Plotly.js on the frontend."""
     charts = []
+
+    # Series that are already rates/percentages - show pp change, not % change
+    RATE_SERIES = {'UNRATE', 'FEDFUNDS', 'DGS10', 'DGS2', 'MORTGAGE30US', 'T10Y2Y'}
+    # Series that are already growth rates - don't show any YoY
+    GROWTH_RATE_SERIES = {'A191RO1Q156NBEA', 'A191RL1Q225SBEA'}
+    # Series where data is already YoY transformed - don't double-transform
+    ALREADY_YOY_SERIES = set()  # Will be marked by name containing "YoY"
+
     for sid, dates, values, info in series_data:
         if not values:
             continue
@@ -278,35 +286,60 @@ def format_chart_data(series_data: list) -> list:
         latest = values[-1]
         latest_date = dates[-1]
 
+        # Determine series type
+        name = info.get('name', sid)
+        is_already_yoy = 'YoY' in name or 'YoY' in info.get('unit', '')
+        is_rate = sid in RATE_SERIES
+        is_growth_rate = sid in GROWTH_RATE_SERIES
+
         # Special handling for PAYEMS - show monthly job gains, not level
-        # PAYEMS is in thousands, so MoM change is jobs added in thousands
         display_value = latest
         display_unit = info.get('unit', '')
         is_job_change = False
-
-        if sid == 'PAYEMS' and len(values) >= 2:
-            mom_change = values[-1] - values[-2]  # Monthly change in thousands
-            display_value = mom_change
-            display_unit = 'Monthly Job Gains (Thousands)'
-            is_job_change = True
-            # Calculate 3-month average for context
-            if len(values) >= 4:
-                three_mo_avg = (values[-1] - values[-4]) / 3
-            else:
-                three_mo_avg = mom_change
-        else:
-            three_mo_avg = None
-
-        # YoY change if enough data (skip for job change display)
+        three_mo_avg = None
         yoy_change = None
-        if not is_job_change and len(values) >= 13:
-            prev = values[-13]
-            if prev != 0:
-                yoy_change = ((latest - prev) / abs(prev)) * 100
-        elif is_job_change and len(values) >= 13:
-            # For payrolls, show YoY total jobs added
-            yoy_jobs_added = values[-1] - values[-13]
-            yoy_change = yoy_jobs_added  # Store as raw number, not percent
+        yoy_type = 'percent'  # 'percent', 'pp', 'jobs', or None
+
+        if sid == 'PAYEMS' and len(values) >= 4:
+            # Show 3-month average job gains (more stable than single month)
+            three_mo_avg = (values[-1] - values[-4]) / 3
+            mom_change = values[-1] - values[-2]  # Keep single month for reference
+            display_value = three_mo_avg  # Headline is 3-mo avg
+            display_unit = 'Avg Monthly Job Gains (3-mo)'
+            is_job_change = True
+            # YoY: total jobs added over the year
+            if len(values) >= 13:
+                yoy_change = values[-1] - values[-13]
+                yoy_type = 'jobs'
+        elif sid == 'PAYEMS' and len(values) >= 2:
+            # Fallback if not enough data for 3-mo avg
+            mom_change = values[-1] - values[-2]
+            three_mo_avg = mom_change
+            display_value = mom_change
+            display_unit = 'Monthly Job Gains'
+            is_job_change = True
+            if len(values) >= 13:
+                yoy_change = values[-1] - values[-13]
+                yoy_type = 'jobs'
+
+        elif is_already_yoy or is_growth_rate:
+            # Already a rate/change - don't show any YoY comparison
+            yoy_change = None
+            yoy_type = None
+
+        elif is_rate:
+            # Show percentage point change, not percent change
+            if len(values) >= 13:
+                yoy_change = latest - values[-13]  # pp change
+                yoy_type = 'pp'
+
+        else:
+            # Normal series - show % change YoY
+            if len(values) >= 13:
+                prev = values[-13]
+                if prev != 0:
+                    yoy_change = ((latest - prev) / abs(prev)) * 100
+                    yoy_type = 'percent'
 
         # Get recessions for this date range
         recessions = get_recessions_in_range(dates[0], dates[-1]) if dates else []
@@ -332,6 +365,7 @@ def format_chart_data(series_data: list) -> list:
             'latest': display_value,  # For PAYEMS, this is MoM change
             'latest_date': latest_date,
             'yoy_change': yoy_change,
+            'yoy_type': yoy_type,  # 'percent', 'pp', 'jobs', or None
             'recessions': recessions,
             'source': source,
             'sa': sa,

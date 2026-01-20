@@ -53,7 +53,7 @@
     {% for chart in charts %}
     <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
         <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1 leading-tight" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-            {% if chart.is_job_change %}Monthly Job Gains{% else %}{{ chart.name }}{% endif %}
+            {% if chart.is_job_change %}Job Gains (3-mo Avg){% else %}{{ chart.name }}{% endif %}
         </p>
         <p class="text-2xl font-bold {% if chart.is_job_change %}{{ 'text-emerald-600' if chart.latest >= 0 else 'text-red-600' }}{% else %}text-slate-900{% endif %}">
             {% if chart.is_job_change %}
@@ -68,15 +68,14 @@
                 {{ "%.1f"|format(chart.latest) }}
             {% endif %}
         </p>
-        {% if chart.is_job_change and chart.three_mo_avg is not none %}
-        <p class="text-sm mt-1 text-slate-500">
-            3-mo avg: {{ "%+.0f"|format(chart.three_mo_avg) }}K
-        </p>
-        {% elif chart.yoy_change is not none %}
+        {# Secondary metric based on series type #}
+        {% if chart.yoy_change is not none and chart.yoy_type %}
         <p class="text-sm mt-1 {% if chart.yoy_change >= 0 %}text-emerald-600{% else %}text-red-600{% endif %}">
-            {% if chart.is_job_change %}
-                YoY: {{ "%+.0f"|format(chart.yoy_change) }}K jobs
-            {% else %}
+            {% if chart.yoy_type == 'jobs' %}
+                YoY: {{ "%+,.0f"|format(chart.yoy_change) }}K
+            {% elif chart.yoy_type == 'pp' %}
+                {{ "%+.1f"|format(chart.yoy_change) }} pp YoY
+            {% elif chart.yoy_type == 'percent' %}
                 {{ "%+.1f"|format(chart.yoy_change) }}% YoY
             {% endif %}
         </p>
