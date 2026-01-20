@@ -283,6 +283,13 @@ def format_chart_data(series_data: list) -> list:
         source = db_info.get('source', 'FRED')
         sa = db_info.get('sa', False)
 
+        # Get FRED notes for educational content
+        notes = info.get('notes', '')
+        # Clean up notes - take first 2-3 sentences for brevity
+        if notes:
+            sentences = notes.replace('\n', ' ').split('. ')
+            notes = '. '.join(sentences[:3]) + ('.' if len(sentences) > 0 else '')
+
         charts.append({
             'series_id': sid,
             'name': info.get('name', sid),
@@ -295,6 +302,7 @@ def format_chart_data(series_data: list) -> list:
             'recessions': recessions,
             'source': source,
             'sa': sa,
+            'notes': notes,
         })
 
     return charts
