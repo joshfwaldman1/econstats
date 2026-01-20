@@ -2703,6 +2703,216 @@ Keep it to 4-6 concise sentences if multiple series are shown. Do not use bullet
         return original_explanation
 
 
+def generate_goldman_style_analysis(series_id: str, dates: list, values: list, info: dict) -> dict:
+    """Generate Goldman Sachs-style chart title and bullet analysis using 3 agent layers.
+
+    Layer 1: Draft Analyst - Initial Goldman-style title and trend analysis
+    Layer 2: Senior Economist - Refines and adds macro context
+    Layer 3: Chief Economist - Final polish and quality assurance
+
+    Args:
+        series_id: FRED series ID
+        dates: List of date strings
+        values: List of numeric values
+        info: Series metadata dict
+
+    Returns:
+        dict with 'title' (Goldman-style headline) and 'bullets' (1-3 analyst insights)
+    """
+    if not ANTHROPIC_API_KEY or not values or len(values) < 2:
+        # Fallback to basic title
+        name = info.get('name', info.get('title', series_id))
+        return {'title': name, 'bullets': []}
+
+    name = info.get('name', info.get('title', series_id))
+    unit = info.get('unit', info.get('units', ''))
+    latest = values[-1]
+    latest_date = dates[-1]
+
+    # Calculate key statistics
+    db_info = SERIES_DB.get(series_id, {})
+    data_type = db_info.get('data_type', 'level')
+
+    # Recent trend (last 3 months)
+    if len(values) >= 3:
+        recent_change = values[-1] - values[-3]
+        recent_pct = ((values[-1] - values[-3]) / abs(values[-3])) * 100 if values[-3] != 0 else 0
+    else:
+        recent_change = 0
+        recent_pct = 0
+
+    # Year-over-year
+    if len(values) >= 13:
+        yoy_change = values[-1] - values[-13]
+        yoy_pct = ((values[-1] - values[-13]) / abs(values[-13])) * 100 if values[-13] != 0 else 0
+    else:
+        yoy_change = 0
+        yoy_pct = 0
+
+    # Historical context
+    max_val = max(values)
+    min_val = min(values)
+    max_idx = values.index(max_val)
+    min_idx = values.index(min_val)
+
+    # Format latest date
+    try:
+        from datetime import datetime
+        latest_date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
+        date_str = latest_date_obj.strftime('%B %Y')
+    except:
+        date_str = latest_date
+
+    # Get educational context from SERIES_DB
+    static_bullets = db_info.get('bullets', [])
+    educational_context = static_bullets[0] if static_bullets else ""
+
+    # Build data context for agents
+    data_context = f"""
+Series: {name}
+Series ID: {series_id}
+Data Type: {data_type}
+Unit: {unit}
+
+Current Value: {latest:,.2f} as of {date_str}
+Recent 3-month change: {recent_change:+,.2f} ({recent_pct:+.1f}%)
+Year-over-year change: {yoy_change:+,.2f} ({yoy_pct:+.1f}%)
+
+Historical range: Low of {min_val:,.2f} (at index {min_idx}) to High of {max_val:,.2f} (at index {max_idx})
+Total data points: {len(values)}
+
+Educational context: {educational_context}
+"""
+
+    url = 'https://api.anthropic.com/v1/messages'
+    headers = {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+    }
+
+    # LAYER 1: Draft Analyst
+    layer1_prompt = f"""You are a junior economic analyst at Goldman Sachs drafting chart titles and bullets.
+
+Given this economic data:
+{data_context}
+
+Create:
+1. A Goldman Sachs-style chart TITLE that includes the metric name AND a directional/suggestive phrase based on recent trend. Examples:
+   - "Unemployment edges higher to 4.4%"
+   - "Inflation continues steady descent toward 2%"
+   - "Job growth remains solid at 200K"
+   - "GDP growth moderates to trend pace"
+   - "Wages outpace inflation for 18th straight month"
+
+2. ONE bullet point (1-2 sentences) describing the recent trend over the past few months like a smart analyst would - not just "up X%" but with context about what this means.
+
+Return JSON only:
+{{"title": "Your Goldman-style title", "bullet": "Your analyst insight"}}"""
+
+    try:
+        # Layer 1 call
+        payload1 = {
+            'model': 'claude-opus-4-5-20251101',
+            'max_tokens': 512,
+            'messages': [{'role': 'user', 'content': layer1_prompt}]
+        }
+        req1 = Request(url, data=json.dumps(payload1).encode('utf-8'), headers=headers, method='POST')
+        with urlopen(req1, timeout=20) as response1:
+            result1 = json.loads(response1.read().decode('utf-8'))
+            content1 = result1['content'][0]['text']
+            if '```json' in content1:
+                content1 = content1.split('```json')[1].split('```')[0]
+            elif '```' in content1:
+                content1 = content1.split('```')[1].split('```')[0]
+            layer1_output = json.loads(content1.strip())
+    except Exception as e:
+        layer1_output = {'title': name, 'bullet': ''}
+
+    # LAYER 2: Senior Economist
+    layer2_prompt = f"""You are a senior economist at Goldman Sachs reviewing a junior analyst's work.
+
+Data context:
+{data_context}
+
+Junior analyst draft:
+Title: {layer1_output.get('title', name)}
+Bullet: {layer1_output.get('bullet', '')}
+
+Your task:
+1. IMPROVE the title if needed - make it punchier, more insightful, or more accurate. Keep the Goldman style.
+2. ENHANCE the bullet - add macro context or historical perspective. What would Jason Furman or a CEA chair say?
+3. ADD a second bullet with additional insight about what this means for the economy or markets.
+
+Return JSON only:
+{{"title": "Your improved title", "bullets": ["Enhanced first bullet", "New second bullet with macro context"]}}"""
+
+    try:
+        # Layer 2 call
+        payload2 = {
+            'model': 'claude-opus-4-5-20251101',
+            'max_tokens': 512,
+            'messages': [{'role': 'user', 'content': layer2_prompt}]
+        }
+        req2 = Request(url, data=json.dumps(payload2).encode('utf-8'), headers=headers, method='POST')
+        with urlopen(req2, timeout=20) as response2:
+            result2 = json.loads(response2.read().decode('utf-8'))
+            content2 = result2['content'][0]['text']
+            if '```json' in content2:
+                content2 = content2.split('```json')[1].split('```')[0]
+            elif '```' in content2:
+                content2 = content2.split('```')[1].split('```')[0]
+            layer2_output = json.loads(content2.strip())
+    except Exception as e:
+        layer2_output = {'title': layer1_output.get('title', name), 'bullets': [layer1_output.get('bullet', '')]}
+
+    # LAYER 3: Chief Economist Final Review
+    layer3_prompt = f"""You are the Chief US Economist at Goldman Sachs doing final review before publication.
+
+Data context:
+{data_context}
+
+Current draft:
+Title: {layer2_output.get('title', name)}
+Bullets: {layer2_output.get('bullets', [])}
+
+Your task - FINAL QUALITY CHECK:
+1. Is the title accurate and appropriately cautious? No overstating trends.
+2. Are the bullets substantive but concise? Cut fluff. Each should add real insight.
+3. Would this pass muster in a Goldman Sachs client report?
+
+Make final edits. Keep 1-2 bullets max (quality over quantity). Return JSON only:
+{{"title": "Final polished title", "bullets": ["Final bullet 1", "Final bullet 2 (optional)"]}}"""
+
+    try:
+        # Layer 3 call
+        payload3 = {
+            'model': 'claude-opus-4-5-20251101',
+            'max_tokens': 512,
+            'messages': [{'role': 'user', 'content': layer3_prompt}]
+        }
+        req3 = Request(url, data=json.dumps(payload3).encode('utf-8'), headers=headers, method='POST')
+        with urlopen(req3, timeout=20) as response3:
+            result3 = json.loads(response3.read().decode('utf-8'))
+            content3 = result3['content'][0]['text']
+            if '```json' in content3:
+                content3 = content3.split('```json')[1].split('```')[0]
+            elif '```' in content3:
+                content3 = content3.split('```')[1].split('```')[0]
+            layer3_output = json.loads(content3.strip())
+
+        return {
+            'title': layer3_output.get('title', name),
+            'bullets': layer3_output.get('bullets', [])[:2]  # Max 2 bullets
+        }
+    except Exception as e:
+        # Return layer 2 output if layer 3 fails
+        return {
+            'title': layer2_output.get('title', name),
+            'bullets': layer2_output.get('bullets', [])[:2]
+        }
+
+
 def generate_chart_description(series_id: str, dates: list, values: list, info: dict) -> str:
     """Generate a dynamic one-line description of recent trends for a chart.
 
@@ -3604,66 +3814,117 @@ def main():
                     if msg.get("series_data"):
                         chart_type = msg.get("chart_type", "line")
                         combine = msg.get("combine", False)
+                        chart_groups = msg.get("chart_groups")
+                        raw_series_data = msg.get("raw_series_data", {})
+                        series_data = msg["series_data"]
 
-                        # Create charts from stored data
-                        for series_id, dates, values, info in msg["series_data"]:
-                            if not values:
-                                continue
-                            name = info.get('name', info.get('title', series_id))
-                            unit = info.get('unit', info.get('units', ''))
-                            latest = values[-1]
-                            latest_date = dates[-1]
+                        # Use chart_groups if available (for proper combining)
+                        if chart_groups and len(chart_groups) > 0:
+                            for group_idx, group in enumerate(chart_groups):
+                                group_series_ids = group.get('series', [])
+                                group_show_yoy = group.get('show_yoy', False)
+                                group_normalize = group.get('normalize', False)
+                                group_title = group.get('title', '')
 
-                            # Chart title
-                            st.markdown(f"**{name}**")
+                                # Get data for this group
+                                group_data = []
+                                for sid in group_series_ids:
+                                    if sid in raw_series_data:
+                                        group_data.append(raw_series_data[sid])
+                                    else:
+                                        # Fallback to series_data
+                                        for s_id, d, v, i in series_data:
+                                            if s_id == sid:
+                                                group_data.append((s_id, d, v, i))
+                                                break
 
-                            # Generate bullet points about the data
-                            bullets = []
+                                if not group_data:
+                                    continue
 
-                            # Current value bullet
-                            try:
-                                from datetime import datetime
-                                date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
-                                date_str = date_obj.strftime('%b %Y')
-                            except:
-                                date_str = latest_date
+                                # Apply YoY transformation if requested
+                                if group_show_yoy:
+                                    transformed = []
+                                    for sid, dates_g, values_g, info_g in group_data:
+                                        new_dates, new_values = calculate_yoy(dates_g, values_g)
+                                        new_info = dict(info_g)
+                                        new_info['is_yoy'] = True
+                                        new_info['unit'] = 'YoY % Change'
+                                        transformed.append((sid, new_dates, new_values, new_info))
+                                    group_data = transformed
 
-                            if 'Percent' in unit or '%' in unit or info.get('is_yoy') or info.get('is_mom'):
-                                bullets.append(f"**Current:** {latest:.1f}% as of {date_str}")
-                            elif unit and '$' in unit:
-                                bullets.append(f"**Current:** ${latest:,.2f} as of {date_str}")
-                            elif latest >= 1000:
-                                bullets.append(f"**Current:** {latest:,.0f} as of {date_str}")
-                            else:
-                                bullets.append(f"**Current:** {latest:.2f} as of {date_str}")
+                                # Apply normalize transformation
+                                if group_normalize and len(group_data) > 0:
+                                    start_dates = [dates_g[0] for sid, dates_g, values_g, info_g in group_data if dates_g]
+                                    common_start = max(start_dates) if start_dates else None
+                                    norm_data = []
+                                    for sid, dates_g, values_g, info_g in group_data:
+                                        if values_g and len(values_g) > 0 and dates_g:
+                                            start_idx = 0
+                                            for i, d in enumerate(dates_g):
+                                                if d >= common_start:
+                                                    start_idx = i
+                                                    break
+                                            trimmed_dates = dates_g[start_idx:]
+                                            trimmed_values = values_g[start_idx:]
+                                            if trimmed_values and trimmed_values[0] != 0:
+                                                base_value = trimmed_values[0]
+                                                indexed_values = [(v / base_value) * 100 for v in trimmed_values]
+                                                new_info = dict(info_g)
+                                                new_info['unit'] = 'Index (Start = 100)'
+                                                norm_data.append((sid, trimmed_dates, indexed_values, new_info))
+                                    group_data = norm_data if norm_data else group_data
 
-                            # Trend bullet (compare to year ago if enough data)
-                            if len(values) > 12:
-                                year_ago = values[-13] if len(values) >= 13 else values[0]
-                                if year_ago != 0:
-                                    pct_change = ((latest - year_ago) / abs(year_ago)) * 100
-                                    direction = "up" if pct_change > 0 else "down"
-                                    bullets.append(f"**Trend:** {direction} {abs(pct_change):.1f}% from a year ago")
+                                # Display title
+                                if group_title:
+                                    st.markdown(f"**{group_title}**")
+                                else:
+                                    title_parts = [info.get('name', sid)[:40] for sid, _, _, info in group_data]
+                                    st.markdown(f"**{' vs '.join(title_parts)}**")
 
-                            # Display bullets
-                            for bullet in bullets:
-                                st.markdown(f"- {bullet}")
+                                # Goldman-style bullets for each series in group
+                                for sid, d, v, i in group_data:
+                                    goldman_analysis = generate_goldman_style_analysis(sid, d, v, i)
+                                    goldman_bullets = goldman_analysis.get('bullets', [])
+                                    series_name = goldman_analysis.get('title', i.get('name', sid))[:40]
+                                    if goldman_bullets:
+                                        st.markdown(f"- **{series_name}:** {goldman_bullets[0]}")
 
-                            # Create chart (no title in plotly since we have markdown title)
-                            fig = go.Figure()
-                            fig.add_trace(go.Scatter(
-                                x=dates,
-                                y=values,
-                                mode='lines',
-                                name=name,
-                                line=dict(width=2)
-                            ))
-                            fig.update_layout(
-                                height=300,
-                                margin=dict(l=40, r=40, t=20, b=40),
-                                showlegend=False
-                            )
-                            st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
+                                # Create combined chart for this group
+                                fig = create_chart(group_data, combine=len(group_data) > 1, chart_type=chart_type)
+                                st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_group_{group_idx}")
+
+                        elif combine and len(series_data) > 1:
+                            # Combine all series on one chart
+                            title_parts = [info.get('name', sid)[:40] for sid, _, _, info in series_data]
+                            st.markdown(f"**{' vs '.join(title_parts)}**")
+
+                            for sid, d, v, i in series_data:
+                                goldman_analysis = generate_goldman_style_analysis(sid, d, v, i)
+                                goldman_bullets = goldman_analysis.get('bullets', [])
+                                series_name = goldman_analysis.get('title', i.get('name', sid))[:40]
+                                if goldman_bullets:
+                                    st.markdown(f"- **{series_name}:** {goldman_bullets[0]}")
+
+                            fig = create_chart(series_data, combine=True, chart_type=chart_type)
+                            st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_combined")
+
+                        else:
+                            # Individual charts for each series
+                            for series_id, dates, values, info in series_data:
+                                if not values:
+                                    continue
+
+                                goldman_analysis = generate_goldman_style_analysis(series_id, dates, values, info)
+                                chart_title = goldman_analysis.get('title', info.get('name', series_id))
+                                goldman_bullets = goldman_analysis.get('bullets', [])
+
+                                st.markdown(f"**{chart_title}**")
+                                for bullet in goldman_bullets:
+                                    if bullet and bullet.strip():
+                                        st.markdown(f"- {bullet}")
+
+                                fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
+                                st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
 
         # Suggested follow-up buttons
         if not query and st.session_state.messages:
@@ -4027,8 +4288,10 @@ def main():
             "content": query,  # The query this responds to
             "explanation": ai_explanation,
             "series_data": series_data,
+            "raw_series_data": raw_series_data,  # For chart_groups re-rendering
             "chart_type": chart_type,
             "combine": combine,
+            "chart_groups": chart_groups,  # Store chart groups for proper re-rendering
             "series_names": series_names_fetched
         })
 
@@ -4418,12 +4681,13 @@ def main():
                 # Render title using native Streamlit (more reliable)
                 st.markdown(f"**{chart_title}**")
 
-                # Generate bullets for each series
+                # Generate Goldman-style bullets for each series
                 for sid, d, v, i in group_data:
-                    desc = generate_chart_description(sid, d, v, i)
-                    if desc:
-                        series_name = generate_chart_title(sid, i)[:30]
-                        st.markdown(f"- **{series_name}:** {desc}")
+                    goldman_analysis = generate_goldman_style_analysis(sid, d, v, i)
+                    goldman_bullets = goldman_analysis.get('bullets', [])
+                    series_name = goldman_analysis.get('title', i.get('name', sid))[:40]
+                    if goldman_bullets:
+                        st.markdown(f"- **{series_name}:** {goldman_bullets[0]}")
 
                 # Always combine for groups with multiple series
                 combine_group = len(group_data) > 1
@@ -4449,12 +4713,13 @@ def main():
             # Render title using native Streamlit (more reliable)
             st.markdown(f"**{chart_title}**")
 
-            # Generate bullet points for each series
+            # Generate Goldman-style bullet points for each series
             for sid, d, v, i in series_data:
-                desc = generate_chart_description(sid, d, v, i)
-                if desc:
-                    series_name = generate_chart_title(sid, i)[:30]
-                    st.markdown(f"- **{series_name}:** {desc}")
+                goldman_analysis = generate_goldman_style_analysis(sid, d, v, i)
+                goldman_bullets = goldman_analysis.get('bullets', [])
+                series_name = goldman_analysis.get('title', i.get('name', sid))[:40]
+                if goldman_bullets:
+                    st.markdown(f"- **{series_name}:** {goldman_bullets[0]}")
 
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
             st.plotly_chart(fig, width='stretch')
@@ -4484,18 +4749,15 @@ def main():
 
                 # Special side-by-side layout for payroll changes
                 if info.get('is_payroll_change') and info.get('original_dates'):
-                    # Show both monthly changes (bar) and total level (line) side by side
-                    payroll_bullets = [
-                        "Monthly change in thousands of jobs. The economy typically needs 100-150K new jobs/month to absorb population growth.",
-                        "Total employment level in thousands. This is the headline 'jobs number' from the BLS Employment Situation report."
-                    ]
-                    payroll_bullets_html = ''.join([f'<li>{b}</li>' for b in payroll_bullets])
-                    st.markdown(f"""
-                    <div class='chart-header'>
-                        <div class='chart-title'>Nonfarm Payrolls</div>
-                        <ul class='chart-bullets'>{payroll_bullets_html}</ul>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    # Generate Goldman-style analysis for monthly job changes
+                    goldman_analysis = generate_goldman_style_analysis(series_id, dates, values, info)
+                    payroll_title = goldman_analysis.get('title', 'Nonfarm Payrolls')
+                    payroll_bullets = goldman_analysis.get('bullets', [])
+
+                    st.markdown(f"**{payroll_title}**")
+                    for bullet in payroll_bullets:
+                        if bullet and bullet.strip():
+                            st.markdown(f"- {bullet}")
 
                     col1, col2 = st.columns(2)
 
@@ -4529,28 +4791,19 @@ def main():
                         )
                         st.plotly_chart(fig_line, width='stretch')
                 else:
-                    # Generate dynamic chart title and description
-                    chart_title = generate_chart_title(series_id, info)
-                    chart_desc = generate_chart_description(series_id, dates, values, info)
+                    # Generate Goldman Sachs-style title and bullets using 3-layer AI analysis
+                    goldman_analysis = generate_goldman_style_analysis(series_id, dates, values, info)
+                    chart_title = goldman_analysis.get('title', info.get('name', series_id))
+                    goldman_bullets = goldman_analysis.get('bullets', [])
 
-                    # Get educational bullet from SERIES_DB if available
-                    static_bullets = db_info.get('bullets', [])
-                    educational_bullet = static_bullets[0] if static_bullets else None
-
-                    # Render title using native Streamlit (more reliable)
+                    # Render title using native Streamlit
                     st.markdown(f"**{chart_title}**")
 
-                    # Combine dynamic trend + educational context as bullet list
-                    bullet_items = []
-                    if chart_desc:
-                        bullet_items.append(f"**Current:** {chart_desc}")
-                    if educational_bullet and educational_bullet.strip():
-                        edu_text = educational_bullet[:300] + "..." if len(educational_bullet) > 300 else educational_bullet
-                        bullet_items.append(edu_text)
-
-                    if bullet_items:
-                        for bullet in bullet_items:
-                            st.markdown(f"- {bullet}")
+                    # Display Goldman-style analyst bullets
+                    if goldman_bullets:
+                        for bullet in goldman_bullets:
+                            if bullet and bullet.strip():
+                                st.markdown(f"- {bullet}")
 
                     fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                     st.plotly_chart(fig, width='stretch')
@@ -4646,8 +4899,9 @@ def main():
         if st.session_state[feedback_key].get('comment_submitted'):
             st.info("Feedback submitted. Thank you!")
 
-    elif not query and st.session_state.last_series_data:
-        # Display cached results from previous query
+    elif not query and st.session_state.last_series_data and not st.session_state.chat_mode:
+        # Display cached results from previous query (only in non-chat mode)
+        # In chat mode, the chat history already renders everything
         series_data = st.session_state.last_series_data
         ai_explanation = st.session_state.last_explanation
         chart_type = st.session_state.last_chart_type
