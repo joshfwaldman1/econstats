@@ -58,6 +58,8 @@
         <p class="text-2xl font-bold {% if chart.is_job_change %}{{ 'text-emerald-600' if chart.latest >= 0 else 'text-red-600' }}{% else %}text-slate-900{% endif %}">
             {% if chart.is_job_change %}
                 {{ "%+.0f"|format(chart.latest) }}K
+            {% elif chart.is_payems_level %}
+                {{ "%.1f"|format(chart.latest / 1000) }}M
             {% elif 'Percent' in chart.unit or '%' in chart.unit %}
                 {{ "%.1f"|format(chart.latest) }}%
             {% elif chart.latest > 1000000 %}
@@ -103,6 +105,8 @@
                 <p class="text-xl font-bold {% if chart.is_job_change %}{{ 'text-emerald-600' if chart.latest >= 0 else 'text-red-600' }}{% else %}text-slate-900{% endif %}">
                     {% if chart.is_job_change %}
                         {{ "%+.0f"|format(chart.latest) }}K/month
+                    {% elif chart.is_payems_level %}
+                        {{ "%.1f"|format(chart.latest / 1000) }}M
                     {% elif 'Percent' in chart.unit or '%' in chart.unit %}
                         {{ "%.2f"|format(chart.latest) }}%
                     {% elif chart.latest > 1000000 %}

@@ -112,17 +112,46 @@
     "series": [
       "PAYEMS"
     ],
-    "show_yoy": true,
+    "show_yoy": false,
+    "payems_show_level": true,
     "combine_chart": false,
-    "explanation": "PAYEMS is total nonfarm payrolls - the definitive monthly jobs number from the establishment survey. This measures net job creation/destruction and is THE primary indicator for employment growth. YoY growth shows the pace of job market expansion."
+    "explanation": "PAYEMS is total nonfarm payrolls - the total number of paid U.S. workers excluding farm employees. This level chart shows how total employment has grown over time, from about 50 million in the 1940s to nearly 160 million today."
   },
   "nonfarm payrolls": {
     "series": [
       "PAYEMS"
     ],
-    "show_yoy": true,
+    "show_yoy": false,
+    "payems_show_level": true,
     "combine_chart": false,
-    "explanation": "PAYEMS is THE nonfarm payrolls series - the official monthly employment count from the establishment survey that represents the headline 'jobs number' reported in employment reports. This is the most closely watched employment indicator."
+    "explanation": "PAYEMS is THE nonfarm payrolls series - the total count of paid employees in the U.S. This level shows the size of the employed workforce over time, which is useful for understanding the scale of the U.S. labor market."
+  },
+  "total payrolls": {
+    "series": [
+      "PAYEMS"
+    ],
+    "show_yoy": false,
+    "payems_show_level": true,
+    "combine_chart": false,
+    "explanation": "Total nonfarm payrolls shows the aggregate number of paid U.S. workers. This level chart reveals the long-term growth of the American workforce and is useful for understanding the overall size and scale of employment."
+  },
+  "total employment": {
+    "series": [
+      "PAYEMS"
+    ],
+    "show_yoy": false,
+    "payems_show_level": true,
+    "combine_chart": false,
+    "explanation": "PAYEMS shows total nonfarm employment - the count of all paid U.S. workers excluding farm workers. This level chart shows the size of the U.S. workforce over time."
+  },
+  "how many people are employed": {
+    "series": [
+      "PAYEMS"
+    ],
+    "show_yoy": false,
+    "payems_show_level": true,
+    "combine_chart": false,
+    "explanation": "About 159.5 million Americans are currently employed on nonfarm payrolls. This chart shows how total U.S. employment has grown over time."
   },
   "jobs report": {
     "series": [

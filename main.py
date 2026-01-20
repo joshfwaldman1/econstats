@@ -277,8 +277,13 @@ def get_recessions_in_range(min_date: str, max_date: str) -> list:
     return recessions
 
 
-def format_chart_data(series_data: list) -> list:
-    """Format series data for Plotly.js on the frontend."""
+def format_chart_data(series_data: list, payems_show_level: bool = False) -> list:
+    """Format series data for Plotly.js on the frontend.
+
+    Args:
+        series_data: List of (series_id, dates, values, info) tuples
+        payems_show_level: If True, show PAYEMS as total employment level instead of monthly changes
+    """
     charts = []
 
     # Series that are already rates/percentages - show pp change, not % change
@@ -314,8 +319,24 @@ def format_chart_data(series_data: list) -> list:
         chart_dates = dates
         chart_values = values
 
-        if sid == 'PAYEMS' and len(values) >= 4:
+        # Flag for PAYEMS level display (value is in thousands, so 159500 = 159.5M)
+        is_payems_level = False
+
+        if sid == 'PAYEMS' and payems_show_level:
+            # Show total employment LEVEL (not changes)
+            # Used for "total payrolls" / "nonfarm payrolls" queries
+            display_value = latest  # Value in thousands (e.g., 159500 = 159.5M)
+            display_unit = 'Thousands of Persons'
+            is_job_change = False
+            is_payems_level = True  # Template needs this to show as millions
+            # YoY change in total jobs
+            if len(values) >= 13:
+                yoy_change = values[-1] - values[-13]
+                yoy_type = 'jobs'
+
+        elif sid == 'PAYEMS' and len(values) >= 4:
             # Show 3-month average job gains (more stable than single month)
+            # Used for "how is the economy" type queries
             three_mo_avg = (values[-1] - values[-4]) / 3
             mom_change = values[-1] - values[-2]  # Keep single month for reference
             display_value = three_mo_avg  # Headline is 3-mo avg
@@ -392,7 +413,7 @@ def format_chart_data(series_data: list) -> list:
             'unit': display_unit,
             'dates': chart_dates,
             'values': chart_values,
-            'latest': display_value,  # For PAYEMS, this is 3-mo avg change
+            'latest': display_value,
             'latest_date': latest_date,
             'yoy_change': yoy_change,
             'yoy_type': yoy_type,  # 'percent', 'pp', 'jobs', or None
@@ -401,6 +422,7 @@ def format_chart_data(series_data: list) -> list:
             'sa': sa,
             'notes': notes,
             'is_job_change': is_job_change,
+            'is_payems_level': is_payems_level,  # PAYEMS level (value in thousands)
             'three_mo_avg': three_mo_avg,
         })
 
@@ -443,10 +465,12 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
         if plan:
             series_ids = plan.get('series', [])[:4]
             show_yoy = plan.get('show_yoy', False)
+            payems_show_level = plan.get('payems_show_level', False)
         else:
-            # Default to economy overview
+            # Default to economy overview - show job gains (not levels)
             series_ids = ['PAYEMS', 'UNRATE', 'A191RO1Q156NBEA', 'CPIAUCSL']
             show_yoy = [False, False, False, True]
+            payems_show_level = False
 
         # Fetch data
         series_data = []
@@ -476,7 +500,7 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
         chart_descriptions = ai_response.get("chart_descriptions", {})
 
         # Format for frontend
-        charts = format_chart_data(series_data)
+        charts = format_chart_data(series_data, payems_show_level=payems_show_level)
 
         # Add Claude's descriptions to each chart
         for chart in charts:
