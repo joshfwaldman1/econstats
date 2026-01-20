@@ -24,7 +24,8 @@ import pandas as pd
 try:
     from langgraph_agent import run_query as run_deep_analysis
     DEEP_ANALYSIS_AVAILABLE = True
-except ImportError:
+except Exception:
+    # Catch all errors (ImportError, KeyError, etc.) - Deep Analysis is optional
     DEEP_ANALYSIS_AVAILABLE = False
     run_deep_analysis = None
 
