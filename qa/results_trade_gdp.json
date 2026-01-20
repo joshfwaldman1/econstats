@@ -1,70 +1,183 @@
 {
   "category": "Trade, GDP & Markets",
   "total_queries": 22,
-  "average_score": 3.73,
+  "average_score": 4.41,
   "score_distribution": {
     "1": 0,
     "2": 0,
-    "3": 9,
-    "4": 10,
-    "5": 3
+    "3": 1,
+    "4": 11,
+    "5": 10
   },
   "issues_summary": {
-    "MISSING_KEY": 2,
-    "WRONG_YOY": 2,
-    "TOO_FEW": 10
+    "NO_DATA": 1
   },
   "results": [
     {
       "query": "gdp",
+      "plan_found": true,
       "series": [
-        "A191RL1Q225SBEA"
+        "A191RO1Q156NBEA",
+        "A191RL1Q225SBEA",
+        "PB0000031Q225SBEA",
+        "GDPNOW"
       ],
       "series_names": [
-        "Real GDP Growth Rate"
+        "Real GDP Growth Rate (YoY)",
+        "Real GDP Growth Rate (Quarterly)",
+        "Core GDP (Private Demand)",
+        "GDPNow (Atlanta Fed)"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "MISSING_KEY"
+      "data_results": [
+        {
+          "series_id": "A191RO1Q156NBEA",
+          "name": "Real GDP Growth Rate (YoY)",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 2.3
+        },
+        {
+          "series_id": "A191RL1Q225SBEA",
+          "name": "Real GDP Growth Rate (Quarterly)",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 4.3
+        },
+        {
+          "series_id": "PB0000031Q225SBEA",
+          "name": "Core GDP (Private Demand)",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 3.0
+        },
+        {
+          "series_id": "GDPNOW",
+          "name": "GDPNow (Atlanta Fed)",
+          "success": true,
+          "data_points": 20,
+          "latest_date": "2025-10-01",
+          "latest_value": 2.6786
+        }
       ],
-      "explanation": "Shows GDP growth rate which is relevant, but for a simple 'gdp' query, users typically expect to see the actual GDP level data as the primary response, with growth rate as supplementary context.",
-      "suggested_fix": "Include both real GDP level (GDPC1) as the primary series and real GDP growth rate as additional context to give a complete picture of GDP performance"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 4 series, 77 total data points"
     },
     {
       "query": "gdp growth",
+      "plan_found": true,
       "series": [
-        "A191RL1Q225SBEA"
+        "A191RO1Q156NBEA",
+        "A191RL1Q225SBEA",
+        "PB0000031Q225SBEA",
+        "GDPNOW"
       ],
       "series_names": [
-        "Real GDP Growth Rate"
+        "Real GDP Growth Rate (YoY)",
+        "Real GDP Growth Rate (Quarterly)",
+        "Core GDP (Private Demand)",
+        "GDPNow (Atlanta Fed)"
       ],
       "show_yoy": false,
-      "score": 4,
-      "issues": [
-        "WRONG_YOY"
+      "data_results": [
+        {
+          "series_id": "A191RO1Q156NBEA",
+          "name": "Real GDP Growth Rate (YoY)",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 2.3
+        },
+        {
+          "series_id": "A191RL1Q225SBEA",
+          "name": "Real GDP Growth Rate (Quarterly)",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 4.3
+        },
+        {
+          "series_id": "PB0000031Q225SBEA",
+          "name": "Core GDP (Private Demand)",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 3.0
+        },
+        {
+          "series_id": "GDPNOW",
+          "name": "GDPNow (Atlanta Fed)",
+          "success": true,
+          "data_points": 20,
+          "latest_date": "2025-10-01",
+          "latest_value": 2.6786
+        }
       ],
-      "explanation": "The series selection is perfect - Real GDP Growth Rate is exactly what was requested. However, GDP growth is typically viewed as year-over-year changes to smooth out seasonal volatility and provide meaningful economic context, but the system shows quarterly changes instead.",
-      "suggested_fix": "Set 'Show as year-over-year' to True to display the more standard and economically meaningful year-over-year GDP growth rate"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 4 series, 77 total data points"
     },
     {
       "query": "economic growth",
+      "plan_found": true,
       "series": [
-        "A191RL1Q225SBEA"
+        "A191RO1Q156NBEA",
+        "A191RL1Q225SBEA",
+        "PB0000031Q225SBEA",
+        "GDPNOW"
       ],
       "series_names": [
-        "Real GDP Growth Rate"
+        "Real GDP Growth Rate (YoY)",
+        "Real GDP Growth Rate (Quarterly)",
+        "Core GDP (Private Demand)",
+        "GDPNow (Atlanta Fed)"
       ],
       "show_yoy": false,
-      "score": 4,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "A191RO1Q156NBEA",
+          "name": "Real GDP Growth Rate (YoY)",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 2.3
+        },
+        {
+          "series_id": "A191RL1Q225SBEA",
+          "name": "Real GDP Growth Rate (Quarterly)",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 4.3
+        },
+        {
+          "series_id": "PB0000031Q225SBEA",
+          "name": "Core GDP (Private Demand)",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 3.0
+        },
+        {
+          "series_id": "GDPNOW",
+          "name": "GDPNow (Atlanta Fed)",
+          "success": true,
+          "data_points": 20,
+          "latest_date": "2025-10-01",
+          "latest_value": 2.6786
+        }
       ],
-      "explanation": "Real GDP Growth Rate is the most direct and appropriate measure for 'economic growth' query. However, showing only one series provides limited context for comprehensive economic growth analysis.",
-      "suggested_fix": "Add complementary series like nominal GDP growth, GDP per capita growth, or productivity measures to provide fuller picture of economic growth trends"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 4 series, 77 total data points"
     },
     {
       "query": "real gdp",
+      "plan_found": true,
       "series": [
         "GDPC1"
       ],
@@ -72,15 +185,23 @@
         "Real GDP Level"
       ],
       "show_yoy": false,
-      "score": 4,
-      "issues": [
-        "WRONG_YOY"
+      "data_results": [
+        {
+          "series_id": "GDPC1",
+          "name": "Real GDP Level",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 24024.957
+        }
       ],
-      "explanation": "GDPC1 is the correct primary series for real GDP, but showing it in levels rather than year-over-year growth is less intuitive for most economic analysis. Real GDP growth rates are more commonly referenced and meaningful for understanding economic performance.",
-      "suggested_fix": "Show as year-over-year percentage change to display real GDP growth rate, which is the standard way economists and analysts interpret GDP data"
+      "score": 4,
+      "issues": [],
+      "explanation": "Good: Single series with 19 data points"
     },
     {
       "query": "industrial production",
+      "plan_found": true,
       "series": [
         "INDPRO"
       ],
@@ -88,13 +209,23 @@
         "Industrial Production"
       ],
       "show_yoy": true,
-      "score": 5,
+      "data_results": [
+        {
+          "series_id": "INDPRO",
+          "name": "Industrial Production",
+          "success": true,
+          "data_points": 60,
+          "latest_date": "2025-12-01",
+          "latest_value": 102.325
+        }
+      ],
+      "score": 4,
       "issues": [],
-      "explanation": "Perfect response. INDPRO is the main Federal Reserve series for industrial production, and year-over-year transformation is appropriate for showing growth trends in production data.",
-      "suggested_fix": null
+      "explanation": "Good: Single series with 60 data points"
     },
     {
       "query": "manufacturing",
+      "plan_found": true,
       "series": [
         "IPMAN",
         "TCU"
@@ -104,15 +235,31 @@
         "TCU"
       ],
       "show_yoy": true,
-      "score": 3,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "IPMAN",
+          "name": "IPMAN",
+          "success": true,
+          "data_points": 60,
+          "latest_date": "2025-12-01",
+          "latest_value": 98.1787
+        },
+        {
+          "series_id": "TCU",
+          "name": "TCU",
+          "success": true,
+          "data_points": 60,
+          "latest_date": "2025-12-01",
+          "latest_value": 76.2615
+        }
       ],
-      "explanation": "IPMAN (Industrial Production: Manufacturing) and TCU (Capacity Utilization) are relevant manufacturing indicators, but the response is incomplete for such a broad query. Missing key manufacturing metrics like employment, new orders, or PMI data.",
-      "suggested_fix": "Add manufacturing employment (MANEMP) and new orders or shipments data to provide a more comprehensive view of the manufacturing sector"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 120 total data points"
     },
     {
       "query": "productivity",
+      "plan_found": true,
       "series": [
         "OPHNFB",
         "PRS85006092"
@@ -122,15 +269,31 @@
         "PRS85006092"
       ],
       "show_yoy": true,
-      "score": 3,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "OPHNFB",
+          "name": "OPHNFB",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 117.966
+        },
+        {
+          "series_id": "PRS85006092",
+          "name": "PRS85006092",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 4.9
+        }
       ],
-      "explanation": "The response includes two relevant productivity series (nonfarm business sector productivity), but for a broad query like 'productivity', it would benefit from showing additional context such as manufacturing productivity or labor productivity growth trends to give a more comprehensive view.",
-      "suggested_fix": "Add 1-2 more productivity series such as manufacturing productivity (OPHMFB) or total factor productivity to provide broader economic context"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 38 total data points"
     },
     {
       "query": "trade",
+      "plan_found": true,
       "series": [
         "BOPGSTB"
       ],
@@ -138,15 +301,23 @@
         "Trade Balance"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "BOPGSTB",
+          "name": "Trade Balance",
+          "success": true,
+          "data_points": 58,
+          "latest_date": "2025-10-01",
+          "latest_value": -29350.0
+        }
       ],
-      "explanation": "Trade balance is relevant to 'trade' but the query is very broad and could benefit from additional context. A single series provides limited insight into overall trade activity.",
-      "suggested_fix": "Add exports and imports series (e.g., EXPGS, IMPGS) to show the components that make up the trade balance and provide fuller picture of trade activity"
+      "score": 4,
+      "issues": [],
+      "explanation": "Good: Single series with 58 data points"
     },
     {
       "query": "trade deficit",
+      "plan_found": true,
       "series": [
         "BOPGSTB"
       ],
@@ -154,13 +325,23 @@
         "Trade Balance"
       ],
       "show_yoy": false,
+      "data_results": [
+        {
+          "series_id": "BOPGSTB",
+          "name": "Trade Balance",
+          "success": true,
+          "data_points": 58,
+          "latest_date": "2025-10-01",
+          "latest_value": -29350.0
+        }
+      ],
       "score": 4,
       "issues": [],
-      "explanation": "BOPGSTB (Trade Balance) directly answers the trade deficit query. Trade deficit is simply the negative of trade balance, so this is the correct and most appropriate series. The response is concise and on-target.",
-      "suggested_fix": "Could potentially add goods-only trade balance (BOPGSB) for additional context since goods trade deficit is often discussed separately from services, but the current response is quite good as-is."
+      "explanation": "Good: Single series with 58 data points"
     },
     {
       "query": "trade balance",
+      "plan_found": true,
       "series": [
         "BOPGSTB"
       ],
@@ -168,13 +349,23 @@
         "Trade Balance"
       ],
       "show_yoy": false,
+      "data_results": [
+        {
+          "series_id": "BOPGSTB",
+          "name": "Trade Balance",
+          "success": true,
+          "data_points": 58,
+          "latest_date": "2025-10-01",
+          "latest_value": -29350.0
+        }
+      ],
       "score": 4,
       "issues": [],
-      "explanation": "BOPGSTB is the correct and primary trade balance series from FRED, showing the difference between exports and imports of goods and services. This directly answers the user's query for trade balance data.",
-      "suggested_fix": "Could potentially include BOPGSTB (goods and services) alongside BOPGTB (goods only) to provide both headline and core trade balance measures, giving users a more complete view of trade dynamics."
+      "explanation": "Good: Single series with 58 data points"
     },
     {
       "query": "imports",
+      "plan_found": true,
       "series": [
         "IMPGS"
       ],
@@ -182,15 +373,23 @@
         "IMPGS"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "IMPGS",
+          "name": "IMPGS",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 4123.367
+        }
       ],
-      "explanation": "IMPGS (Imports of Goods and Services) is correct for the query, but showing only one series provides limited context. For imports analysis, it would be more useful to see goods vs services breakdown or compare with exports.",
-      "suggested_fix": "Add IMPGSC1 (Real Imports of Goods and Services) for inflation-adjusted view, or include IMPGS (goods and services), IEAGS (goods only), and IEASS (services only) for better breakdown"
+      "score": 4,
+      "issues": [],
+      "explanation": "Good: Single series with 19 data points"
     },
     {
       "query": "exports",
+      "plan_found": true,
       "series": [
         "EXPGS"
       ],
@@ -198,13 +397,23 @@
         "EXPGS"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "EXPGS",
+          "name": "EXPGS",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 3361.92
+        }
+      ],
       "score": 4,
       "issues": [],
-      "explanation": "EXPGS (Exports of Goods and Services) is the standard and most comprehensive measure of U.S. exports, making it highly appropriate for a general 'exports' query. Year-over-year view is suitable for showing export growth trends.",
-      "suggested_fix": "Could potentially add EXPGSC1 (real exports) to show volume changes alongside nominal values, but EXPGS alone adequately answers the query"
+      "explanation": "Good: Single series with 19 data points"
     },
     {
       "query": "china trade",
+      "plan_found": true,
       "series": [
         "IMPCH",
         "EXPCH"
@@ -214,13 +423,31 @@
         "EXPCH"
       ],
       "show_yoy": false,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "IMPCH",
+          "name": "Imports from China",
+          "success": true,
+          "data_points": 58,
+          "latest_date": "2025-10-01",
+          "latest_value": 23887.245543
+        },
+        {
+          "series_id": "EXPCH",
+          "name": "EXPCH",
+          "success": true,
+          "data_points": 58,
+          "latest_date": "2025-10-01",
+          "latest_value": 8950.492697
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Good response showing both US imports from China and US exports to China, which gives a complete picture of bilateral trade. The series are directly relevant to the query.",
-      "suggested_fix": "Could potentially benefit from year-over-year transformation to show growth trends, especially given the volatility in trade data and recent trade tensions between the countries."
+      "explanation": "Excellent: 2 series, 116 total data points"
     },
     {
       "query": "dollar",
+      "plan_found": true,
       "series": [
         "DTWEXBGS"
       ],
@@ -228,15 +455,23 @@
         "DTWEXBGS"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "DTWEXBGS",
+          "name": "DTWEXBGS",
+          "success": true,
+          "data_points": 1244,
+          "latest_date": "2026-01-09",
+          "latest_value": 120.5856
+        }
       ],
-      "explanation": "DTWEXBGS (Trade Weighted U.S. Dollar Index: Broad, Goods and Services) is relevant for a 'dollar' query as it measures dollar strength, but the single-word query is ambiguous and could refer to multiple dollar-related concepts. More context would be helpful.",
-      "suggested_fix": "Include additional dollar-related series such as DGS10 (10-year Treasury rate), DEXUSEU (USD/EUR exchange rate), or DFF (Federal funds rate) to provide broader context for dollar performance and monetary policy"
+      "score": 4,
+      "issues": [],
+      "explanation": "Good: Single series with 1244 data points"
     },
     {
       "query": "exchange rate",
+      "plan_found": true,
       "series": [
         "DTWEXBGS",
         "DEXUSEU",
@@ -248,31 +483,73 @@
         "DEXJPUS"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "DTWEXBGS",
+          "name": "DTWEXBGS",
+          "success": true,
+          "data_points": 1244,
+          "latest_date": "2026-01-09",
+          "latest_value": 120.5856
+        },
+        {
+          "series_id": "DEXUSEU",
+          "name": "DEXUSEU",
+          "success": true,
+          "data_points": 1244,
+          "latest_date": "2026-01-09",
+          "latest_value": 1.1634
+        },
+        {
+          "series_id": "DEXJPUS",
+          "name": "DEXJPUS",
+          "success": true,
+          "data_points": 1244,
+          "latest_date": "2026-01-09",
+          "latest_value": 158.07
+        }
       ],
-      "explanation": "The three series shown (Trade Weighted Dollar Index, EUR/USD, and JPY/USD) are relevant exchange rate data, but the selection is limited. For a general 'exchange rate' query, this covers major currencies but misses other important ones like GBP, CAD, and CNY that would provide better global context.",
-      "suggested_fix": "Add 1-2 more major exchange rates like GBP/USD (DEXUSUK) or CAD/USD (DEXCAUS) to give a more comprehensive view of USD exchange rate movements"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 3 series, 3732 total data points"
     },
     {
       "query": "stock market",
+      "plan_found": true,
       "series": [
-        "SP500"
+        "SP500",
+        "VIXCLS"
       ],
       "series_names": [
-        "S&P 500"
+        "S&P 500",
+        "VIXCLS"
       ],
       "show_yoy": false,
-      "score": 4,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "SP500",
+          "name": "S&P 500",
+          "success": true,
+          "data_points": 1255,
+          "latest_date": "2026-01-16",
+          "latest_value": 6940.01
+        },
+        {
+          "series_id": "VIXCLS",
+          "name": "VIXCLS",
+          "success": true,
+          "data_points": 1281,
+          "latest_date": "2026-01-15",
+          "latest_value": 15.84
+        }
       ],
-      "explanation": "The S&P 500 is the most appropriate single indicator for 'stock market' queries and correctly shows levels rather than YoY changes. However, for a complete stock market picture, it would benefit from additional major indices.",
-      "suggested_fix": "Add Dow Jones Industrial Average (DJIA) and NASDAQ Composite to provide broader market coverage"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 2536 total data points"
     },
     {
       "query": "stocks",
+      "plan_found": true,
       "series": [
         "SP500"
       ],
@@ -280,15 +557,23 @@
         "S&P 500"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "SP500",
+          "name": "S&P 500",
+          "success": true,
+          "data_points": 1255,
+          "latest_date": "2026-01-16",
+          "latest_value": 6940.01
+        }
       ],
-      "explanation": "The S&P 500 is a reasonable response to 'stocks' but is quite limited. The query is very broad and could benefit from additional context like other major indices or market indicators.",
-      "suggested_fix": "Include other major stock indices like NASDAQ Composite (NASDAQCOM) and Dow Jones (DJIA) to provide broader market context, or add VIX for volatility perspective"
+      "score": 4,
+      "issues": [],
+      "explanation": "Good: Single series with 1255 data points"
     },
     {
       "query": "s&p 500",
+      "plan_found": true,
       "series": [
         "SP500"
       ],
@@ -296,13 +581,23 @@
         "S&P 500"
       ],
       "show_yoy": false,
-      "score": 5,
+      "data_results": [
+        {
+          "series_id": "SP500",
+          "name": "S&P 500",
+          "success": true,
+          "data_points": 1255,
+          "latest_date": "2026-01-16",
+          "latest_value": 6940.01
+        }
+      ],
+      "score": 4,
       "issues": [],
-      "explanation": "Perfect response. The user asked for 'S&P 500' and the system returned exactly the right series (SP500) with the correct name. No year-over-year transformation is appropriate since S&P 500 is typically viewed as an index level.",
-      "suggested_fix": null
+      "explanation": "Good: Single series with 1255 data points"
     },
     {
       "query": "sp500",
+      "plan_found": true,
       "series": [
         "SP500"
       ],
@@ -310,43 +605,91 @@
         "S&P 500"
       ],
       "show_yoy": false,
-      "score": 5,
+      "data_results": [
+        {
+          "series_id": "SP500",
+          "name": "S&P 500",
+          "success": true,
+          "data_points": 1255,
+          "latest_date": "2026-01-16",
+          "latest_value": 6940.01
+        }
+      ],
+      "score": 4,
       "issues": [],
-      "explanation": "Perfect response - the user asked for 'sp500' and got exactly that with the S&P 500 index series. The level data is appropriate as users typically want to see the actual index value rather than year-over-year changes when asking about the S&P 500.",
-      "suggested_fix": null
+      "explanation": "Good: Single series with 1255 data points"
     },
     {
       "query": "oil",
+      "plan_found": true,
       "series": [
-        "DCOILWTICO"
+        "DCOILWTICO",
+        "DCOILBRENTEU"
       ],
       "series_names": [
-        "WTI Crude Oil Price"
+        "WTI Crude Oil Price",
+        "DCOILBRENTEU"
       ],
       "show_yoy": false,
-      "score": 4,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "DCOILWTICO",
+          "name": "WTI Crude Oil Price",
+          "success": true,
+          "data_points": 1244,
+          "latest_date": "2026-01-12",
+          "latest_value": 59.39
+        },
+        {
+          "series_id": "DCOILBRENTEU",
+          "name": "DCOILBRENTEU",
+          "success": true,
+          "data_points": 1258,
+          "latest_date": "2026-01-12",
+          "latest_value": 65.4
+        }
       ],
-      "explanation": "WTI Crude Oil Price is the most relevant and commonly referenced oil price series for a general 'oil' query. However, for broader context, Brent crude prices would also be valuable since these are the two main global oil benchmarks.",
-      "suggested_fix": "Add Brent crude oil prices (DCOILBRENTEU) to provide a more complete view of global oil markets"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 2502 total data points"
     },
     {
       "query": "crude oil",
+      "plan_found": true,
       "series": [
-        "DCOILWTICO"
+        "DCOILWTICO",
+        "DCOILBRENTEU"
       ],
       "series_names": [
-        "WTI Crude Oil Price"
+        "WTI Crude Oil Price",
+        "DCOILBRENTEU"
       ],
       "show_yoy": false,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "DCOILWTICO",
+          "name": "WTI Crude Oil Price",
+          "success": true,
+          "data_points": 1244,
+          "latest_date": "2026-01-12",
+          "latest_value": 59.39
+        },
+        {
+          "series_id": "DCOILBRENTEU",
+          "name": "DCOILBRENTEU",
+          "success": true,
+          "data_points": 1258,
+          "latest_date": "2026-01-12",
+          "latest_value": 65.4
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "WTI Crude Oil Price is the most appropriate and widely-used benchmark for crude oil pricing. The series directly answers the user's query with the standard oil price reference.",
-      "suggested_fix": "Could potentially add Brent crude oil price for additional context, as it's another major benchmark, but WTI alone is sufficient for most crude oil price analysis."
+      "explanation": "Excellent: 2 series, 2502 total data points"
     },
     {
       "query": "commodities",
+      "plan_found": true,
       "series": [
         "DCOILWTICO",
         "GOLDAMGBD228NLBM",
@@ -360,12 +703,43 @@
         "PPIACO"
       ],
       "show_yoy": false,
+      "data_results": [
+        {
+          "series_id": "DCOILWTICO",
+          "name": "WTI Crude Oil Price",
+          "success": true,
+          "data_points": 1244,
+          "latest_date": "2026-01-12",
+          "latest_value": 59.39
+        },
+        {
+          "series_id": "GOLDAMGBD228NLBM",
+          "name": "GOLDAMGBD228NLBM",
+          "success": false,
+          "error": "HTTP Error 400: Bad Request"
+        },
+        {
+          "series_id": "GASREGW",
+          "name": "Gas Price",
+          "success": true,
+          "data_points": 260,
+          "latest_date": "2026-01-12",
+          "latest_value": 2.779
+        },
+        {
+          "series_id": "PPIACO",
+          "name": "PPIACO",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 261.556
+        }
+      ],
       "score": 3,
       "issues": [
-        "MISSING_KEY"
+        "NO_DATA:GOLDAMGBD228NLBM"
       ],
-      "explanation": "Shows relevant commodity data with oil, gold, and gas prices, but has unclear series names (GOLDAMGBD228NLBM, PPIACO not properly labeled) and misses other major commodities like agricultural products or metals beyond gold.",
-      "suggested_fix": "Fix series names to show 'Gold Price' and 'Producer Price Index - All Commodities', and consider adding key agricultural or industrial metal commodities for broader representation"
+      "explanation": "Partial: 3/4 series fetched"
     }
   ]
 }

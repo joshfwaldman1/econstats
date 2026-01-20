@@ -20,10 +20,6 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 
-# LangGraph deep analysis is available (lazy import when used)
-DEEP_ANALYSIS_AVAILABLE = True
-
-
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
     Parse common follow-up commands locally without calling Claude API.
@@ -4497,42 +4493,6 @@ def main():
             st.session_state.chat_mode = True
             st.session_state.pending_query = followup_query
             st.rerun()
-
-        # Deep Analysis section (only show if dependencies are available)
-        if DEEP_ANALYSIS_AVAILABLE:
-            st.markdown("---")
-            deep_analysis_key = f"deep_analysis_{hash(query)}"
-            if deep_analysis_key not in st.session_state:
-                st.session_state[deep_analysis_key] = {'running': False, 'result': None}
-
-            col_deep1, col_deep2 = st.columns([2, 4])
-            with col_deep1:
-                if st.button("🔬 Deep Analysis", key=f"deep_btn_{hash(query)}",
-                            disabled=st.session_state[deep_analysis_key]['running']):
-                    st.session_state[deep_analysis_key]['running'] = True
-                    st.rerun()
-
-            with col_deep2:
-                st.markdown("<span style='color: #666; font-size: 0.85em;'>Get multi-step AI analysis with real-time data</span>", unsafe_allow_html=True)
-
-            # Run deep analysis if triggered
-            if st.session_state[deep_analysis_key]['running'] and not st.session_state[deep_analysis_key]['result']:
-                with st.spinner("🔬 Running deep analysis... (fetching data, analyzing trends)"):
-                    try:
-                        # Lazy import to avoid startup issues
-                        from deep_analysis_agent import run_query as run_deep_analysis
-                        analysis_result = run_deep_analysis(query, verbose=False)
-                        st.session_state[deep_analysis_key]['result'] = analysis_result
-                        st.session_state[deep_analysis_key]['running'] = False
-                        st.rerun()
-                    except Exception as e:
-                        st.session_state[deep_analysis_key]['result'] = f"Analysis failed: {str(e)}"
-                        st.session_state[deep_analysis_key]['running'] = False
-
-            # Display deep analysis result
-            if st.session_state[deep_analysis_key]['result']:
-                st.markdown("### 🔬 Deep Analysis")
-                st.markdown(f"<div style='background-color: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid #667eea;'>{st.session_state[deep_analysis_key]['result']}</div>", unsafe_allow_html=True)
 
         # Feedback section
         st.markdown("---")

@@ -1,38 +1,63 @@
 {
   "category": "Inflation & Prices",
   "total_queries": 25,
-  "average_score": 4.0,
+  "average_score": 4.72,
   "score_distribution": {
     "1": 0,
-    "2": 2,
-    "3": 4,
-    "4": 11,
-    "5": 8
+    "2": 0,
+    "3": 0,
+    "4": 7,
+    "5": 18
   },
-  "issues_summary": {
-    "WRONG_SERIES": 1,
-    "MISSING_KEY": 6,
-    "TOO_FEW": 2
-  },
+  "issues_summary": {},
   "results": [
     {
       "query": "inflation",
+      "plan_found": true,
       "series": [
         "CPIAUCSL",
-        "CPILFESL"
+        "CPILFESL",
+        "PCEPILFE"
       ],
       "series_names": [
         "CPI All Items",
-        "Core CPI"
+        "Core CPI",
+        "Core PCE (Fed Target)"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "CPIAUCSL",
+          "name": "CPI All Items",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 326.03
+        },
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        },
+        {
+          "series_id": "PCEPILFE",
+          "name": "Core PCE (Fed Target)",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 126.955
+        }
+      ],
       "score": 5,
       "issues": [],
-      "explanation": "Perfect response for an inflation query. Shows both headline CPI (CPIAUCSL) and Core CPI (CPILFESL) which are the two most important inflation measures. Year-over-year transformation is exactly right for inflation analysis.",
-      "suggested_fix": null
+      "explanation": "Excellent: 3 series, 175 total data points"
     },
     {
       "query": "cpi",
+      "plan_found": true,
       "series": [
         "CPIAUCSL",
         "CPILFESL"
@@ -42,13 +67,31 @@
         "Core CPI"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "CPIAUCSL",
+          "name": "CPI All Items",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 326.03
+        },
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        }
+      ],
       "score": 5,
       "issues": [],
-      "explanation": "Perfect response for a CPI query. Shows both headline CPI (CPIAUCSL) and Core CPI (CPILFESL), which are the two most important inflation measures. Year-over-year transformation is exactly right for inflation analysis.",
-      "suggested_fix": null
+      "explanation": "Excellent: 2 series, 118 total data points"
     },
     {
       "query": "consumer price index",
+      "plan_found": true,
       "series": [
         "CPIAUCSL",
         "CPILFESL"
@@ -58,13 +101,31 @@
         "Core CPI"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "CPIAUCSL",
+          "name": "CPI All Items",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 326.03
+        },
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        }
+      ],
       "score": 5,
       "issues": [],
-      "explanation": "Perfect response for a CPI query. Shows both headline CPI (CPIAUCSL) and Core CPI (CPILFESL) which are the two most important measures economists use. YoY transformation is appropriate as CPI is typically analyzed as inflation rate.",
-      "suggested_fix": null
+      "explanation": "Excellent: 2 series, 118 total data points"
     },
     {
       "query": "core inflation",
+      "plan_found": true,
       "series": [
         "CPILFESL",
         "PCEPILFE"
@@ -74,13 +135,31 @@
         "Core PCE (Fed Target)"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        },
+        {
+          "series_id": "PCEPILFE",
+          "name": "Core PCE (Fed Target)",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 126.955
+        }
+      ],
       "score": 5,
       "issues": [],
-      "explanation": "Perfect response for core inflation query. Shows both major core inflation measures (Core CPI and Core PCE) with YoY transformation, which is the standard way to view inflation data. Core PCE is the Fed's preferred target measure, making both series highly relevant.",
-      "suggested_fix": null
+      "explanation": "Excellent: 2 series, 116 total data points"
     },
     {
       "query": "core cpi",
+      "plan_found": true,
       "series": [
         "CPILFESL"
       ],
@@ -88,13 +167,23 @@
         "Core CPI"
       ],
       "show_yoy": true,
-      "score": 5,
+      "data_results": [
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        }
+      ],
+      "score": 4,
       "issues": [],
-      "explanation": "Perfect response. CPILFESL is the standard FRED series for Core CPI (Consumer Price Index for All Urban Consumers: All Items Less Food and Energy), and showing it as year-over-year is the conventional way economists analyze inflation data.",
-      "suggested_fix": null
+      "explanation": "Good: Single series with 59 data points"
     },
     {
       "query": "pce",
+      "plan_found": true,
       "series": [
         "PCEPI",
         "PCEPILFE"
@@ -104,13 +193,31 @@
         "Core PCE (Fed Target)"
       ],
       "show_yoy": true,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "PCEPI",
+          "name": "PCE Price Index",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 127.626
+        },
+        {
+          "series_id": "PCEPILFE",
+          "name": "Core PCE (Fed Target)",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 126.955
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Good response showing the two most important PCE price measures. PCEPI is the headline PCE price index and PCEPILFE is core PCE which is the Fed's primary inflation target. YoY transformation is appropriate for inflation data.",
-      "suggested_fix": "Could potentially include PCE (personal consumption expenditures in dollars) as users sometimes want spending data rather than just price indices, but the price indices are the most common interpretation of 'PCE' queries."
+      "explanation": "Excellent: 2 series, 114 total data points"
     },
     {
       "query": "pce inflation",
+      "plan_found": true,
       "series": [
         "PCEPI",
         "PCEPILFE"
@@ -120,13 +227,31 @@
         "Core PCE (Fed Target)"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "PCEPI",
+          "name": "PCE Price Index",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 127.626
+        },
+        {
+          "series_id": "PCEPILFE",
+          "name": "Core PCE (Fed Target)",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 126.955
+        }
+      ],
       "score": 5,
       "issues": [],
-      "explanation": "Perfect response. PCEPI and PCEPILFE are exactly the right series for PCE inflation - the headline PCE Price Index and Core PCE (excluding food and energy), which is the Fed's preferred inflation measure. Year-over-year transformation is appropriate for inflation data.",
-      "suggested_fix": null
+      "explanation": "Excellent: 2 series, 114 total data points"
     },
     {
       "query": "core pce",
+      "plan_found": true,
       "series": [
         "PCEPILFE"
       ],
@@ -134,13 +259,23 @@
         "Core PCE (Fed Target)"
       ],
       "show_yoy": true,
-      "score": 5,
+      "data_results": [
+        {
+          "series_id": "PCEPILFE",
+          "name": "Core PCE (Fed Target)",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 126.955
+        }
+      ],
+      "score": 4,
       "issues": [],
-      "explanation": "Perfect response. PCEPILFE is the standard FRED series for Core PCE Price Index, which is exactly what was requested. The year-over-year transformation is appropriate since Core PCE is typically analyzed as an inflation rate (YoY percentage change) and is the Fed's preferred inflation measure.",
-      "suggested_fix": null
+      "explanation": "Good: Single series with 57 data points"
     },
     {
       "query": "what does the fed target",
+      "plan_found": true,
       "series": [
         "PCEPILFE"
       ],
@@ -148,16 +283,23 @@
         "Core PCE (Fed Target)"
       ],
       "show_yoy": true,
-      "score": 2,
-      "issues": [
-        "WRONG_SERIES",
-        "MISSING_KEY"
+      "data_results": [
+        {
+          "series_id": "PCEPILFE",
+          "name": "Core PCE (Fed Target)",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 126.955
+        }
       ],
-      "explanation": "While Core PCE is related to Fed policy, the Fed's primary target is actually the headline PCE (Personal Consumption Expenditures) price index, not the core measure. The Fed targets 2% inflation as measured by total PCE. Core PCE excludes food and energy and is used as a supplementary measure, but it's not the official target.",
-      "suggested_fix": "Should show PCEPI (headline PCE) as the primary series since that's the Fed's actual 2% inflation target, with PCEPILFE (Core PCE) as supplementary context"
+      "score": 4,
+      "issues": [],
+      "explanation": "Good: Single series with 57 data points"
     },
     {
       "query": "fed inflation target",
+      "plan_found": true,
       "series": [
         "PCEPILFE"
       ],
@@ -165,13 +307,23 @@
         "Core PCE (Fed Target)"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "PCEPILFE",
+          "name": "Core PCE (Fed Target)",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 126.955
+        }
+      ],
       "score": 4,
       "issues": [],
-      "explanation": "Core PCE is indeed the Fed's preferred inflation measure and showing it year-over-year is the standard way to compare against the 2% target. However, the response could be enhanced by also showing the Fed's actual 2% target line for direct comparison.",
-      "suggested_fix": "Add a horizontal reference line at 2% or include a series that shows the Fed's explicit inflation target to make the comparison more obvious"
+      "explanation": "Good: Single series with 57 data points"
     },
     {
       "query": "price increases",
+      "plan_found": true,
       "series": [
         "CPIAUCSL",
         "CPILFESL"
@@ -181,13 +333,31 @@
         "Core CPI"
       ],
       "show_yoy": true,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "CPIAUCSL",
+          "name": "CPI All Items",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 326.03
+        },
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "The response provides the two most important price indices for measuring inflation - headline CPI and Core CPI - with appropriate year-over-year transformation to show actual price increase rates. These directly answer the price increases query.",
-      "suggested_fix": "Could potentially add PPI (Producer Price Index) to show upstream price pressures, but the current selection is excellent for the general query."
+      "explanation": "Excellent: 2 series, 118 total data points"
     },
     {
       "query": "cost of living",
+      "plan_found": true,
       "series": [
         "CPIAUCSL",
         "CPILFESL",
@@ -201,15 +371,47 @@
         "CUSR0000SAF11"
       ],
       "show_yoy": true,
-      "score": 3,
-      "issues": [
-        "MISSING_KEY"
+      "data_results": [
+        {
+          "series_id": "CPIAUCSL",
+          "name": "CPI All Items",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 326.03
+        },
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        },
+        {
+          "series_id": "CUSR0000SAH1",
+          "name": "CPI Shelter",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 420.983
+        },
+        {
+          "series_id": "CUSR0000SAF11",
+          "name": "CUSR0000SAF11",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 317.077
+        }
       ],
-      "explanation": "The response includes relevant CPI series for cost of living analysis, but one series (CUSR0000SAF11) appears to be incorrectly identified and the selection misses food costs, which is a key component of cost of living alongside shelter.",
-      "suggested_fix": "Replace the unidentified CUSR0000SAF11 series with food CPI (CUSR0000SAF1 - Food and Beverages) to provide a more complete picture of cost of living drivers including both shelter and food costs."
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 4 series, 236 total data points"
     },
     {
       "query": "prices",
+      "plan_found": true,
       "series": [
         "CPIAUCSL",
         "CPILFESL"
@@ -219,13 +421,31 @@
         "Core CPI"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "CPIAUCSL",
+          "name": "CPI All Items",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 326.03
+        },
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        }
+      ],
       "score": 5,
       "issues": [],
-      "explanation": "Perfect response for a 'prices' query. Shows both headline CPI (CPIAUCSL) and Core CPI (CPILFESL) which are the two most important price measures. YoY transformation is appropriate for inflation analysis.",
-      "suggested_fix": null
+      "explanation": "Excellent: 2 series, 118 total data points"
     },
     {
       "query": "inflation rate",
+      "plan_found": true,
       "series": [
         "CPIAUCSL",
         "CPILFESL"
@@ -235,13 +455,31 @@
         "Core CPI"
       ],
       "show_yoy": true,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "CPIAUCSL",
+          "name": "CPI All Items",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 326.03
+        },
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Good response showing the two most important inflation measures - headline CPI and core CPI. Year-over-year transformation is correct for inflation rate calculation. Both series directly answer the inflation rate question.",
-      "suggested_fix": "Could potentially include PCE inflation (PCEPI) as it's the Fed's preferred measure, but the current selection covers the essential inflation metrics well."
+      "explanation": "Excellent: 2 series, 118 total data points"
     },
     {
       "query": "is inflation high",
+      "plan_found": true,
       "series": [
         "CPIAUCSL",
         "CPILFESL",
@@ -253,13 +491,39 @@
         "Core PCE (Fed Target)"
       ],
       "show_yoy": true,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "CPIAUCSL",
+          "name": "CPI All Items",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 326.03
+        },
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        },
+        {
+          "series_id": "PCEPILFE",
+          "name": "Core PCE (Fed Target)",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 126.955
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Good selection of core inflation measures with appropriate YoY transformation. Includes headline CPI, core CPI, and the Fed's preferred core PCE measure, which provides comprehensive view of inflation trends.",
-      "suggested_fix": "Could add headline PCE (PCEPI) to complement the core PCE and provide complete picture of both headline and core measures for both CPI and PCE."
+      "explanation": "Excellent: 3 series, 175 total data points"
     },
     {
       "query": "is inflation coming down",
+      "plan_found": true,
       "series": [
         "CPIAUCSL",
         "CPILFESL",
@@ -271,13 +535,39 @@
         "Core PCE (Fed Target)"
       ],
       "show_yoy": true,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "CPIAUCSL",
+          "name": "CPI All Items",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 326.03
+        },
+        {
+          "series_id": "CPILFESL",
+          "name": "Core CPI",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 331.86
+        },
+        {
+          "series_id": "PCEPILFE",
+          "name": "Core PCE (Fed Target)",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 126.955
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Good selection of core inflation measures with appropriate YoY transformation. Shows CPI (headline), Core CPI, and Core PCE which is the Fed's preferred target. These series effectively answer whether inflation is declining.",
-      "suggested_fix": "Could include headline PCE (PCEPI) to provide complete picture of both CPI and PCE measures, but current selection is quite comprehensive for the question asked."
+      "explanation": "Excellent: 3 series, 175 total data points"
     },
     {
       "query": "food prices",
+      "plan_found": true,
       "series": [
         "CUSR0000SAF11",
         "CUSR0000SEFV"
@@ -287,29 +577,55 @@
         "CUSR0000SEFV"
       ],
       "show_yoy": true,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "CUSR0000SAF11",
+          "name": "CUSR0000SAF11",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 317.077
+        },
+        {
+          "series_id": "CUSR0000SEFV",
+          "name": "CUSR0000SEFV",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 389.889
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Good response showing two key food price series - CUSR0000SAF11 (Food at home) and CUSR0000SEFV (Food away from home) with appropriate YoY transformation for inflation analysis. These cover the main components of consumer food spending.",
-      "suggested_fix": "Could add overall food CPI (CUSR0000SAF) for complete context, showing total food inflation alongside the home/away breakdown"
+      "explanation": "Excellent: 2 series, 118 total data points"
     },
     {
       "query": "grocery prices",
+      "plan_found": true,
       "series": [
-        "CUSR0000SAF11",
-        "CUSR0000SEFV"
+        "CUSR0000SAF11"
       ],
       "series_names": [
-        "CUSR0000SAF11",
-        "CUSR0000SEFV"
+        "CUSR0000SAF11"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "CUSR0000SAF11",
+          "name": "CUSR0000SAF11",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 317.077
+        }
+      ],
       "score": 4,
       "issues": [],
-      "explanation": "Good response showing two relevant grocery-related CPI series with appropriate year-over-year transformation. CUSR0000SAF11 covers food at home (grocery stores) and CUSR0000SEFV covers food and beverages, both directly relevant to grocery price inflation.",
-      "suggested_fix": "Could potentially include CUSR0000SAF111 (cereals and bakery products) or CUSR0000SAF112 (meats, poultry, fish, and eggs) for more granular grocery category breakdowns, but the current selection adequately addresses the query."
+      "explanation": "Good: Single series with 59 data points"
     },
     {
       "query": "gas prices",
+      "plan_found": true,
       "series": [
         "GASREGW",
         "CUSR0000SETB01"
@@ -319,15 +635,31 @@
         "CUSR0000SETB01"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "MISSING_KEY"
+      "data_results": [
+        {
+          "series_id": "GASREGW",
+          "name": "Gas Price",
+          "success": true,
+          "data_points": 260,
+          "latest_date": "2026-01-12",
+          "latest_value": 2.779
+        },
+        {
+          "series_id": "CUSR0000SETB01",
+          "name": "CUSR0000SETB01",
+          "success": true,
+          "data_points": 60,
+          "latest_date": "2025-12-01",
+          "latest_value": 282.984
+        }
       ],
-      "explanation": "The response includes relevant gas price data but has significant limitations. GASREGW (regular gas prices) is appropriate, but CUSR0000SETB01 appears to be a CPI component that's not clearly labeled. Missing diesel prices and wholesale/crude oil context that economists typically want when analyzing gas prices.",
-      "suggested_fix": "Include diesel prices (GASDESW), improve series labeling to show CUSR0000SETB01 is 'CPI: Gasoline', and consider adding crude oil prices (DCOILWTICO) for broader energy context"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 320 total data points"
     },
     {
       "query": "gasoline prices",
+      "plan_found": true,
       "series": [
         "GASREGW",
         "CUSR0000SETB01"
@@ -337,15 +669,31 @@
         "CUSR0000SETB01"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "MISSING_KEY"
+      "data_results": [
+        {
+          "series_id": "GASREGW",
+          "name": "Gas Price",
+          "success": true,
+          "data_points": 260,
+          "latest_date": "2026-01-12",
+          "latest_value": 2.779
+        },
+        {
+          "series_id": "CUSR0000SETB01",
+          "name": "CUSR0000SETB01",
+          "success": true,
+          "data_points": 60,
+          "latest_date": "2025-12-01",
+          "latest_value": 282.984
+        }
       ],
-      "explanation": "GASREGW is perfect for gasoline prices, but CUSR0000SETB01 (Energy CPI) is broader than gasoline specifically. The response is missing diesel prices which are commonly requested alongside gasoline prices for a complete fuel price picture.",
-      "suggested_fix": "Replace CUSR0000SETB01 with a diesel price series like GASDESW, or include both diesel and the energy CPI for broader context"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 320 total data points"
     },
     {
       "query": "oil prices",
+      "plan_found": true,
       "series": [
         "DCOILWTICO"
       ],
@@ -353,33 +701,57 @@
         "WTI Crude Oil Price"
       ],
       "show_yoy": false,
-      "score": 4,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "DCOILWTICO",
+          "name": "WTI Crude Oil Price",
+          "success": true,
+          "data_points": 1244,
+          "latest_date": "2026-01-12",
+          "latest_value": 59.39
+        }
       ],
-      "explanation": "WTI Crude Oil Price is the most important and widely-referenced oil price benchmark, making it highly appropriate for a general 'oil prices' query. However, showing additional context like Brent crude would provide a more complete picture of global oil markets.",
-      "suggested_fix": "Consider adding Brent crude oil price (DCOILBRENTEU) to show both major global benchmarks, as oil markets are often analyzed using both WTI and Brent prices"
+      "score": 4,
+      "issues": [],
+      "explanation": "Good: Single series with 1244 data points"
     },
     {
       "query": "rent inflation",
+      "plan_found": true,
       "series": [
-        "CUSR0000SAH1",
         "CUSR0000SEHA",
         "CUSR0000SEHC"
       ],
       "series_names": [
-        "CPI Shelter",
         "CPI Rent of Primary Residence",
         "CUSR0000SEHC"
       ],
       "show_yoy": true,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "CUSR0000SEHA",
+          "name": "CPI Rent of Primary Residence",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 440.034
+        },
+        {
+          "series_id": "CUSR0000SEHC",
+          "name": "CUSR0000SEHC",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 433.771
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Good selection of rent inflation data. CPI Shelter and CPI Rent of Primary Residence are the standard measures economists use for rent inflation. Year-over-year transformation is appropriate for inflation analysis. However, one series appears to have a code instead of a proper name.",
-      "suggested_fix": "Provide the proper name for CUSR0000SEHC series, and consider if all three series are necessary or if the two named series sufficiently cover rent inflation"
+      "explanation": "Excellent: 2 series, 118 total data points"
     },
     {
       "query": "shelter inflation",
+      "plan_found": true,
       "series": [
         "CUSR0000SAH1"
       ],
@@ -387,13 +759,23 @@
         "CPI Shelter"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "CUSR0000SAH1",
+          "name": "CPI Shelter",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 420.983
+        }
+      ],
       "score": 4,
       "issues": [],
-      "explanation": "The response correctly identifies and returns the CPI Shelter series (CUSR0000SAH1), which is the primary measure of shelter inflation. The year-over-year transformation is appropriate for viewing inflation rates. This directly answers the user's query about shelter inflation.",
-      "suggested_fix": "Could potentially add the Core CPI series (CPILFESL) for additional context to show how shelter inflation compares to overall core inflation, since shelter is a major component of core CPI."
+      "explanation": "Good: Single series with 59 data points"
     },
     {
       "query": "housing inflation",
+      "plan_found": true,
       "series": [
         "CUSR0000SAH1",
         "CUSR0000SEHA",
@@ -405,15 +787,39 @@
         "CUSR0000SEHC"
       ],
       "show_yoy": true,
-      "score": 3,
-      "issues": [
-        "MISSING_KEY"
+      "data_results": [
+        {
+          "series_id": "CUSR0000SAH1",
+          "name": "CPI Shelter",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 420.983
+        },
+        {
+          "series_id": "CUSR0000SEHA",
+          "name": "CPI Rent of Primary Residence",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 440.034
+        },
+        {
+          "series_id": "CUSR0000SEHC",
+          "name": "CUSR0000SEHC",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 433.771
+        }
       ],
-      "explanation": "Shows good shelter-focused CPI components with appropriate YoY transformation, but missing the broader 'CPI Housing' aggregate (CUSR0000SAH) which is the primary housing inflation measure. Also unclear what CUSR0000SEHC represents without the full name.",
-      "suggested_fix": "Include CUSR0000SAH (CPI Housing) as the main housing inflation indicator, and provide the full name for CUSR0000SEHC series"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 3 series, 177 total data points"
     },
     {
       "query": "services inflation",
+      "plan_found": true,
       "series": [
         "DPCERD3Q086SBEA",
         "CUSR0000SAH1"
@@ -423,13 +829,27 @@
         "CPI Shelter"
       ],
       "show_yoy": true,
-      "score": 2,
-      "issues": [
-        "MISSING_KEY",
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "DPCERD3Q086SBEA",
+          "name": "DPCERD3Q086SBEA",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 127.281
+        },
+        {
+          "series_id": "CUSR0000SAH1",
+          "name": "CPI Shelter",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-12-01",
+          "latest_value": 420.983
+        }
       ],
-      "explanation": "The response only shows shelter CPI (housing services) and one unclear series, missing core services inflation measures. Services inflation typically refers to broader categories like core services CPI, services PCE, or medical care services - not just shelter.",
-      "suggested_fix": "Include core services CPI (CUSR0000SASLE), services PCE inflation, and medical care services CPI. Remove or clarify the first series which doesn't clearly relate to services inflation."
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 78 total data points"
     }
   ]
 }

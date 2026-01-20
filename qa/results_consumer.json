@@ -1,55 +1,77 @@
 {
   "category": "Consumer",
   "total_queries": 16,
-  "average_score": 3.94,
+  "average_score": 4.56,
   "score_distribution": {
     "1": 0,
     "2": 0,
-    "3": 5,
+    "3": 0,
     "4": 7,
-    "5": 4
+    "5": 9
   },
-  "issues_summary": {
-    "MISSING_KEY": 4,
-    "TOO_FEW": 5,
-    "WRONG_YOY": 1
-  },
+  "issues_summary": {},
   "results": [
     {
       "query": "consumer spending",
+      "plan_found": true,
       "series": [
+        "PCE",
         "RSXFS"
       ],
       "series_names": [
-        "Retail Sales"
+        "PCE",
+        "Retail Sales (ex Food Services)"
       ],
-      "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "MISSING_KEY",
-        "TOO_FEW"
+      "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "PCE",
+          "name": "PCE",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 21206.6
+        },
+        {
+          "series_id": "RSXFS",
+          "name": "Retail Sales (ex Food Services)",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 635651.0
+        }
       ],
-      "explanation": "RSXFS (Retail Sales) is relevant to consumer spending but provides a narrow view. Consumer spending encompasses much more than just retail sales, including services which make up the majority of consumption.",
-      "suggested_fix": "Add Personal Consumption Expenditures (PCE) as the primary measure, and consider including services spending data alongside retail sales for a complete picture of consumer spending"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 116 total data points"
     },
     {
       "query": "retail sales",
+      "plan_found": true,
       "series": [
         "RSXFS"
       ],
       "series_names": [
-        "Retail Sales"
+        "Retail Sales (ex Food Services)"
       ],
       "show_yoy": false,
-      "score": 4,
-      "issues": [
-        "WRONG_YOY"
+      "data_results": [
+        {
+          "series_id": "RSXFS",
+          "name": "Retail Sales (ex Food Services)",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 635651.0
+        }
       ],
-      "explanation": "RSXFS is the correct primary retail sales series, but retail sales data is typically analyzed in year-over-year terms to account for seasonal patterns and provide meaningful growth context.",
-      "suggested_fix": "Show the data with year-over-year transformation enabled to provide growth rates rather than raw levels"
+      "score": 4,
+      "issues": [],
+      "explanation": "Good: Single series with 59 data points"
     },
     {
       "query": "consumer sentiment",
+      "plan_found": true,
       "series": [
         "UMCSENT"
       ],
@@ -57,13 +79,23 @@
         "Consumer Sentiment"
       ],
       "show_yoy": false,
-      "score": 5,
+      "data_results": [
+        {
+          "series_id": "UMCSENT",
+          "name": "Consumer Sentiment",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 51.0
+        }
+      ],
+      "score": 4,
       "issues": [],
-      "explanation": "Perfect response. UMCSENT (University of Michigan Consumer Sentiment Index) is the standard and most widely referenced measure of consumer sentiment. It directly answers the query with the exact data requested.",
-      "suggested_fix": null
+      "explanation": "Good: Single series with 59 data points"
     },
     {
       "query": "consumer confidence",
+      "plan_found": true,
       "series": [
         "UMCSENT"
       ],
@@ -71,70 +103,125 @@
         "Consumer Sentiment"
       ],
       "show_yoy": false,
+      "data_results": [
+        {
+          "series_id": "UMCSENT",
+          "name": "Consumer Sentiment",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 51.0
+        }
+      ],
       "score": 4,
       "issues": [],
-      "explanation": "UMCSENT (University of Michigan Consumer Sentiment Index) is the primary and most widely used measure of consumer confidence in the US. It directly answers the user's query and is exactly what most economists would expect to see.",
-      "suggested_fix": "Could potentially add the Conference Board Consumer Confidence Index (CSCICP03USM665S) for comparison, as it's the other major consumer confidence measure, but UMCSENT alone is perfectly adequate."
+      "explanation": "Good: Single series with 59 data points"
     },
     {
       "query": "spending",
+      "plan_found": true,
       "series": [
         "RSXFS",
         "PCEC96"
       ],
       "series_names": [
-        "Retail Sales",
+        "Retail Sales (ex Food Services)",
         "PCEC96"
       ],
       "show_yoy": true,
-      "score": 3,
-      "issues": [
-        "MISSING_KEY",
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "RSXFS",
+          "name": "Retail Sales (ex Food Services)",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 635651.0
+        },
+        {
+          "series_id": "PCEC96",
+          "name": "PCEC96",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 16617.4
+        }
       ],
-      "explanation": "Response shows relevant consumer spending data but is incomplete. Retail Sales and Personal Consumption Expenditures cover important aspects of spending, but the query 'spending' is broad and could benefit from government spending data to provide fuller economic context.",
-      "suggested_fix": "Add government spending series like FGEXPND (Federal Government Expenditures) or SLEXPND (State and Local Government Expenditures) to capture total economic spending beyond just consumer activity"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 116 total data points"
     },
     {
       "query": "consumption",
+      "plan_found": true,
       "series": [
         "PCEC96",
         "RSXFS"
       ],
       "series_names": [
         "PCEC96",
-        "Retail Sales"
+        "Retail Sales (ex Food Services)"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "MISSING_KEY",
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "PCEC96",
+          "name": "PCEC96",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 16617.4
+        },
+        {
+          "series_id": "RSXFS",
+          "name": "Retail Sales (ex Food Services)",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 635651.0
+        }
       ],
-      "explanation": "PCEC96 (real personal consumption expenditures) is the gold standard for consumption data, but retail sales (RSXFS) is more narrow and excludes services. Missing key consumption components like services consumption, and could benefit from showing personal consumption expenditures in current dollars for completeness.",
-      "suggested_fix": "Add personal consumption expenditures services (PCESV96) and consider including nominal PCE (PCEC) to show both real and nominal consumption trends"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 116 total data points"
     },
     {
       "query": "personal spending",
+      "plan_found": true,
       "series": [
         "PCEC96",
         "RSXFS"
       ],
       "series_names": [
         "PCEC96",
-        "Retail Sales"
+        "Retail Sales (ex Food Services)"
       ],
       "show_yoy": true,
-      "score": 3,
-      "issues": [
-        "MISSING_KEY",
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "PCEC96",
+          "name": "PCEC96",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 16617.4
+        },
+        {
+          "series_id": "RSXFS",
+          "name": "Retail Sales (ex Food Services)",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 635651.0
+        }
       ],
-      "explanation": "PCEC96 (Real Personal Consumption Expenditures) is the perfect primary series for personal spending. Retail sales provides useful context but is narrower in scope. However, the response is missing nominal personal consumption expenditures, which would provide important context alongside the real measure.",
-      "suggested_fix": "Add nominal personal consumption expenditures (PCEC) to show both real and nominal spending trends, giving a more complete picture of personal spending patterns"
+      "score": 5,
+      "issues": [],
+      "explanation": "Excellent: 2 series, 116 total data points"
     },
     {
       "query": "consumer",
+      "plan_found": true,
       "series": [
         "UMCSENT",
         "RSXFS",
@@ -142,17 +229,43 @@
       ],
       "series_names": [
         "Consumer Sentiment",
-        "Retail Sales",
+        "Retail Sales (ex Food Services)",
         "Personal Savings Rate"
       ],
       "show_yoy": false,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "UMCSENT",
+          "name": "Consumer Sentiment",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 51.0
+        },
+        {
+          "series_id": "RSXFS",
+          "name": "Retail Sales (ex Food Services)",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 635651.0
+        },
+        {
+          "series_id": "PSAVERT",
+          "name": "Personal Savings Rate",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 4.0
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Good selection of core consumer indicators covering sentiment, spending behavior, and savings patterns. These three series provide a well-rounded view of consumer economic activity.",
-      "suggested_fix": "Could add Consumer Price Index (CPI) or Personal Consumption Expenditures to show the inflation impact on consumers, making it a more complete consumer economic picture."
+      "explanation": "Excellent: 3 series, 175 total data points"
     },
     {
       "query": "michigan consumer sentiment",
+      "plan_found": true,
       "series": [
         "UMCSENT"
       ],
@@ -160,13 +273,23 @@
         "Consumer Sentiment"
       ],
       "show_yoy": false,
-      "score": 5,
+      "data_results": [
+        {
+          "series_id": "UMCSENT",
+          "name": "Consumer Sentiment",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 51.0
+        }
+      ],
+      "score": 4,
       "issues": [],
-      "explanation": "Perfect response. UMCSENT is the official University of Michigan Consumer Sentiment Index, which is exactly what was requested. This is the primary and most important series for Michigan consumer sentiment data.",
-      "suggested_fix": null
+      "explanation": "Good: Single series with 59 data points"
     },
     {
       "query": "savings rate",
+      "plan_found": true,
       "series": [
         "PSAVERT"
       ],
@@ -174,13 +297,23 @@
         "Personal Savings Rate"
       ],
       "show_yoy": false,
-      "score": 5,
+      "data_results": [
+        {
+          "series_id": "PSAVERT",
+          "name": "Personal Savings Rate",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 4.0
+        }
+      ],
+      "score": 4,
       "issues": [],
-      "explanation": "Perfect response. PSAVERT (Personal Savings Rate) is exactly what the user requested when asking for 'savings rate'. This is the standard measure economists use for household savings behavior.",
-      "suggested_fix": null
+      "explanation": "Good: Single series with 57 data points"
     },
     {
       "query": "personal savings",
+      "plan_found": true,
       "series": [
         "PSAVERT"
       ],
@@ -188,51 +321,119 @@
         "Personal Savings Rate"
       ],
       "show_yoy": false,
-      "score": 3,
-      "issues": [
-        "TOO_FEW"
+      "data_results": [
+        {
+          "series_id": "PSAVERT",
+          "name": "Personal Savings Rate",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 4.0
+        }
       ],
-      "explanation": "PSAVERT (Personal Savings Rate) is relevant to personal savings but only shows the rate, not the absolute level. For a complete picture of personal savings, both the rate and dollar amount would be more informative.",
-      "suggested_fix": "Include PSAVE (Personal Saving in billions of dollars) alongside PSAVERT to show both the savings rate and absolute savings levels"
+      "score": 4,
+      "issues": [],
+      "explanation": "Good: Single series with 57 data points"
     },
     {
       "query": "consumer debt",
+      "plan_found": true,
       "series": [
         "TOTALSL",
         "REVOLSL",
-        "NONREVSL"
+        "TDSP"
       ],
       "series_names": [
         "TOTALSL",
         "REVOLSL",
-        "NONREVSL"
+        "TDSP"
       ],
-      "show_yoy": true,
+      "show_yoy": [
+        true,
+        true,
+        false
+      ],
+      "data_results": [
+        {
+          "series_id": "TOTALSL",
+          "name": "TOTALSL",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 5084831.24
+        },
+        {
+          "series_id": "REVOLSL",
+          "name": "REVOLSL",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 1313920.25
+        },
+        {
+          "series_id": "TDSP",
+          "name": "TDSP",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 11.256338
+        }
+      ],
       "score": 5,
       "issues": [],
-      "explanation": "Perfect response for consumer debt query. TOTALSL (total consumer credit), REVOLSL (revolving credit like credit cards), and NONREVSL (non-revolving credit like auto/student loans) comprehensively cover all major categories of consumer debt. YoY transformation is appropriate for analyzing debt growth trends.",
-      "suggested_fix": null
+      "explanation": "Excellent: 3 series, 137 total data points"
     },
     {
       "query": "household debt",
+      "plan_found": true,
       "series": [
         "TOTALSL",
         "REVOLSL",
-        "NONREVSL"
+        "TDSP"
       ],
       "series_names": [
         "TOTALSL",
         "REVOLSL",
-        "NONREVSL"
+        "TDSP"
       ],
-      "show_yoy": true,
-      "score": 4,
+      "show_yoy": [
+        true,
+        true,
+        false
+      ],
+      "data_results": [
+        {
+          "series_id": "TOTALSL",
+          "name": "TOTALSL",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 5084831.24
+        },
+        {
+          "series_id": "REVOLSL",
+          "name": "REVOLSL",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 1313920.25
+        },
+        {
+          "series_id": "TDSP",
+          "name": "TDSP",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 11.256338
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "These three FRED series perfectly capture the core components of household debt: TOTALSL (total consumer credit), REVOLSL (revolving credit like credit cards), and NONREVSL (non-revolving credit like auto loans). The year-over-year transformation is appropriate for showing debt growth trends. The response directly answers the household debt query with the most relevant data.",
-      "suggested_fix": "Could potentially add mortgage debt (HHMSDODNS) since it's typically the largest component of household debt, but the current series cover consumer credit comprehensively."
+      "explanation": "Excellent: 3 series, 137 total data points"
     },
     {
       "query": "credit card debt",
+      "plan_found": true,
       "series": [
         "REVOLSL",
         "DRCCLACBS"
@@ -242,13 +443,31 @@
         "DRCCLACBS"
       ],
       "show_yoy": true,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "REVOLSL",
+          "name": "REVOLSL",
+          "success": true,
+          "data_points": 59,
+          "latest_date": "2025-11-01",
+          "latest_value": 1313920.25
+        },
+        {
+          "series_id": "DRCCLACBS",
+          "name": "DRCCLACBS",
+          "success": true,
+          "data_points": 19,
+          "latest_date": "2025-07-01",
+          "latest_value": 2.98
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Both REVOLSL (revolving consumer credit) and DRCCLACBS (delinquency rate on credit card loans) are highly relevant to credit card debt. REVOLSL shows the outstanding amount of credit card debt, while DRCCLACBS shows the quality/stress in that debt. Year-over-year transformation is appropriate for trend analysis.",
-      "suggested_fix": "Could potentially add charge-off rates (DRCCLACBN) to provide a more complete picture of credit card debt stress, but the current selection covers the core aspects well."
+      "explanation": "Excellent: 2 series, 78 total data points"
     },
     {
       "query": "personal income",
+      "plan_found": true,
       "series": [
         "PI",
         "DSPIC96"
@@ -258,13 +477,31 @@
         "DSPIC96"
       ],
       "show_yoy": true,
-      "score": 4,
+      "data_results": [
+        {
+          "series_id": "PI",
+          "name": "PI",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 26295.2
+        },
+        {
+          "series_id": "DSPIC96",
+          "name": "DSPIC96",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 18040.2
+        }
+      ],
+      "score": 5,
       "issues": [],
-      "explanation": "Good response showing two key personal income measures: PI (total personal income) and DSPIC96 (real disposable personal income). YoY transformation is appropriate for income growth analysis. Both series directly answer the query.",
-      "suggested_fix": "Could include nominal disposable personal income (DSPI) to provide complete picture of both real and nominal disposable income alongside total personal income"
+      "explanation": "Excellent: 2 series, 114 total data points"
     },
     {
       "query": "disposable income",
+      "plan_found": true,
       "series": [
         "DSPIC96"
       ],
@@ -272,10 +509,19 @@
         "DSPIC96"
       ],
       "show_yoy": true,
+      "data_results": [
+        {
+          "series_id": "DSPIC96",
+          "name": "DSPIC96",
+          "success": true,
+          "data_points": 57,
+          "latest_date": "2025-09-01",
+          "latest_value": 18040.2
+        }
+      ],
       "score": 4,
       "issues": [],
-      "explanation": "DSPIC96 (Real Disposable Personal Income) is the correct primary series for disposable income queries. Year-over-year transformation is appropriate for showing growth trends. The response directly answers the user's question with the most relevant data.",
-      "suggested_fix": "Could consider adding nominal disposable income (DSPI) to provide both real and nominal perspectives, but this is minor since real income is typically more analytically useful."
+      "explanation": "Good: Single series with 57 data points"
     }
   ]
 }
