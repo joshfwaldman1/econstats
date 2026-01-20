@@ -859,13 +859,13 @@ SERIES_DB = {
         'cumulative': True,  # Skip "at high" comparisons - levels always grow with population
         'show_absolute_change': True,  # NEVER show as %, always show job changes like "+256,000"
         'change_benchmark': {
-            'breakeven_low': 100,  # in thousands
-            'breakeven_high': 150,
-            'text': "Economists generally estimate the economy needs 100,000-150,000 new jobs per month to keep pace with population growth.",
+            'breakeven_low': 50,  # in thousands - updated for 2020s demographics
+            'breakeven_high': 75,
+            'text': "Due to slowing population and labor force growth, the economy now needs only 50,000-75,000 new jobs per month to keep pace—down from 100K+ historically.",
         },
         'bullets': [
-            'The single most important monthly indicator of labor market health. This is the "jobs number" that moves markets on the first Friday of each month. It counts every worker on a U.S. business payroll outside of farming.',
-            'Context matters: The economy needs roughly 100,000-150,000 new jobs per month just to absorb population growth. Gains above 200,000 signal robust hiring; below 100,000 suggests softening. During recessions, this figure turns sharply negative—the economy lost 800,000+ jobs monthly at the depths of the 2008-09 crisis.'
+            'The single most important monthly indicator of labor market health. This is the "jobs number" that moves markets on the first Friday of each month. It counts wage and salary workers on U.S. non-farm establishment payrolls.',
+            'Context matters: Due to slowing population and labor force growth (aging workforce, lower immigration, declining birth rates), the economy now needs only 50,000-75,000 new jobs per month to keep pace—down from 100K+ historically. Gains above 150,000 signal robust hiring; consistently below 50,000 suggests softening. During recessions, this figure turns sharply negative—800,000+ monthly losses at the depths of 2008-09.'
         ]
     },
     'CES0500000003': {
