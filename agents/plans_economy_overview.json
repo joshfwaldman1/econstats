@@ -7,13 +7,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show total employment and job creation, unemployment rate indicates labor market slack, GDP growth shows the economy's expansion pace, and CPI inflation (year-over-year) reveals price stability. These four indicators capture the complete picture of economic health."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market slack, GDP growth shows the economy's expansion pace, and CPI inflation (year-over-year) reveals price stability."
   },
   "how is the economy doing": {
     "series": [
@@ -23,13 +24,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show total employment, unemployment rate indicates how many Americans are looking for work, GDP growth shows economic expansion, and CPI inflation reveals price pressures. These four cover jobs, growth, and inflation."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates how many Americans are looking for work, GDP growth shows economic expansion, and CPI inflation reveals price pressures."
   },
   "economic overview": {
     "series": [
@@ -39,13 +41,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment and hiring, unemployment rate indicates labor market slack, GDP growth shows economic expansion, and CPI inflation reveals price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market slack, GDP growth shows economic expansion, and CPI inflation reveals price pressures."
   },
   "state of the economy": {
     "series": [
@@ -55,13 +58,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show how many Americans have jobs, unemployment rate reveals how many are looking for work, GDP growth shows economic expansion, and CPI inflation indicates price stability."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals how many are looking for work, GDP growth shows economic expansion, and CPI inflation indicates price stability."
   },
   "is the economy good": {
     "series": [
@@ -71,13 +75,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Strong payroll growth, low unemployment, positive GDP growth, and controlled inflation signal a healthy economy."
+    "explanation": "Jobs come first: Strong monthly job gains, low unemployment, positive GDP growth, and controlled inflation signal a healthy economy."
   },
   "is the economy bad": {
     "series": [
@@ -87,13 +92,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs signal trouble first: Falling payrolls, rising unemployment, negative GDP growth, and extreme inflation indicate problems."
+    "explanation": "Jobs signal trouble first: Negative monthly job changes, rising unemployment, negative GDP growth, and extreme inflation indicate problems."
   },
   "economy today": {
     "series": [
@@ -103,13 +109,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals how many are seeking work, GDP growth shows economic expansion, and CPI inflation indicates price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals how many are seeking work, GDP growth shows economic expansion, and CPI inflation indicates price pressures."
   },
   "current economic conditions": {
     "series": [
@@ -119,13 +126,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment and hiring, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price stability."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price stability."
   },
   "economic health": {
     "series": [
@@ -135,13 +143,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show hiring, unemployment rate reveals labor market slack, GDP growth shows expansion, and inflation indicates price stability. Strong jobs, low unemployment, positive growth, and stable prices mean a healthy economy."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market slack, GDP growth shows expansion, and inflation indicates price stability."
   },
   "how's the economy": {
     "series": [
@@ -151,13 +160,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals job market health, GDP growth shows expansion, and CPI inflation indicates price pressures. If people have jobs and the economy is growing, it's working."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals job market health, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "economy 2024": {
     "series": [
@@ -167,13 +177,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment trends, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "economy 2025": {
     "series": [
@@ -183,13 +194,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price stability."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "us economy": {
     "series": [
@@ -199,13 +211,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals how many Americans are seeking work, GDP growth shows expansion, and CPI inflation indicates price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals how many Americans are seeking work, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "american economy": {
     "series": [
@@ -215,13 +228,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "economic outlook": {
     "series": [
@@ -306,13 +320,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "A 'soft landing' means the Fed slows inflation without causing recession. Jobs come first: Nonfarm payrolls show hiring, unemployment staying low means no major layoffs, GDP growth staying positive means no recession, and inflation declining toward target."
+    "explanation": "A 'soft landing' means the Fed slows inflation without causing recession. Jobs come first: Monthly job gains staying positive, unemployment staying low, GDP growth staying positive, and inflation declining toward target."
   },
   "hard landing": {
     "series": [
@@ -332,13 +347,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price pressures."
   },
   "macroeconomic conditions": {
     "series": [
@@ -348,13 +364,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market health, GDP growth shows expansion, and CPI inflation reveals price stability."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market health, GDP growth shows expansion, and CPI inflation reveals price stability."
   },
   "overall economy": {
     "series": [
@@ -364,13 +381,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "big picture economy": {
     "series": [
@@ -380,13 +398,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "economy summary": {
     "series": [
@@ -396,13 +415,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market health, GDP growth shows expansion, and CPI inflation reveals price stability."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market health, GDP growth shows expansion, and CPI inflation reveals price stability."
   },
   "economic dashboard": {
     "series": [
@@ -412,13 +432,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price pressures."
   },
   "key economic indicators": {
     "series": [
@@ -428,13 +449,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "main economic indicators": {
     "series": [
@@ -444,13 +466,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price pressures."
   },
   "economy at a glance": {
     "series": [
@@ -460,13 +483,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "economic snapshot": {
     "series": [
@@ -476,13 +500,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "economy check": {
     "series": [
@@ -492,13 +517,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "economic status": {
     "series": [
@@ -508,13 +534,14 @@
       "CPIAUCSL"
     ],
     "show_yoy": [
-      true,
+      false,
       false,
       false,
       true
     ],
+    "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market health, GDP growth shows expansion, and CPI inflation reveals price pressures."
+    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market health, GDP growth shows expansion, and CPI inflation reveals price pressures."
   },
   "small business optimism": {
     "series": [
