@@ -64,6 +64,16 @@ SERIES_DB = {
     'FEDFUNDS': {'name': 'Federal Funds Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Board of Governors of the Federal Reserve System'},
     'DGS10': {'name': '10-Year Treasury Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Board of Governors of the Federal Reserve System'},
     'MORTGAGE30US': {'name': '30-Year Mortgage Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Freddie Mac'},
+    # Recession indicators
+    'SAHMREALTIME': {'name': 'Sahm Rule Recession Indicator', 'unit': 'Percentage Points', 'show_yoy': False, 'sa': True, 'source': 'Federal Reserve Bank of St. Louis', 'benchmark': 0.5},
+    'T10Y2Y': {'name': 'Treasury Yield Spread (10Y-2Y)', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Federal Reserve Bank of St. Louis'},
+    'ICSA': {'name': 'Initial Jobless Claims', 'unit': 'Number', 'show_yoy': False, 'sa': True, 'source': 'U.S. Employment and Training Administration'},
+    # Additional employment
+    'CIVPART': {'name': 'Labor Force Participation Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
+    'U6RATE': {'name': 'U-6 Unemployment Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
+    # Inflation
+    'PCEPILFE': {'name': 'Core PCE Inflation', 'unit': 'Index', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
+    'PCEPI': {'name': 'PCE Inflation', 'unit': 'Index', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
 }
 
 
