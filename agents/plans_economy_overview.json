@@ -3,197 +3,225 @@
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show total employment and job creation, unemployment rate indicates labor market slack, and CPI inflation (year-over-year) reveals price stability. Jobs are the most tangible measure of economic health for most Americans—when employers are hiring, the economy is working."
+    "explanation": "Jobs come first: Nonfarm payrolls show total employment and job creation, unemployment rate indicates labor market slack, GDP growth shows the economy's expansion pace, and CPI inflation (year-over-year) reveals price stability. These four indicators capture the complete picture of economic health."
   },
   "how is the economy doing": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show total employment and hiring trends, unemployment rate indicates how many Americans are looking for work, and CPI inflation reveals price pressures. Employment is the most direct measure of economic health that affects everyday life."
+    "explanation": "Jobs come first: Nonfarm payrolls show total employment, unemployment rate indicates how many Americans are looking for work, GDP growth shows economic expansion, and CPI inflation reveals price pressures. These four cover jobs, growth, and inflation."
   },
   "economic overview": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs come first in any economic overview: Nonfarm payrolls show total employment and hiring momentum, unemployment rate indicates labor market slack, and CPI inflation reveals price pressures. These three metrics capture employment health and inflation—the two things that matter most to everyday Americans."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment and hiring, unemployment rate indicates labor market slack, GDP growth shows economic expansion, and CPI inflation reveals price pressures."
   },
   "state of the economy": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are the best measure of economic state: Nonfarm payrolls show how many Americans have jobs and whether employers are hiring, unemployment rate reveals how many are looking for work, and CPI inflation indicates price stability. Employment is the most tangible indicator of economic health."
+    "explanation": "Jobs come first: Nonfarm payrolls show how many Americans have jobs, unemployment rate reveals how many are looking for work, GDP growth shows economic expansion, and CPI inflation indicates price stability."
   },
   "is the economy good": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "To assess whether the economy is 'good,' jobs matter most: Strong payroll growth, low unemployment, and controlled inflation signal a healthy economy. Nonfarm payrolls show hiring trends, unemployment rate reveals job availability, and CPI inflation indicates whether prices are stable."
+    "explanation": "Jobs come first: Strong payroll growth, low unemployment, positive GDP growth, and controlled inflation signal a healthy economy."
   },
   "is the economy bad": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are the clearest signal of economic trouble: Falling payrolls, rising unemployment, and extreme inflation indicate problems. Nonfarm payrolls show whether employers are hiring or laying off, unemployment rate reveals job market weakness, and CPI inflation indicates price pressures hurting purchasing power."
+    "explanation": "Jobs signal trouble first: Falling payrolls, rising unemployment, negative GDP growth, and extreme inflation indicate problems."
   },
   "economy today": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show total employment and recent hiring trends, unemployment rate reveals how many Americans are seeking work, and CPI inflation indicates price pressures. Employment is the most tangible daily measure of economic health."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals how many are seeking work, GDP growth shows economic expansion, and CPI inflation indicates price pressures."
   },
   "current economic conditions": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are the foundation of current conditions: Nonfarm payrolls show total employment and hiring momentum, unemployment rate indicates labor market slack, and CPI inflation reveals price stability. These three capture what matters most to American workers and families."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment and hiring, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price stability."
   },
   "economic health": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are the best barometer of economic health: Nonfarm payrolls show whether employers are hiring, unemployment rate reveals labor market slack, and inflation indicates price stability. A healthy economy means strong job growth, low unemployment, and stable prices."
+    "explanation": "Jobs come first: Nonfarm payrolls show hiring, unemployment rate reveals labor market slack, GDP growth shows expansion, and inflation indicates price stability. Strong jobs, low unemployment, positive growth, and stable prices mean a healthy economy."
   },
   "how's the economy": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs come first: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals job market health, and CPI inflation indicates price pressures. Employment is the most direct answer to 'how's the economy'—if people have jobs, the economy is working."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals job market health, GDP growth shows expansion, and CPI inflation indicates price pressures. If people have jobs and the economy is growing, it's working."
   },
   "economy 2024": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs tell the 2024 story: Nonfarm payrolls show employment trends and hiring momentum, unemployment rate reveals labor market health, and CPI inflation indicates price pressures. Employment growth has been the defining economic narrative."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment trends, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "economy 2025": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are the key to 2025: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals labor market slack, and CPI inflation indicates price stability. The jobs picture will define whether the economy stays strong heading into 2025."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "us economy": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs come first for the US economy: Nonfarm payrolls show total employment and hiring momentum, unemployment rate reveals how many Americans are seeking work, and CPI inflation indicates price pressures. Employment is the most direct measure of economic health."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals how many Americans are seeking work, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "american economy": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs define the American economy: Nonfarm payrolls show total employment, unemployment rate reveals labor market health, and CPI inflation indicates price stability. For American workers and families, jobs are what matter most."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "economic outlook": {
     "series": [
@@ -274,15 +302,17 @@
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "A 'soft landing' means the Fed slows inflation without causing job losses. Jobs are the key evidence: Nonfarm payrolls show whether employers are still hiring, unemployment remaining low means no major layoffs, and inflation declining toward target. The jobs picture defines whether we're achieving a soft landing."
+    "explanation": "A 'soft landing' means the Fed slows inflation without causing recession. Jobs come first: Nonfarm payrolls show hiring, unemployment staying low means no major layoffs, GDP growth staying positive means no recession, and inflation declining toward target."
   },
   "hard landing": {
     "series": [
@@ -298,169 +328,193 @@
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs define economic conditions: Nonfarm payrolls show total employment and hiring trends, unemployment rate indicates labor market slack, and CPI inflation reveals price pressures. Employment is the most tangible indicator of economic conditions for American workers."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price pressures."
   },
   "macroeconomic conditions": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are central to macroeconomic conditions: Nonfarm payrolls show employment levels and hiring momentum, unemployment rate indicates labor market health, and CPI inflation reveals price stability. These capture the employment and inflation picture that defines the macro environment."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market health, GDP growth shows expansion, and CPI inflation reveals price stability."
   },
   "overall economy": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs come first for the overall economy: Nonfarm payrolls show total employment, unemployment rate reveals labor market health, and CPI inflation indicates price stability. Employment is the most direct measure of whether the economy is working for Americans."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "big picture economy": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are the big picture: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals labor market slack, and CPI inflation indicates price pressures. For most Americans, jobs and prices are what define the economy."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "economy summary": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs lead the economy summary: Nonfarm payrolls show employment and hiring, unemployment rate indicates labor market health, and CPI inflation reveals price stability. These three capture what matters most—jobs and inflation."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market health, GDP growth shows expansion, and CPI inflation reveals price stability."
   },
   "economic dashboard": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs top the economic dashboard: Nonfarm payrolls show employment levels and hiring momentum, unemployment rate indicates labor market slack, and CPI inflation reveals price pressures. Employment is the most watched indicator of economic health."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price pressures."
   },
   "key economic indicators": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are the key indicator: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals labor market health, and CPI inflation indicates price stability. Employment is what every economist looks at first."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "main economic indicators": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are the main indicator: Nonfarm payrolls show employment levels and hiring momentum, unemployment rate indicates labor market slack, and CPI inflation reveals price pressures. Employment and inflation are what policymakers, businesses, and markets watch most."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market slack, GDP growth shows expansion, and CPI inflation reveals price pressures."
   },
   "economy at a glance": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs at a glance: Nonfarm payrolls show total employment, unemployment rate reveals labor market slack, and CPI inflation indicates price pressures. Employment is the first thing any economic briefing covers."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "economic snapshot": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs lead the economic snapshot: Nonfarm payrolls show employment and hiring momentum, unemployment rate reveals labor market health, and CPI inflation indicates price stability. Employment is the most direct measure of economic health."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market health, GDP growth shows expansion, and CPI inflation indicates price stability."
   },
   "economy check": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs are the economy check: Nonfarm payrolls show total employment and hiring trends, unemployment rate reveals labor market slack, and CPI inflation indicates price pressures. If jobs are strong, the economy is working."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate reveals labor market slack, GDP growth shows expansion, and CPI inflation indicates price pressures."
   },
   "economic status": {
     "series": [
       "PAYEMS",
       "UNRATE",
+      "A191RO1Q156NBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       true,
       false,
+      false,
       true
     ],
     "combine_chart": false,
-    "explanation": "Jobs define economic status: Nonfarm payrolls show employment levels, unemployment rate indicates labor market health, and CPI inflation reveals price pressures. Employment is the clearest signal of where the economy stands."
+    "explanation": "Jobs come first: Nonfarm payrolls show employment, unemployment rate indicates labor market health, GDP growth shows expansion, and CPI inflation reveals price pressures."
   },
   "small business optimism": {
     "series": [
