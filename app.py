@@ -3500,24 +3500,6 @@ def main():
     if 'messages' not in st.session_state:
         st.session_state.messages = []
 
-    # Quick search buttons - single compact row
-    col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
-    with col1:
-        if st.button("Jobs", width='stretch', key="btn_jobs"):
-            st.session_state.pending_query = "job market"
-    with col2:
-        if st.button("Inflation", width='stretch', key="btn_inflation"):
-            st.session_state.pending_query = "inflation"
-    with col3:
-        if st.button("GDP", width='stretch', key="btn_gdp"):
-            st.session_state.pending_query = "gdp growth"
-    with col4:
-        if st.button("Rates", width='stretch', key="btn_rates"):
-            st.session_state.pending_query = "interest rates"
-    with col5:
-        if st.button("Recession?", width='stretch', key="btn_recession"):
-            st.session_state.pending_query = "are we in a recession"
-
     # Default timeframe - show all available data for full historical context
     years = None
 
@@ -3529,6 +3511,29 @@ def main():
 
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
+        # LANDING PAGE MODE - Quick search buttons in a single compact row
+        col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
+        with col1:
+            if st.button("Jobs", width='stretch', key="btn_jobs"):
+                st.session_state.pending_query = "job market"
+                st.rerun()
+        with col2:
+            if st.button("Inflation", width='stretch', key="btn_inflation"):
+                st.session_state.pending_query = "inflation"
+                st.rerun()
+        with col3:
+            if st.button("GDP", width='stretch', key="btn_gdp"):
+                st.session_state.pending_query = "gdp growth"
+                st.rerun()
+        with col4:
+            if st.button("Rates", width='stretch', key="btn_rates"):
+                st.session_state.pending_query = "interest rates"
+                st.rerun()
+        with col5:
+            if st.button("Recession?", width='stretch', key="btn_recession"):
+                st.session_state.pending_query = "are we in a recession"
+                st.rerun()
+
         # SEARCH BAR MODE - single clean input field (no button needed, Enter submits)
         st.markdown('<div class="search-wrapper">', unsafe_allow_html=True)
         text_query = st.text_input(
@@ -3565,27 +3570,69 @@ def main():
         if not query:
             query = text_query
     else:
-        # CHAT MODE - for follow-up questions
-        # Show chat history
-        for msg in st.session_state.messages:
-            with st.chat_message(msg["role"]):
-                if msg["role"] == "user":
-                    st.write(msg["content"])
-                else:
+        # CHAT MODE - conversational interface
+        # Header with Home button
+        header_col1, header_col2 = st.columns([1, 5])
+        with header_col1:
+            if st.button("🏠 Home", key="home_btn"):
+                st.session_state.chat_mode = False
+                st.session_state.messages = []
+                st.session_state.last_query = ''
+                st.session_state.last_series = []
+                st.session_state.last_series_data = []
+                st.session_state.last_explanation = ''
+                st.rerun()
+        with header_col2:
+            st.markdown("### EconStats")
+
+        st.divider()
+
+        # Render conversation history with full charts
+        for msg_idx, msg in enumerate(st.session_state.messages):
+            if msg["role"] == "user":
+                with st.chat_message("user"):
+                    st.markdown(msg["content"])
+            else:
+                # Assistant message with summary and charts
+                with st.chat_message("assistant"):
+                    # Show explanation/summary
                     if msg.get("explanation"):
-                        st.markdown(f"**{msg['explanation']}**")
+                        st.markdown(f"<div class='ai-explanation'>{msg['explanation']}</div>", unsafe_allow_html=True)
+
+                    # Render charts from stored series_data
+                    if msg.get("series_data"):
+                        chart_type = msg.get("chart_type", "line")
+                        combine = msg.get("combine", False)
+
+                        # Create charts from stored data
+                        for series_id, dates, values, info in msg["series_data"]:
+                            if not values:
+                                continue
+                            name = info.get('name', info.get('title', series_id))
+
+                            # Create simple line chart
+                            fig = go.Figure()
+                            fig.add_trace(go.Scatter(
+                                x=dates,
+                                y=values,
+                                mode='lines',
+                                name=name,
+                                line=dict(width=2)
+                            ))
+                            fig.update_layout(
+                                title=name,
+                                height=300,
+                                margin=dict(l=40, r=40, t=40, b=40),
+                                showlegend=False
+                            )
+                            st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
 
         # Chat input at the bottom
         if not query:
-            query = st.chat_input("Ask a follow-up question...")
-
-        # Option to exit chat mode
-        if st.button("← New Search", key="exit_chat"):
-            st.session_state.chat_mode = False
-            st.session_state.messages = []
-            st.session_state.last_query = ''
-            st.session_state.last_series = []
-            st.rerun()
+            chat_query = st.chat_input("Ask a follow-up question...")
+            if chat_query:
+                st.session_state.pending_query = chat_query
+                st.rerun()
 
     if query:
         # Add user message to chat history
@@ -3917,7 +3964,22 @@ def main():
         st.session_state.last_combine = combine
         st.session_state.last_explanation = ai_explanation
 
-        # Display response in chat message format
+        # Store assistant message for chat history (with all data needed to re-render charts)
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": query,  # The query this responds to
+            "explanation": ai_explanation,
+            "series_data": series_data,
+            "chart_type": chart_type,
+            "combine": combine,
+            "series_names": series_names_fetched
+        })
+
+        # Activate chat mode and rerun to show chat interface
+        st.session_state.chat_mode = True
+        st.rerun()
+
+        # Display response in chat message format (legacy - kept for fallback)
         with st.chat_message("assistant"):
             # Narrative summary - only render if there's content
             has_narrative_content = ai_explanation or any(values for _, _, values, _ in series_data)
