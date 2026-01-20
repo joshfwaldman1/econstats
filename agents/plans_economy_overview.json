@@ -239,17 +239,17 @@
   },
   "economic outlook": {
     "series": [
-      "USSLIND",
+      "BBKMLEIX",
       "A191RL1Q225SBEA",
       "UNRATE"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "For economic outlook, I'm showing the Leading Economic Index (USSLIND) which is specifically designed to forecast future economic conditions, combined with current Real GDP growth and unemployment rate. The LEI aggregates 10 forward-looking indicators to predict economic direction 3-6 months ahead, while current growth and employment trends provide context for where we stand now relative to the projected path."
+    "explanation": "For economic outlook, I'm showing the BBK Leading Index (BBKMLEIX) from the Chicago Fed, which forecasts economic growth using 490 monthly indicators. Combined with current Real GDP growth and unemployment rate, this provides both a forward-looking view and current context. Positive BBK readings indicate above-trend growth ahead; negative readings signal slowdown."
   },
   "economic forecast": {
     "series": [
-      "USSLIND",
+      "BBKMLEIX",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -259,7 +259,7 @@
       true
     ],
     "combine_chart": false,
-    "explanation": "For economic forecasting, I'm showing the Leading Economic Index (USSLIND) which is designed to predict turning points in the business cycle 6-9 months ahead, current GDP growth to establish the baseline trajectory, and CPI inflation year-over-year to assess price pressures. The LEI combines 10 forward-looking indicators and is the gold standard for economic forecasting used by the Conference Board and federal agencies."
+    "explanation": "For economic forecasting, I'm showing the BBK Leading Index (BBKMLEIX) which predicts economic turning points using dynamic factor analysis of 490 indicators, current GDP growth to establish the baseline trajectory, and CPI inflation year-over-year to assess price pressures. Persistent negative BBK readings have historically preceded recessions."
   },
   "is there a recession": {
     "series": [
@@ -283,14 +283,14 @@
   },
   "recession risk": {
     "series": [
-      "USSLIND",
+      "BBKMLEIX",
       "T10Y2Y",
       "ICSA",
       "SAHMREALTIME"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Leading Economic Index (USSLIND) predicts turning points 6-9 months ahead - consecutive declines signal recession. Yield curve (T10Y2Y) inversion has preceded every recession since 1970. Initial claims (ICSA) show real-time layoffs - spikes signal trouble. Sahm Rule (SAHMREALTIME) triggers when unemployment rises enough to indicate recession has likely begun."
+    "explanation": "BBK Leading Index (BBKMLEIX) forecasts economic direction - persistent negative readings signal recession risk. Yield curve (T10Y2Y) inversion has preceded every recession since 1970. Initial claims (ICSA) show real-time layoffs - spikes signal trouble. Sahm Rule (SAHMREALTIME) triggers when unemployment rises enough to indicate recession has likely begun."
   },
   "recession indicators": {
     "series": [

@@ -193,12 +193,12 @@
   },
   "leading indicators": {
     "series": [
-      "USSLIND",
+      "BBKMLEIX",
       "CFNAI"
     ],
     "show_yoy": false,
     "combine_chart": true,
-    "explanation": "These are the two premier leading indicators for the US economy. The Leading Index for the US (USSLIND) is designed to predict turning points in the business cycle 6-9 months in advance, while the Chicago Fed National Activity Index (CFNAI) measures economic activity relative to trend and helps identify periods of economic growth above or below trend. Both are forward-looking measures that help anticipate future economic conditions."
+    "explanation": "These are the two premier leading indicators for the US economy. The BBK Leading Index (BBKMLEIX) from the Chicago Fed forecasts economic growth using dynamic factor analysis of 490 indicators, while the Chicago Fed National Activity Index (CFNAI) measures economic activity relative to trend. Both are forward-looking measures that help anticipate future economic conditions - negative readings signal slowdown ahead."
   },
   "economic activity": {
     "series": [

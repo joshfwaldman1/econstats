@@ -71,6 +71,26 @@
     "combine_chart": false,
     "explanation": "Core PCE (Personal Consumption Expenditures Price Index excluding food and energy) is the Federal Reserve's preferred inflation measure and primary target for monetary policy. It strips out volatile food and energy prices to show underlying inflation trends. The Fed targets 2% annual core PCE inflation over the longer run."
   },
+  "cpi vs pce": {
+    "series": ["CPIAUCSL", "PCEPI", "CPILFESL", "PCEPILFE"],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CPI vs PCE comparison:\n\n**Headline:** CPIAUCSL (CPI) vs PCEPI (PCE). CPI is widely reported in news; PCE is what the Fed targets.\n\n**Core:** CPILFESL (Core CPI) vs PCEPILFE (Core PCE). The Fed targets 2% Core PCE specifically.\n\nKey difference: PCE captures substitution effects (if beef prices rise, people buy chicken) and includes employer-paid healthcare. PCE inflation typically runs 0.3-0.5 percentage points below CPI.",
+    "chart_groups": [
+      {"series": ["CPIAUCSL", "PCEPI"], "show_yoy": true, "title": "Headline CPI vs Headline PCE (YoY %)"},
+      {"series": ["CPILFESL", "PCEPILFE"], "show_yoy": true, "title": "Core CPI vs Core PCE (YoY %)"}
+    ]
+  },
+  "pce vs cpi": {
+    "series": ["CPIAUCSL", "PCEPI", "CPILFESL", "PCEPILFE"],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CPI vs PCE comparison:\n\n**Headline:** CPIAUCSL (CPI) vs PCEPI (PCE). CPI is widely reported in news; PCE is what the Fed targets.\n\n**Core:** CPILFESL (Core CPI) vs PCEPILFE (Core PCE). The Fed targets 2% Core PCE specifically.\n\nKey difference: PCE captures substitution effects (if beef prices rise, people buy chicken) and includes employer-paid healthcare. PCE inflation typically runs 0.3-0.5 percentage points below CPI.",
+    "chart_groups": [
+      {"series": ["CPIAUCSL", "PCEPI"], "show_yoy": true, "title": "Headline CPI vs Headline PCE (YoY %)"},
+      {"series": ["CPILFESL", "PCEPILFE"], "show_yoy": true, "title": "Core CPI vs Core PCE (YoY %)"}
+    ]
+  },
   "price increases": {
     "series": [
       "CPIAUCSL",

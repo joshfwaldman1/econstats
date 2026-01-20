@@ -324,7 +324,86 @@ def normalize_query(query: str) -> str:
     q = ' '.join(q.split()).strip()
     return q
 
-def find_query_plan(query: str, threshold: float = 0.85) -> dict | None:
+# Synonym mappings: alternate phrasings -> canonical query terms
+QUERY_SYNONYMS = {
+    # Unemployment synonyms
+    'jobless rate': 'unemployment',
+    'joblessness': 'unemployment',
+    'out of work': 'unemployment',
+    'unemployment rate': 'unemployment',
+    'u3': 'unemployment',
+    'u6': 'u6 unemployment',
+
+    # Inflation synonyms
+    'price increases': 'inflation',
+    'cost of living': 'inflation',
+    'consumer prices': 'cpi',
+    'price index': 'cpi',
+    'price growth': 'inflation',
+
+    # Jobs/employment synonyms
+    'job growth': 'jobs',
+    'employment growth': 'jobs',
+    'hiring': 'jobs',
+    'payroll': 'payrolls',
+    'nonfarm payrolls': 'payrolls',
+    'job market': 'labor market',
+    'labour market': 'labor market',
+
+    # GDP synonyms
+    'economic growth': 'gdp',
+    'economy': 'economic outlook',
+    'growth rate': 'gdp growth',
+    'gdp growth rate': 'gdp growth',
+
+    # Interest rate synonyms
+    'fed funds': 'fed funds rate',
+    'federal funds': 'fed funds rate',
+    'interest rates': 'rates',
+    'borrowing costs': 'rates',
+    'mortgage': 'mortgage rates',
+    'home loan rates': 'mortgage rates',
+
+    # Wages synonyms
+    'pay': 'wages',
+    'earnings': 'wages',
+    'salaries': 'wages',
+    'compensation': 'wages',
+    'real wages': 'wages adjusted for inflation',
+    'wage growth': 'wages',
+
+    # Housing synonyms
+    'home prices': 'housing prices',
+    'house prices': 'housing prices',
+    'real estate': 'housing',
+    'property prices': 'housing prices',
+
+    # Other common synonyms
+    'stock market': 'stocks',
+    'equities': 'stocks',
+    's&p': 'sp500',
+    's&p 500': 'sp500',
+    'bond yields': 'treasury yields',
+    'yield curve': 'treasury spread',
+    'recession': 'recession risk',
+    'downturn': 'recession risk',
+    'consumer spending': 'consumption',
+    'retail': 'retail sales',
+}
+
+def apply_synonyms(query: str) -> str:
+    """Apply synonym mappings to normalize query terms."""
+    q = query.lower().strip()
+    # Check for exact match first
+    if q in QUERY_SYNONYMS:
+        return QUERY_SYNONYMS[q]
+    # Check if query contains a synonym phrase
+    for synonym, canonical in QUERY_SYNONYMS.items():
+        if synonym in q:
+            q = q.replace(synonym, canonical)
+    return q
+
+def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
     """
     Find the best matching query plan using normalization and fuzzy matching.
     Returns the plan dict if found, None otherwise.
@@ -336,6 +415,9 @@ def find_query_plan(query: str, threshold: float = 0.85) -> dict | None:
     normalized = normalize_query(query)
     original_lower = query.lower().strip()
 
+    # Apply synonym mappings (e.g., "jobless rate" -> "unemployment")
+    synonym_mapped = apply_synonyms(normalized)
+
     # 1. Exact match on original (fastest)
     if original_lower in QUERY_PLANS:
         return QUERY_PLANS[original_lower]
@@ -344,6 +426,10 @@ def find_query_plan(query: str, threshold: float = 0.85) -> dict | None:
     if normalized in QUERY_PLANS:
         return QUERY_PLANS[normalized]
 
+    # 2b. Exact match on synonym-mapped query
+    if synonym_mapped in QUERY_PLANS:
+        return QUERY_PLANS[synonym_mapped]
+
     # 3. Check synonyms - some plans have a "synonyms" list for alternate names
     for plan_key, plan in QUERY_PLANS.items():
         synonyms = plan.get('synonyms', [])
@@ -351,11 +437,16 @@ def find_query_plan(query: str, threshold: float = 0.85) -> dict | None:
             return plan
         # Also check if query is a fuzzy match to any synonym
         for syn in synonyms:
-            if difflib.SequenceMatcher(None, normalized, syn).ratio() > 0.85:
+            if difflib.SequenceMatcher(None, normalized, syn).ratio() > 0.65:
                 return plan
 
     # 4. Fuzzy match - find closest query in plans
     all_queries = list(QUERY_PLANS.keys())
+
+    # Try matching against synonym-mapped query first
+    matches = difflib.get_close_matches(synonym_mapped, all_queries, n=1, cutoff=threshold)
+    if matches:
+        return QUERY_PLANS[matches[0]]
 
     # Try matching against normalized query
     matches = difflib.get_close_matches(normalized, all_queries, n=1, cutoff=threshold)
@@ -1140,6 +1231,21 @@ SERIES_DB = {
         'bullets': [
             'This is the single most important inflation measure for monetary policy. The Federal Reserve\'s explicit inflation target is 2% on core PCE. Every FOMC statement, press conference, and Summary of Economic Projections references this metric.',
             'When core PCE runs persistently above 2%, the Fed faces pressure to raise interest rates to cool demand. When it runs below 2%, the Fed has room to keep rates low to support employment. Core PCE running at 4-5% in 2022-23 drove the most aggressive Fed rate-hiking cycle in four decades.'
+        ]
+    },
+    'PCE': {
+        'name': 'Personal Consumption Expenditures',
+        'unit': 'Billions of Dollars',
+        'source': 'U.S. Bureau of Economic Analysis',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+        'show_yoy': True,
+        'yoy_name': 'Consumer Spending Growth',
+        'yoy_unit': '% Change YoY',
+        'bullets': [
+            'Personal Consumption Expenditures is the broadest measure of consumer spending in nominal (current dollar) terms. It includes spending on goods and services and represents roughly 70% of GDP.',
+            'This is different from the PCE Price Index (PCEPI) which measures inflation. PCE shows actual spending levels, useful for tracking the size and growth of consumer demand.'
         ]
     },
 
@@ -1975,6 +2081,23 @@ SERIES_DB = {
             'Persistently negative readings have preceded recessions, though false signals do occur. The index is more reliable for predicting slowdowns than for timing the exact onset of recession.'
         ]
     },
+    'BBKMLEIX': {
+        'name': 'Brave-Butters-Kelley Leading Index',
+        'unit': 'Standard Deviations',
+        'source': 'Federal Reserve Bank of Chicago',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'index',
+        'benchmark': {
+            'value': 0.0,
+            'comparison': 'below',
+            'text': "Negative readings signal expected economic slowdown.",
+        },
+        'bullets': [
+            'The BBK Leading Index forecasts economic growth using dynamic factor analysis of 490 monthly indicators. Positive values indicate expected above-trend growth; negative values signal slowdown.',
+            'This index provides a forward-looking view of where the economy is headed over the next several months. Persistent negative readings have historically preceded recessions.'
+        ]
+    },
     'CFNAI': {
         'name': 'Chicago Fed National Activity Index',
         'unit': 'Index',
@@ -2703,11 +2826,58 @@ Keep it to 4-6 concise sentences if multiple series are shown. Do not use bullet
         return original_explanation
 
 
-def generate_clear_analysis(series_id: str, dates: list, values: list, info: dict) -> dict:
-    """Generate clear, plain-language chart analysis.
+# Short descriptions matching how economists actually describe these metrics
+SHORT_DESCRIPTIONS = {
+    # Inflation - economists focus on YoY % change, not index levels
+    'CPIAUCSL': "consumer price inflation; the Fed targets 2%",
+    'CPILFESL': "core inflation excluding volatile food and energy",
+    'PCEPI': "the Fed's preferred inflation measure",
+    'PCEPILFE': "the Fed's 2% inflation target; the most important inflation metric for policy",
+    'CUSR0000SAH1': "shelter costs, the largest CPI component (~1/3 of the basket)",
+    'CUSR0000SAF11': "grocery prices",
+    # Employment - PAYEMS is about monthly gains, not levels
+    'PAYEMS': "monthly job gains; ~100K needed to keep pace with population growth",
+    'UNRATE': "share of the labor force jobless and actively seeking work; ~4-4.5% is full employment",
+    'U6RATE': "broader unemployment including discouraged and underemployed workers",
+    'JTSJOL': "job openings, measuring employer demand for labor",
+    'ICSA': "new unemployment filings, the most timely labor market indicator",
+    'LNS12300060': "prime-age (25-54) employment rate, the cleanest measure of labor market health",
+    'CES0500000003': "average hourly earnings for private workers",
+    'AHETPI': "hourly earnings for production/nonsupervisory workers",
+    'LES1252881600Q': "inflation-adjusted median weekly earnings, showing whether workers are gaining or losing purchasing power",
+    # GDP - quarterly annualized rate, ~2% is trend growth
+    'GDPC1': "real GDP, the broadest measure of economic output",
+    'A191RL1Q225SBEA': "quarterly GDP growth (annualized); ~2% is trend growth",
+    'A191RO1Q156NBEA': "GDP growth vs. a year ago, more stable than quarterly",
+    # Interest Rates
+    'FEDFUNDS': "the Fed's policy rate that influences all borrowing costs",
+    'DGS10': "the benchmark rate for mortgages and long-term borrowing",
+    'DGS2': "reflects market expectations for near-term Fed policy",
+    'T10Y2Y': "yield spread between 10yr and 2yr Treasuries; inversion has historically preceded recessions",
+    'MORTGAGE30US': "determines monthly payments for most homebuyers",
+    'MORTGAGE15US': "15-year mortgage rate, lower than 30-year for faster payoff",
+    # Housing
+    'CSUSHPINSA': "home prices using repeat-sales methodology (the gold standard)",
+    'HOUST': "new construction starts, a leading economic indicator",
+    'EXHOSLUSM495S': "existing home sales volume",
+    'PERMIT': "building permits, signaling future construction activity",
+    # Consumer
+    'UMCSENT': "consumer sentiment; spending drives ~70% of GDP",
+    'PCE': "total consumer spending in dollars",
+    'RSXFS': "retail sales excluding food services",
+    # Leading Indicators
+    'USSLIND': "leading economic index forecasting turning points",
+    'BBKMLEIX': "leading index using 490 indicators to forecast growth",
+    'CFNAI': "current economic activity relative to trend (0 = trend growth)",
+    'SAHMREALTIME': "recession indicator; triggers at 0.5 when recession has likely begun",
+}
 
-    Focuses on clarity over sophistication. Technical terms are explained in parentheticals.
-    Uses simple chart titles (just the metric name).
+
+def generate_clear_analysis(series_id: str, dates: list, values: list, info: dict) -> dict:
+    """Generate concise, plain-language chart bullet.
+
+    Produces a single bullet combining what the metric measures with current value.
+    Example: "measures purchasing power directly. Currently up 1.35% YoY as of Q3 2025."
 
     Args:
         series_id: FRED series ID
@@ -2716,12 +2886,11 @@ def generate_clear_analysis(series_id: str, dates: list, values: list, info: dic
         info: Series metadata dict
 
     Returns:
-        dict with 'title' (simple metric name) and 'bullets' (clear explanations)
+        dict with 'title' (metric name) and 'bullets' (single concise bullet)
     """
     name = info.get('name', info.get('title', series_id))
 
-    # Simple, clean title - just the metric name
-    # Remove redundant suffixes and clean up
+    # Simple, clean title
     title = name
     if info.get('is_yoy'):
         if 'YoY' not in title and 'Year' not in title:
@@ -2736,53 +2905,57 @@ def generate_clear_analysis(series_id: str, dates: list, values: list, info: dic
 
     db_info = SERIES_DB.get(series_id, {})
     data_type = db_info.get('data_type', 'level')
+    frequency = db_info.get('frequency', 'monthly')
 
     # Format latest date
     try:
         latest_date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
-        date_str = latest_date_obj.strftime('%B %Y')
+        if frequency == 'quarterly':
+            quarter = (latest_date_obj.month - 1) // 3 + 1
+            date_str = f"Q{quarter} {latest_date_obj.year}"
+        else:
+            date_str = latest_date_obj.strftime('%B %Y')
     except:
         date_str = latest_date
 
-    # Calculate basic stats
+    # Get short description
+    short_desc = SHORT_DESCRIPTIONS.get(series_id, "")
+
+    # Calculate previous value for change calculations
     prev_value = values[-2] if len(values) >= 2 else latest
-    change_from_prev = latest - prev_value
 
-    yoy_change = None
-    if len(values) >= 13:
-        yoy_change = latest - values[-13]
+    # Format current value based on series type and how economists discuss it
+    is_rate = data_type in ['rate', 'growth_rate'] or 'percent' in unit.lower() or info.get('is_yoy')
 
-    # Generate simple, clear bullets without API call
-    bullets = []
-
-    # Format the current value appropriately
-    if data_type == 'rate' or 'percent' in unit.lower() or 'rate' in name.lower():
-        current_str = f"{latest:.1f}%"
-        if change_from_prev != 0:
-            direction = "up" if change_from_prev > 0 else "down"
-            bullets.append(f"Currently at {current_str} as of {date_str}, {direction} from {prev_value:.1f}% the previous period.")
+    # Special handling for PAYEMS - economists focus on monthly job gains, not levels
+    if series_id == 'PAYEMS':
+        monthly_change = (latest - prev_value) * 1000  # Convert from thousands
+        if monthly_change >= 0:
+            current_part = f"+{monthly_change:,.0f} jobs in {date_str}."
         else:
-            bullets.append(f"Currently at {current_str} as of {date_str}.")
+            current_part = f"{monthly_change:,.0f} jobs in {date_str}."
+    elif is_rate:
+        direction = "up" if latest > 0 else "down" if latest < 0 else "flat"
+        current_part = f"Currently {direction} {abs(latest):.1f}% as of {date_str}."
+    elif data_type == 'spread':
+        if latest < 0:
+            current_part = f"Currently inverted at {latest:.2f} percentage points as of {date_str}."
+        else:
+            current_part = f"Currently at {latest:.2f} percentage points as of {date_str}."
     elif latest >= 1000000:
-        current_str = f"{latest/1000000:.1f} million"
-        bullets.append(f"Currently at {current_str} as of {date_str}.")
+        current_part = f"Currently at {latest/1000000:.1f} million as of {date_str}."
     elif latest >= 1000:
-        current_str = f"{latest/1000:.1f}K" if latest < 100000 else f"{latest:,.0f}"
-        bullets.append(f"Currently at {current_str} as of {date_str}.")
+        current_part = f"Currently at {latest:,.0f} as of {date_str}."
     else:
-        bullets.append(f"Currently at {latest:,.2f} as of {date_str}.")
+        current_part = f"Currently at {latest:.2f} as of {date_str}."
 
-    # Add year-over-year context if available
-    if yoy_change is not None and abs(yoy_change) > 0.001:
-        if data_type == 'rate' or 'percent' in unit.lower():
-            direction = "higher" if yoy_change > 0 else "lower"
-            bullets.append(f"This is {abs(yoy_change):.1f} percentage points {direction} than a year ago.")
-        else:
-            yoy_pct = (yoy_change / abs(values[-13])) * 100 if values[-13] != 0 else 0
-            direction = "higher" if yoy_change > 0 else "lower"
-            bullets.append(f"This is {abs(yoy_pct):.1f}% {direction} than a year ago.")
+    # Combine description + current value into single bullet
+    if short_desc:
+        bullet = f"{short_desc.capitalize().rstrip('.')}. {current_part}"
+    else:
+        bullet = current_part
 
-    return {'title': title, 'bullets': bullets}
+    return {'title': title, 'bullets': [bullet]}
 
 
 # Alias for backward compatibility
@@ -3156,6 +3329,83 @@ def add_recession_shapes(fig, min_date: str, max_date: str):
             )
 
 
+def add_direct_labels(fig, series_data: list, colors: list):
+    """Add direct labels at end of lines (NYT style) instead of legend."""
+    for i, (series_id, dates, values, info) in enumerate(series_data):
+        if not dates or not values:
+            continue
+        name = info.get('name', info.get('title', series_id))
+        # Truncate long names
+        if len(name) > 25:
+            name = name[:22] + '...'
+
+        # Add annotation at the last data point
+        fig.add_annotation(
+            x=dates[-1],
+            y=values[-1],
+            text=f"  {name}",
+            showarrow=False,
+            xanchor='left',
+            font=dict(
+                size=10,
+                color=colors[i % len(colors)],
+            ),
+            bgcolor='rgba(255,255,255,0.8)',
+        )
+
+
+# Key economic events for chart annotations
+ECONOMIC_EVENTS = [
+    # Fed Policy Changes
+    {'date': '2022-03-17', 'label': 'Fed rate hikes begin', 'type': 'fed'},
+    {'date': '2020-03-15', 'label': 'Emergency cut to 0%', 'type': 'fed'},
+    {'date': '2015-12-16', 'label': 'First hike since 2008', 'type': 'fed'},
+    {'date': '2008-12-16', 'label': 'Fed cuts to zero', 'type': 'fed'},
+
+    # Major Crises
+    {'date': '2020-03-11', 'label': 'COVID pandemic', 'type': 'crisis'},
+    {'date': '2008-09-15', 'label': 'Lehman collapse', 'type': 'crisis'},
+
+    # Policy Milestones
+    {'date': '2017-12-22', 'label': 'Tax Cuts Act', 'type': 'policy'},
+    {'date': '2021-03-11', 'label': 'ARP stimulus', 'type': 'policy'},
+]
+
+
+def add_event_annotations(fig, min_date: str, max_date: str, event_types: list = None):
+    """Add key economic event annotations to a chart."""
+    min_dt = datetime.strptime(min_date, '%Y-%m-%d')
+    max_dt = datetime.strptime(max_date, '%Y-%m-%d')
+
+    for event in ECONOMIC_EVENTS:
+        event_dt = datetime.strptime(event['date'], '%Y-%m-%d')
+
+        # Only show if within date range
+        if not (min_dt <= event_dt <= max_dt):
+            continue
+
+        # Filter by event type if specified
+        if event_types and event['type'] not in event_types:
+            continue
+
+        fig.add_annotation(
+            x=event['date'],
+            y=1.0,
+            yref='paper',
+            text=event['label'],
+            showarrow=True,
+            arrowhead=2,
+            arrowsize=0.8,
+            arrowwidth=1,
+            arrowcolor='#999',
+            ax=0,
+            ay=-25,
+            font=dict(size=9, color='#666'),
+            bgcolor='rgba(255,255,255,0.9)',
+            borderpad=2,
+        )
+
+
 def create_chart(series_data: list, combine: bool = False, chart_type: str = 'line') -> go.Figure:
     """Create a Plotly chart with recession shading.
 
@@ -3164,7 +3414,8 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
         combine: Whether to combine all series on one chart
         chart_type: 'line', 'bar', or 'area'
     """
-    colors = ['#0066cc', '#cc3300', '#009933', '#9933cc']
+    # Okabe-Ito colorblind-safe palette
+    colors = ['#0072B2', '#E69F00', '#009E73', '#CC79A7', '#56B4E9', '#D55E00']
 
     all_dates = []
     for _, dates, _, _ in series_data:
@@ -3210,13 +3461,25 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
 
         add_recession_shapes(fig, min_date, max_date)
 
+        # Use direct labels (NYT style) for 2-4 series, legend otherwise
+        use_direct_labels = 2 <= len(series_data) <= 4 and chart_type == 'line'
+        if use_direct_labels:
+            add_direct_labels(fig, series_data, colors)
+
+        # Add event annotations for single-series rate charts
+        if len(series_data) == 1:
+            series_id = series_data[0][0]
+            rate_series = ['FEDFUNDS', 'DFF', 'DGS10', 'DGS2', 'T10Y2Y', 'MORTGAGE30US', 'MORTGAGE15US']
+            if series_id in rate_series:
+                add_event_annotations(fig, min_date, max_date, event_types=['fed'])
+
         unit = series_data[0][3].get('unit', series_data[0][3].get('units', ''))
         fig.update_layout(
             template='plotly_white',
             hovermode='x unified',
-            showlegend=len(series_data) > 1,
+            showlegend=len(series_data) > 1 and not use_direct_labels,
             legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
-            margin=dict(l=60, r=20, t=20, b=60),
+            margin=dict(l=60, r=100 if use_direct_labels else 20, t=20, b=60),
             yaxis_title=unit[:30] if len(unit) > 30 else unit,
             xaxis=dict(
                 tickformat='%Y',
@@ -3760,13 +4023,13 @@ def main():
                                     title_parts = [info.get('name', sid)[:40] for sid, _, _, info in group_data]
                                     st.markdown(f"**{' vs '.join(title_parts)}**")
 
-                                # Goldman-style bullets for each series in group
+                                # Concise bullet for each series in group
                                 for sid, d, v, i in group_data:
-                                    goldman_analysis = generate_goldman_style_analysis(sid, d, v, i)
-                                    goldman_bullets = goldman_analysis.get('bullets', [])
-                                    series_name = goldman_analysis.get('title', i.get('name', sid))[:40]
-                                    if goldman_bullets:
-                                        st.markdown(f"- **{series_name}:** {goldman_bullets[0]}")
+                                    analysis = generate_goldman_style_analysis(sid, d, v, i)
+                                    bullets = analysis.get('bullets', [])
+                                    series_name = analysis.get('title', i.get('name', sid))[:40]
+                                    if bullets:
+                                        st.markdown(f"- **{series_name}:** {bullets[0]}")
 
                                 # Create combined chart for this group
                                 fig = create_chart(group_data, combine=len(group_data) > 1, chart_type=chart_type)
@@ -3778,11 +4041,11 @@ def main():
                             st.markdown(f"**{' vs '.join(title_parts)}**")
 
                             for sid, d, v, i in series_data:
-                                goldman_analysis = generate_goldman_style_analysis(sid, d, v, i)
-                                goldman_bullets = goldman_analysis.get('bullets', [])
-                                series_name = goldman_analysis.get('title', i.get('name', sid))[:40]
-                                if goldman_bullets:
-                                    st.markdown(f"- **{series_name}:** {goldman_bullets[0]}")
+                                analysis = generate_goldman_style_analysis(sid, d, v, i)
+                                bullets = analysis.get('bullets', [])
+                                series_name = analysis.get('title', i.get('name', sid))[:40]
+                                if bullets:
+                                    st.markdown(f"- **{series_name}:** {bullets[0]}")
 
                             fig = create_chart(series_data, combine=True, chart_type=chart_type)
                             st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_combined")
@@ -3793,14 +4056,13 @@ def main():
                                 if not values:
                                     continue
 
-                                goldman_analysis = generate_goldman_style_analysis(series_id, dates, values, info)
-                                chart_title = goldman_analysis.get('title', info.get('name', series_id))
-                                goldman_bullets = goldman_analysis.get('bullets', [])
+                                analysis = generate_goldman_style_analysis(series_id, dates, values, info)
+                                chart_title = analysis.get('title', info.get('name', series_id))
+                                bullets = analysis.get('bullets', [])
 
                                 st.markdown(f"**{chart_title}**")
-                                for bullet in goldman_bullets:
-                                    if bullet and bullet.strip():
-                                        st.markdown(f"- {bullet}")
+                                if bullets:
+                                    st.markdown(f"- {bullets[0]}")
 
                                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                                 st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
@@ -4586,13 +4848,13 @@ def main():
                 # Render title using native Streamlit (more reliable)
                 st.markdown(f"**{chart_title}**")
 
-                # Generate Goldman-style bullets for each series
+                # Generate concise bullet for each series
                 for sid, d, v, i in group_data:
-                    goldman_analysis = generate_goldman_style_analysis(sid, d, v, i)
-                    goldman_bullets = goldman_analysis.get('bullets', [])
-                    series_name = goldman_analysis.get('title', i.get('name', sid))[:40]
-                    if goldman_bullets:
-                        st.markdown(f"- **{series_name}:** {goldman_bullets[0]}")
+                    analysis = generate_goldman_style_analysis(sid, d, v, i)
+                    bullets = analysis.get('bullets', [])
+                    series_name = analysis.get('title', i.get('name', sid))[:40]
+                    if bullets:
+                        st.markdown(f"- **{series_name}:** {bullets[0]}")
 
                 # Always combine for groups with multiple series
                 combine_group = len(group_data) > 1
@@ -4618,13 +4880,13 @@ def main():
             # Render title using native Streamlit (more reliable)
             st.markdown(f"**{chart_title}**")
 
-            # Generate Goldman-style bullet points for each series
+            # Generate concise bullet for each series
             for sid, d, v, i in series_data:
-                goldman_analysis = generate_goldman_style_analysis(sid, d, v, i)
-                goldman_bullets = goldman_analysis.get('bullets', [])
-                series_name = goldman_analysis.get('title', i.get('name', sid))[:40]
-                if goldman_bullets:
-                    st.markdown(f"- **{series_name}:** {goldman_bullets[0]}")
+                analysis = generate_goldman_style_analysis(sid, d, v, i)
+                bullets = analysis.get('bullets', [])
+                series_name = analysis.get('title', i.get('name', sid))[:40]
+                if bullets:
+                    st.markdown(f"- **{series_name}:** {bullets[0]}")
 
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
             st.plotly_chart(fig, width='stretch')
