@@ -2703,12 +2703,11 @@ Keep it to 4-6 concise sentences if multiple series are shown. Do not use bullet
         return original_explanation
 
 
-def generate_goldman_style_analysis(series_id: str, dates: list, values: list, info: dict) -> dict:
-    """Generate Goldman Sachs-style chart title and bullet analysis using 3 agent layers.
+def generate_clear_analysis(series_id: str, dates: list, values: list, info: dict) -> dict:
+    """Generate clear, plain-language chart analysis.
 
-    Layer 1: Draft Analyst - Initial Goldman-style title and trend analysis
-    Layer 2: Senior Economist - Refines and adds macro context
-    Layer 3: Chief Economist - Final polish and quality assurance
+    Focuses on clarity over sophistication. Technical terms are explained in parentheticals.
+    Uses simple chart titles (just the metric name).
 
     Args:
         series_id: FRED series ID
@@ -2717,200 +2716,79 @@ def generate_goldman_style_analysis(series_id: str, dates: list, values: list, i
         info: Series metadata dict
 
     Returns:
-        dict with 'title' (Goldman-style headline) and 'bullets' (1-3 analyst insights)
+        dict with 'title' (simple metric name) and 'bullets' (clear explanations)
     """
-    if not ANTHROPIC_API_KEY or not values or len(values) < 2:
-        # Fallback to basic title
-        name = info.get('name', info.get('title', series_id))
-        return {'title': name, 'bullets': []}
-
     name = info.get('name', info.get('title', series_id))
+
+    # Simple, clean title - just the metric name
+    # Remove redundant suffixes and clean up
+    title = name
+    if info.get('is_yoy'):
+        if 'YoY' not in title and 'Year' not in title:
+            title = f"{title} (Year-over-Year Change)"
+
+    if not values or len(values) < 2:
+        return {'title': title, 'bullets': []}
+
     unit = info.get('unit', info.get('units', ''))
     latest = values[-1]
     latest_date = dates[-1]
 
-    # Calculate key statistics
     db_info = SERIES_DB.get(series_id, {})
     data_type = db_info.get('data_type', 'level')
 
-    # Recent trend (last 3 months)
-    if len(values) >= 3:
-        recent_change = values[-1] - values[-3]
-        recent_pct = ((values[-1] - values[-3]) / abs(values[-3])) * 100 if values[-3] != 0 else 0
-    else:
-        recent_change = 0
-        recent_pct = 0
-
-    # Year-over-year
-    if len(values) >= 13:
-        yoy_change = values[-1] - values[-13]
-        yoy_pct = ((values[-1] - values[-13]) / abs(values[-13])) * 100 if values[-13] != 0 else 0
-    else:
-        yoy_change = 0
-        yoy_pct = 0
-
-    # Historical context
-    max_val = max(values)
-    min_val = min(values)
-    max_idx = values.index(max_val)
-    min_idx = values.index(min_val)
-
     # Format latest date
     try:
-        from datetime import datetime
         latest_date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
         date_str = latest_date_obj.strftime('%B %Y')
     except:
         date_str = latest_date
 
-    # Get educational context from SERIES_DB
-    static_bullets = db_info.get('bullets', [])
-    educational_context = static_bullets[0] if static_bullets else ""
+    # Calculate basic stats
+    prev_value = values[-2] if len(values) >= 2 else latest
+    change_from_prev = latest - prev_value
 
-    # Build data context for agents
-    data_context = f"""
-Series: {name}
-Series ID: {series_id}
-Data Type: {data_type}
-Unit: {unit}
+    yoy_change = None
+    if len(values) >= 13:
+        yoy_change = latest - values[-13]
 
-Current Value: {latest:,.2f} as of {date_str}
-Recent 3-month change: {recent_change:+,.2f} ({recent_pct:+.1f}%)
-Year-over-year change: {yoy_change:+,.2f} ({yoy_pct:+.1f}%)
+    # Generate simple, clear bullets without API call
+    bullets = []
 
-Historical range: Low of {min_val:,.2f} (at index {min_idx}) to High of {max_val:,.2f} (at index {max_idx})
-Total data points: {len(values)}
+    # Format the current value appropriately
+    if data_type == 'rate' or 'percent' in unit.lower() or 'rate' in name.lower():
+        current_str = f"{latest:.1f}%"
+        if change_from_prev != 0:
+            direction = "up" if change_from_prev > 0 else "down"
+            bullets.append(f"Currently at {current_str} as of {date_str}, {direction} from {prev_value:.1f}% the previous period.")
+        else:
+            bullets.append(f"Currently at {current_str} as of {date_str}.")
+    elif latest >= 1000000:
+        current_str = f"{latest/1000000:.1f} million"
+        bullets.append(f"Currently at {current_str} as of {date_str}.")
+    elif latest >= 1000:
+        current_str = f"{latest/1000:.1f}K" if latest < 100000 else f"{latest:,.0f}"
+        bullets.append(f"Currently at {current_str} as of {date_str}.")
+    else:
+        bullets.append(f"Currently at {latest:,.2f} as of {date_str}.")
 
-Educational context: {educational_context}
-"""
+    # Add year-over-year context if available
+    if yoy_change is not None and abs(yoy_change) > 0.001:
+        if data_type == 'rate' or 'percent' in unit.lower():
+            direction = "higher" if yoy_change > 0 else "lower"
+            bullets.append(f"This is {abs(yoy_change):.1f} percentage points {direction} than a year ago.")
+        else:
+            yoy_pct = (yoy_change / abs(values[-13])) * 100 if values[-13] != 0 else 0
+            direction = "higher" if yoy_change > 0 else "lower"
+            bullets.append(f"This is {abs(yoy_pct):.1f}% {direction} than a year ago.")
 
-    url = 'https://api.anthropic.com/v1/messages'
-    headers = {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-    }
+    return {'title': title, 'bullets': bullets}
 
-    # LAYER 1: Draft Analyst
-    layer1_prompt = f"""You are a junior economic analyst at Goldman Sachs drafting chart titles and bullets.
 
-Given this economic data:
-{data_context}
-
-Create:
-1. A Goldman Sachs-style chart TITLE that includes the metric name AND a directional/suggestive phrase based on recent trend. Examples:
-   - "Unemployment edges higher to 4.4%"
-   - "Inflation continues steady descent toward 2%"
-   - "Job growth remains solid at 200K"
-   - "GDP growth moderates to trend pace"
-   - "Wages outpace inflation for 18th straight month"
-
-2. ONE bullet point (1-2 sentences) describing the recent trend over the past few months like a smart analyst would - not just "up X%" but with context about what this means.
-
-Return JSON only:
-{{"title": "Your Goldman-style title", "bullet": "Your analyst insight"}}"""
-
-    try:
-        # Layer 1 call
-        payload1 = {
-            'model': 'claude-opus-4-5-20251101',
-            'max_tokens': 512,
-            'messages': [{'role': 'user', 'content': layer1_prompt}]
-        }
-        req1 = Request(url, data=json.dumps(payload1).encode('utf-8'), headers=headers, method='POST')
-        with urlopen(req1, timeout=20) as response1:
-            result1 = json.loads(response1.read().decode('utf-8'))
-            content1 = result1['content'][0]['text']
-            if '```json' in content1:
-                content1 = content1.split('```json')[1].split('```')[0]
-            elif '```' in content1:
-                content1 = content1.split('```')[1].split('```')[0]
-            layer1_output = json.loads(content1.strip())
-    except Exception as e:
-        layer1_output = {'title': name, 'bullet': ''}
-
-    # LAYER 2: Senior Economist
-    layer2_prompt = f"""You are a senior economist at Goldman Sachs reviewing a junior analyst's work.
-
-Data context:
-{data_context}
-
-Junior analyst draft:
-Title: {layer1_output.get('title', name)}
-Bullet: {layer1_output.get('bullet', '')}
-
-Your task:
-1. IMPROVE the title if needed - make it punchier, more insightful, or more accurate. Keep the Goldman style.
-2. ENHANCE the bullet - add macro context or historical perspective. What would Jason Furman or a CEA chair say?
-3. ADD a second bullet with additional insight about what this means for the economy or markets.
-
-Return JSON only:
-{{"title": "Your improved title", "bullets": ["Enhanced first bullet", "New second bullet with macro context"]}}"""
-
-    try:
-        # Layer 2 call
-        payload2 = {
-            'model': 'claude-opus-4-5-20251101',
-            'max_tokens': 512,
-            'messages': [{'role': 'user', 'content': layer2_prompt}]
-        }
-        req2 = Request(url, data=json.dumps(payload2).encode('utf-8'), headers=headers, method='POST')
-        with urlopen(req2, timeout=20) as response2:
-            result2 = json.loads(response2.read().decode('utf-8'))
-            content2 = result2['content'][0]['text']
-            if '```json' in content2:
-                content2 = content2.split('```json')[1].split('```')[0]
-            elif '```' in content2:
-                content2 = content2.split('```')[1].split('```')[0]
-            layer2_output = json.loads(content2.strip())
-    except Exception as e:
-        layer2_output = {'title': layer1_output.get('title', name), 'bullets': [layer1_output.get('bullet', '')]}
-
-    # LAYER 3: Chief Economist Final Review
-    layer3_prompt = f"""You are the Chief US Economist at Goldman Sachs doing final review before publication.
-
-Data context:
-{data_context}
-
-Current draft:
-Title: {layer2_output.get('title', name)}
-Bullets: {layer2_output.get('bullets', [])}
-
-Your task - FINAL QUALITY CHECK:
-1. Is the title accurate and appropriately cautious? No overstating trends.
-2. Are the bullets substantive but concise? Cut fluff. Each should add real insight.
-3. Would this pass muster in a Goldman Sachs client report?
-
-Make final edits. Keep 1-2 bullets max (quality over quantity). Return JSON only:
-{{"title": "Final polished title", "bullets": ["Final bullet 1", "Final bullet 2 (optional)"]}}"""
-
-    try:
-        # Layer 3 call
-        payload3 = {
-            'model': 'claude-opus-4-5-20251101',
-            'max_tokens': 512,
-            'messages': [{'role': 'user', 'content': layer3_prompt}]
-        }
-        req3 = Request(url, data=json.dumps(payload3).encode('utf-8'), headers=headers, method='POST')
-        with urlopen(req3, timeout=20) as response3:
-            result3 = json.loads(response3.read().decode('utf-8'))
-            content3 = result3['content'][0]['text']
-            if '```json' in content3:
-                content3 = content3.split('```json')[1].split('```')[0]
-            elif '```' in content3:
-                content3 = content3.split('```')[1].split('```')[0]
-            layer3_output = json.loads(content3.strip())
-
-        return {
-            'title': layer3_output.get('title', name),
-            'bullets': layer3_output.get('bullets', [])[:2]  # Max 2 bullets
-        }
-    except Exception as e:
-        # Return layer 2 output if layer 3 fails
-        return {
-            'title': layer2_output.get('title', name),
-            'bullets': layer2_output.get('bullets', [])[:2]
-        }
+# Alias for backward compatibility
+def generate_goldman_style_analysis(series_id: str, dates: list, values: list, info: dict) -> dict:
+    """Deprecated: Use generate_clear_analysis instead."""
+    return generate_clear_analysis(series_id, dates, values, info)
 
 
 def generate_chart_description(series_id: str, dates: list, values: list, info: dict) -> str:
@@ -3927,18 +3805,44 @@ def main():
                                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                                 st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
 
-        # Suggested follow-up buttons
+        # Suggested follow-up buttons - contextual related questions
         if not query and st.session_state.messages:
             st.markdown("---")
-            st.markdown("**Quick follow-ups:**")
+            st.markdown("**Related questions:**")
+
+            # Determine context from last query to suggest relevant follow-ups
+            last_query_lower = st.session_state.last_query.lower() if st.session_state.last_query else ""
+            last_series = st.session_state.last_series if st.session_state.last_series else []
+
+            # Default follow-ups
+            followup1 = ("Is a recession coming?", "recession risk")
+            followup2 = ("How are wages doing?", "wages")
+
+            # Context-specific follow-ups
+            if any(s in last_series for s in ['PAYEMS', 'UNRATE']) or 'job' in last_query_lower or 'employ' in last_query_lower or 'economy' in last_query_lower:
+                followup1 = ("Is a recession coming?", "recession risk")
+                followup2 = ("Are wages keeping up with inflation?", "wages vs inflation")
+            elif 'inflation' in last_query_lower or 'CPI' in str(last_series) or 'price' in last_query_lower:
+                followup1 = ("Are wages keeping up?", "wages vs inflation")
+                followup2 = ("What's core inflation?", "core inflation")
+            elif 'wage' in last_query_lower or 'earning' in last_query_lower:
+                followup1 = ("How does this compare to inflation?", "wages vs inflation")
+                followup2 = ("What about real wages?", "real wages")
+            elif 'gdp' in last_query_lower or 'growth' in last_query_lower:
+                followup1 = ("Is a recession coming?", "recession risk")
+                followup2 = ("How is the job market?", "jobs")
+            elif 'housing' in last_query_lower or 'home' in last_query_lower:
+                followup1 = ("What are mortgage rates?", "mortgage rates")
+                followup2 = ("How is inflation affecting housing?", "shelter inflation")
+
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
-                if st.button("📅 Last 5 years", key="followup_5yr"):
-                    st.session_state.pending_query = "last 5 years"
+                if st.button(followup1[0], key="followup_1"):
+                    st.session_state.pending_query = followup1[1]
                     st.rerun()
             with btn_col2:
-                if st.button("📊 Year over year", key="followup_yoy"):
-                    st.session_state.pending_query = "year over year"
+                if st.button(followup2[0], key="followup_2"):
+                    st.session_state.pending_query = followup2[1]
                     st.rerun()
 
         # Text input for follow-up (not chat_input to avoid auto-scroll)
