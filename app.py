@@ -3665,9 +3665,28 @@ def main():
                             )
                             st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
 
-        # Chat input at the bottom
+        # Suggested follow-up buttons
+        if not query and st.session_state.messages:
+            st.markdown("---")
+            st.markdown("**Quick follow-ups:**")
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.button("📅 Last 5 years", key="followup_5yr"):
+                    st.session_state.pending_query = "last 5 years"
+                    st.rerun()
+            with btn_col2:
+                if st.button("📊 Year over year", key="followup_yoy"):
+                    st.session_state.pending_query = "year over year"
+                    st.rerun()
+
+        # Text input for follow-up (not chat_input to avoid auto-scroll)
         if not query:
-            chat_query = st.chat_input("Ask a follow-up question...")
+            chat_query = st.text_input(
+                "Follow-up",
+                placeholder="Ask a follow-up question...",
+                label_visibility="collapsed",
+                key="chat_followup_input"
+            )
             if chat_query:
                 st.session_state.pending_query = chat_query
                 st.rerun()
