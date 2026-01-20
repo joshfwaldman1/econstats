@@ -98,7 +98,7 @@
     <!-- Source -->
     <div class="px-6 py-3 bg-slate-50 border-t border-slate-100">
         <p class="text-xs text-slate-400">
-            Source: FRED | Series: {{ chart.series_id }}
+            {{ chart.name }}{% if chart.sa %}, Seasonally Adjusted{% endif %}, {{ chart.source }} via FRED.
         </p>
     </div>
 </div>

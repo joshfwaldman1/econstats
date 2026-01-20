@@ -57,13 +57,13 @@ RECESSIONS = [
 
 # Series metadata (subset for prototype)
 SERIES_DB = {
-    'PAYEMS': {'name': 'Total Nonfarm Payrolls', 'unit': 'Thousands of Persons', 'show_yoy': False},
-    'UNRATE': {'name': 'Unemployment Rate', 'unit': 'Percent', 'show_yoy': False},
-    'A191RO1Q156NBEA': {'name': 'Real GDP Growth', 'unit': 'Percent Change', 'show_yoy': False},
-    'CPIAUCSL': {'name': 'Consumer Price Index', 'unit': 'Index 1982-84=100', 'show_yoy': True},
-    'FEDFUNDS': {'name': 'Federal Funds Rate', 'unit': 'Percent', 'show_yoy': False},
-    'DGS10': {'name': '10-Year Treasury Rate', 'unit': 'Percent', 'show_yoy': False},
-    'MORTGAGE30US': {'name': '30-Year Mortgage Rate', 'unit': 'Percent', 'show_yoy': False},
+    'PAYEMS': {'name': 'Nonfarm Payrolls', 'unit': 'Thousands of Persons', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
+    'UNRATE': {'name': 'Unemployment Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
+    'A191RO1Q156NBEA': {'name': 'Real GDP Growth', 'unit': 'Percent Change', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
+    'CPIAUCSL': {'name': 'Consumer Price Index', 'unit': 'Index 1982-84=100', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
+    'FEDFUNDS': {'name': 'Federal Funds Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Board of Governors of the Federal Reserve System'},
+    'DGS10': {'name': '10-Year Treasury Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Board of Governors of the Federal Reserve System'},
+    'MORTGAGE30US': {'name': '30-Year Mortgage Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Freddie Mac'},
 }
 
 
@@ -239,6 +239,11 @@ def format_chart_data(series_data: list) -> list:
         # Get recessions for this date range
         recessions = get_recessions_in_range(dates[0], dates[-1]) if dates else []
 
+        # Get source and seasonal adjustment info
+        db_info = SERIES_DB.get(sid, {})
+        source = db_info.get('source', 'FRED')
+        sa = db_info.get('sa', False)
+
         charts.append({
             'series_id': sid,
             'name': info.get('name', sid),
@@ -249,6 +254,8 @@ def format_chart_data(series_data: list) -> list:
             'latest_date': latest_date,
             'yoy_change': yoy_change,
             'recessions': recessions,
+            'source': source,
+            'sa': sa,
         })
 
     return charts
