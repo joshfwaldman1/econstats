@@ -4133,11 +4133,24 @@ def main():
         font-weight: 600 !important;
     }
     /* Tight spacing for chat mode */
-    .stApp [data-testid="stVerticalBlock"] > div { gap: 0.3rem !important; }
-    .stApp hr { margin: 8px 0 !important; }
+    .stApp [data-testid="stVerticalBlock"] > div { gap: 0.2rem !important; }
+    .stApp hr { margin: 6px 0 !important; }
     .stApp h3 { margin-top: 0 !important; margin-bottom: 4px !important; font-size: 1rem !important; }
     .stApp ul { margin-top: 0 !important; margin-bottom: 6px !important; }
     .stApp li { margin-bottom: 2px !important; font-size: 0.88rem !important; line-height: 1.4 !important; }
+    /* Remove top padding from main content */
+    .stApp > header { display: none !important; }
+    .stApp [data-testid="stAppViewContainer"] { padding-top: 0 !important; }
+    .stApp .main > div { padding-top: 1rem !important; }
+    section[data-testid="stMain"] > div { padding-top: 0.5rem !important; }
+    /* Metric labels - don't truncate */
+    [data-testid="stMetricLabel"] {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        font-size: 0.65rem !important;
+        line-height: 1.2 !important;
+    }
     h1 {
         font-weight: 700 !important;
         font-style: normal !important;
@@ -4586,15 +4599,7 @@ def main():
             else:
                 # Assistant message with summary and charts - Dashboard layout
                 with st.chat_message("assistant"):
-                    # Summary callout box at top
-                    if msg.get("explanation"):
-                        summary_html = summary_to_bullets(msg['explanation'])
-                        st.markdown(f"""<div class='summary-callout'>
-                            <h3>Summary</h3>
-                            {summary_html}
-                        </div>""", unsafe_allow_html=True)
-
-                    # Key metrics row using st.metric cards
+                    # Key metrics row FIRST (above summary)
                     if msg.get("series_data"):
                         series_data = msg["series_data"]
                         metric_cols = st.columns(min(len(series_data), 4))
@@ -4602,21 +4607,28 @@ def main():
                             if v and len(v) > 0:
                                 latest_val = v[-1]
                                 name = i.get('name', sid)
-                                # Truncate name for metric label
-                                label = name[:28] + "..." if len(name) > 28 else name
                                 unit = i.get('unit', '')
+
+                                # Check if this is a percentage/rate series
+                                is_rate_series = ('percent' in unit.lower() or '%' in unit or
+                                                  'rate' in name.lower() or i.get('is_yoy'))
 
                                 # Calculate delta if we have enough data
                                 delta = None
                                 delta_color = "normal"
                                 if len(v) >= 13:  # YoY comparison
                                     prev_val = v[-13]
-                                    if prev_val != 0:
+                                    if is_rate_series:
+                                        # For rates/percentages, show pp change (not % of %)
+                                        pp_change = latest_val - prev_val
+                                        delta = f"{pp_change:+.1f} pp YoY"
+                                    elif prev_val != 0:
+                                        # For levels, show % change
                                         pct_change = ((latest_val - prev_val) / abs(prev_val)) * 100
                                         delta = f"{pct_change:+.1f}% YoY"
-                                        # For unemployment, down is good
-                                        if 'unemployment' in name.lower() or 'jobless' in name.lower():
-                                            delta_color = "inverse"
+                                    # For unemployment, down is good
+                                    if 'unemployment' in name.lower() or 'jobless' in name.lower():
+                                        delta_color = "inverse"
 
                                 with metric_cols[idx % len(metric_cols)]:
                                     # Format value based on type
@@ -4628,7 +4640,15 @@ def main():
                                         val_str = f"{latest_val/1000:.1f}K"
                                     else:
                                         val_str = f"{latest_val:,.2f}"
-                                    st.metric(label=label, value=val_str, delta=delta, delta_color=delta_color)
+                                    st.metric(label=name, value=val_str, delta=delta, delta_color=delta_color)
+
+                    # Summary callout box (after metrics)
+                    if msg.get("explanation"):
+                        summary_html = summary_to_bullets(msg['explanation'])
+                        st.markdown(f"""<div class='summary-callout'>
+                            <h3>Summary</h3>
+                            {summary_html}
+                        </div>""", unsafe_allow_html=True)
 
                     # Inline related questions - right after summary, before charts
                     if msg_idx == len(st.session_state.messages) - 1:  # Only show for latest message
