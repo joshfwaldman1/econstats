@@ -4086,7 +4086,7 @@ def format_number(n, unit=''):
 
 
 def main():
-    st.set_page_config(page_title="EconStats", page_icon="📊", layout="wide")
+    st.set_page_config(page_title="EconStats", page_icon="", layout="centered")
 
     st.markdown("""
     <style>
@@ -4095,37 +4095,20 @@ def main():
         white-space: nowrap !important;
     }
 
-    /* Hide broken collapse buttons but keep sidebar */
+    /* Hide sidebar entirely and broken collapse buttons */
+    section[data-testid="stSidebar"],
     button[kind="header"],
     [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapsedControl"],
     [data-testid="stSidebarCollapseButton"],
     [data-testid="baseButton-header"],
     .stAppDeployButton,
-    header[data-testid="stHeader"] button {
+    header[data-testid="stHeader"] button,
+    .st-emotion-cache-1dp5vir,
+    .st-emotion-cache-eczf16,
+    .st-emotion-cache-h4xjwg {
         display: none !important;
     }
-
-    /* Sidebar styling */
-    section[data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid #e2e8f0;
-    }
-    section[data-testid="stSidebar"] .stMarkdown h1 {
-        text-align: left !important;
-        font-size: 1.8rem !important;
-    }
-
-    /* Summary box with left border accent */
-    .summary-box {
-        background-color: #ffffff;
-        padding: 20px 24px;
-        border-radius: 10px;
-        border-left: 5px solid #3b82f6;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .summary-box p { margin: 0; line-height: 1.7; }
 
     /* Financial Dashboard Theme - Inter font, professional colors */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -4457,75 +4440,70 @@ def main():
         query = st.session_state.pending_query
         st.session_state.pending_query = None
 
-    # SIDEBAR - Search and Navigation
-    with st.sidebar:
-        st.markdown("# 📊 EconStats")
-        st.markdown("U.S. Economic Data with Context")
-        st.markdown("---")
+    # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
+    if not st.session_state.chat_mode:
+        # LANDING PAGE MODE - Show title
+        st.markdown("<h1 style='margin-bottom: 0;'>EconStats</h1>", unsafe_allow_html=True)
+        st.markdown("<p class='subtitle' style='margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
 
+        # Quick search buttons in a single compact row
+        col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
+        with col1:
+            if st.button("Jobs", width='stretch', key="btn_jobs"):
+                st.session_state.pending_query = "job market"
+                st.rerun()
+        with col2:
+            if st.button("Inflation", width='stretch', key="btn_inflation"):
+                st.session_state.pending_query = "inflation"
+                st.rerun()
+        with col3:
+            if st.button("GDP", width='stretch', key="btn_gdp"):
+                st.session_state.pending_query = "gdp growth"
+                st.rerun()
+        with col4:
+            if st.button("Rates", width='stretch', key="btn_rates"):
+                st.session_state.pending_query = "interest rates"
+                st.rerun()
+        with col5:
+            if st.button("Recession", width='stretch', key="btn_recession"):
+                st.session_state.pending_query = "are we in a recession"
+                st.rerun()
+
+        # SEARCH BAR MODE - single clean input field (no button needed, Enter submits)
+        st.markdown('<div class="search-wrapper">', unsafe_allow_html=True)
         text_query = st.text_input(
             "Search",
-            placeholder="Ask about the economy...",
+            placeholder="Ask about the economy... (press Enter)",
             label_visibility="collapsed",
             key="search_input"
         )
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        # Quick topic buttons
-        st.markdown("**Quick Topics**")
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("Jobs", key="btn_jobs", use_container_width=True):
-                st.session_state.pending_query = "job market"
-                st.rerun()
-            if st.button("GDP", key="btn_gdp", use_container_width=True):
-                st.session_state.pending_query = "gdp growth"
-                st.rerun()
-            if st.button("Recession", key="btn_recession", use_container_width=True):
-                st.session_state.pending_query = "are we in a recession"
-                st.rerun()
-        with col2:
-            if st.button("Inflation", key="btn_inflation", use_container_width=True):
-                st.session_state.pending_query = "inflation"
-                st.rerun()
-            if st.button("Rates", key="btn_rates", use_container_width=True):
-                st.session_state.pending_query = "interest rates"
-                st.rerun()
-            if st.button("Housing", key="btn_housing", use_container_width=True):
-                st.session_state.pending_query = "housing market"
-                st.rerun()
+        # Helper text
+        st.markdown('<p class="helper-text">Ask questions in plain English — we\'ll pull the latest economic data and explain what it means.</p>', unsafe_allow_html=True)
 
-        st.markdown("---")
-        st.markdown("""
-        <small style="color: #64748b;">
-        Ask questions in plain English—we'll pull the latest data and explain what it means.<br><br>
-        Contact <a href="mailto:waldman1@stanford.edu">waldman1@stanford.edu</a> with feedback.
-        </small>
-        """, unsafe_allow_html=True)
+        # Example queries section - only show when no results yet
+        if not st.session_state.last_query:
+            st.markdown('<p class="examples-header">Try these questions</p>', unsafe_allow_html=True)
 
-    if not query:
-        query = text_query
-
-    # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
-    if not st.session_state.chat_mode:
-        # LANDING PAGE - Show example queries when no results
-        if not st.session_state.last_query and not query:
-            st.markdown("## Welcome to EconStats")
-            st.markdown("Search for any economic topic using the sidebar, or try one of these:")
-
+            # Example query buttons in a grid
             example_queries = [
-                ("How is the economy?", "economy"),
-                ("Are wages keeping up with inflation?", "wages vs inflation"),
-                ("Is the labor market cooling off?", "labor market cooling"),
-                ("How tight is the job market?", "job market tightness"),
-                ("Is rent inflation coming down?", "rent inflation"),
-                ("Compare jobs to pre-pandemic", "jobs vs pre-pandemic")
+                "How is the economy?",
+                "Are wages keeping up with inflation?",
+                "Is the labor market cooling off?",
+                "How tight is the job market right now?",
+                "Is rent inflation coming down yet?",
+                "Compare the job market to pre-pandemic"
             ]
-            cols = st.columns(3)
-            for i, (label, eq) in enumerate(example_queries):
-                with cols[i % 3]:
-                    if st.button(label, key=f"example_{i}", use_container_width=True):
+            cols = st.columns(2)
+            for i, eq in enumerate(example_queries):
+                with cols[i % 2]:
+                    if st.button(eq, key=f"example_{i}", width='stretch'):
                         st.session_state.pending_query = eq
                         st.rerun()
+
+        if not query:
+            query = text_query
     else:
         # CHAT MODE - conversational interface
         # Professional header bar
@@ -5834,6 +5812,16 @@ def main():
                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                 st.plotly_chart(fig, width='stretch')
 
+    # Footer - About section at bottom of page
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 20px 0;">
+        <strong>About EconStats</strong><br>
+        Government economic data is free—but too hard for most people to access and understand.
+        EconStats uses AI to help anyone draw insights directly from the numbers.<br><br>
+        Contact <a href="mailto:waldman1@stanford.edu" style="color: #3b82f6;">waldman1@stanford.edu</a> with feedback or ideas.
+    </div>
+    """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
