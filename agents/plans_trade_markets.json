@@ -298,5 +298,63 @@
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "Trade wars primarily impact the overall trade balance (BOPGSTB), imports from China which is the main trade war focus (IMPCH), and the dollar's strength which affects trade competitiveness (DTWEXBGS). These three series capture the key economic dimensions of trade war effects: bilateral trade flows, overall trade performance, and currency impacts."
+  },
+  "us automakers": {
+    "series": [
+      "TOTALSA",
+      "IPG3361T3S",
+      "CES3133600101",
+      "CES4244100001"
+    ],
+    "show_yoy": [false, true, false, false],
+    "combine_chart": false,
+    "explanation": "TOTALSA (Total Vehicle Sales) is the most-watched number for overall auto industry health. IPG3361T3S shows industrial production of motor vehicles and parts. CES3133600101 tracks employment in motor vehicles & parts manufacturing, while CES4244100001 covers auto dealer employment - together showing both the production and retail sides of the industry."
+  },
+  "auto industry": {
+    "series": [
+      "TOTALSA",
+      "IPG3361T3S",
+      "CES3133600101",
+      "CES4244100001"
+    ],
+    "show_yoy": [false, true, false, false],
+    "combine_chart": false,
+    "explanation": "TOTALSA (Total Vehicle Sales) is the most-watched number for overall auto industry health. IPG3361T3S shows industrial production of motor vehicles and parts. CES3133600101 tracks employment in motor vehicles & parts manufacturing, while CES4244100001 covers auto dealer employment - together showing both the production and retail sides of the industry."
+  },
+  "car sales": {
+    "series": [
+      "TOTALSA",
+      "IPG3361T3S"
+    ],
+    "show_yoy": [false, true],
+    "combine_chart": false,
+    "explanation": "TOTALSA (Total Vehicle Sales, seasonally adjusted annual rate in millions of units) is THE key metric for car sales - this is what analysts and media report monthly. IPG3361T3S shows industrial production of motor vehicles and parts, indicating how much automakers are producing to meet that demand."
+  },
+  "auto sales": {
+    "series": [
+      "TOTALSA",
+      "IPG3361T3S"
+    ],
+    "show_yoy": [false, true],
+    "combine_chart": false,
+    "explanation": "TOTALSA (Total Vehicle Sales, seasonally adjusted annual rate in millions of units) is THE key metric for auto sales - this is what analysts and media report monthly. IPG3361T3S shows industrial production of motor vehicles and parts, indicating how much automakers are producing to meet that demand."
+  },
+  "vehicle sales": {
+    "series": [
+      "TOTALSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "TOTALSA (Total Vehicle Sales) shows the seasonally adjusted annual rate of vehicle sales in millions of units. This is the most-watched indicator for the auto industry - when you hear 'auto sales came in at 15 million units', this is the series being cited."
+  },
+  "auto manufacturing": {
+    "series": [
+      "IPG3361T3S",
+      "CES3133600101",
+      "MANEMP"
+    ],
+    "show_yoy": [true, false, false],
+    "combine_chart": false,
+    "explanation": "IPG3361T3S tracks industrial production of motor vehicles and parts (index). CES3133600101 shows employment specifically in motor vehicles & parts manufacturing. MANEMP provides broader manufacturing employment context to see how auto manufacturing compares to the sector overall."
   }
 }
