@@ -6,6 +6,7 @@ A clean, modern frontend for economic data exploration.
 import os
 import json
 import httpx
+import subprocess
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
@@ -16,6 +17,22 @@ from anthropic import Anthropic
 # Initialize
 app = FastAPI(title="EconStats")
 templates = Jinja2Templates(directory="templates")
+
+# Get last git commit timestamp at startup
+def get_last_update_time():
+    try:
+        result = subprocess.run(
+            ['git', 'log', '-1', '--format=%cd', '--date=format:%b %d, %Y %H:%M UTC'],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return None
+
+LAST_UPDATED = get_last_update_time()
+templates.env.globals['last_updated'] = LAST_UPDATED
 
 # API Keys
 FRED_API_KEY = os.environ.get('FRED_API_KEY')

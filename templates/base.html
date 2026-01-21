@@ -75,5 +75,11 @@
 </head>
 <body class="h-full bg-slate-50 text-slate-800">
     {% block content %}{% endblock %}
+
+    {% if last_updated %}
+    <div class="fixed bottom-2 right-3 px-2 py-1 bg-slate-800/80 rounded text-xs text-white/70 pointer-events-none">
+        Updated {{ last_updated }}
+    </div>
+    {% endif %}
 </body>
 </html>
