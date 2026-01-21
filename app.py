@@ -4137,7 +4137,7 @@ def main():
 
     .stApp {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background: #f8fafc;
+        background: #FAF9F6;
         color: #1e293b !important;
     }
     .stApp p, .stApp span, .stApp div, .stApp li, .stApp label {
@@ -4158,42 +4158,43 @@ def main():
     }
     .subtitle { text-align: center; color: #64748b; margin-top: -5px; margin-bottom: 20px; font-size: 1rem; font-weight: 400; }
 
-    /* Summary Section - clean bullet style */
+    /* Summary Section - clean warm style */
     .summary-callout {
         background: transparent;
-        padding: 0 0 20px 0;
-        margin-bottom: 20px;
+        padding: 0 0 24px 0;
+        margin-bottom: 16px;
     }
-    .summary-callout h3 { color: #0f172a !important; margin: 0 0 12px 0; font-size: 1.1rem; font-weight: 600; }
-    .summary-callout p { color: #334155 !important; margin: 0; font-size: 1rem; line-height: 1.7; font-weight: 400; }
-    .summary-callout ul { margin: 0; padding-left: 24px; list-style-type: disc; }
-    .summary-callout li { color: #334155; font-size: 0.95rem; line-height: 1.6; margin-bottom: 6px; padding-left: 4px; }
-    .summary-callout li::marker { color: #64748b; }
+    .summary-callout h3 { color: #292524 !important; margin: 0 0 14px 0; font-size: 1.05rem; font-weight: 600; }
+    .summary-callout p { color: #44403c !important; margin: 0; font-size: 0.95rem; line-height: 1.7; font-weight: 400; }
+    .summary-callout ul { margin: 0; padding-left: 20px; list-style-type: disc; }
+    .summary-callout li { color: #44403c; font-size: 0.95rem; line-height: 1.65; margin-bottom: 8px; padding-left: 4px; }
+    .summary-callout li::marker { color: #D4A574; }
 
-    /* ChatGPT-style follow-up input */
-    .followup-container {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 24px;
-        padding: 4px 8px;
-        margin: 20px 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .followup-container input {
-        border: none !important;
-        box-shadow: none !important;
+    /* Chat mode - Anthropic-inspired styling */
+    .stChatMessage {
         background: transparent !important;
+        border: none !important;
+        padding: 16px 0 !important;
     }
-    /* Style the Streamlit text input to look like ChatGPT */
-    [data-testid="stTextInput"] > div > div {
-        background: #ffffff;
-        border: 1px solid #d1d5db;
-        border-radius: 24px;
-        padding: 12px 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    /* Chat follow-up input - coral/terracotta border */
+    [data-testid="stTextInput"][data-baseweb] input[aria-label="Follow-up"],
+    div:has(> [data-testid="stTextInput"]) + div [data-testid="stTextInput"] input {
+        background: #FAF9F6 !important;
+        border: 1.5px solid #D4A574 !important;
+        border-radius: 16px !important;
+        padding: 16px 20px !important;
+        font-size: 1rem !important;
     }
-    [data-testid="stTextInput"] input {
-        font-size: 1rem;
+    /* Target chat input specifically via key pattern */
+    [data-testid="stTextInput"]:last-of-type > div > div {
+        background: #FAF9F6 !important;
+        border: 1.5px solid #D4A574 !important;
+        border-radius: 16px !important;
+    }
+    [data-testid="stTextInput"]:last-of-type input {
+        background: transparent !important;
+        border: none !important;
+        padding: 14px 18px !important;
     }
     /* Suggestion pills */
     .suggestion-pill {
@@ -4212,64 +4213,61 @@ def main():
         border-color: #d1d5db;
     }
 
-    /* Dashboard Cards */
+    /* Dashboard Cards - warm theme */
     .metric-card {
-        background: white;
-        border: 1px solid #e2e8f0;
+        background: #FFFDFB;
+        border: 1px solid #e7e5e4;
         border-radius: 12px;
         padding: 16px 20px;
         margin-bottom: 16px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .metric-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .metric-value { font-size: 1.8rem; font-weight: 700; color: #0f172a; }
+    .metric-label { font-size: 0.8rem; color: #78716c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .metric-value { font-size: 1.8rem; font-weight: 700; color: #292524; }
     .metric-delta-up { font-size: 0.85rem; color: #16a34a; font-weight: 500; }
     .metric-delta-down { font-size: 0.85rem; color: #dc2626; font-weight: 500; }
 
-    /* Streamlit metric overrides */
+    /* Streamlit metric overrides - warm theme */
     [data-testid="stMetric"] {
-        background: white;
-        border: 1px solid #e2e8f0;
+        background: #FFFDFB;
+        border: 1px solid #e7e5e4;
         border-radius: 12px;
         padding: 16px 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    [data-testid="stMetricLabel"] { font-size: 0.8rem !important; color: #64748b !important; text-transform: uppercase; letter-spacing: 0.5px; }
-    [data-testid="stMetricValue"] { font-size: 1.6rem !important; font-weight: 700 !important; color: #0f172a !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.8rem !important; color: #78716c !important; text-transform: uppercase; letter-spacing: 0.5px; }
+    [data-testid="stMetricValue"] { font-size: 1.6rem !important; font-weight: 700 !important; color: #292524 !important; }
     [data-testid="stMetricDelta"] svg { display: none; }
     [data-testid="stMetricDelta"] > div { font-weight: 500 !important; }
 
-    /* Chart sections - prominent card styling */
+    /* Chart sections - warm card styling */
     .chart-section {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: #FFFDFB;
+        border: 1px solid #e7e5e4;
         border-radius: 16px;
         margin-bottom: 24px;
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         padding: 20px;
     }
-    .chart-section h3 { margin-top: 0; font-size: 1.1rem; color: #0f172a; font-weight: 600; }
-    .chart-header { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; }
-    .chart-title { font-size: 1rem; color: #0f172a; margin-bottom: 8px; font-weight: 600; }
-    .chart-bullets { color: #475569; font-size: 0.9rem; margin-left: 16px; line-height: 1.5; }
+    .chart-section h3 { margin-top: 0; font-size: 1.1rem; color: #292524; font-weight: 600; }
+    .chart-header { padding: 16px 20px; border-bottom: 1px solid #e7e5e4; }
+    .chart-title { font-size: 1rem; color: #292524; margin-bottom: 8px; font-weight: 600; }
+    .chart-bullets { color: #57534e; font-size: 0.9rem; margin-left: 16px; line-height: 1.5; }
     .chart-bullets li { margin-bottom: 6px; }
     .source-line {
         padding: 12px 20px;
-        border-top: 1px solid #e2e8f0;
+        border-top: 1px solid #e7e5e4;
         font-size: 0.8rem;
-        color: #64748b;
-        background: #f8fafc;
+        color: #78716c;
+        background: #FAF9F6;
         font-family: 'Inter', monospace;
     }
 
-    /* AI Insight box - bold, not italic */
+    /* AI Insight box - warm theme */
     .ai-explanation {
-        color: #0f172a;
+        color: #292524;
         padding: 20px 24px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-left: 4px solid #0f172a;
+        background: #FAF9F6;
+        border: 1px solid #e7e5e4;
+        border-left: 4px solid #D4A574;
         border-radius: 0 12px 12px 0;
         margin-bottom: 20px;
         font-size: 1rem;
@@ -4325,22 +4323,22 @@ def main():
         color: #ffffff !important;
         background-color: #1d4ed8 !important;
     }
-    /* Category pill buttons - default state */
+    /* Category pill buttons - default state (warm theme) */
     .stButton button:not([kind="primary"]) {
-        color: #344054 !important;
-        background-color: white !important;
-        border: 1.5px solid #d0d5dd !important;
-        border-radius: 25px !important;
+        color: #57534e !important;
+        background-color: #FAF9F6 !important;
+        border: 1px solid #d6d3d1 !important;
+        border-radius: 12px !important;
         padding: 0.6rem 1.5rem !important;
         font-size: 0.95rem !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.15s ease !important;
     }
     .stButton button:not([kind="primary"]):hover {
-        border-color: #2563eb !important;
-        color: #2563eb !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
-        background-color: white !important;
+        border-color: #D4A574 !important;
+        color: #78716c !important;
+        background-color: #FAF9F6 !important;
+        transform: none !important;
+        box-shadow: none !important;
     }
 
     /* Example queries section */
@@ -4399,23 +4397,24 @@ def main():
         font-style: normal !important;
     }
 
-    /* Search bar - clean box design matching mockup */
+    /* Search bar - warm theme */
     .search-wrapper {
         margin: 20px 0 10px 0;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border-radius: 12px;
+        border-radius: 16px;
         overflow: hidden;
-        background: white;
+        background: #FFFDFB;
+        border: 1px solid #e7e5e4;
     }
     div[data-testid="stTextInput"] input {
-        background: #ffffff !important;
+        background: #FFFDFB !important;
         border: none !important;
-        border-radius: 12px !important;
+        border-radius: 16px !important;
         font-size: 1rem !important;
         padding: 1.1rem 1.5rem !important;
         box-shadow: none !important;
         transition: none !important;
         text-align: center !important;
+        color: #292524 !important;
     }
     div[data-testid="stTextInput"] input:focus {
         border: none !important;
@@ -4424,7 +4423,7 @@ def main():
         text-align: left !important;
     }
     div[data-testid="stTextInput"] input::placeholder {
-        color: #9ca3af !important;
+        color: #a8a29e !important;
         text-align: center !important;
     }
     /* Hide Streamlit's default input wrapper styling */
@@ -4803,23 +4802,25 @@ def main():
                                     fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                                     st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_{series_id}")
 
-        # Follow-up section at bottom - ChatGPT style
+        # Follow-up section at bottom - Anthropic chat style
         if not query and st.session_state.messages:
-            st.markdown("---")
+            st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
 
-            # Text input for follow-up - styled like ChatGPT
+            # Text input for follow-up - coral border style
+            st.markdown("<div class='chat-input-wrapper'>", unsafe_allow_html=True)
             chat_query = st.text_input(
                 "Follow-up",
-                placeholder="Ask a follow-up question...",
+                placeholder="Send a message",
                 label_visibility="collapsed",
                 key="chat_followup_input"
             )
+            st.markdown("</div>", unsafe_allow_html=True)
             if chat_query:
                 st.session_state.pending_query = chat_query
                 st.rerun()
 
             # Suggested follow-ups below the input
-            st.markdown("<p style='color: #6b7280; font-size: 0.85rem; margin-top: 12px;'>Try asking:</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #9ca3af; font-size: 0.8rem; margin-top: 16px;'>Try asking:</p>", unsafe_allow_html=True)
 
             # Determine context from last query to suggest relevant follow-ups
             last_query_lower = st.session_state.last_query.lower() if st.session_state.last_query else ""
