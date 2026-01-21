@@ -4141,12 +4141,21 @@ def main():
     /* Reduce but don't eliminate top padding */
     .stApp .main > div { padding-top: 2rem !important; }
     /* Metric labels - don't truncate */
-    [data-testid="stMetricLabel"] {
+    [data-testid="stMetricLabel"],
+    [data-testid="stMetricLabel"] > div,
+    [data-testid="stMetricLabel"] > div > div,
+    [data-testid="stMetricLabel"] p,
+    [data-testid="stMetricLabel"] span {
         white-space: normal !important;
         overflow: visible !important;
         text-overflow: unset !important;
-        font-size: 0.65rem !important;
-        line-height: 1.2 !important;
+        font-size: 0.6rem !important;
+        line-height: 1.15 !important;
+        max-width: none !important;
+        width: auto !important;
+    }
+    [data-testid="stMetric"] {
+        min-height: auto !important;
     }
     /* Hide anchor links next to headings */
     .stApp a[href^="#"] { display: none !important; }
