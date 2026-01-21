@@ -246,11 +246,16 @@ def get_series_via_claude(query: str) -> dict:
         }
     ]
 
-    system_prompt = """You are an economist assistant. Use search_fred to find relevant FRED series, then select_series to pick 1-4 to display.
+    system_prompt = """You are an economist assistant helping users find FRED data.
 
-FRED has data for many countries, not just the U.S. Search for what the user asks about.
+IMPORTANT WORKFLOW:
+1. Call search_fred ONCE to find relevant series
+2. Call select_series IMMEDIATELY after to pick 1-4 series from the results
+3. Do NOT search multiple times - one search, then select
 
-Prefer: seasonally adjusted, monthly/quarterly frequency, high popularity.
+FRED has international data (not just U.S.). Search for exactly what the user asks.
+
+Selection criteria: prefer seasonally adjusted, monthly/quarterly frequency, high popularity.
 For rates/percentages: show_yoy=False. For indexes/levels: show_yoy=True."""
 
     try:
@@ -266,8 +271,8 @@ For rates/percentages: show_yoy=False. For indexes/levels: show_yoy=True."""
             messages=messages
         )
 
-        # Process tool calls in a loop (max 3 iterations)
-        for iteration in range(3):
+        # Process tool calls in a loop (max 5 iterations)
+        for iteration in range(5):
             print(f"  Iteration {iteration + 1}, stop_reason: {response.stop_reason}")
 
             if response.stop_reason == "end_turn":
@@ -334,6 +339,7 @@ For rates/percentages: show_yoy=False. For indexes/levels: show_yoy=True."""
                 messages=messages
             )
 
+        print("  Loop exhausted - Claude never called select_series")
         return None
 
     except Exception as e:
