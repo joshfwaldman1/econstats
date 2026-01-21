@@ -4574,28 +4574,25 @@ def main():
             query = text_query
     else:
         # CHAT MODE - conversational interface
-        # Professional header bar
-        st.markdown("""
-        <div style="display: flex; align-items: center; padding: 0.75rem 0; margin-bottom: 1rem; border-bottom: 1px solid #e0e0e0;">
-            <span style="font-size: 1.5rem; font-weight: 600; color: #1a1a2e; letter-spacing: -0.5px;">EconStats</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Home button (smaller, professional style)
-        if st.button("← New Search", key="home_btn", type="secondary"):
-            st.session_state.chat_mode = False
-            st.session_state.messages = []
-            st.session_state.last_query = ''
-            st.session_state.last_series = []
-            st.session_state.last_series_data = []
-            st.session_state.last_explanation = ''
-            st.rerun()
+        # Compact header with back button
+        col_back, col_title = st.columns([1, 4])
+        with col_back:
+            if st.button("← Back", key="home_btn", type="secondary"):
+                st.session_state.chat_mode = False
+                st.session_state.messages = []
+                st.session_state.last_query = ''
+                st.session_state.last_series = []
+                st.session_state.last_series_data = []
+                st.session_state.last_explanation = ''
+                st.rerun()
+        with col_title:
+            st.markdown("<span style='font-size: 1.3rem; font-weight: 600; color: #292524;'>EconStats</span>", unsafe_allow_html=True)
 
         # Render conversation history with full charts
         for msg_idx, msg in enumerate(st.session_state.messages):
             if msg["role"] == "user":
-                with st.chat_message("user", avatar="🔍"):
-                    st.markdown(f"<div style='background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%); padding: 12px 18px; border-radius: 12px; border-left: 4px solid #0072B2; font-size: 1.1em;'><strong>{msg['content']}</strong></div>", unsafe_allow_html=True)
+                # Simple query display - just the text
+                st.markdown(f"<p style='color: #78716c; font-size: 0.9rem; margin: 16px 0 8px 0;'>Searched: <strong style='color: #292524;'>{msg['content']}</strong></p>", unsafe_allow_html=True)
             else:
                 # Assistant message with summary and charts - Dashboard layout
                 with st.chat_message("assistant"):
