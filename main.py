@@ -38,6 +38,10 @@ templates.env.globals['last_updated'] = LAST_UPDATED
 FRED_API_KEY = os.environ.get('FRED_API_KEY')
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
 
+# Startup diagnostics
+print(f"FRED_API_KEY: {'SET' if FRED_API_KEY else 'NOT SET'}")
+print(f"ANTHROPIC_API_KEY: {'SET' if ANTHROPIC_API_KEY else 'NOT SET'}")
+
 # Load query plans from existing JSON files
 def load_query_plans():
     plans = {}
@@ -319,7 +323,9 @@ For rates/percentages: show_yoy=False. For indexes/levels: show_yoy=True."""
         return None
 
     except Exception as e:
+        import traceback
         print(f"Claude agentic search error: {e}")
+        print(f"Full traceback: {traceback.format_exc()}")
         return None
 
 
