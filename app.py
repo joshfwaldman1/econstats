@@ -4085,6 +4085,28 @@ def format_number(n, unit=''):
     return f"{display_n:.1f}"
 
 
+def summary_to_bullets(text):
+    """Convert summary paragraph to HTML bullet list, one sentence per bullet."""
+    import re
+    if not text:
+        return ""
+
+    # Split on sentence endings (. ! ?) followed by space or end of string
+    # But be careful with abbreviations like "U.S." or numbers like "3.5%"
+    sentences = re.split(r'(?<=[.!?])\s+(?=[A-Z])', text.strip())
+
+    # Filter out empty sentences and clean up
+    sentences = [s.strip() for s in sentences if s.strip()]
+
+    if len(sentences) <= 1:
+        # If only one sentence, just return as paragraph
+        return f"<p>{text}</p>"
+
+    # Build bullet list
+    bullets = "".join(f"<li>{s}</li>" for s in sentences)
+    return f"<ul>{bullets}</ul>"
+
+
 def main():
     st.set_page_config(page_title="EconStats", page_icon="", layout="centered")
 
@@ -4142,10 +4164,11 @@ def main():
         padding: 0 0 20px 0;
         margin-bottom: 20px;
     }
-    .summary-callout h3 { color: #0f172a !important; margin: 0 0 16px 0; font-size: 1.1rem; font-weight: 600; }
-    .summary-callout p { color: #334155 !important; margin: 0; font-size: 1rem; line-height: 1.8; font-weight: 400; }
-    .summary-callout ul { margin: 0; padding-left: 20px; }
-    .summary-callout li { color: #334155; font-size: 1rem; line-height: 1.8; margin-bottom: 8px; }
+    .summary-callout h3 { color: #0f172a !important; margin: 0 0 12px 0; font-size: 1.1rem; font-weight: 600; }
+    .summary-callout p { color: #334155 !important; margin: 0; font-size: 1rem; line-height: 1.7; font-weight: 400; }
+    .summary-callout ul { margin: 0; padding-left: 24px; list-style-type: disc; }
+    .summary-callout li { color: #334155; font-size: 0.95rem; line-height: 1.6; margin-bottom: 6px; padding-left: 4px; }
+    .summary-callout li::marker { color: #64748b; }
 
     /* ChatGPT-style follow-up input */
     .followup-container {
@@ -4577,9 +4600,10 @@ def main():
                 with st.chat_message("assistant"):
                     # Summary callout box at top
                     if msg.get("explanation"):
+                        summary_html = summary_to_bullets(msg['explanation'])
                         st.markdown(f"""<div class='summary-callout'>
                             <h3>Summary</h3>
-                            <p>{msg['explanation']}</p>
+                            {summary_html}
                         </div>""", unsafe_allow_html=True)
 
                     # Key metrics row using st.metric cards
@@ -5196,9 +5220,10 @@ def main():
             if has_narrative_content:
                 # Summary callout box
                 if ai_explanation:
+                    summary_html = summary_to_bullets(ai_explanation)
                     st.markdown(f"""<div class='summary-callout'>
                         <h3>📊 Summary</h3>
-                        <p>{ai_explanation}</p>
+                        {summary_html}
                     </div>""", unsafe_allow_html=True)
 
                 # Key metrics row using st.metric
