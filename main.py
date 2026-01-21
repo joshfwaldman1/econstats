@@ -196,7 +196,10 @@ def get_series_via_claude(query: str) -> dict:
     Returns a dict like a query plan: {'series': [...], 'show_yoy': ..., 'explanation': ...}
     """
     if not ANTHROPIC_API_KEY:
+        print("WARNING: ANTHROPIC_API_KEY not set - agentic search disabled")
         return None
+
+    print(f"Agentic search starting for: {query}")
 
     # Define the tools Claude can use
     tools = [
