@@ -4247,7 +4247,9 @@ def main():
         overflow: hidden;
         padding: 20px;
     }
-    .chart-section h3 { margin-top: 0; font-size: 1.1rem; color: #292524; font-weight: 600; }
+    .chart-section h3 { margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; color: #292524; font-weight: 600; }
+    .chart-section ul { margin: 0 0 16px 0; padding-left: 20px; }
+    .chart-section li, .chart-section p { color: #44403c; font-size: 0.92rem; line-height: 1.6; margin-bottom: 6px; }
     .chart-header { padding: 16px 20px; border-bottom: 1px solid #e7e5e4; }
     .chart-title { font-size: 1rem; color: #292524; margin-bottom: 8px; font-weight: 600; }
     .chart-bullets { color: #57534e; font-size: 0.9rem; margin-left: 16px; line-height: 1.5; }
@@ -5631,14 +5633,16 @@ def main():
                 # Title
                 st.markdown(f"### {chart_title}")
 
-                # Bullets - full width
+                # Bullets - each as a separate line
                 all_bullets = []
                 for sid, d, v, i in group_data:
                     analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
                     bullets = analysis.get('bullets', [])
                     all_bullets.extend(bullets[:2])
                 if all_bullets:
-                    st.markdown(" • ".join(all_bullets))
+                    for bullet in all_bullets[:3]:  # Limit to 3 bullets
+                        if bullet and bullet.strip():
+                            st.markdown(f"- {bullet}")
 
                 # Chart
                 combine_group = len(group_data) > 1
@@ -5667,14 +5671,16 @@ def main():
             # Title
             st.markdown(f"### {chart_title}")
 
-            # Bullets - full width
+            # Bullets - each as a separate line
             all_bullets = []
             for sid, d, v, i in series_data:
                 analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
                 bullets = analysis.get('bullets', [])
                 all_bullets.extend(bullets[:2])
             if all_bullets:
-                st.markdown(" • ".join(all_bullets))
+                for bullet in all_bullets[:3]:  # Limit to 3 bullets
+                    if bullet and bullet.strip():
+                        st.markdown(f"- {bullet}")
 
             # Chart
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
@@ -5759,11 +5765,11 @@ def main():
                     # Title
                     st.markdown(f"### {chart_title}")
 
-                    # Bullets - full width, joined inline
+                    # Bullets - each as a separate line
                     if goldman_bullets:
                         valid_bullets = [b for b in goldman_bullets[:3] if b and b.strip()]
-                        if valid_bullets:
-                            st.markdown(" • ".join(valid_bullets))
+                        for bullet in valid_bullets:
+                            st.markdown(f"- {bullet}")
 
                     # Chart
                     fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
