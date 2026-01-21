@@ -267,14 +267,24 @@ For rates/percentages: show_yoy=False. For indexes/levels: show_yoy=True."""
         )
 
         # Process tool calls in a loop (max 3 iterations)
-        for _ in range(3):
+        for iteration in range(3):
+            print(f"  Iteration {iteration + 1}, stop_reason: {response.stop_reason}")
+
             if response.stop_reason == "end_turn":
+                print("  Claude ended without tool call")
+                # Check if there's text content we can use
+                for block in response.content:
+                    if hasattr(block, 'text'):
+                        print(f"  Claude said: {block.text[:200]}...")
                 break
 
             # Find tool use blocks
             tool_uses = [block for block in response.content if block.type == "tool_use"]
             if not tool_uses:
+                print("  No tool calls found in response")
                 break
+
+            print(f"  Tool calls: {[t.name for t in tool_uses]}")
 
             # Process each tool call
             tool_results = []
@@ -284,7 +294,9 @@ For rates/percentages: show_yoy=False. For indexes/levels: show_yoy=True."""
                 if tool_use.name == "search_fred":
                     # Execute FRED search
                     search_query = tool_use.input.get("query", query)
+                    print(f"  Searching FRED for: {search_query}")
                     results = search_fred(search_query)
+                    print(f"  FRED returned {len(results)} results")
                     tool_results.append({
                         "type": "tool_result",
                         "tool_use_id": tool_use.id,
@@ -293,8 +305,10 @@ For rates/percentages: show_yoy=False. For indexes/levels: show_yoy=True."""
 
                 elif tool_use.name == "select_series":
                     # Claude has made its selection - we're done
+                    selected = tool_use.input.get("series_ids", [])[:4]
+                    print(f"  Claude selected series: {selected}")
                     final_result = {
-                        "series": tool_use.input.get("series_ids", [])[:4],
+                        "series": selected,
                         "show_yoy": tool_use.input.get("show_yoy", False),
                         "explanation": tool_use.input.get("explanation", ""),
                         "agentic": True  # Flag that this came from agentic search
