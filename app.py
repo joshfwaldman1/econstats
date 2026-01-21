@@ -4090,6 +4090,11 @@ def main():
 
     st.markdown("""
     <style>
+    /* Prevent button text wrapping */
+    .stButton button {
+        white-space: nowrap !important;
+    }
+
     /* Hide sidebar entirely and broken collapse buttons */
     section[data-testid="stSidebar"],
     button[kind="header"],
@@ -4460,7 +4465,7 @@ def main():
                 st.session_state.pending_query = "interest rates"
                 st.rerun()
         with col5:
-            if st.button("Recession?", width='stretch', key="btn_recession"):
+            if st.button("Recession", width='stretch', key="btn_recession"):
                 st.session_state.pending_query = "are we in a recession"
                 st.rerun()
 
