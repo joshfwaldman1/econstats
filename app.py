@@ -3935,24 +3935,7 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
         if use_direct_labels:
             add_direct_labels(fig, series_data, colors)
 
-        # Add event annotations for single-series charts
-        if len(series_data) == 1:
-            series_id = series_data[0][0]
-            # Fed events for rate series
-            rate_series = ['FEDFUNDS', 'DFF', 'DGS10', 'DGS2', 'T10Y2Y', 'MORTGAGE30US', 'MORTGAGE15US']
-            if series_id in rate_series:
-                add_event_annotations(fig, min_date, max_date, event_types=['fed'])
-            # Crisis events for unemployment and labor series
-            labor_series = ['UNRATE', 'U6RATE', 'ICSA', 'CCSA', 'PAYEMS',
-                            'JTSJOL', 'JTSQUR', 'JTSHIR', 'JTSLDL',  # JOLTS series
-                            'LNS11300000', 'LNS11300060', 'CIVPART',  # Participation rates
-                            'LNS12300060', 'EMRATIO']  # Employment-population ratios
-            if series_id in labor_series:
-                add_event_annotations(fig, min_date, max_date, event_types=['crisis'])
-            # Crisis events for inflation series (show inflation peak)
-            inflation_series = ['CPIAUCSL', 'CPILFESL', 'PCEPI', 'PCEPILFE']
-            if series_id in inflation_series:
-                add_event_annotations(fig, min_date, max_date, event_types=['crisis'])
+        # Event annotations removed - they cluttered the charts
 
         unit = series_data[0][3].get('unit', series_data[0][3].get('units', ''))
         fig.update_layout(
@@ -4149,6 +4132,12 @@ def main():
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         font-weight: 600 !important;
     }
+    /* Tight spacing for chat mode */
+    .stApp [data-testid="stVerticalBlock"] > div { gap: 0.3rem !important; }
+    .stApp hr { margin: 8px 0 !important; }
+    .stApp h3 { margin-top: 0 !important; margin-bottom: 4px !important; font-size: 1rem !important; }
+    .stApp ul { margin-top: 0 !important; margin-bottom: 6px !important; }
+    .stApp li { margin-bottom: 2px !important; font-size: 0.88rem !important; line-height: 1.4 !important; }
     h1 {
         font-weight: 700 !important;
         font-style: normal !important;
@@ -4158,16 +4147,16 @@ def main():
     }
     .subtitle { text-align: center; color: #64748b; margin-top: -5px; margin-bottom: 20px; font-size: 1rem; font-weight: 400; }
 
-    /* Summary Section - clean warm style */
+    /* Summary Section - tight spacing */
     .summary-callout {
         background: transparent;
-        padding: 0 0 24px 0;
-        margin-bottom: 16px;
+        padding: 0 0 8px 0;
+        margin-bottom: 8px;
     }
-    .summary-callout h3 { color: #292524 !important; margin: 0 0 14px 0; font-size: 1.05rem; font-weight: 600; }
-    .summary-callout p { color: #44403c !important; margin: 0; font-size: 0.95rem; line-height: 1.7; font-weight: 400; }
-    .summary-callout ul { margin: 0; padding-left: 20px; list-style-type: disc; }
-    .summary-callout li { color: #44403c; font-size: 0.95rem; line-height: 1.65; margin-bottom: 8px; padding-left: 4px; }
+    .summary-callout h3 { color: #292524 !important; margin: 0 0 6px 0; font-size: 1rem; font-weight: 600; }
+    .summary-callout p { color: #44403c !important; margin: 0; font-size: 0.9rem; line-height: 1.5; font-weight: 400; }
+    .summary-callout ul { margin: 0 0 4px 0; padding-left: 18px; list-style-type: disc; }
+    .summary-callout li { color: #44403c; font-size: 0.9rem; line-height: 1.45; margin-bottom: 3px; padding-left: 2px; }
     .summary-callout li::marker { color: #D4A574; }
 
     /* Chat mode - Anthropic-inspired styling */
@@ -4213,54 +4202,55 @@ def main():
         border-color: #d1d5db;
     }
 
-    /* Dashboard Cards - warm theme */
+    /* Dashboard Cards - tight spacing */
     .metric-card {
         background: #FFFDFB;
         border: 1px solid #e7e5e4;
-        border-radius: 12px;
-        padding: 16px 20px;
-        margin-bottom: 16px;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 8px;
     }
-    .metric-label { font-size: 0.8rem; color: #78716c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .metric-value { font-size: 1.8rem; font-weight: 700; color: #292524; }
-    .metric-delta-up { font-size: 0.85rem; color: #16a34a; font-weight: 500; }
-    .metric-delta-down { font-size: 0.85rem; color: #dc2626; font-weight: 500; }
+    .metric-label { font-size: 0.7rem; color: #78716c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .metric-value { font-size: 1.4rem; font-weight: 700; color: #292524; }
+    .metric-delta-up { font-size: 0.75rem; color: #16a34a; font-weight: 500; }
+    .metric-delta-down { font-size: 0.75rem; color: #dc2626; font-weight: 500; }
 
-    /* Streamlit metric overrides - warm theme */
+    /* Streamlit metric overrides - tight spacing */
     [data-testid="stMetric"] {
         background: #FFFDFB;
         border: 1px solid #e7e5e4;
-        border-radius: 12px;
-        padding: 16px 20px;
+        border-radius: 8px;
+        padding: 10px 14px;
     }
-    [data-testid="stMetricLabel"] { font-size: 0.8rem !important; color: #78716c !important; text-transform: uppercase; letter-spacing: 0.5px; }
-    [data-testid="stMetricValue"] { font-size: 1.6rem !important; font-weight: 700 !important; color: #292524 !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; color: #78716c !important; text-transform: uppercase; letter-spacing: 0.5px; }
+    [data-testid="stMetricValue"] { font-size: 1.4rem !important; font-weight: 700 !important; color: #292524 !important; }
     [data-testid="stMetricDelta"] svg { display: none; }
-    [data-testid="stMetricDelta"] > div { font-weight: 500 !important; }
+    [data-testid="stMetricDelta"] > div { font-weight: 500 !important; font-size: 0.75rem !important; }
 
-    /* Chart sections - warm card styling */
+    /* Chart sections - tight spacing */
     .chart-section {
         background: #FFFDFB;
         border: 1px solid #e7e5e4;
-        border-radius: 16px;
-        margin-bottom: 24px;
+        border-radius: 10px;
+        margin-bottom: 12px;
         overflow: hidden;
-        padding: 20px;
+        padding: 12px 16px;
     }
-    .chart-section h3 { margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; color: #292524; font-weight: 600; }
-    .chart-section ul { margin: 0 0 16px 0; padding-left: 20px; }
-    .chart-section li, .chart-section p { color: #44403c; font-size: 0.92rem; line-height: 1.6; margin-bottom: 6px; }
-    .chart-header { padding: 16px 20px; border-bottom: 1px solid #e7e5e4; }
-    .chart-title { font-size: 1rem; color: #292524; margin-bottom: 8px; font-weight: 600; }
-    .chart-bullets { color: #57534e; font-size: 0.9rem; margin-left: 16px; line-height: 1.5; }
-    .chart-bullets li { margin-bottom: 6px; }
+    .chart-section h3 { margin-top: 0; margin-bottom: 6px; font-size: 1rem; color: #292524; font-weight: 600; }
+    .chart-section ul { margin: 0 0 8px 0; padding-left: 18px; }
+    .chart-section li, .chart-section p { color: #44403c; font-size: 0.85rem; line-height: 1.45; margin-bottom: 3px; }
+    .chart-header { padding: 10px 14px; border-bottom: 1px solid #e7e5e4; }
+    .chart-title { font-size: 0.95rem; color: #292524; margin-bottom: 4px; font-weight: 600; }
+    .chart-bullets { color: #57534e; font-size: 0.85rem; margin-left: 14px; line-height: 1.4; }
+    .chart-bullets li { margin-bottom: 3px; }
     .source-line {
-        padding: 12px 20px;
+        padding: 6px 12px;
         border-top: 1px solid #e7e5e4;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
         color: #78716c;
         background: #FAF9F6;
         font-family: 'Inter', monospace;
+        margin-top: 8px;
     }
 
     /* AI Insight box - warm theme */
@@ -4325,14 +4315,14 @@ def main():
         color: #ffffff !important;
         background-color: #1d4ed8 !important;
     }
-    /* Category pill buttons - default state (warm theme) */
+    /* Category pill buttons - tight spacing */
     .stButton button:not([kind="primary"]) {
         color: #57534e !important;
         background-color: #FAF9F6 !important;
         border: 1px solid #d6d3d1 !important;
-        border-radius: 12px !important;
-        padding: 0.6rem 1.5rem !important;
-        font-size: 0.95rem !important;
+        border-radius: 8px !important;
+        padding: 0.4rem 1rem !important;
+        font-size: 0.85rem !important;
         transition: all 0.15s ease !important;
     }
     .stButton button:not([kind="primary"]):hover {
