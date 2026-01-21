@@ -4136,17 +4136,58 @@ def main():
     }
     .subtitle { text-align: center; color: #64748b; margin-top: -5px; margin-bottom: 20px; font-size: 1rem; font-weight: 400; }
 
-    /* Summary Callout Box - prominent at top */
+    /* Summary Section - clean bullet style */
     .summary-callout {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
-        color: white !important;
-        padding: 24px 28px;
-        border-radius: 16px;
-        margin-bottom: 28px;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+        background: transparent;
+        padding: 0 0 20px 0;
+        margin-bottom: 20px;
     }
-    .summary-callout h3 { color: rgba(255,255,255,0.8) !important; margin: 0 0 12px 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-    .summary-callout p { color: white !important; margin: 0; font-size: 1.1rem; line-height: 1.7; font-weight: 400; }
+    .summary-callout h3 { color: #0f172a !important; margin: 0 0 16px 0; font-size: 1.1rem; font-weight: 600; }
+    .summary-callout p { color: #334155 !important; margin: 0; font-size: 1rem; line-height: 1.8; font-weight: 400; }
+    .summary-callout ul { margin: 0; padding-left: 20px; }
+    .summary-callout li { color: #334155; font-size: 1rem; line-height: 1.8; margin-bottom: 8px; }
+
+    /* ChatGPT-style follow-up input */
+    .followup-container {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 4px 8px;
+        margin: 20px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .followup-container input {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+    /* Style the Streamlit text input to look like ChatGPT */
+    [data-testid="stTextInput"] > div > div {
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 24px;
+        padding: 12px 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    [data-testid="stTextInput"] input {
+        font-size: 1rem;
+    }
+    /* Suggestion pills */
+    .suggestion-pill {
+        display: inline-block;
+        background: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 8px 16px;
+        margin: 4px;
+        font-size: 0.9rem;
+        color: #374151;
+        cursor: pointer;
+    }
+    .suggestion-pill:hover {
+        background: #e5e7eb;
+        border-color: #d1d5db;
+    }
 
     /* Dashboard Cards */
     .metric-card {
@@ -4735,10 +4776,23 @@ def main():
                                     fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                                     st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_{series_id}")
 
-        # Suggested follow-up buttons - contextual related questions
+        # Follow-up section at bottom - ChatGPT style
         if not query and st.session_state.messages:
             st.markdown("---")
-            st.markdown("**Related questions:**")
+
+            # Text input for follow-up - styled like ChatGPT
+            chat_query = st.text_input(
+                "Follow-up",
+                placeholder="Ask a follow-up question...",
+                label_visibility="collapsed",
+                key="chat_followup_input"
+            )
+            if chat_query:
+                st.session_state.pending_query = chat_query
+                st.rerun()
+
+            # Suggested follow-ups below the input
+            st.markdown("<p style='color: #6b7280; font-size: 0.85rem; margin-top: 12px;'>Try asking:</p>", unsafe_allow_html=True)
 
             # Determine context from last query to suggest relevant follow-ups
             last_query_lower = st.session_state.last_query.lower() if st.session_state.last_query else ""
@@ -4765,27 +4819,15 @@ def main():
                 followup1 = ("What are mortgage rates?", "mortgage rates")
                 followup2 = ("How is inflation affecting housing?", "shelter inflation")
 
-            btn_col1, btn_col2 = st.columns(2)
+            btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
             with btn_col1:
-                if st.button(followup1[0], key="followup_1"):
+                if st.button(followup1[0], key="followup_1", use_container_width=True):
                     st.session_state.pending_query = followup1[1]
                     st.rerun()
             with btn_col2:
-                if st.button(followup2[0], key="followup_2"):
+                if st.button(followup2[0], key="followup_2", use_container_width=True):
                     st.session_state.pending_query = followup2[1]
                     st.rerun()
-
-        # Text input for follow-up (not chat_input to avoid auto-scroll)
-        if not query:
-            chat_query = st.text_input(
-                "Follow-up",
-                placeholder="Ask a follow-up question...",
-                label_visibility="collapsed",
-                key="chat_followup_input"
-            )
-            if chat_query:
-                st.session_state.pending_query = chat_query
-                st.rerun()
 
     if query:
         # Add user message to chat history
@@ -5558,20 +5600,26 @@ def main():
                     chart_title = ' vs '.join([generate_chart_title(sid, info)[:40] for sid, _, _, info in group_data])
 
                 # Render title using native Streamlit (more reliable)
-                st.markdown(f"**{chart_title}**")
+                st.markdown(f"### {chart_title}")
 
-                # Generate concise bullet for each series
-                for sid, d, v, i in group_data:
-                    analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
-                    bullets = analysis.get('bullets', [])
-                    series_name = analysis.get('title', i.get('name', sid))[:40]
-                    if bullets:
-                        st.markdown(f"- **{series_name}:** {bullets[0]}")
+                # Two-column layout: bullets left, chart right
+                col_text, col_chart = st.columns([1, 2])
 
-                # Always combine for groups with multiple series
-                combine_group = len(group_data) > 1
-                fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
-                st.plotly_chart(fig, width='stretch')
+                with col_text:
+                    # Generate concise bullets for each series
+                    for sid, d, v, i in group_data:
+                        analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
+                        bullets = analysis.get('bullets', [])
+                        if bullets:
+                            for bullet in bullets[:2]:  # Max 2 bullets per series
+                                st.markdown(f"• {bullet}")
+                            st.markdown("")  # Spacing between series
+
+                with col_chart:
+                    # Always combine for groups with multiple series
+                    combine_group = len(group_data) > 1
+                    fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
+                    st.plotly_chart(fig, use_container_width=True)
 
                 sources = set(s[3].get('source', 'FRED') for s in group_data) if group_data else {'FRED'}
                 source_str = ', '.join(sources)
@@ -5592,19 +5640,24 @@ def main():
             # Generate dynamic chart title and descriptions
             chart_title = ' vs '.join([generate_chart_title(sid, info)[:40] for sid, _, _, info in series_data])
 
-            # Render title using native Streamlit (more reliable)
-            st.markdown(f"**{chart_title}**")
+            st.markdown(f"### {chart_title}")
 
-            # Generate concise bullet for each series
-            for sid, d, v, i in series_data:
-                analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
-                bullets = analysis.get('bullets', [])
-                series_name = analysis.get('title', i.get('name', sid))[:40]
-                if bullets:
-                    st.markdown(f"- **{series_name}:** {bullets[0]}")
+            # Two-column layout: bullets left, chart right
+            col_text, col_chart = st.columns([1, 2])
 
-            fig = create_chart(series_data, combine=True, chart_type=chart_type)
-            st.plotly_chart(fig, width='stretch')
+            with col_text:
+                # Generate concise bullets for each series
+                for sid, d, v, i in series_data:
+                    analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
+                    bullets = analysis.get('bullets', [])
+                    if bullets:
+                        for bullet in bullets[:2]:  # Max 2 bullets per series
+                            st.markdown(f"• {bullet}")
+                        st.markdown("")  # Spacing
+
+            with col_chart:
+                fig = create_chart(series_data, combine=True, chart_type=chart_type)
+                st.plotly_chart(fig, use_container_width=True)
 
             # Build source line with series IDs
             sources = set(s[3].get('source', 'FRED') for s in series_data)
@@ -5682,17 +5735,21 @@ def main():
                     chart_title = goldman_analysis.get('title', info.get('name', series_id))
                     goldman_bullets = goldman_analysis.get('bullets', [])
 
-                    # Render title using native Streamlit
-                    st.markdown(f"**{chart_title}**")
+                    # Title above both columns
+                    st.markdown(f"### {chart_title}")
 
-                    # Display Goldman-style analyst bullets
-                    if goldman_bullets:
-                        for bullet in goldman_bullets:
-                            if bullet and bullet.strip():
-                                st.markdown(f"- {bullet}")
+                    # Two-column layout: bullets left, chart right
+                    col_text, col_chart = st.columns([1, 2])
 
-                    fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
-                    st.plotly_chart(fig, width='stretch')
+                    with col_text:
+                        if goldman_bullets:
+                            for bullet in goldman_bullets[:3]:  # Max 3 bullets
+                                if bullet and bullet.strip():
+                                    st.markdown(f"• {bullet}")
+
+                    with col_chart:
+                        fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
+                        st.plotly_chart(fig, use_container_width=True)
 
                 st.markdown(f"<div class='source-line'>Source: {source} | Series: {series_id}. {sa_note}{transform_note} Shaded = recessions.</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
