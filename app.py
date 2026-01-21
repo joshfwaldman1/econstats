@@ -4347,15 +4347,19 @@ def main():
         color: #ffffff !important;
         background-color: #1d4ed8 !important;
     }
-    /* Category pill buttons - tight spacing */
+    /* Category pill buttons - tight spacing, no overflow */
     .stButton button:not([kind="primary"]) {
         color: #57534e !important;
         background-color: #FAF9F6 !important;
         border: 1px solid #d6d3d1 !important;
         border-radius: 8px !important;
-        padding: 0.4rem 1rem !important;
-        font-size: 0.85rem !important;
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.8rem !important;
         transition: all 0.15s ease !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 100% !important;
     }
     .stButton button:not([kind="primary"]):hover {
         border-color: #D4A574 !important;
@@ -4823,23 +4827,21 @@ def main():
 
         # Follow-up section at bottom - Anthropic chat style
         if not query and st.session_state.messages:
-            st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
             # Text input for follow-up - coral border style
-            st.markdown("<div class='chat-input-wrapper'>", unsafe_allow_html=True)
             chat_query = st.text_input(
                 "Follow-up",
                 placeholder="Send a message",
                 label_visibility="collapsed",
                 key="chat_followup_input"
             )
-            st.markdown("</div>", unsafe_allow_html=True)
             if chat_query:
                 st.session_state.pending_query = chat_query
                 st.rerun()
 
             # Suggested follow-ups below the input
-            st.markdown("<p style='color: #9ca3af; font-size: 0.8rem; margin-top: 16px;'>Try asking:</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #9ca3af; font-size: 0.75rem; margin: 6px 0 4px 0;'>Try asking:</p>", unsafe_allow_html=True)
 
             # Determine context from last query to suggest relevant follow-ups
             last_query_lower = st.session_state.last_query.lower() if st.session_state.last_query else ""
