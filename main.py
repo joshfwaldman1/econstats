@@ -256,7 +256,11 @@ IMPORTANT WORKFLOW:
 FRED has international data (not just U.S.). Search for exactly what the user asks.
 
 Selection criteria: prefer seasonally adjusted, monthly/quarterly frequency, high popularity.
-For rates/percentages: show_yoy=False. For indexes/levels: show_yoy=True."""
+
+CRITICAL - show_yoy rules:
+- show_yoy=False for rates/percentages (unemployment rate, interest rates, inflation rates, etc.) - these are ALREADY rates, don't take % change of a %
+- show_yoy=True for levels/indexes (GDP, employment counts, price indexes, production indexes) - convert to growth rates
+- When in doubt, show_yoy=False is safer"""
 
     try:
         client = Anthropic(api_key=ANTHROPIC_API_KEY)
