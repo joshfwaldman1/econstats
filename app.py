@@ -4151,6 +4151,9 @@ def main():
         font-size: 0.65rem !important;
         line-height: 1.2 !important;
     }
+    /* Hide anchor links next to headings */
+    .stApp a[href^="#"] { display: none !important; }
+    h3 a, h2 a, h1 a { display: none !important; }
     h1 {
         font-weight: 700 !important;
         font-style: normal !important;
