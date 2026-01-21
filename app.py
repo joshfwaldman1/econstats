@@ -4392,14 +4392,17 @@ def main():
         padding: 1.1rem 1.5rem !important;
         box-shadow: none !important;
         transition: none !important;
+        text-align: center !important;
     }
     div[data-testid="stTextInput"] input:focus {
         border: none !important;
         box-shadow: none !important;
         outline: none !important;
+        text-align: left !important;
     }
     div[data-testid="stTextInput"] input::placeholder {
         color: #9ca3af !important;
+        text-align: center !important;
     }
     /* Hide Streamlit's default input wrapper styling */
     div[data-testid="stTextInput"] > div {
@@ -5599,27 +5602,22 @@ def main():
                 else:
                     chart_title = ' vs '.join([generate_chart_title(sid, info)[:40] for sid, _, _, info in group_data])
 
-                # Render title using native Streamlit (more reliable)
+                # Title
                 st.markdown(f"### {chart_title}")
 
-                # Two-column layout: bullets left, chart right
-                col_text, col_chart = st.columns([1, 2])
+                # Bullets - full width
+                all_bullets = []
+                for sid, d, v, i in group_data:
+                    analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
+                    bullets = analysis.get('bullets', [])
+                    all_bullets.extend(bullets[:2])
+                if all_bullets:
+                    st.markdown(" • ".join(all_bullets))
 
-                with col_text:
-                    # Generate concise bullets for each series
-                    for sid, d, v, i in group_data:
-                        analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
-                        bullets = analysis.get('bullets', [])
-                        if bullets:
-                            for bullet in bullets[:2]:  # Max 2 bullets per series
-                                st.markdown(f"• {bullet}")
-                            st.markdown("")  # Spacing between series
-
-                with col_chart:
-                    # Always combine for groups with multiple series
-                    combine_group = len(group_data) > 1
-                    fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
-                    st.plotly_chart(fig, use_container_width=True)
+                # Chart
+                combine_group = len(group_data) > 1
+                fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
+                st.plotly_chart(fig, use_container_width=True)
 
                 sources = set(s[3].get('source', 'FRED') for s in group_data) if group_data else {'FRED'}
                 source_str = ', '.join(sources)
@@ -5640,24 +5638,21 @@ def main():
             # Generate dynamic chart title and descriptions
             chart_title = ' vs '.join([generate_chart_title(sid, info)[:40] for sid, _, _, info in series_data])
 
+            # Title
             st.markdown(f"### {chart_title}")
 
-            # Two-column layout: bullets left, chart right
-            col_text, col_chart = st.columns([1, 2])
+            # Bullets - full width
+            all_bullets = []
+            for sid, d, v, i in series_data:
+                analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
+                bullets = analysis.get('bullets', [])
+                all_bullets.extend(bullets[:2])
+            if all_bullets:
+                st.markdown(" • ".join(all_bullets))
 
-            with col_text:
-                # Generate concise bullets for each series
-                for sid, d, v, i in series_data:
-                    analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=query)
-                    bullets = analysis.get('bullets', [])
-                    if bullets:
-                        for bullet in bullets[:2]:  # Max 2 bullets per series
-                            st.markdown(f"• {bullet}")
-                        st.markdown("")  # Spacing
-
-            with col_chart:
-                fig = create_chart(series_data, combine=True, chart_type=chart_type)
-                st.plotly_chart(fig, use_container_width=True)
+            # Chart
+            fig = create_chart(series_data, combine=True, chart_type=chart_type)
+            st.plotly_chart(fig, use_container_width=True)
 
             # Build source line with series IDs
             sources = set(s[3].get('source', 'FRED') for s in series_data)
@@ -5735,21 +5730,18 @@ def main():
                     chart_title = goldman_analysis.get('title', info.get('name', series_id))
                     goldman_bullets = goldman_analysis.get('bullets', [])
 
-                    # Title above both columns
+                    # Title
                     st.markdown(f"### {chart_title}")
 
-                    # Two-column layout: bullets left, chart right
-                    col_text, col_chart = st.columns([1, 2])
+                    # Bullets - full width, joined inline
+                    if goldman_bullets:
+                        valid_bullets = [b for b in goldman_bullets[:3] if b and b.strip()]
+                        if valid_bullets:
+                            st.markdown(" • ".join(valid_bullets))
 
-                    with col_text:
-                        if goldman_bullets:
-                            for bullet in goldman_bullets[:3]:  # Max 3 bullets
-                                if bullet and bullet.strip():
-                                    st.markdown(f"• {bullet}")
-
-                    with col_chart:
-                        fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
-                        st.plotly_chart(fig, use_container_width=True)
+                    # Chart
+                    fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
+                    st.plotly_chart(fig, use_container_width=True)
 
                 st.markdown(f"<div class='source-line'>Source: {source} | Series: {series_id}. {sa_note}{transform_note} Shaded = recessions.</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
