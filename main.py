@@ -265,7 +265,12 @@ Selection criteria: prefer seasonally adjusted, monthly/quarterly frequency, hig
 CRITICAL - show_yoy rules:
 - show_yoy=False for rates/percentages (unemployment rate, interest rates, inflation rates, etc.) - these are ALREADY rates, don't take % change of a %
 - show_yoy=True for levels/indexes (GDP, employment counts, price indexes, production indexes) - convert to growth rates
-- When in doubt, show_yoy=False is safer"""
+- When in doubt, show_yoy=False is safer
+
+CRITICAL - display_names rules:
+- Always specify "Real" for inflation-adjusted GDP (e.g., "Norway Real GDP" not "Norway GDP")
+- Always specify the country (e.g., "Norway Unemployment Rate" not just "Unemployment Rate")
+- Keep names short but precise (e.g., "Norway CPI Inflation", "Norway 3-Month Rate")"""
 
     try:
         client = Anthropic(api_key=ANTHROPIC_API_KEY)
