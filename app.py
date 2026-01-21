@@ -4729,60 +4729,57 @@ def main():
                                                 norm_data.append((sid, trimmed_dates, indexed_values, new_info))
                                     group_data = norm_data if norm_data else group_data
 
-                                # Dashboard layout: insights column + chart column
+                                # Vertical layout: title, bullets, chart, source
                                 st.markdown("---")
-                                insight_col, chart_col = st.columns([1, 2])
 
-                                with insight_col:
-                                    # Display title
-                                    if group_title:
-                                        st.markdown(f"### {group_title}")
-                                    else:
-                                        title_parts = [info.get('name', sid) for sid, _, _, info in group_data]
-                                        st.markdown(f"### {' vs '.join(title_parts)}")
+                                # Title
+                                if group_title:
+                                    st.markdown(f"### {group_title}")
+                                else:
+                                    title_parts = [info.get('name', sid) for sid, _, _, info in group_data]
+                                    st.markdown(f"### {' vs '.join(title_parts)}")
 
-                                    # Insights for each series in group
-                                    msg_query = msg.get('content', '')  # Use stored query from message
-                                    for sid, d, v, i in group_data:
-                                        analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=msg_query)
-                                        bullets = analysis.get('bullets', [])
-                                        series_name = analysis.get('title', i.get('name', sid))
-                                        st.markdown(f"**{series_name}**")
-                                        if bullets:
-                                            for bullet in bullets[:2]:
-                                                st.markdown(f"- {bullet}")
-
-                                with chart_col:
-                                    # Create combined chart for this group
-                                    fig = create_chart(group_data, combine=len(group_data) > 1, chart_type=chart_type)
-                                    st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_group_{group_idx}")
-
-                        elif combine and len(series_data) > 1:
-                            # Dashboard layout for combined chart
-                            st.markdown("---")
-                            insight_col, chart_col = st.columns([1, 2])
-
-                            with insight_col:
-                                title_parts = [info.get('name', sid) for sid, _, _, info in series_data]
-                                st.markdown(f"### {' vs '.join(title_parts)}")
-
-                                msg_query = msg.get('content', '')  # Use stored query from message
-                                for sid, d, v, i in series_data:
+                                # Bullets for each series in group
+                                msg_query = msg.get('content', '')
+                                all_bullets = []
+                                for sid, d, v, i in group_data:
                                     analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=msg_query)
                                     bullets = analysis.get('bullets', [])
-                                    series_name = analysis.get('title', i.get('name', sid))
-                                    st.markdown(f"**{series_name}**")
-                                    if bullets:
-                                        for bullet in bullets[:2]:
-                                            st.markdown(f"- {bullet}")
+                                    all_bullets.extend(bullets[:2])
+                                for bullet in all_bullets[:3]:
+                                    if bullet and bullet.strip():
+                                        st.markdown(f"- {bullet}")
 
-                            with chart_col:
-                                fig = create_chart(series_data, combine=True, chart_type=chart_type)
-                                st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_combined")
+                                # Chart (full width)
+                                fig = create_chart(group_data, combine=len(group_data) > 1, chart_type=chart_type)
+                                st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_group_{group_idx}")
+
+                        elif combine and len(series_data) > 1:
+                            # Vertical layout: title, bullets, chart
+                            st.markdown("---")
+
+                            # Title
+                            title_parts = [info.get('name', sid) for sid, _, _, info in series_data]
+                            st.markdown(f"### {' vs '.join(title_parts)}")
+
+                            # Bullets
+                            msg_query = msg.get('content', '')
+                            all_bullets = []
+                            for sid, d, v, i in series_data:
+                                analysis = generate_goldman_style_analysis(sid, d, v, i, user_query=msg_query)
+                                bullets = analysis.get('bullets', [])
+                                all_bullets.extend(bullets[:2])
+                            for bullet in all_bullets[:3]:
+                                if bullet and bullet.strip():
+                                    st.markdown(f"- {bullet}")
+
+                            # Chart (full width)
+                            fig = create_chart(series_data, combine=True, chart_type=chart_type)
+                            st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_combined")
 
                         else:
-                            # Individual charts for each series - dashboard layout
-                            msg_query = msg.get('content', '')  # Use stored query from message
+                            # Individual charts - vertical layout
+                            msg_query = msg.get('content', '')
                             for series_idx, (series_id, dates, values, info) in enumerate(series_data):
                                 if not values:
                                     continue
@@ -4792,17 +4789,19 @@ def main():
                                 bullets = analysis.get('bullets', [])
 
                                 st.markdown("---")
-                                insight_col, chart_col = st.columns([1, 2])
 
-                                with insight_col:
-                                    st.markdown(f"### {chart_title}")
-                                    if bullets:
-                                        for bullet in bullets:
+                                # Title
+                                st.markdown(f"### {chart_title}")
+
+                                # Bullets
+                                if bullets:
+                                    for bullet in bullets[:3]:
+                                        if bullet and bullet.strip():
                                             st.markdown(f"- {bullet}")
 
-                                with chart_col:
-                                    fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
-                                    st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_{series_id}")
+                                # Chart (full width)
+                                fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
+                                st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_{series_id}")
 
         # Follow-up section at bottom - Anthropic chat style
         if not query and st.session_state.messages:
