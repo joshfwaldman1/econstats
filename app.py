@@ -4117,8 +4117,7 @@ def main():
         white-space: nowrap !important;
     }
 
-    /* Hide sidebar entirely and broken collapse buttons */
-    section[data-testid="stSidebar"],
+    /* Hide broken collapse buttons but show sidebar */
     button[kind="header"],
     [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapsedControl"],
@@ -4130,6 +4129,83 @@ def main():
     .st-emotion-cache-eczf16,
     .st-emotion-cache-h4xjwg {
         display: none !important;
+    }
+
+    /* ChatGPT-style sidebar */
+    section[data-testid="stSidebar"] {
+        background: #202123 !important;
+        border-right: 1px solid #353740;
+    }
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+        background: #202123 !important;
+        padding-top: 1rem;
+    }
+    section[data-testid="stSidebar"] .stMarkdown p,
+    section[data-testid="stSidebar"] .stMarkdown span,
+    section[data-testid="stSidebar"] .stMarkdown h1,
+    section[data-testid="stSidebar"] .stMarkdown h2,
+    section[data-testid="stSidebar"] .stMarkdown h3 {
+        color: #ececf1 !important;
+    }
+    section[data-testid="stSidebar"] hr {
+        border-color: #353740;
+    }
+    /* History item styling */
+    .history-item {
+        padding: 10px 12px;
+        margin: 4px 0;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #ececf1;
+        font-size: 0.9rem;
+        transition: background 0.15s;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .history-item:hover {
+        background: #343541;
+    }
+    /* New chat button */
+    .new-chat-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        border: 1px solid #565869;
+        border-radius: 8px;
+        color: #ececf1;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .new-chat-btn:hover {
+        background: #343541;
+    }
+
+    /* Sidebar button styling */
+    section[data-testid="stSidebar"] .stButton button {
+        background: transparent !important;
+        border: 1px solid #565869 !important;
+        color: #ececf1 !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        padding: 10px 12px !important;
+        border-radius: 8px !important;
+        font-size: 0.85rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    section[data-testid="stSidebar"] .stButton button:hover {
+        background: #343541 !important;
+        border-color: #565869 !important;
+    }
+    /* New search button - slightly different style */
+    section[data-testid="stSidebar"] .stButton:first-of-type button {
+        border: 1px dashed #565869 !important;
+        margin-bottom: 4px;
     }
 
     /* Financial Dashboard Theme - Inter font, professional colors */
@@ -4497,6 +4573,43 @@ def main():
     # Chat history for conversation format
     if 'messages' not in st.session_state:
         st.session_state.messages = []
+    # Query history for sidebar (list of past queries)
+    if 'query_history' not in st.session_state:
+        st.session_state.query_history = []
+
+    # Sidebar with query history
+    with st.sidebar:
+        # New Chat button
+        if st.button("+ New search", key="new_chat", use_container_width=True):
+            st.session_state.chat_mode = False
+            st.session_state.messages = []
+            st.session_state.last_query = ''
+            st.rerun()
+
+        st.markdown("---")
+        st.markdown("<p style='color: #8e8ea0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;'>Recent searches</p>", unsafe_allow_html=True)
+
+        # Show query history (most recent first)
+        if st.session_state.query_history:
+            for i, past_query in enumerate(reversed(st.session_state.query_history[-10:])):  # Show last 10
+                # Truncate long queries
+                display_text = past_query[:35] + "..." if len(past_query) > 35 else past_query
+                if st.button(display_text, key=f"history_{i}", use_container_width=True):
+                    st.session_state.pending_query = past_query
+                    st.session_state.chat_mode = False
+                    st.session_state.messages = []
+                    st.rerun()
+        else:
+            st.markdown("<p style='color: #6b6b7b; font-size: 0.85rem; font-style: italic;'>No searches yet</p>", unsafe_allow_html=True)
+
+        # About section at bottom
+        st.markdown("---")
+        st.markdown("""
+        <div style='color: #8e8ea0; font-size: 0.75rem; line-height: 1.5;'>
+            <strong style='color: #ececf1;'>EconStats</strong><br>
+            U.S. economic data with AI-powered context. Data from FRED (Federal Reserve Economic Data).
+        </div>
+        """, unsafe_allow_html=True)
 
     # Default timeframe - show all available data for full historical context
     years = None
@@ -5189,6 +5302,9 @@ def main():
 
         # Store ALL context atomically for follow-up queries (prevents race conditions)
         st.session_state.last_query = query
+        # Add to query history (avoid duplicates of the most recent)
+        if not st.session_state.query_history or st.session_state.query_history[-1] != query:
+            st.session_state.query_history.append(query)
         st.session_state.last_series = series_to_fetch[:4]
         st.session_state.last_series_names = series_names_fetched
         st.session_state.last_series_data = series_data
