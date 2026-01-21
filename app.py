@@ -4138,11 +4138,8 @@ def main():
     .stApp h3 { margin-top: 0 !important; margin-bottom: 4px !important; font-size: 1rem !important; }
     .stApp ul { margin-top: 0 !important; margin-bottom: 6px !important; }
     .stApp li { margin-bottom: 2px !important; font-size: 0.88rem !important; line-height: 1.4 !important; }
-    /* Remove top padding from main content */
-    .stApp > header { display: none !important; }
-    .stApp [data-testid="stAppViewContainer"] { padding-top: 0 !important; }
-    .stApp .main > div { padding-top: 1rem !important; }
-    section[data-testid="stMain"] > div { padding-top: 0.5rem !important; }
+    /* Reduce but don't eliminate top padding */
+    .stApp .main > div { padding-top: 2rem !important; }
     /* Metric labels - don't truncate */
     [data-testid="stMetricLabel"] {
         white-space: normal !important;
