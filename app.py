@@ -4133,11 +4133,21 @@ def main():
         font-weight: 600 !important;
     }
     /* Tight spacing for chat mode */
-    .stApp [data-testid="stVerticalBlock"] > div { gap: 0.2rem !important; }
-    .stApp hr { margin: 6px 0 !important; }
-    .stApp h3 { margin-top: 0 !important; margin-bottom: 4px !important; font-size: 1rem !important; }
-    .stApp ul { margin-top: 0 !important; margin-bottom: 6px !important; }
-    .stApp li { margin-bottom: 2px !important; font-size: 0.88rem !important; line-height: 1.4 !important; }
+    .stApp [data-testid="stVerticalBlock"] > div { gap: 0 !important; margin: 0 !important; padding: 0 !important; }
+    .stApp [data-testid="stVerticalBlockBorderWrapper"] { padding: 0 !important; margin: 0 !important; }
+    .stApp hr { margin: 2px 0 !important; border-color: #e7e5e4 !important; }
+    .stApp h3 { margin-top: 0 !important; margin-bottom: 2px !important; font-size: 1rem !important; }
+    .stApp ul { margin-top: 0 !important; margin-bottom: 2px !important; }
+    .stApp li { margin-bottom: 1px !important; font-size: 0.88rem !important; line-height: 1.35 !important; }
+    .stApp p { margin-bottom: 1px !important; }
+    /* Reduce column gaps */
+    [data-testid="stHorizontalBlock"] { gap: 0.5rem !important; }
+    /* Chat message spacing */
+    [data-testid="stChatMessage"] { padding: 0 !important; margin: 0 !important; }
+    /* Plotly chart margins */
+    .stPlotlyChart { margin: 0 !important; padding: 0 !important; }
+    [data-testid="stPlotlyChart"] { margin-bottom: 0 !important; }
+    .js-plotly-plot { margin-bottom: 0 !important; }
     /* Reduce but don't eliminate top padding */
     .stApp .main > div { padding-top: 2rem !important; }
     /* Metric labels - don't truncate */
@@ -4659,28 +4669,6 @@ def main():
                             {summary_html}
                         </div>""", unsafe_allow_html=True)
 
-                    # Inline related questions - right after summary, before charts
-                    if msg_idx == len(st.session_state.messages) - 1:  # Only show for latest message
-                        msg_query = msg.get('content', '').lower()
-                        # Determine contextual follow-ups
-                        if 'job' in msg_query or 'employ' in msg_query or 'economy' in msg_query:
-                            suggestions = [("Recession risk?", "recession risk"), ("Wages vs inflation?", "wages vs inflation")]
-                        elif 'inflation' in msg_query or 'cpi' in msg_query or 'price' in msg_query:
-                            suggestions = [("Are wages keeping up?", "wages vs inflation"), ("Core inflation?", "core inflation")]
-                        elif 'gdp' in msg_query or 'growth' in msg_query:
-                            suggestions = [("Recession risk?", "recession risk"), ("Job market?", "jobs")]
-                        else:
-                            suggestions = [("How is the economy?", "economy"), ("Inflation?", "inflation")]
-
-                        st.markdown("<div style='margin: 16px 0;'>", unsafe_allow_html=True)
-                        q_cols = st.columns(len(suggestions))
-                        for q_idx, (label, q_value) in enumerate(suggestions):
-                            with q_cols[q_idx]:
-                                if st.button(label, key=f"inline_q_{msg_idx}_{q_idx}", use_container_width=True):
-                                    st.session_state.pending_query = q_value
-                                    st.rerun()
-                        st.markdown("</div>", unsafe_allow_html=True)
-
                     # Render charts from stored series_data
                     if msg.get("series_data"):
                         chart_type = msg.get("chart_type", "line")
@@ -4770,6 +4758,11 @@ def main():
                                 fig = create_chart(group_data, combine=len(group_data) > 1, chart_type=chart_type)
                                 st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_group_{group_idx}")
 
+                                # Source line
+                                sources = set(i.get('source', 'FRED') for _, _, _, i in group_data)
+                                series_ids = [sid for sid, _, _, _ in group_data]
+                                st.markdown(f"<div class='source-line'>Source: {', '.join(sources)} | {' | '.join(series_ids)}</div>", unsafe_allow_html=True)
+
                         elif combine and len(series_data) > 1:
                             # Vertical layout: title, bullets, chart
                             st.markdown("---")
@@ -4792,6 +4785,11 @@ def main():
                             # Chart (full width)
                             fig = create_chart(series_data, combine=True, chart_type=chart_type)
                             st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_combined")
+
+                            # Source line
+                            sources = set(i.get('source', 'FRED') for _, _, _, i in series_data)
+                            series_ids = [sid for sid, _, _, _ in series_data]
+                            st.markdown(f"<div class='source-line'>Source: {', '.join(sources)} | {' | '.join(series_ids)}</div>", unsafe_allow_html=True)
 
                         else:
                             # Individual charts - vertical layout
@@ -4818,6 +4816,10 @@ def main():
                                 # Chart (full width)
                                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                                 st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_{series_id}")
+
+                                # Source line
+                                source = info.get('source', 'FRED')
+                                st.markdown(f"<div class='source-line'>Source: {source} | {series_id}</div>", unsafe_allow_html=True)
 
         # Follow-up section at bottom - Anthropic chat style
         if not query and st.session_state.messages:
