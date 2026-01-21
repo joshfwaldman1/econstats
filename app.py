@@ -4090,6 +4090,10 @@ def main():
 
     st.markdown("""
     <style>
+    /* Hide broken sidebar collapse button (Material icon not loading) */
+    button[kind="header"] { display: none !important; }
+    [data-testid="collapsedControl"] { display: none !important; }
+
     /* Financial Dashboard Theme - Inter font, professional colors */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
