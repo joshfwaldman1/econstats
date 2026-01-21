@@ -232,6 +232,11 @@ def get_series_via_claude(query: str) -> dict:
                         "items": {"type": "string"},
                         "description": "List of FRED series IDs to display (1-4 series)"
                     },
+                    "display_names": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Short, clear display names for each series (e.g., 'Norway GDP', 'Norway Unemployment Rate', 'Norway Inflation'). Must match order of series_ids."
+                    },
                     "show_yoy": {
                         "type": "boolean",
                         "description": "Whether to show year-over-year change. True for indexes/levels, False for rates/percentages."
@@ -241,7 +246,7 @@ def get_series_via_claude(query: str) -> dict:
                         "description": "Brief explanation of why you chose these series and what they show."
                     }
                 },
-                "required": ["series_ids", "show_yoy", "explanation"]
+                "required": ["series_ids", "display_names", "show_yoy", "explanation"]
             }
         }
     ]
@@ -315,9 +320,12 @@ CRITICAL - show_yoy rules:
                 elif tool_use.name == "select_series":
                     # Claude has made its selection - we're done
                     selected = tool_use.input.get("series_ids", [])[:4]
+                    display_names = tool_use.input.get("display_names", [])[:4]
                     print(f"  Claude selected series: {selected}")
+                    print(f"  Display names: {display_names}")
                     final_result = {
                         "series": selected,
+                        "display_names": display_names,
                         "show_yoy": tool_use.input.get("show_yoy", False),
                         "explanation": tool_use.input.get("explanation", ""),
                         "agentic": True  # Flag that this came from agentic search
@@ -758,6 +766,7 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
         # Find query plan
         plan = find_query_plan(query)
         agentic_search = False
+        agentic_display_names = []
         fallback_mode = False
 
         if plan:
@@ -771,6 +780,7 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
 
             if agentic_plan and agentic_plan.get('series'):
                 series_ids = agentic_plan['series'][:4]
+                agentic_display_names = agentic_plan.get('display_names', [])
                 show_yoy = agentic_plan.get('show_yoy', False)
                 payems_show_level = False
                 agentic_search = True
@@ -788,6 +798,10 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
         for i, sid in enumerate(series_ids):
             dates, values, info = get_fred_data(sid)
             if dates and values:
+                # Override name with agentic display name if available
+                if agentic_search and i < len(agentic_display_names) and agentic_display_names[i]:
+                    info['name'] = agentic_display_names[i]
+
                 # Apply YoY if needed
                 apply_yoy = False
                 if isinstance(show_yoy, list) and i < len(show_yoy):
