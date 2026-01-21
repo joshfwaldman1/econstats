@@ -4090,7 +4090,8 @@ def main():
 
     st.markdown("""
     <style>
-    /* Hide broken sidebar collapse/expand buttons (Material icon not loading) */
+    /* Hide sidebar entirely and broken collapse buttons */
+    section[data-testid="stSidebar"],
     button[kind="header"],
     [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapsedControl"],
@@ -4403,21 +4404,6 @@ def main():
     """, unsafe_allow_html=True)
 
     # About section in sidebar
-    with st.sidebar:
-        st.markdown("### About EconStats.org")
-        st.markdown("""
-        Government economic data is free—but too hard for most people to access and understand.
-        EconStats uses AI to change that, helping anyone draw insights directly from the numbers.
-
-        We're starting with FRED's API and working to add more data sources: productivity
-        statistics buried in the back pages of the BLS website, prices of specific consumer
-        items, consumer credit data, and beyond.
-
-        **This is just the beginning.**
-
-        Contact [waldman1@stanford.edu](mailto:waldman1@stanford.edu) with feedback or ideas.
-        """)
-
     # Use session state for query persistence and follow-ups
     if 'last_query' not in st.session_state:
         st.session_state.last_query = ''
@@ -5820,6 +5806,17 @@ def main():
             for series_id, dates, values, info in series_data:
                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                 st.plotly_chart(fig, width='stretch')
+
+    # Footer - About section at bottom of page
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 20px 0;">
+        <strong>About EconStats</strong><br>
+        Government economic data is free—but too hard for most people to access and understand.
+        EconStats uses AI to help anyone draw insights directly from the numbers.<br><br>
+        Contact <a href="mailto:waldman1@stanford.edu" style="color: #3b82f6;">waldman1@stanford.edu</a> with feedback or ideas.
+    </div>
+    """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
