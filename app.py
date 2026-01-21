@@ -4090,9 +4090,19 @@ def main():
 
     st.markdown("""
     <style>
-    /* Hide broken sidebar collapse button (Material icon not loading) */
-    button[kind="header"] { display: none !important; }
-    [data-testid="collapsedControl"] { display: none !important; }
+    /* Hide broken sidebar collapse/expand buttons (Material icon not loading) */
+    button[kind="header"],
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="baseButton-header"],
+    .stAppDeployButton,
+    header[data-testid="stHeader"] button,
+    .st-emotion-cache-1dp5vir,
+    .st-emotion-cache-eczf16,
+    .st-emotion-cache-h4xjwg {
+        display: none !important;
+    }
 
     /* Financial Dashboard Theme - Inter font, professional colors */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
