@@ -5648,7 +5648,16 @@ def main():
                                 group_data = []
                                 for sid in group_series_ids:
                                     if sid in raw_series_data:
-                                        group_data.append(raw_series_data[sid])
+                                        entry = raw_series_data[sid]
+                                        # Handle both old 2-tuple and new 4-tuple formats
+                                        if isinstance(entry, tuple) and len(entry) == 4:
+                                            group_data.append(entry)
+                                        else:
+                                            # Fall through to series_data fallback
+                                            for s_id, d, v, i in series_data:
+                                                if s_id == sid:
+                                                    group_data.append((s_id, d, v, i))
+                                                    break
                                     else:
                                         # Fallback to series_data
                                         for s_id, d, v, i in series_data:
