@@ -5648,11 +5648,39 @@ def main():
             log_query(query, [], "no_results")
             st.stop()
 
-        # Geographic scope detection - warn if query asks about a state but we only have national data
+        # Geographic scope detection - search FRED for state-specific series
         geo_scope = detect_geographic_scope(query)
-        if geo_scope['type'] != 'national':
-            st.info(f"📍 Note: EconStats currently provides national (US-level) data. "
-                   f"Showing national indicators as context for understanding {geo_scope['name'].title()}'s economy.")
+        if geo_scope['type'] == 'state':
+            state_name = geo_scope['name']
+            with st.spinner(f"Searching for {state_name.title()} data..."):
+                # Search FRED for state-specific series
+                state_search_terms = [
+                    f"{state_name} unemployment",
+                    f"{state_name} employment",
+                    f"{state_name} GDP",
+                ]
+                state_series = []
+                for term in state_search_terms:
+                    try:
+                        results = search_series(term, limit=2, require_recent=True)
+                        for r in results:
+                            sid = r['id']
+                            title = r.get('title', '').lower()
+                            # Verify it's actually state-specific (contains state name)
+                            if state_name in title and sid not in state_series:
+                                state_series.append(sid)
+                    except:
+                        pass
+
+                if state_series:
+                    # Found state-specific data - use it instead
+                    series_to_fetch = state_series[:4]
+                    st.success(f"📍 Found {state_name.title()}-specific data from FRED!")
+                    interpretation['geographic_override'] = True
+                    interpretation['state'] = state_name
+                else:
+                    # No state data found - fall back to national with warning
+                    st.info(f"📍 No {state_name.title()}-specific series found. Showing national indicators as context.")
 
         # Validate series relevance - filter out irrelevant/overly broad series
         # Validate if: (1) multiple series AND (2) not pure pre-computed OR holistic-augmented
