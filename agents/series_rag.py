@@ -254,6 +254,70 @@ FRED_SERIES_CATALOG = [
      "description": "Total federal government expenditures. Government spending levels."},
     {"id": "FGRECPT", "name": "Federal Government Revenue",
      "description": "Total federal government receipts. Tax revenue, government income."},
+
+    # === SMALL BUSINESS ===
+    {"id": "NFIBOPTIMISM", "name": "Small Business Optimism Index",
+     "description": "NFIB small business optimism index. Small business confidence, entrepreneurship sentiment."},
+    {"id": "BUSLOANS", "name": "Commercial & Industrial Loans",
+     "description": "Commercial and industrial loans at commercial banks. Business lending, corporate borrowing."},
+    {"id": "DRTSCLCC", "name": "Bank Lending Standards - C&I Loans",
+     "description": "Banks tightening standards for commercial and industrial loans. Credit conditions for businesses."},
+
+    # === SUPPLY CHAIN / LOGISTICS ===
+    {"id": "RAILFRTINTERMODAL", "name": "Rail Freight Intermodal Traffic",
+     "description": "Rail freight intermodal traffic. Shipping containers, supply chain activity."},
+    {"id": "NAPMPI", "name": "ISM Manufacturing Prices Index",
+     "description": "ISM manufacturing prices paid index. Input costs, supply chain pressures."},
+    {"id": "NAPMPMD", "name": "ISM Manufacturing Supplier Deliveries",
+     "description": "ISM manufacturing supplier deliveries index. Supply chain delays, bottlenecks."},
+    {"id": "TSIFRGHT", "name": "Transportation Services Index - Freight",
+     "description": "Transportation services index for freight. Shipping activity, logistics volume."},
+
+    # === VETERANS EMPLOYMENT ===
+    {"id": "LNS14049526", "name": "Unemployment Rate - Gulf War Era II Veterans",
+     "description": "Unemployment rate for veterans who served since September 2001. Post-9/11 veterans' employment."},
+    {"id": "LNU04049526", "name": "Unemployed Gulf War Era II Veterans",
+     "description": "Number of unemployed veterans who served since September 2001. Veterans job seekers."},
+
+    # === INDUSTRY SECTORS ===
+    {"id": "MANEMP", "name": "Manufacturing Employment",
+     "description": "All employees in manufacturing. Factory jobs, manufacturing payrolls."},
+    {"id": "USCONS", "name": "Construction Employment",
+     "description": "All employees in construction. Construction jobs, building sector employment."},
+    {"id": "USFIRE", "name": "Financial Activities Employment",
+     "description": "All employees in financial activities. Finance, insurance, real estate jobs."},
+    {"id": "USPBS", "name": "Professional & Business Services Employment",
+     "description": "All employees in professional and business services. White collar jobs, corporate employment."},
+    {"id": "USHCS", "name": "Education & Health Services Employment",
+     "description": "All employees in education and health services. Healthcare and education jobs."},
+    {"id": "USLAH", "name": "Leisure & Hospitality Employment",
+     "description": "All employees in leisure and hospitality. Restaurant, hotel, entertainment jobs."},
+    {"id": "USINFO", "name": "Information Services Employment",
+     "description": "All employees in information services. Tech jobs, media, telecommunications."},
+    {"id": "USTRADE", "name": "Trade, Transportation & Utilities Employment",
+     "description": "All employees in trade, transportation and utilities. Retail, wholesale, transport jobs."},
+    {"id": "USGOVT", "name": "Government Employment",
+     "description": "All employees in government. Public sector jobs, federal/state/local employment."},
+
+    # === MONEY SUPPLY / MONETARY ===
+    {"id": "M2SL", "name": "M2 Money Supply",
+     "description": "M2 money supply. Money in circulation, cash and deposits."},
+    {"id": "BOGMBASE", "name": "Monetary Base",
+     "description": "St. Louis adjusted monetary base. Currency plus bank reserves."},
+    {"id": "WALCL", "name": "Fed Balance Sheet",
+     "description": "Federal Reserve total assets. Fed balance sheet size, quantitative easing."},
+
+    # === AUTO / VEHICLES ===
+    {"id": "TOTALSA", "name": "Total Vehicle Sales",
+     "description": "Total vehicle sales. Car and truck sales, auto industry demand."},
+    {"id": "ALTSALES", "name": "Light Vehicle Sales",
+     "description": "Light vehicle sales - cars and light trucks. Consumer auto purchases."},
+
+    # === ENERGY ===
+    {"id": "IPG211111CS", "name": "Crude Oil Production Index",
+     "description": "Industrial production: crude oil. US oil production, energy output."},
+    {"id": "CLPR", "name": "Coal Production",
+     "description": "US coal production. Mining output, fossil fuel production."},
 ]
 
 # =============================================================================

@@ -36,9 +36,9 @@
     "series": [
       "GDPC1"
     ],
-    "show_yoy": false,
+    "show_yoy": true,
     "combine_chart": false,
-    "explanation": "GDPC1 is the definitive measure of real GDP in billions of chained 2017 dollars. This series shows the actual level of inflation-adjusted economic output, which is what you're asking for when requesting 'real GDP'. This is the primary measure used to assess the size and trend of the U.S. economy."
+    "explanation": "GDPC1 is real GDP in billions of chained 2017 dollars. Shown as year-over-year % change since the level ($28T+) is less meaningful than growth trends. YoY growth of ~2% is healthy; above 3% is strong; negative signals recession."
   },
   "gdp report": {
     "series": [
@@ -364,5 +364,27 @@
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "BOPGSTB is the monthly trade balance (goods and services) from balance of payments data - the most timely trade indicator. NETEXP is quarterly net exports from GDP accounts. Negative values = trade deficit, positive = surplus. The U.S. has run persistent deficits since the 1970s."
+  },
+  "gdp composition": {
+    "series": [
+      "PCEC96",
+      "GPDIC1",
+      "GCEC1",
+      "NETEXP"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "GDP composition breakdown: Consumer spending (PCEC96) is ~70% of GDP - the main driver. Business investment (GPDIC1) is ~17% and most volatile. Government spending (GCEC1) is ~17%. Net exports (NETEXP) typically subtracts from GDP as the US runs trade deficits. Understanding which components are growing/shrinking reveals the nature of economic expansion."
+  },
+  "gdp components": {
+    "series": [
+      "PCEC96",
+      "GPDIC1",
+      "GCEC1",
+      "NETEXP"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "The four components of GDP: Consumption (PCEC96), Investment (GPDIC1), Government (GCEC1), and Net Exports (NETEXP). Shown together to see which component is driving growth. Consumer spending dominates at ~70% of GDP, but investment and net exports are more volatile and often explain quarterly swings."
   }
 }

@@ -590,16 +590,420 @@
   },
   "small business": {
     "series": [
-      "UMCSENT",
+      "BUSLOANS",
+      "DRTSCLCC",
       "RSXFS",
+      "FEDFUNDS"
+    ],
+    "show_yoy": [true, false, true, false],
+    "combine_chart": false,
+    "explanation": "Small business health: C&I Loans (BUSLOANS) shows business credit demand. Lending standards (DRTSCLCC) reveal credit availability - tightening hurts small businesses most. Retail sales (RSXFS) indicate consumer demand driving small business revenue. Fed funds rate (FEDFUNDS) affects borrowing costs. Note: NFIB Small Business Optimism Index is available but outside FRED."
+  },
+  "small business lending": {
+    "series": [
+      "BUSLOANS",
+      "DRTSCLCC"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Business lending conditions: C&I Loans outstanding shows total business borrowing, while Bank Lending Standards show whether banks are making credit easier or harder to get. Tightening standards (higher values) signal harder credit conditions that particularly hurt small businesses."
+  },
+  "supply chain": {
+    "series": [
+      "NAPMPMD",
+      "NAPMPI",
+      "TSIFRGHT",
+      "PPIACO"
+    ],
+    "show_yoy": [false, false, false, true],
+    "combine_chart": false,
+    "explanation": "Supply chain indicators: ISM Supplier Deliveries (NAPMPMD) measures delivery delays - above 50 means delays worsening. ISM Prices Paid (NAPMPI) shows input cost pressures from shortages. Freight index (TSIFRGHT) tracks shipping volumes. Producer prices (PPIACO) show if supply costs flow through to businesses. High delivery times + high prices = supply chain stress."
+  },
+  "logistics": {
+    "series": [
+      "RAILFRTINTERMODAL",
+      "TSIFRGHT"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Freight and logistics indicators: Rail Intermodal Traffic shows container shipping volume, and Transportation Services Index tracks overall freight movement. Both are real-time indicators of economic activity and trade flows."
+  },
+  "shipping": {
+    "series": [
+      "RAILFRTINTERMODAL",
+      "TSIFRGHT"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Shipping activity: Rail intermodal (container) traffic and Transportation Services Index show goods movement across the economy. Declines can signal slowing demand or supply chain issues."
+  },
+  "auto sales": {
+    "series": [
+      "TOTALSA",
+      "ALTSALES"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Vehicle sales: TOTALSA is total vehicle sales (cars + trucks), ALTSALES is light vehicle sales. Auto sales are a key consumer spending indicator since vehicles are major purchases. Annualized rates around 15-17 million units are healthy."
+  },
+  "car sales": {
+    "series": [
+      "TOTALSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Total vehicle sales (TOTALSA) - seasonally adjusted annual rate. This is THE auto industry demand indicator. Pre-pandemic normal was ~17 million units; chip shortage drove it below 13 million; recovery has been uneven."
+  },
+  "oil production": {
+    "series": [
+      "IPG211111CS",
+      "DCOILWTICO"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "US oil production index (IPG211111CS) shows domestic crude output, while WTI oil price provides context on pricing. US has become the world's largest oil producer."
+  },
+  "money supply": {
+    "series": [
+      "M2SL",
+      "WALCL"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "M2 money supply shows money in circulation (cash + deposits), while Fed Balance Sheet (WALCL) shows the Federal Reserve's total assets from quantitative easing. Both expanded dramatically during COVID stimulus and are now contracting."
+  },
+  "fed balance sheet": {
+    "series": [
+      "WALCL"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Federal Reserve total assets (WALCL) - the size of the Fed's balance sheet. Expanded massively during QE programs; now shrinking through quantitative tightening (QT). Changes affect financial conditions and liquidity."
+  },
+  "stagflation": {
+    "series": [
+      "A191RL1Q225SBEA",
+      "CPIAUCSL",
+      "UNRATE",
+      "LES1252881600Q"
+    ],
+    "show_yoy": [false, true, false, true],
+    "combine_chart": false,
+    "explanation": "Stagflation = slow/negative growth + high inflation + rising unemployment. (1) GDP growth shows economic momentum - negative = recession. (2) CPI inflation YoY - high inflation is one pillar of stagflation. (3) Unemployment rate - rising unemployment is another pillar. (4) Real wages YoY - falling real wages confirm the squeeze. TRUE stagflation requires ALL three: weak GDP + high inflation + rising unemployment simultaneously."
+  },
+  "is stagflation happening": {
+    "series": [
+      "A191RL1Q225SBEA",
+      "CPIAUCSL",
       "UNRATE"
     ],
-    "show_yoy": [
-      false,
-      true,
-      false
-    ],
+    "show_yoy": [false, true, false],
     "combine_chart": false,
-    "explanation": "Key indicators affecting small businesses: Consumer Sentiment shows demand outlook, Retail Sales growth indicates consumer spending that drives small business revenue, and Unemployment Rate reflects labor market conditions. Note: The NFIB Small Business Optimism Index is not directly available in FRED - visit nfib.com for that specific survey."
+    "explanation": "Stagflation check: (1) Is GDP growth weak or negative? (2) Is inflation high (above 3-4%)? (3) Is unemployment rising? For TRUE stagflation, all three must occur together - historically rare. 1970s had stagflation; today's conditions differ."
+  },
+  "federal deficit": {
+    "series": [
+      "FYFSD",
+      "GFDEBTN",
+      "FGEXPND",
+      "FGRECPT"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Federal budget deficit (not trade deficit): (1) FYFSD shows annual surplus/deficit - negative values mean deficit. (2) Federal debt (GFDEBTN) shows accumulated borrowing. (3) Spending (FGEXPND) and (4) Revenue (FGRECPT) show the two sides of the budget equation. Note: This is BUDGET deficit, not trade deficit."
+  },
+  "budget deficit": {
+    "series": [
+      "FYFSD",
+      "GFDEBTN"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Federal budget deficit: FYFSD shows annual surplus (positive) or deficit (negative). GFDEBTN shows total accumulated federal debt. Deficits add to debt. Sustainable deficit levels depend on interest rates and GDP growth."
+  },
+  "national debt": {
+    "series": [
+      "GFDEBTN",
+      "FYFSD"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Federal debt (GFDEBTN) - total US government debt outstanding. FYFSD shows the annual budget deficit that adds to debt each year. Debt-to-GDP ratio (not shown) is the key sustainability metric."
+  },
+  "trade war affecting manufacturing": {
+    "series": [
+      "MANEMP",
+      "IMPCH",
+      "PPIACO",
+      "NAPMPMD"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Trade war impact on manufacturing: (1) Manufacturing employment (MANEMP) - are factory jobs being gained or lost? (2) China imports (IMPCH) - tariffs should reduce imports. (3) Producer prices (PPIACO) - tariffs raise input costs. (4) Supplier deliveries (NAPMPMD) - supply chain stress indicator. Higher NAPMPMD = longer delays."
+  },
+  "tariffs affecting economy": {
+    "series": [
+      "BOPGSTB",
+      "IMPGS",
+      "PPIACO",
+      "MANEMP"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Tariff economic impact: (1) Trade balance - did tariffs reduce the deficit? (2) Total imports - are imports falling? (3) Producer prices - tariffs raise costs for businesses. (4) Manufacturing employment - are tariffs creating factory jobs? Effects typically take 6-12 months to show in data."
+  },
+  "tariffs impact": {
+    "series": [
+      "BOPGSTB",
+      "IMPGS",
+      "DTWEXBGS",
+      "PPIACO"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Tariff impact assessment: (1) Trade balance - narrowing deficit would suggest tariffs working. (2) Import levels - direct target of tariffs. (3) Dollar strength - tariffs can affect currency. (4) Producer prices - businesses pass tariff costs through. Note: FRED lacks data on specific tariff rates or affected products."
+  },
+  "how tariffs affect economy": {
+    "series": [
+      "BOPGSTB",
+      "MANEMP",
+      "CPIAUCSL",
+      "PPIACO"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Tariff effects across the economy: (1) Trade balance - primary policy target. (2) Manufacturing jobs - intended beneficiary of protection. (3) Consumer inflation - tariffs can raise prices for households. (4) Producer prices - input cost inflation for businesses. Full tariff impact takes time to materialize in economic data."
+  },
+  "inflation affecting low income": {
+    "series": [
+      "CUSR0000SAF11",
+      "GASREGW",
+      "CUSR0000SAH1",
+      "AHETPI"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Inflation's impact on low-income households - they spend larger share of income on essentials: (1) Food prices (groceries) - major budget item. (2) Gas prices - commuting costs. (3) Shelter/rent inflation - housing is largest expense. (4) Production worker wages - proxy for lower-wage workers. Note: FRED lacks explicit low-income CPI data."
+  },
+  "interest rate outlook": {
+    "series": [
+      "FEDFUNDS",
+      "PCEPILFE",
+      "UNRATE",
+      "T10Y2Y"
+    ],
+    "show_yoy": [false, true, false, false],
+    "combine_chart": false,
+    "explanation": "Rate outlook fundamentals: (1) Current Fed funds rate - where policy stands. (2) Core PCE inflation YoY - Fed targets 2%, high inflation = rate hikes. (3) Unemployment - low unemployment supports higher rates. (4) Yield curve - market expectations for future rates. NOTE: FRED shows fundamentals, not forecasts. For actual Fed projections, see the Summary of Economic Projections."
+  },
+  "ai impact on jobs": {
+    "series": [
+      "USINFO",
+      "MANEMP",
+      "CES0500000003",
+      "ICSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "AI job impact proxies (FRED lacks direct AI data): (1) Information sector employment - includes tech companies. (2) Manufacturing employment - automation-exposed. (3) Average hourly earnings - wage pressures from tech. (4) Initial claims - layoff activity. IMPORTANT: These are correlates, not direct AI measures. FRED cannot distinguish AI-caused job changes from other factors."
+  },
+  "labor shortage": {
+    "series": [
+      "JTSJOL",
+      "JTSQUR",
+      "CIVPART",
+      "CES0500000003"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Labor shortage indicators: Job openings (JTSJOL) show unfilled positions - high levels signal shortage. Quits rate (JTSQUR) shows worker confidence to leave - high quits indicate workers have leverage. Labor force participation (CIVPART) shows if workers are available. Wage growth (CES0500000003) rising faster than productivity suggests labor scarcity. All high = labor shortage."
+  },
+  "worker shortage": {
+    "series": [
+      "JTSJOL",
+      "UNRATE",
+      "CIVPART",
+      "CES0500000003"
+    ],
+    "show_yoy": [false, false, false, true],
+    "combine_chart": false,
+    "explanation": "Worker shortage assessment: Job openings (JTSJOL) vastly exceeding unemployed workers signals shortage. Low unemployment (UNRATE) means fewer available workers. Labor force participation (CIVPART) shows if people are returning to work. Wage growth (CES0500000003) rising fast indicates employers competing for scarce workers."
+  },
+  "cost of living crisis": {
+    "series": [
+      "CPIAUCSL",
+      "LES1252881600Q",
+      "CUSR0000SAF11",
+      "CUSR0000SAH1"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Cost of living crisis: Headline inflation (CPIAUCSL) shows overall price pressures. Real wages (LES1252881600Q) show if workers are falling behind - negative growth means purchasing power loss. Food inflation (CUSR0000SAF11) and shelter inflation (CUSR0000SAH1) are essentials that hurt low-income households most. Crisis = inflation exceeding wage growth on essentials."
+  },
+  "manufacturing vs services": {
+    "series": [
+      "MANEMP",
+      "SRVPRD",
+      "IPMAN",
+      "DPCERD3Q086SBEA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Manufacturing vs services comparison: Manufacturing employment (MANEMP) vs services employment (SRVPRD) shows the structural shift in the economy. Manufacturing production (IPMAN) and services prices (DPCERD3Q086SBEA) show output and inflation dynamics. Manufacturing has declined as share of jobs while services dominate modern employment."
+  },
+  "ohio unemployment": {
+    "series": [
+      "OHUR",
+      "UNRATE",
+      "PAYEMS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Ohio unemployment (OHUR) compared to national unemployment (UNRATE) and total payrolls (PAYEMS) for context. Shows how Ohio's labor market compares to the nation overall."
+  },
+  "ohio economy": {
+    "series": [
+      "OHUR",
+      "OHNA",
+      "UNRATE",
+      "PAYEMS"
+    ],
+    "show_yoy": [false, true, false, true],
+    "combine_chart": false,
+    "explanation": "Ohio economy: State unemployment (OHUR), state nonfarm payrolls (OHNA), compared to national unemployment (UNRATE) and national payrolls (PAYEMS). Ohio is a bellwether manufacturing state - its performance often reflects broader industrial trends."
+  },
+  "ohio jobs": {
+    "series": [
+      "OHNA",
+      "OHUR",
+      "PAYEMS"
+    ],
+    "show_yoy": [true, false, true],
+    "combine_chart": false,
+    "explanation": "Ohio employment: State nonfarm payrolls (OHNA) show Ohio job creation vs national payrolls (PAYEMS). State unemployment (OHUR) provides labor market context. Ohio is a key manufacturing and swing state."
+  },
+  "texas economy": {
+    "series": [
+      "TXUR",
+      "TXNA",
+      "UNRATE",
+      "PAYEMS"
+    ],
+    "show_yoy": [false, true, false, true],
+    "combine_chart": false,
+    "explanation": "Texas economy: State unemployment (TXUR) and state nonfarm payrolls (TXNA) compared to national benchmarks. Texas has been one of the fastest-growing state economies due to energy, tech, and corporate relocations."
+  },
+  "california economy": {
+    "series": [
+      "CAUR",
+      "CANA",
+      "UNRATE",
+      "PAYEMS"
+    ],
+    "show_yoy": [false, true, false, true],
+    "combine_chart": false,
+    "explanation": "California economy: State unemployment (CAUR) and nonfarm payrolls (CANA) vs national benchmarks. California is the largest state economy, driven by tech, entertainment, agriculture, and trade."
+  },
+  "last 5 years job growth": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "LNS12300060"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "5-year job market trends: Total nonfarm payrolls (PAYEMS) shows job creation trajectory. Unemployment rate (UNRATE) shows labor market slack over time. Prime-age employment ratio (LNS12300060) provides the cleanest measure of labor market health. View in 5-year timeframe to see post-pandemic recovery and trends."
+  },
+  "is the economy cooling": {
+    "series": [
+      "A191RL1Q225SBEA",
+      "INDPRO",
+      "PAYEMS",
+      "ICSA"
+    ],
+    "show_yoy": [false, true, true, false],
+    "combine_chart": false,
+    "explanation": "Economy cooling indicators: GDP growth (A191RL1Q225SBEA) shows overall momentum - declining = cooling. Industrial production (INDPRO) is sensitive to slowdowns. Payroll growth (PAYEMS) slowing signals labor market cooling. Initial claims (ICSA) rising indicates layoffs picking up. All slowing together = economy cooling."
+  },
+  "is the economy slowing": {
+    "series": [
+      "A191RL1Q225SBEA",
+      "PAYEMS",
+      "RSXFS",
+      "UMCSENT"
+    ],
+    "show_yoy": [false, true, true, false],
+    "combine_chart": false,
+    "explanation": "Economic slowdown indicators: GDP growth (A191RL1Q225SBEA) declining toward zero/negative. Job growth (PAYEMS) decelerating. Retail sales (RSXFS) weakening. Consumer sentiment (UMCSENT) falling. These leading indicators often turn down before recessions."
+  },
+  "gig economy": {
+    "series": [
+      "LNS12032194",
+      "LNS12032197",
+      "PAYEMS",
+      "USLAH"
+    ],
+    "show_yoy": [false, false, true, true],
+    "combine_chart": false,
+    "explanation": "Gig economy proxies (FRED lacks direct gig worker data): Self-employed workers (LNS12032194 - unincorporated self-employed) and multiple jobholders (LNS12032197) capture some gig patterns. Leisure/hospitality (USLAH) often uses gig-like staffing. Payrolls (PAYEMS) provides context for traditional W-2 employment. For detailed gig data, check BLS Contingent Worker Survey."
+  },
+  "solar industry jobs": {
+    "series": [
+      "USCONS",
+      "IPG3211A2S",
+      "USINFO"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Solar industry proxies (FRED lacks dedicated solar employment data): Construction employment (USCONS) includes solar installation jobs. Utilities electricity generation (IPG3211A2S) shows power sector trends. Information sector (USINFO) sometimes includes clean energy firms. For dedicated solar employment data, see IRENA or Solar Foundation reports."
+  },
+  "solar energy industry": {
+    "series": [
+      "USCONS",
+      "IPG3211A2S",
+      "USINFO"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Solar energy proxies (FRED lacks dedicated solar data): Construction (USCONS) includes solar installation, utilities output (IPG3211A2S) shows power sector, and USINFO captures some clean-tech firms. For dedicated solar industry statistics, see DOE Solar Market Insight reports."
+  },
+  "cryptocurrency": {
+    "series": [
+      "DTWEXBGS",
+      "DGS10",
+      "SP500"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Cryptocurrency context (FRED does not track crypto prices directly): Dollar strength (DTWEXBGS) often inversely correlates with crypto. Treasury yields (DGS10) show real rate competition for crypto. S&P 500 shows risk-on/off correlation. For actual crypto prices, check CoinGecko, CoinMarketCap, or financial data providers."
+  },
+  "food trucks": {
+    "series": [
+      "USLAH",
+      "CUSR0000SEFV",
+      "BUSLOANS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Food truck industry proxies (no dedicated FRED series): Leisure/hospitality employment (USLAH) includes food service. Food away from home CPI (CUSR0000SEFV) shows restaurant pricing. Small business loans (BUSLOANS) indicate financing conditions for small operators. For specific food truck data, check local business licensing or industry associations."
+  },
+  "stocks": {
+    "series": [
+      "SP500",
+      "VIXCLS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Stock market indicators: S&P 500 index (SP500) represents about 80% of US equity market cap. VIX volatility index (VIXCLS) measures market fear - high VIX indicates expected turbulence. For real-time stock data, use financial terminals or broker platforms."
+  },
+  "stock market": {
+    "series": [
+      "SP500",
+      "VIXCLS",
+      "WILLSMLCAP"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Stock market overview: S&P 500 (SP500) for large caps, Wilshire Small Cap (WILLSMLCAP) for smaller companies, VIX (VIXCLS) for volatility. Small caps often lead market turns. VIX above 20 signals elevated fear; above 30 indicates panic."
   }
 }

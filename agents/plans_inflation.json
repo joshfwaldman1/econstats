@@ -91,6 +91,12 @@
       {"series": ["CPILFESL", "PCEPILFE"], "show_yoy": true, "title": "Core CPI vs Core PCE (YoY %)"}
     ]
   },
+  "compare cpi and pce": {
+    "series": ["CPIAUCSL", "PCEPI", "CPILFESL", "PCEPILFE"],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "CPI vs PCE comparison:\n\n**Headline:** CPIAUCSL (CPI) vs PCEPI (PCE). CPI is widely reported in news; PCE is what the Fed targets.\n\n**Core:** CPILFESL (Core CPI) vs PCEPILFE (Core PCE). The Fed targets 2% Core PCE specifically.\n\nKey difference: PCE captures substitution effects (if beef prices rise, people buy chicken) and includes employer-paid healthcare. PCE inflation typically runs 0.3-0.5 percentage points below CPI."
+  },
   "price increases": {
     "series": [
       "CPIAUCSL",
@@ -173,19 +179,23 @@
   "food prices": {
     "series": [
       "CUSR0000SAF11",
-      "CUSR0000SEFV"
+      "CUSR0000SEFV",
+      "CPIAUCSL",
+      "DCOILWTICO"
     ],
-    "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "Food prices are best analyzed through the two main CPI food components: food at home (CUSR0000SAF11) which covers groceries and supermarket purchases, and food away from home (CUSR0000SEFV) which covers restaurants and dining out. These series capture different inflationary dynamics - food at home is more volatile and tied to commodity prices, while food away from home reflects service sector wage pressures. Showing year-over-year changes reveals the inflation rate for each category, and combining them allows comparison of how grocery vs restaurant price inflation differs."
+    "show_yoy": [true, true, true, false],
+    "combine_chart": false,
+    "explanation": "Food prices through multiple lenses: Food at home (CUSR0000SAF11) covers groceries, Food away from home (CUSR0000SEFV) covers restaurants. Compared to headline CPI (CPIAUCSL) to show if food inflation is running hot vs overall prices. Oil prices (DCOILWTICO) provide supply-side context since fuel affects agricultural production and food transportation costs. Grocery prices are commodity-driven; restaurant prices reflect wage pressures."
   },
   "grocery prices": {
     "series": [
-      "CUSR0000SAF11"
+      "CUSR0000SAF11",
+      "CPIAUCSL",
+      "LES1252881600Q"
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "CUSR0000SAF11 (CPI Food at home) is the definitive measure of grocery prices, capturing prices at supermarkets and grocery stores. This excludes restaurants and dining out, which is exactly what 'grocery prices' should measure. Shown as year-over-year inflation rate to reveal how grocery costs are changing over time."
+    "explanation": "Grocery prices (CUSR0000SAF11 - Food at home CPI) compared to headline inflation (CPIAUCSL) and real wages (LES1252881600Q). This shows whether grocery inflation is outpacing overall prices and whether wages are keeping up. When grocery inflation exceeds wage growth, household food budgets get squeezed."
   },
   "gas prices": {
     "series": [
@@ -209,11 +219,12 @@
     "series": [
       "CUSR0000SETB01",
       "DCOILWTICO",
-      "GASREGW"
+      "GASREGW",
+      "CUSR0000SEHE"
     ],
     "show_yoy": false,
-    "combine_chart": true,
-    "explanation": "Energy prices are best captured through multiple series: CPI Gasoline (CUSR0000SETB01) shows how gas prices affect consumer inflation, WTI Crude Oil (DCOILWTICO) shows the underlying commodity price that drives energy costs, and Regular Gasoline Retail Price (GASREGW) shows actual pump prices consumers pay. Using levels rather than YoY shows current price movements and volatility that energy markets are known for."
+    "combine_chart": false,
+    "explanation": "Energy prices comprehensively: CPI Gasoline (CUSR0000SETB01) measures pump price inflation, WTI Crude (DCOILWTICO) is the upstream commodity driver, regular gas prices (GASREGW) show actual retail prices, and electricity/utilities (CUSR0000SEHE) captures household energy costs beyond transportation. Oil drives gas prices with ~2-week lag; electricity has separate regulatory and supply dynamics."
   },
   "oil prices": {
     "series": [
@@ -234,11 +245,14 @@
   },
   "shelter inflation": {
     "series": [
-      "CUSR0000SAH1"
+      "CUSR0000SAH1",
+      "CUSR0000SEHA",
+      "CUSR0000SEHC",
+      "MORTGAGE30US"
     ],
-    "show_yoy": true,
+    "show_yoy": [true, true, true, false],
     "combine_chart": false,
-    "explanation": "CUSR0000SAH1 is the CPI Shelter index, which is the most comprehensive measure of shelter inflation. This captures rent, owners' equivalent rent, and lodging away from home. Shelter is the largest component of CPI (~33%) and has been a major driver of persistent inflation. Showing year-over-year change gives the inflation rate that policymakers and consumers focus on."
+    "explanation": "Shelter inflation breakdown: Overall shelter (CUSR0000SAH1) is 33% of CPI. Rent of primary residence (CUSR0000SEHA) shows actual renter costs. Owners' equivalent rent (CUSR0000SEHC) imputes homeowner housing costs. Mortgage rates (MORTGAGE30US) provide affordability context - high rates can dampen housing demand but take time to flow through to CPI shelter measures due to lagged lease renewals."
   },
   "housing inflation": {
     "series": [
@@ -287,20 +301,24 @@
   "services inflation": {
     "series": [
       "DPCERD3Q086SBEA",
-      "CUSR0000SAH1"
+      "CUSR0000SAH1",
+      "CPIMEDSL",
+      "CES0500000003"
     ],
     "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "Services inflation is best measured by PCE services prices (DPCERD3Q086SBEA), which captures the broad services sector that the Fed closely monitors. I'm including CPI Shelter (CUSR0000SAH1) because housing services are the largest component of services inflation (~40% of core services) and have been a key driver of persistent inflation. Together, these show both the overall services trend and the critical shelter component that dominates services inflation dynamics."
+    "combine_chart": false,
+    "explanation": "Services inflation comprehensively: PCE services (DPCERD3Q086SBEA) is the broad measure the Fed watches. Shelter CPI (CUSR0000SAH1) is 40% of core services. Medical services CPI (CPIMEDSL) is another sticky component. Average hourly earnings (CES0500000003) show wage pressures driving services costs. Services inflation is fundamentally about labor costs, which is why it's 'stickier' than goods inflation."
   },
   "goods inflation": {
     "series": [
       "DGDSRD3Q086SBEA",
-      "DPCERD3Q086SBEA"
+      "DPCERD3Q086SBEA",
+      "DTWEXBGS",
+      "NAPMPMD"
     ],
-    "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "For goods inflation analysis, I'm showing PCE goods prices (DGDSRD3Q086SBEA) as the primary measure, which captures price changes for durable and nondurable goods. I've also included PCE services prices (DPCERD3Q086SBEA) for comparison, as goods vs services inflation dynamics are crucial for understanding overall price pressures. PCE data is preferred over CPI goods components because it's what the Fed uses for policy decisions and provides better coverage of goods price movements through its chain-weighted methodology."
+    "show_yoy": [true, true, false, false],
+    "combine_chart": false,
+    "explanation": "Goods vs services inflation with supply context: PCE goods (DGDSRD3Q086SBEA) vs PCE services (DPCERD3Q086SBEA) shows the divergence. Dollar strength (DTWEXBGS) affects import prices - strong dollar = cheaper imported goods. ISM supplier deliveries (NAPMPMD) indicates supply chain conditions - high readings mean delays that can push goods prices up. Goods inflation was transitory during COVID; services inflation has been stickier."
   },
   "sticky inflation": {
     "series": [
@@ -344,11 +362,13 @@
   "medical inflation": {
     "series": [
       "CUSR0000SAM",
-      "CPIMEDSL"
+      "CPIMEDSL",
+      "USHCS",
+      "CES0500000003"
     ],
     "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "Medical inflation is best captured by two CPI components: CUSR0000SAM (CPI Medical care - the broadest measure including all medical goods and services) and CPIMEDSL (CPI Medical care services - the largest subcomponent focusing on doctor visits, hospital services, etc.). Medical services typically drive overall medical inflation trends and represent the majority of medical spending. Showing both on one chart reveals whether medical inflation is driven by goods (prescriptions, medical equipment) or services (healthcare provider costs)."
+    "combine_chart": false,
+    "explanation": "Medical inflation with cost drivers: Overall medical care CPI (CUSR0000SAM) and medical services CPI (CPIMEDSL) show price trends. Healthcare employment (USHCS) indicates labor demand driving costs. Average hourly earnings (CES0500000003) shows wage pressures - healthcare must compete for workers. Services dominate medical spending, so labor costs largely determine medical inflation."
   },
   "healthcare costs": {
     "series": [
@@ -369,11 +389,14 @@
   },
   "restaurant prices": {
     "series": [
-      "CUSR0000SEFV"
+      "CUSR0000SEFV",
+      "CUSR0000SAF11",
+      "AHETPI",
+      "USLAH"
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "CUSR0000SEFV is the CPI component for 'Food away from home' which directly measures restaurant and other food service prices. This is the most precise measure for tracking restaurant price inflation, capturing the cost pressures restaurants face from labor, ingredients, and rent that get passed through to consumers."
+    "explanation": "Restaurant prices (CUSR0000SEFV - food away from home) compared to grocery prices (CUSR0000SAF11 - food at home) shows the dining-out premium. Production worker wages (AHETPI) indicate labor cost pressures, and leisure/hospitality employment (USLAH) shows if restaurants can find workers. Restaurant inflation is largely driven by wages and rent, not food commodity costs."
   },
   "used car prices": {
     "series": [

@@ -31,11 +31,14 @@
   },
   "home prices": {
     "series": [
-      "CSUSHPINSA"
+      "CSUSHPINSA",
+      "MSPUS",
+      "MORTGAGE30US",
+      "DSPIC96"
     ],
-    "show_yoy": true,
+    "show_yoy": [true, false, false, true],
     "combine_chart": false,
-    "explanation": "CSUSHPINSA is the S&P/Case-Shiller National Home Price Index, the gold standard for tracking U.S. home prices. It measures the change in value of residential real estate nationwide using a repeat-sales methodology. Showing year-over-year changes reveals the home price appreciation rate, which is the key metric for understanding price trends and market momentum."
+    "explanation": "Home prices comprehensively: Case-Shiller index (CSUSHPINSA) shows price appreciation trends. Median sale price (MSPUS) shows actual dollar prices. Mortgage rates (MORTGAGE30US) affect affordability and buying power. Disposable income (DSPIC96) shows whether incomes are keeping pace with prices. When prices outpace income growth, affordability deteriorates."
   },
   "house prices": {
     "series": [
@@ -100,11 +103,12 @@
     "series": [
       "FIXHAI",
       "MORTGAGE30US",
-      "CSUSHPINSA"
+      "CSUSHPINSA",
+      "DSPIC96"
     ],
-    "show_yoy": false,
+    "show_yoy": [false, false, true, true],
     "combine_chart": false,
-    "explanation": "Housing affordability from three angles: (1) FIXHAI (Housing Affordability Index) directly measures whether a typical family can qualify for a mortgage on a typical home - values above 100 mean the median family has more than enough income to qualify. (2) Mortgage rates determine financing costs. (3) Home prices determine purchase costs. When rates and prices rise, affordability (FIXHAI) falls."
+    "explanation": "Housing affordability comprehensively: FIXHAI (Affordability Index) directly measures if median families can qualify for mortgages - above 100 = affordable. Mortgage rates (MORTGAGE30US) determine monthly payments. Home prices (CSUSHPINSA) determine purchase costs. Disposable income (DSPIC96) shows whether incomes are keeping pace. All four factors drive whether families can buy homes."
   },
   "rent prices": {
     "series": [
@@ -153,11 +157,12 @@
     "series": [
       "EXHOSLUSM495S",
       "HSN1F",
-      "PERMIT"
+      "MORTGAGE30US",
+      "UMCSENT"
     ],
-    "show_yoy": true,
-    "combine_chart": true,
-    "explanation": "Housing demand is best measured through actual market activity. Existing home sales (EXHOSLUSM495S) represents the largest segment of housing demand, while new home sales (HSN1F) captures demand for newly constructed homes. Building permits (PERMIT) serves as a forward-looking indicator of demand, as builders obtain permits based on expected demand. Year-over-year changes show demand trends more clearly by removing seasonal patterns."
+    "show_yoy": [true, true, false, false],
+    "combine_chart": false,
+    "explanation": "Housing demand from multiple angles: Existing home sales (EXHOSLUSM495S) show actual transaction volume. New home sales (HSN1F) show builder demand. Mortgage rates (MORTGAGE30US) are the key rate sensitivity - high rates crush demand even when prices stable. Consumer sentiment (UMCSENT) indicates willingness to make major purchases like homes."
   },
   "homeownership": {
     "series": [
@@ -180,11 +185,12 @@
     "series": [
       "FIXHAI",
       "MORTGAGE30US",
-      "CSUSHPINSA"
+      "MSPUS",
+      "PSAVERT"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "First-time homebuyers are most sensitive to affordability constraints. FIXHAI (Housing Affordability Index) directly measures whether a typical family can qualify for a mortgage - values above 100 mean they can. The 30-year mortgage rate directly affects monthly payments, and Case-Shiller shows price levels. When FIXHAI falls below 100, homeownership becomes out of reach for most first-time buyers."
+    "explanation": "First-time homebuyer conditions: Affordability Index (FIXHAI) shows if median families qualify - above 100 = yes. Mortgage rates (MORTGAGE30US) determine monthly payments. Median home price (MSPUS) shows the target price point. Savings rate (PSAVERT) indicates ability to accumulate down payments. First-time buyers need all four favorable: affordable prices, low rates, ability to save for down payment."
   },
   "housing construction": {
     "series": [
@@ -252,11 +258,13 @@
   "rental market": {
     "series": [
       "CUSR0000SEHA",
-      "RRVRUSQ156N"
+      "RRVRUSQ156N",
+      "PERMIT",
+      "UMCSENT"
     ],
-    "show_yoy": true,
+    "show_yoy": [true, false, true, false],
     "combine_chart": false,
-    "explanation": "CUSR0000SEHA (CPI rent of primary residence) tracks actual rental price trends, while RRVRUSQ156N (rental vacancy rate) measures rental market tightness. Together they provide a complete picture of the rental market - price movements and supply/demand balance. Year-over-year changes show rental inflation trends."
+    "explanation": "Rental market comprehensively: Rent CPI (CUSR0000SEHA) shows price trends. Vacancy rate (RRVRUSQ156N) measures market tightness - low vacancy = landlord pricing power. Building permits (PERMIT) indicate future supply that could ease rents. Consumer sentiment (UMCSENT) affects household formation and rental demand. Note: CPI rent lags actual market rents by 12+ months."
   },
   "apartment rents": {
     "series": [

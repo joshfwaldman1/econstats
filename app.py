@@ -119,6 +119,8 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
     # "last N years" or "zoom to N years"
     elif match := re.search(r'\b(last|past|zoom\s+to|show)\s+(\d+)\s+years?\b', q):
         years = int(match.group(2))
+        # Validate: 1-100 years is reasonable
+        years = max(1, min(years, 100))
         result = {
             'is_followup': True,
             'keep_previous_series': True,
@@ -129,13 +131,19 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
     # "since YYYY"
     elif match := re.search(r'\bsince\s+(\d{4})\b', q):
         start_year = int(match.group(1))
-        years = datetime.now().year - start_year + 1
-        result = {
-            'is_followup': True,
-            'keep_previous_series': True,
-            'years_override': years,
-            'explanation': f'Showing data since {start_year}.',
-        }
+        current_year = datetime.now().year
+        # Validate: year must be 1900-current and result in positive years
+        if 1900 <= start_year <= current_year:
+            years = current_year - start_year + 1
+            result = {
+                'is_followup': True,
+                'keep_previous_series': True,
+                'years_override': years,
+                'explanation': f'Showing data since {start_year}.',
+            }
+        else:
+            # Invalid year - ignore the temporal reference
+            pass
 
     # "all data" / "all time"
     elif re.search(r'\b(all\s+(available\s+)?(data|time|history)|full\s+history)\b', q):
@@ -164,15 +172,46 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
 
     # "pre-covid" / "pre-pandemic" / "before 2020"
     elif re.search(r'\b(pre[\s-]?(covid|pandemic|2020)|before\s+(covid|pandemic|the\s+pandemic|2020))\b', q):
-        # Show data from 2017-2020 (3 years before COVID)
-        # Calculate years from 2017 to now to fetch enough data, then filter
         years_from_2017 = datetime.now().year - 2017 + 1
         result = {
             'is_followup': True,
             'keep_previous_series': True,
             'years_override': years_from_2017,
-            'filter_end_date': '2020-02-29',  # Pre-COVID cutoff
+            'filter_end_date': '2020-02-29',
             'explanation': 'Showing pre-COVID data (through February 2020).',
+        }
+
+    # "during covid" / "pandemic period"
+    elif re.search(r'\b(during\s+(covid|pandemic|the\s+pandemic)|covid\s+era|pandemic\s+period)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'years_override': 5,
+            'filter_start_date': '2020-03-01',
+            'filter_end_date': '2021-12-31',
+            'explanation': 'Showing COVID pandemic period (March 2020 - December 2021).',
+        }
+
+    # "post-covid" / "after pandemic" / "recovery period"
+    elif re.search(r'\b(post[\s-]?(covid|pandemic)|after\s+(covid|pandemic|the\s+pandemic)|recovery\s+period)\b', q):
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'years_override': 4,
+            'filter_start_date': '2022-01-01',
+            'explanation': 'Showing post-COVID recovery period (2022 onward).',
+        }
+
+    # "great recession" / "financial crisis" / "2008 recession"
+    elif re.search(r'\b(great\s+recession|during\s+(?:the\s+)?recession|2008\s+(?:recession|crisis)|financial\s+crisis)\b', q):
+        current_year = datetime.now().year
+        result = {
+            'is_followup': True,
+            'keep_previous_series': True,
+            'years_override': current_year - 2007 + 1,
+            'filter_start_date': '2007-12-01',
+            'filter_end_date': '2009-06-30',
+            'explanation': 'Showing Great Recession period (December 2007 - June 2009).',
         }
 
     # Normalize/index to 100 (for comparing different scales)
@@ -253,13 +292,20 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
             'core gdp': ['PB0000031Q225SBEA'],
             'private demand': ['PB0000031Q225SBEA'],
             'fed funds': ['FEDFUNDS'],
-            'rates': ['FEDFUNDS'],
-            'interest rates': ['FEDFUNDS'],
+            'fed funds rate': ['FEDFUNDS'],
+            'federal funds': ['FEDFUNDS'],
+            'interest rates': ['FEDFUNDS', 'DGS10'],
             '10 year': ['DGS10'],
             '2 year': ['DGS2'],
             'yield curve': ['T10Y2Y'],
+            'treasury': ['DGS10', 'DGS2'],
+            'treasury rates': ['DGS10', 'DGS2'],
             'mortgage': ['MORTGAGE30US'],
             'mortgage rates': ['MORTGAGE30US'],
+            # Note: 'rates' alone is ambiguous - removed to avoid defaulting to wrong series
+            # Instead, require more specific terms like 'interest rates', 'unemployment rate', etc.
+            'unemployment rate': ['UNRATE'],
+            'inflation rate': ['CPIAUCSL'],
             'wages': ['CES0500000003'],
             'wage growth': ['CES0500000003'],
             'oil': ['DCOILWTICO', 'DCOILBRENTEU'],
@@ -308,6 +354,136 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
             result['series'] = combined[:4]  # Max 4 series
 
     return result
+
+
+def extract_temporal_filter(query: str) -> dict | None:
+    """
+    Extract temporal references from a query and return date filter parameters.
+
+    Handles:
+    - Year references: "inflation in 2022", "gdp during 2019"
+    - Relative references: "last year", "this year", "past 2 years"
+    - Period references: "pre-covid", "during the recession", "before 2020"
+
+    Returns dict with filter params or None if no temporal reference found.
+    """
+    import re
+    q = query.lower().strip()
+    now = datetime.now()
+    current_year = now.year
+
+    # === Specific year reference ===
+    # "in 2022", "during 2019", "for 2020", "2021 data"
+    if match := re.search(r'\b(?:in|during|for|from)?\s*((?:19|20)\d{2})\b', q):
+        year = int(match.group(1))
+        # Validate year is not in the future and is reasonable (1950-current)
+        if 1950 <= year <= current_year:
+            return {
+                'temporal_focus': f'{year}',
+                'filter_start_date': f'{year}-01-01',
+                'filter_end_date': f'{year}-12-31',
+                'years_override': max(2, current_year - year + 2),
+                'explanation': f'Showing data for {year}.',
+            }
+        elif year > current_year:
+            # Future year requested - return warning
+            return {
+                'temporal_focus': f'{year} (future)',
+                'invalid_temporal': True,
+                'explanation': f'Note: {year} is in the future. Showing latest available data.',
+            }
+
+    # === Year range ===
+    # "from 2018 to 2022", "between 2015 and 2020"
+    if match := re.search(r'\b(?:from|between)\s*((?:19|20)\d{2})\s*(?:to|and|-)\s*((?:19|20)\d{2})\b', q):
+        start_year = int(match.group(1))
+        end_year = int(match.group(2))
+        # Validate and fix inverted ranges
+        if start_year > end_year:
+            start_year, end_year = end_year, start_year  # Swap if inverted
+        # Cap end year at current year
+        end_year = min(end_year, current_year)
+        if 1950 <= start_year <= current_year:
+            return {
+                'temporal_focus': f'{start_year}-{end_year}',
+                'filter_start_date': f'{start_year}-01-01',
+                'filter_end_date': f'{end_year}-12-31',
+                'years_override': max(2, current_year - start_year + 2),
+                'explanation': f'Showing data from {start_year} to {end_year}.',
+            }
+
+    # === Relative year references ===
+    # "last year"
+    if re.search(r'\blast\s+year\b', q):
+        last_year = current_year - 1
+        return {
+            'temporal_focus': f'{last_year}',
+            'filter_start_date': f'{last_year}-01-01',
+            'filter_end_date': f'{last_year}-12-31',
+            'years_override': 3,
+            'explanation': f'Showing data for {last_year}.',
+        }
+
+    # "this year"
+    if re.search(r'\bthis\s+year\b', q):
+        return {
+            'temporal_focus': f'{current_year}',
+            'filter_start_date': f'{current_year}-01-01',
+            'years_override': 2,
+            'explanation': f'Showing data for {current_year} so far.',
+        }
+
+    # "past/last N years"
+    if match := re.search(r'\b(?:past|last)\s+(\d+)\s+years?\b', q):
+        n_years = int(match.group(1))
+        return {
+            'temporal_focus': f'past {n_years} years',
+            'years_override': n_years,
+            'explanation': f'Showing data for the past {n_years} years.',
+        }
+
+    # === Period references ===
+    # "pre-covid", "before pandemic", "before 2020"
+    if re.search(r'\b(pre[\s-]?(covid|pandemic|2020)|before\s+(covid|pandemic|the\s+pandemic|2020))\b', q):
+        years_from_2017 = current_year - 2017 + 1
+        return {
+            'temporal_focus': 'pre-COVID',
+            'filter_end_date': '2020-02-29',
+            'years_override': years_from_2017,
+            'explanation': 'Showing pre-COVID data (through February 2020).',
+        }
+
+    # "during covid", "pandemic period"
+    if re.search(r'\b(during\s+(covid|pandemic|the\s+pandemic)|covid\s+era|pandemic\s+period)\b', q):
+        return {
+            'temporal_focus': 'COVID period',
+            'filter_start_date': '2020-03-01',
+            'filter_end_date': '2021-12-31',
+            'years_override': 5,
+            'explanation': 'Showing COVID pandemic period (March 2020 - December 2021).',
+        }
+
+    # "post-covid", "after pandemic"
+    if re.search(r'\b(post[\s-]?(covid|pandemic)|after\s+(covid|pandemic|the\s+pandemic)|recovery\s+period)\b', q):
+        return {
+            'temporal_focus': 'post-COVID',
+            'filter_start_date': '2022-01-01',
+            'years_override': 4,
+            'explanation': 'Showing post-COVID recovery period (2022 onward).',
+        }
+
+    # "during the recession", "great recession"
+    if re.search(r'\b(great\s+recession|during\s+(?:the\s+)?recession|2008\s+(?:recession|crisis)|financial\s+crisis)\b', q):
+        return {
+            'temporal_focus': 'Great Recession',
+            'filter_start_date': '2007-12-01',
+            'filter_end_date': '2009-06-30',
+            'years_override': current_year - 2007 + 1,
+            'explanation': 'Showing Great Recession period (December 2007 - June 2009).',
+        }
+
+    return None
+
 
 # Load pre-computed query plans directly from JSON files (no merge step needed)
 import glob
@@ -423,18 +599,29 @@ QUERY_SYNONYMS = {
 }
 
 def apply_synonyms(query: str) -> str:
-    """Apply synonym mappings to normalize query terms."""
+    """Apply synonym mappings to normalize query terms.
+
+    Uses word-boundary matching to avoid corrupting substrings.
+    E.g., 'pay' -> 'wages' should NOT corrupt 'payrolls' -> 'wagesrolls'.
+    """
+    import re
     q = query.lower().strip()
     # Check for exact match first
     if q in QUERY_SYNONYMS:
         return QUERY_SYNONYMS[q]
-    # Check if query contains a synonym phrase
-    for synonym, canonical in QUERY_SYNONYMS.items():
-        if synonym in q:
-            q = q.replace(synonym, canonical)
+    # Sort synonyms by length (longest first) to match multi-word phrases before single words
+    sorted_synonyms = sorted(QUERY_SYNONYMS.items(), key=lambda x: len(x[0]), reverse=True)
+    # Check if query contains a synonym phrase (with word boundaries)
+    for synonym, canonical in sorted_synonyms:
+        # Use word boundary regex to avoid substring corruption
+        # \b matches word boundary (start/end of word)
+        pattern = r'\b' + re.escape(synonym) + r'\b'
+        if re.search(pattern, q):
+            q = re.sub(pattern, canonical, q)
     return q
 
 # Demographic keywords for routing queries to correct demographic group
+# Using word-boundary matching to avoid false positives (e.g., "policewomen" matching "men")
 DEMOGRAPHIC_KEYWORDS = {
     # Race/Ethnicity
     'black': 'black', 'african american': 'black', 'african-american': 'black',
@@ -450,18 +637,50 @@ DEMOGRAPHIC_KEYWORDS = {
     'prime age': 'prime age', 'prime-age': 'prime age',
     # Nativity
     'immigrant': 'immigrant', 'foreign-born': 'immigrant', 'foreign born': 'immigrant',
+    # Veterans (was missing!)
+    'veteran': 'veteran', 'veterans': 'veteran',
+    # Disabled (was missing!)
+    'disabled': 'disabled', 'disability': 'disabled',
 }
+
+def extract_demographic_groups(query: str) -> list[str]:
+    """
+    Extract ALL demographic groups from query (not just the first).
+
+    Returns list of canonical demographic group names.
+    Uses word-boundary matching to avoid false positives.
+
+    Examples:
+    - "Black women workers" → ['black', 'women']
+    - "Hispanic immigrants" → ['hispanic', 'immigrant']
+    - "unemployment rate" → []
+    """
+    import re
+    query_lower = query.lower()
+    found_groups = set()
+
+    # Sort by keyword length (longest first) to match multi-word phrases first
+    sorted_keywords = sorted(DEMOGRAPHIC_KEYWORDS.items(), key=lambda x: len(x[0]), reverse=True)
+
+    for keyword, group in sorted_keywords:
+        # Use word boundaries to avoid substring false positives
+        pattern = r'\b' + re.escape(keyword) + r'\b'
+        if re.search(pattern, query_lower):
+            found_groups.add(group)
+
+    return list(found_groups)
+
 
 def extract_demographic_group(query: str) -> str | None:
     """
-    Extract demographic group from query to ensure correct routing.
-    Returns the canonical demographic group name, or None if no demographic detected.
+    Extract PRIMARY demographic group from query for routing.
+    Returns the first canonical demographic group name, or None if no demographic detected.
+
+    For compound demographics like "Black women", use extract_demographic_groups() instead.
+    This function exists for backward compatibility with routing logic.
     """
-    query_lower = query.lower()
-    for keyword, group in DEMOGRAPHIC_KEYWORDS.items():
-        if keyword in query_lower:
-            return group
-    return None
+    groups = extract_demographic_groups(query)
+    return groups[0] if groups else None
 
 
 # US States for geographic detection
@@ -614,24 +833,25 @@ def is_holistic_query(query: str) -> bool:
     """
     Detect 'how is X doing?' style queries that need multi-dimensional answers.
 
-    These queries should bypass pre-computed plans and use RAG instead,
-    because they need comprehensive answers covering multiple dimensions
-    (employment, prices, wages, output) rather than a single narrow series.
+    These queries should trigger augmented search (RAG + FRED) to provide
+    comprehensive answers covering multiple dimensions rather than relying
+    solely on pre-computed single-topic plans.
 
     Examples:
     - "How are restaurants doing?" -> True (needs employment + prices + wages)
     - "How is the economy for immigrants?" -> True (needs demographic-specific series)
+    - "What about small businesses?" -> True (open-ended, needs multiple angles)
     - "What is the unemployment rate?" -> False (specific question, use precomputed)
     - "restaurant prices" -> False (narrow focus, precomputed is fine)
     """
     q = query.lower().strip()
 
     # Pattern 1: "how is/are X doing?"
-    if q.startswith('how') and ('doing' in q or 'performing' in q or 'faring' in q):
+    if q.startswith('how') and ('doing' in q or 'performing' in q or 'faring' in q or 'going' in q):
         return True
 
     # Pattern 2: "how is the economy/market for X?"
-    if q.startswith('how') and ('economy' in q or 'market' in q or 'sector' in q):
+    if q.startswith('how') and ('economy' in q or 'market' in q or 'sector' in q or 'industry' in q):
         return True
 
     # Pattern 3: "what's happening with/in X?" (open-ended)
@@ -639,22 +859,38 @@ def is_holistic_query(query: str) -> bool:
         "whats happening" in q or "what has been happening" in q):
         return True
 
-    # Pattern 4: "tell me about X" (open-ended, needs multiple dimensions)
-    if q.startswith('tell me about') or q.startswith('explain'):
+    # Pattern 4: "tell me about X" / "explain X" / "give me X" (open-ended)
+    if q.startswith('tell me about') or q.startswith('explain') or q.startswith('give me'):
         return True
 
-    # Pattern 5: "overview of X" or "state of X"
-    if 'overview' in q or 'state of' in q or 'outlook' in q:
+    # Pattern 5: "overview of X" / "state of X" / "outlook"
+    if 'overview' in q or 'state of' in q or 'outlook' in q or 'summary' in q:
         return True
 
-    # Pattern 6: Questions about specific demographics or groups
+    # Pattern 6: "what about X?" (open-ended follow-up style)
+    if q.startswith('what about'):
+        return True
+
+    # Pattern 7: "how does X compare" / comparison queries
+    if 'compare' in q or 'versus' in q or ' vs ' in q:
+        return True
+
+    # Pattern 8: Questions about specific demographics or groups
     # These need specialized series, not generic ones
     demographic_terms = ['immigrants', 'foreign-born', 'women', 'men', 'black',
                         'hispanic', 'asian', 'white', 'veterans', 'disabled',
-                        'young', 'older', 'youth', 'teenage', 'seniors']
+                        'young', 'older', 'youth', 'teenage', 'seniors',
+                        'native-born', 'college', 'high school']
     if any(term in q for term in demographic_terms):
         # But only if it's an open-ended question
-        if q.startswith('how') or 'for ' in q or 'among ' in q:
+        if q.startswith('how') or 'for ' in q or 'among ' in q or q.startswith('what'):
+            return True
+
+    # Pattern 9: Industry/sector open-ended queries
+    industry_terms = ['restaurants', 'retail', 'manufacturing', 'construction',
+                     'healthcare', 'tech', 'technology', 'hospitality', 'small business']
+    if any(term in q for term in industry_terms):
+        if q.startswith('how') or 'doing' in q or 'sector' in q:
             return True
 
     return False
@@ -3059,6 +3295,45 @@ QUERY_SERIES_ALIGNMENT = {
     # Business
     'corporate profit': ['CP', 'CPROFIT'],
     'business investment': ['PRFI', 'PNFI'],
+    'small business': ['NFIB', 'RSAFS', 'USFIRE', 'BUSLOANS'],
+
+    # Energy/Commodities
+    'oil': ['DCOILWTICO', 'DCOILBRENTEU', 'CPIENGSL'],
+    'gas': ['GASREGW', 'APU000074714', 'CPIENGSL'],
+    'energy': ['DCOILWTICO', 'CPIENGSL', 'IPG211111CS'],
+    'commodity': ['DCOILWTICO', 'PPIACO', 'PCEPI'],
+
+    # Construction/Infrastructure
+    'construction': ['TTLCONS', 'USCONS', 'PERMIT', 'HOUST'],
+    'building': ['PERMIT', 'HOUST', 'TTLCONS'],
+
+    # Auto/Vehicles
+    'auto': ['TOTALSA', 'IPG3361T3S', 'ALTSALES'],
+    'vehicle': ['TOTALSA', 'IPG3361T3S', 'ALTSALES'],
+    'car': ['TOTALSA', 'USAUCSFRCONDM', 'CUSR0000SETA01'],
+
+    # Technology/Services
+    'technology': ['IPG334', 'USINFO', 'IPG3361T3S'],
+    'tech': ['IPG334', 'USINFO'],
+    'software': ['IPG334', 'USINFO'],
+
+    # Healthcare
+    'healthcare': ['USHCS', 'CPIMEDSL', 'USPBS'],
+    'medical': ['CPIMEDSL', 'PCE', 'USHCS'],
+    'health': ['USHCS', 'CPIMEDSL'],
+
+    # Food/Restaurants
+    'food': ['CPIUFDSL', 'CUSR0000SAF', 'USFIRE'],
+    'restaurant': ['USFIRE', 'CPIUFDSL', 'RSAFS'],
+    'grocery': ['CPIUFDSL', 'CUSR0000SAF'],
+
+    # Transportation/Logistics
+    'transport': ['CPIAPPSL', 'CUSR0000SAT', 'RAILFRTINTERMODAL'],
+    'shipping': ['RAILFRTINTERMODAL', 'CUSR0000SAT'],
+    'trucking': ['CUSR0000SAT', 'RAILFRTINTERMODAL'],
+
+    # Education
+    'education': ['USGOVT', 'CPIENGSL'],
 
     # Demographic - Race/Ethnicity (CRITICAL: prevents cross-demographic confusion)
     'black': ['LNS14000006', 'LNS12300006', 'LNS11300006'],
@@ -4009,16 +4284,23 @@ def hybrid_query_plan(query: str, verbose: bool = False) -> dict:
     if verbose:
         print(f"  FRED search terms: {search_terms}")
 
+    # Extract key topic nouns for relevance checking (exclude generic terms)
+    generic_terms = {'rate', 'rates', 'current', 'effective', 'does', 'affect', 'economy',
+                     'economic', 'data', 'index', 'level', 'growth', 'change', 'trend'}
+    topic_words = [w.lower().strip('?.,!\'') for w in query.split()
+                   if len(w) > 3 and w.lower().strip('?.,!\'') not in generic_terms]
+
     for term in search_terms[:2]:  # Limit to 2 searches
         try:
             fred_results = search_series(term, limit=4, require_recent=True)
             for r in fred_results:
                 sid = r['id']
                 title = r.get('title', sid)
-                # Check relevance: title should contain query words
-                query_words = [w.lower() for w in query.split() if len(w) > 3]
                 title_lower = title.lower()
-                is_relevant = any(word in title_lower for word in query_words)
+
+                # Strict relevance: title must contain at least one TOPIC word (not just generic terms)
+                # This prevents "effective tariff rate" from matching "Federal Funds Effective Rate"
+                is_relevant = any(word in title_lower for word in topic_words)
 
                 if is_relevant and sid not in all_series:
                     all_series.append(sid)
@@ -4102,39 +4384,143 @@ def hybrid_query_plan(query: str, verbose: bool = False) -> dict:
 
 def _extract_search_terms(query: str) -> list:
     """Extract meaningful search terms from a query for FRED API search."""
-    # Remove common words
-    stop_words = {'how', 'are', 'is', 'the', 'what', 'doing', 'for', 'in', 'of', 'and', 'a', 'an', 'to'}
-    words = [w.lower().strip('?.,!') for w in query.split()]
+    # Remove common words - including generic economic terms that cause false matches
+    stop_words = {'how', 'are', 'is', 'the', 'what', 'doing', 'for', 'in', 'of', 'and', 'a', 'an', 'to',
+                  'rate', 'rates', 'current', 'effective', 'does', 'affect', 'economy', 'economic'}
+    words = [w.lower().strip('?.,!\'') for w in query.split()]
     meaningful = [w for w in words if w not in stop_words and len(w) > 2]
 
-    # Build search terms
+    # Build search terms - prioritize specific topic nouns
     terms = []
 
-    # Full phrase (minus stop words)
-    if meaningful:
-        terms.append(' '.join(meaningful))
+    # Each key noun as its own search (most specific first)
+    for word in meaningful[:3]:
+        if word not in terms:
+            terms.append(word)
 
-    # Key noun phrases
-    if len(meaningful) >= 2:
-        terms.append(f"{meaningful[0]} employment")
-        terms.append(f"{meaningful[0]} prices")
+    # Full phrase (minus stop words) as fallback
+    if meaningful and len(meaningful) > 1:
+        phrase = ' '.join(meaningful)
+        if phrase not in terms:
+            terms.append(phrase)
 
     return terms[:3]
 
 
+def calculate_derived_series(
+    series_data: dict,
+    formula: str,
+    name: str = "Derived Series",
+    unit: str = ""
+) -> tuple:
+    """
+    Calculate a derived series from multiple input series using pandas.
+
+    Args:
+        series_data: Dict mapping series_id -> (dates, values) tuples
+        formula: Pandas-compatible formula string, e.g., "A001RX1Q020SBEA / IMPGS * 100"
+        name: Display name for the derived series
+        unit: Unit label for the derived series
+
+    Returns:
+        Tuple of (dates, values, info_dict) for the derived series,
+        or (None, None, None) if calculation fails
+
+    Examples:
+        # Effective tariff rate
+        calculate_derived_series(data, "A001RX1Q020SBEA / IMPGS * 100", "Effective Tariff Rate", "%")
+
+        # Yield curve spread
+        calculate_derived_series(data, "DGS10 - DGS2", "10Y-2Y Spread", "Percentage Points")
+
+        # Real GDP per capita (hypothetical)
+        calculate_derived_series(data, "GDPC1 / POP * 1000", "Real GDP per Capita", "$ Thousands")
+    """
+    import re
+
+    if not series_data or not formula:
+        return None, None, None
+
+    try:
+        # Build a DataFrame with all series, aligned by date
+        dfs = []
+        for series_id, (dates, values) in series_data.items():
+            if dates and values:
+                df = pd.DataFrame({
+                    'date': pd.to_datetime(dates),
+                    series_id: values
+                }).set_index('date')
+                dfs.append(df)
+
+        if len(dfs) < 2:
+            return None, None, None
+
+        # Join all series on date (outer join to keep all dates, then we'll dropna)
+        combined = dfs[0]
+        for df in dfs[1:]:
+            combined = combined.join(df, how='outer')
+
+        # Drop rows with missing values (dates where not all series have data)
+        combined = combined.dropna()
+
+        if combined.empty:
+            return None, None, None
+
+        # Validate formula only contains expected series IDs and safe operations
+        # Extract series IDs from formula
+        formula_series = re.findall(r'[A-Z][A-Z0-9_]+', formula)
+        for sid in formula_series:
+            if sid not in combined.columns:
+                # Series referenced in formula but not in data
+                return None, None, None
+
+        # Calculate the derived series using pandas eval (safe evaluation)
+        # Only allows pandas operations, not arbitrary Python code
+        result = combined.eval(formula)
+
+        # Convert back to lists
+        dates = result.index.strftime('%Y-%m-%d').tolist()
+        values = result.tolist()
+
+        info = {
+            'name': name,
+            'unit': unit,
+            'is_derived': True,
+            'formula': formula,
+            'source_series': list(series_data.keys()),
+        }
+
+        return dates, values, info
+
+    except Exception as e:
+        # Log error but don't crash
+        print(f"Error calculating derived series: {e}")
+        return None, None, None
+
+
+@st.cache_data(ttl=3600, show_spinner=False)  # Cache for 1 hour
 def get_series_info(series_id: str) -> dict:
-    """Get metadata for a series."""
+    """Get metadata for a series. Cached for 1 hour to reduce API calls."""
     data = fred_request('series', {'series_id': series_id})
     series_list = data.get('seriess', [])
     return series_list[0] if series_list else {}
 
 
-def get_observations(series_id: str, years: int = None) -> tuple:
-    """Get observations for a series."""
+@st.cache_data(ttl=1800, show_spinner=False)  # Cache for 30 minutes
+def _fetch_observations_cached(series_id: str, start_date: str = None) -> dict:
+    """Cached FRED API call for observations. Returns raw API response."""
     params = {'series_id': series_id, 'limit': 10000, 'sort_order': 'asc'}
+    if start_date:
+        params['observation_start'] = start_date
+    return fred_request('series/observations', params)
+
+
+def get_observations(series_id: str, years: int = None) -> tuple:
+    """Get observations for a series. Uses caching to reduce API calls."""
+    # Calculate start date for cache key
+    start_date = None
     if years:
         start_date = (datetime.now() - timedelta(days=years * 365)).strftime('%Y-%m-%d')
-        params['observation_start'] = start_date
 
     # Get info from our database first, then FRED API
     info = dict(SERIES_DB.get(series_id, {}))
@@ -4155,7 +4541,8 @@ def get_observations(series_id: str, years: int = None) -> tuple:
     if not info:
         return [], [], {'error': f'Series {series_id} not found'}
 
-    data = fred_request('series/observations', params)
+    # Use cached API call
+    data = _fetch_observations_cached(series_id, start_date)
     if 'error' in data:
         return [], [], {'error': data['error']}
 
@@ -4173,15 +4560,40 @@ def get_observations(series_id: str, years: int = None) -> tuple:
 
 
 def calculate_yoy(dates: list, values: list) -> tuple:
-    """Calculate year-over-year percent change."""
-    if len(dates) < 13:
+    """Calculate year-over-year percent change.
+
+    Handles both monthly and quarterly data by detecting frequency
+    and looking back ~365 days for the comparison value.
+    """
+    if len(dates) < 2:
+        return dates, values
+
+    # Detect frequency by looking at date gaps
+    date_objs = [datetime.strptime(d, '%Y-%m-%d') for d in dates[:min(5, len(dates))]]
+    if len(date_objs) >= 2:
+        avg_gap = sum((date_objs[i+1] - date_objs[i]).days for i in range(len(date_objs)-1)) / (len(date_objs)-1)
+        # Monthly: ~30 days gap, need 12 observations
+        # Quarterly: ~90 days gap, need 4 observations
+        # Weekly: ~7 days gap, need 52 observations
+        if avg_gap > 60:  # Quarterly
+            min_obs = 4
+        elif avg_gap > 20:  # Monthly
+            min_obs = 12
+        else:  # Weekly
+            min_obs = 52
+    else:
+        min_obs = 12  # Default to monthly
+
+    if len(dates) < min_obs + 1:
         return dates, values
 
     date_to_value = dict(zip(dates, values))
     yoy_dates, yoy_values = [], []
 
-    for i, date_str in enumerate(dates[12:], 12):
+    # Start from the point where we have enough history for YoY comparison
+    for i, date_str in enumerate(dates[min_obs:], min_obs):
         date = datetime.strptime(date_str, '%Y-%m-%d')
+        # Look for a value from approximately one year ago (allow 31-day window for date matching)
         for offset in range(31):
             check = (date - timedelta(days=365 + offset)).strftime('%Y-%m-%d')
             if check in date_to_value and date_to_value[check] != 0:
@@ -5486,6 +5898,7 @@ def main():
                 'hybrid_sources': hybrid_sources,
                 'show_payroll_changes': precomputed_plan.get('show_payroll_changes', False),
                 'chart_groups': precomputed_plan.get('chart_groups', None),
+                'derived': precomputed_plan.get('derived', None),  # Formula for calculated series
             }
         elif local_parsed:
             # Try local parser for common follow-up commands (no API call needed)
@@ -5507,6 +5920,7 @@ def main():
                 'normalize': local_parsed.get('normalize', False),
                 'pct_change_from_start': local_parsed.get('pct_change_from_start', False),
                 'filter_end_date': local_parsed.get('filter_end_date'),
+                'filter_start_date': local_parsed.get('filter_start_date'),
             }
         else:
             # Fall back to AI for unknown queries or follow-ups
@@ -5553,6 +5967,14 @@ def main():
 
         ai_explanation = interpretation.get('explanation', '')
         series_to_fetch = list(interpretation.get('series', []))  # Copy the list
+
+        # Handle case where hybrid search found no relevant data
+        if interpretation.get('no_data_available'):
+            st.warning("📊 No data available for this specific query")
+            st.info(ai_explanation)  # Shows guidance about what to try instead
+            log_query(query, [], "no_relevant_data")
+            st.stop()
+
         combine = interpretation.get('combine_chart', False)
 
         # Handle show_yoy - can be boolean OR array like [False, False, True]
@@ -5590,8 +6012,22 @@ def main():
         # Handle chart groups (multiple charts with different series/transformations)
         chart_groups = interpretation.get('chart_groups', None)
 
-        # Handle date filtering (e.g., pre-covid filter)
+        # Handle date filtering (e.g., pre-covid filter, specific year, etc.)
+        # Check for temporal filter from query even if it wasn't a follow-up
+        temporal_filter = extract_temporal_filter(query)
+        if temporal_filter and not interpretation.get('filter_end_date') and not interpretation.get('filter_start_date'):
+            # Apply temporal filter if query has temporal reference
+            interpretation['filter_end_date'] = temporal_filter.get('filter_end_date')
+            interpretation['filter_start_date'] = temporal_filter.get('filter_start_date')
+            interpretation['temporal_focus'] = temporal_filter.get('temporal_focus')
+            if temporal_filter.get('years_override'):
+                years = temporal_filter['years_override']
+            # Add temporal info to explanation
+            if temporal_filter.get('explanation'):
+                ai_explanation = f"{ai_explanation} {temporal_filter['explanation']}" if ai_explanation else temporal_filter['explanation']
+
         filter_end_date = interpretation.get('filter_end_date')
+        filter_start_date = interpretation.get('filter_start_date')
 
         # Handle follow-up that keeps/adds to previous series
         if is_followup and (keep_previous_series or add_to_previous):
@@ -5644,7 +6080,32 @@ def main():
                     ai_explanation = f"Search results for: {query}"
 
         if not series_to_fetch:
-            st.warning("Could not find relevant economic data. Try rephrasing your question or being more specific.")
+            st.warning("🔍 Could not find relevant economic data for this query")
+
+            # Provide context-specific suggestions
+            suggestions = []
+            query_lower = query.lower()
+
+            # Check for common query issues
+            if len(query.split()) < 2:
+                suggestions.append("• Try adding more context: 'unemployment rate' instead of 'unemployment'")
+
+            # Industry-specific queries
+            if any(word in query_lower for word in ['restaurant', 'hotel', 'travel', 'tourism']):
+                suggestions.append("• Try: 'leisure hospitality employment' or 'food services jobs'")
+            elif any(word in query_lower for word in ['tech', 'software', 'silicon']):
+                suggestions.append("• Try: 'information sector employment' or 'computer systems wages'")
+            elif any(word in query_lower for word in ['bank', 'finance', 'wall street']):
+                suggestions.append("• Try: 'financial sector employment' or 'bank lending'")
+
+            # Demographic queries
+            if any(word in query_lower for word in ['black', 'hispanic', 'asian', 'women', 'men']):
+                suggestions.append("• For demographics, try: 'Black unemployment rate' or 'women labor force participation'")
+
+            # General suggestions
+            suggestions.append("• Popular queries: 'unemployment', 'inflation', 'GDP growth', 'housing market', 'job growth'")
+
+            st.info("**Suggestions:**\n" + "\n".join(suggestions))
             log_query(query, [], "no_results")
             st.stop()
 
@@ -5683,11 +6144,13 @@ def main():
                     st.info(f"📍 No {state_name.title()}-specific series found. Showing national indicators as context.")
 
         # Validate series relevance - filter out irrelevant/overly broad series
-        # Validate if: (1) multiple series AND (2) not pure pre-computed OR holistic-augmented
+        # ALWAYS validate, including pre-computed plans, to catch:
+        # - Stale plans that no longer match the query
+        # - Fuzzy-matched plans that don't fit the actual query
+        # - Demographic/industry mismatches from plan file errors
         needs_validation = (
             ENSEMBLE_AVAILABLE and
-            len(series_to_fetch) > 1 and
-            (not interpretation.get('used_precomputed') or interpretation.get('holistic_augmented'))
+            len(series_to_fetch) > 1
         )
         if needs_validation:
             with st.spinner("Validating data relevance..."):
@@ -5718,19 +6181,23 @@ def main():
 
         # Fetch data
         series_data = []
-        raw_series_data = {}  # Store raw data for chart_groups
+        raw_series_data = {}  # Store raw data for chart_groups and derived calculations
         series_names_fetched = []
+        derived_config = interpretation.get('derived', None)  # Formula for calculated series
         with st.spinner("Fetching data from FRED..."):
             for series_id in series_to_fetch[:4]:
                 dates, values, info = get_observations(series_id, years)
                 if dates and values:
-                    # Apply date filter if specified (e.g., pre-covid filter)
-                    if filter_end_date:
+                    # Apply date filter if specified (e.g., pre-covid filter, specific year)
+                    if filter_end_date or filter_start_date:
                         filtered_dates, filtered_values = [], []
                         for d, v in zip(dates, values):
-                            if d <= filter_end_date:
-                                filtered_dates.append(d)
-                                filtered_values.append(v)
+                            if filter_start_date and d < filter_start_date:
+                                continue
+                            if filter_end_date and d > filter_end_date:
+                                continue
+                            filtered_dates.append(d)
+                            filtered_values.append(v)
                         dates, values = filtered_dates, filtered_values
                         if not dates:
                             continue  # Skip series if no data in range
@@ -5739,9 +6206,8 @@ def main():
                     series_name = info.get('name', info.get('title', series_id))
                     series_names_fetched.append(series_name)
 
-                    # Store raw data for chart_groups (before any transformations)
-                    if chart_groups:
-                        raw_series_data[series_id] = (series_id, list(dates), list(values), dict(info))
+                    # Store raw data for chart_groups and derived calculations (before any transformations)
+                    raw_series_data[series_id] = (dates, values)
 
                     # Apply transformations based on user request or series config
                     if show_payroll_changes and series_id == 'PAYEMS' and len(dates) > 1:
@@ -5829,8 +6295,62 @@ def main():
                     else:
                         series_data.append((series_id, dates, values, info))
 
+        # Calculate derived series if formula specified (e.g., effective tariff rate = customs/imports*100)
+        if derived_config and raw_series_data:
+            formula = derived_config.get('formula', '')
+            derived_name = derived_config.get('name', 'Calculated Value')
+            derived_unit = derived_config.get('unit', '')
+
+            if formula:
+                derived_dates, derived_values, derived_info = calculate_derived_series(
+                    raw_series_data, formula, derived_name, derived_unit
+                )
+                if derived_dates and derived_values:
+                    # Add derived series as the PRIMARY series (first in list)
+                    # Keep component series for context if show_components is True
+                    if derived_config.get('show_components', False):
+                        # Insert derived at beginning, keep component series
+                        series_data.insert(0, ('DERIVED', derived_dates, derived_values, derived_info))
+                    else:
+                        # Replace component series with derived series only
+                        series_data = [('DERIVED', derived_dates, derived_values, derived_info)]
+
         if not series_data:
-            st.error("No data available for the requested series.")
+            # Provide helpful guidance instead of generic error
+            st.error("📊 No data available for this query")
+
+            # Build context-specific guidance
+            guidance_parts = []
+
+            # Check if date filtering removed all data
+            if filter_start_date or filter_end_date:
+                date_range = ""
+                if filter_start_date and filter_end_date:
+                    date_range = f"between {filter_start_date} and {filter_end_date}"
+                elif filter_start_date:
+                    date_range = f"after {filter_start_date}"
+                elif filter_end_date:
+                    date_range = f"before {filter_end_date}"
+                guidance_parts.append(f"• The date filter ({date_range}) may have excluded all data. Try a broader time range.")
+
+            # Check if it was a niche query
+            niche_keywords = ['food truck', 'solar', 'crypto', 'nft', 'startup', 'gig economy', 'streaming']
+            query_lower = query.lower()
+            if any(kw in query_lower for kw in niche_keywords):
+                guidance_parts.append("• FRED focuses on broad macroeconomic indicators and may not have data for niche industries.")
+                guidance_parts.append("• Try broader queries like 'restaurant employment', 'energy sector', or 'technology industry'.")
+
+            # Check if series IDs were valid
+            if series_to_fetch:
+                guidance_parts.append(f"• Attempted to fetch: {', '.join(series_to_fetch[:4])}")
+                guidance_parts.append("• These series may be discontinued, have delayed releases, or be temporarily unavailable.")
+
+            # General suggestions
+            if not guidance_parts:
+                guidance_parts.append("• FRED may be temporarily unavailable. Try again in a moment.")
+                guidance_parts.append("• Try a broader economic query like 'unemployment', 'inflation', or 'GDP growth'.")
+
+            st.info("**Suggestions:**\n" + "\n".join(guidance_parts))
             st.stop()
 
         # Apply normalization if requested (index all series to 100 at start)
@@ -5928,6 +6448,24 @@ def main():
                             transformed_data.append((sid, dates_v, values_v, info_copy))
 
                     series_data = transformed_data
+
+        # Check data freshness - warn if data is more than 45 days old
+        if series_data:
+            stale_series = []
+            today = datetime.now()
+            for sid, dates_v, values_v, info_v in series_data:
+                if dates_v:
+                    try:
+                        latest_date = datetime.strptime(dates_v[-1], '%Y-%m-%d')
+                        days_old = (today - latest_date).days
+                        if days_old > 45:
+                            series_name = info_v.get('name', info_v.get('title', sid))
+                            stale_series.append((series_name, days_old, latest_date.strftime('%B %Y')))
+                    except (ValueError, IndexError):
+                        pass
+            if stale_series:
+                stale_msg = ", ".join([f"{name} ({days}d old, last: {date})" for name, days, date in stale_series[:3]])
+                st.info(f"📅 Note: Some data may be outdated: {stale_msg}")
 
         # Call economist reviewer agent for ALL queries to ensure quality explanations
         if series_data:

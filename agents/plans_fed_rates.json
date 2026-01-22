@@ -379,5 +379,17 @@
     "show_yoy": false,
     "combine_chart": true,
     "explanation": "The 10-year minus 2-year Treasury spread (T10Y2Y) is the classic and most reliable indicator of yield curve inversion. When this spread goes negative, it signals that short-term rates exceed long-term rates, which historically has been one of the most accurate predictors of economic recession. The 2-year Treasury is particularly sensitive to Fed policy expectations, while the 10-year reflects longer-term economic growth and inflation expectations."
+  },
+  "10-year vs 2-year treasury": {
+    "series": ["DGS10", "DGS2", "T10Y2Y"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "10-year Treasury (DGS10) vs 2-year Treasury (DGS2) comparison with their spread (T10Y2Y). The 2-year reflects near-term Fed policy expectations while the 10-year reflects long-term economic and inflation expectations. The spread (T10Y2Y) shows the yield curve shape - negative values indicate inversion, which has historically preceded recessions."
+  },
+  "10 year vs 2 year": {
+    "series": ["DGS10", "DGS2", "T10Y2Y"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "10-year Treasury (DGS10) vs 2-year Treasury (DGS2) comparison with their spread (T10Y2Y). The 2-year reflects near-term Fed policy expectations while the 10-year reflects long-term economic and inflation expectations. The spread (T10Y2Y) shows the yield curve shape - negative values indicate inversion, which has historically preceded recessions."
   }
 }

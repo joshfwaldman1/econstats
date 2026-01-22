@@ -59,6 +59,42 @@
     "combine_chart": false,
     "explanation": "To analyze tariffs impact, we need: (1) BOPGSTB - trade balance to see if tariffs reduce the deficit, (2) IMPGS - total imports to measure tariff effects on import volumes, (3) DTWEXBGS - dollar strength which affects trade and can be influenced by trade policy, and (4) PPIACO - producer prices to capture inflationary effects of tariffs on input costs. YoY changes help identify policy impact periods."
   },
+  "tariff rate": {
+    "series": ["B235RC1Q027SBEA", "IMPGS"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "derived": {
+      "formula": "B235RC1Q027SBEA / IMPGS * 100",
+      "name": "Effective Tariff Rate",
+      "unit": "%",
+      "show_components": true
+    },
+    "explanation": "**Effective Tariff Rate = Customs Duties / Imports × 100**\n\nThis chart shows the calculated effective tariff rate - the average tax on imports. The rate hovered around 1-3% for decades after trade liberalization but has risen recently due to tariff increases on Chinese goods and other trade policy changes.\n\nComponents: B235RC1Q027SBEA (federal customs duties) and IMPGS (total imports of goods & services)."
+  },
+  "effective tariff rate": {
+    "series": ["B235RC1Q027SBEA", "IMPGS"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "derived": {
+      "formula": "B235RC1Q027SBEA / IMPGS * 100",
+      "name": "Effective Tariff Rate",
+      "unit": "%",
+      "show_components": true
+    },
+    "explanation": "**Effective Tariff Rate = Customs Duties / Imports × 100**\n\nThis is the average tax rate on imports, calculated by dividing federal customs duties revenue by total import value.\n\nHistorically the rate dropped from ~60% under Smoot-Hawley (1930s) to 1-3% after GATT/WTO trade liberalization. Recent tariff increases (especially on China) have pushed the rate higher."
+  },
+  "tariffs": {
+    "series": ["BOPGSTB", "IMPGS", "PPIACO", "MANEMP"],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Tariff economic effects (FRED doesn't have tariff rates directly): Trade balance (BOPGSTB) shows if tariffs reduce the deficit. Total imports (IMPGS) indicates tariff impacts on import volumes. Producer prices (PPIACO) reveal cost pressures from tariffs on inputs. Manufacturing employment (MANEMP) shows if tariffs protect US factory jobs - a primary goal of tariff policy."
+  },
+  "how are tariffs affecting the economy": {
+    "series": ["BOPGSTB", "IMPGS", "PPIACO", "MANEMP"],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Tariff economic impact: (1) Trade balance - did tariffs reduce the deficit? (2) Total imports - are tariffs reducing import volumes? (3) Producer prices - are tariffs raising business input costs? (4) Manufacturing employment - are tariffs protecting US factory jobs? Note: FRED doesn't have tariff rates directly; these series show tariff EFFECTS on the economy."
+  },
   "dollar": {
     "series": [
       "DTWEXBGS"

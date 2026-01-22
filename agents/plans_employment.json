@@ -56,21 +56,23 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "LNS12300060"
+      "LNS12300060",
+      "ICSA"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "PAYEMS shows monthly job gains (the headline jobs number). UNRATE is the unemployment rate. LNS12300060 (prime-age employment ratio, ages 25-54) is the gold standard for labor market health - it captures both unemployment AND people who've dropped out of the workforce. When prime-age employment is high, the job market is genuinely strong."
+    "explanation": "PAYEMS shows monthly job gains (the headline jobs number). UNRATE is the unemployment rate. LNS12300060 (prime-age employment ratio, ages 25-54) is the gold standard for labor market health. ICSA (initial jobless claims) shows layoffs in real-time - rising claims signal trouble before it shows up in unemployment."
   },
   "labor market": {
     "series": [
       "PAYEMS",
       "UNRATE",
-      "LNS12300060"
+      "LNS12300060",
+      "ICSA"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "For a comprehensive labor market overview: PAYEMS (total nonfarm payrolls) shows job creation momentum, UNRATE provides the headline unemployment rate, and LNS12300060 (prime-age employment-population ratio) is the best single measure of labor market health as it captures employment strength among workers in their prime working years (25-54), unaffected by demographic shifts or schooling decisions."
+    "explanation": "For a comprehensive labor market overview: PAYEMS (total nonfarm payrolls) shows job creation momentum, UNRATE provides the headline unemployment rate, LNS12300060 (prime-age employment ratio) is the best single measure of labor market health, and ICSA (initial claims) shows layoffs in real-time - a leading indicator of labor market trouble."
   },
   "hiring": {
     "series": [
@@ -445,6 +447,30 @@
     "combine_chart": false,
     "explanation": "LES1252881600Q is real (inflation-adjusted) median weekly earnings for full-time workers, in constant 1982-84 dollars. This quarterly series from the BLS directly measures purchasing power - when it rises, workers can buy more with their earnings. Year-over-year change shows the pace of real wage growth."
   },
+  "real hourly earnings": {
+    "series": ["CES0500000003", "CPIAUCSL"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "derived": {
+      "formula": "CES0500000003 / CPIAUCSL * 326",
+      "name": "Real Average Hourly Earnings",
+      "unit": "2025 Dollars",
+      "show_components": true
+    },
+    "explanation": "**Real Hourly Earnings = Nominal Wages / CPI × 326**\n\nThis shows average hourly earnings adjusted for inflation, expressed in 2025 dollars. When real earnings rise, workers' purchasing power increases. The chart includes nominal wages (CES0500000003) and CPI (CPIAUCSL) for context.\n\nNote: The multiplier (326) is based on the 2025 CPI level to express values in current dollars."
+  },
+  "real average hourly earnings": {
+    "series": ["CES0500000003", "CPIAUCSL"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "derived": {
+      "formula": "CES0500000003 / CPIAUCSL * 326",
+      "name": "Real Average Hourly Earnings",
+      "unit": "2025 Dollars",
+      "show_components": true
+    },
+    "explanation": "**Real Hourly Earnings = Nominal Wages / CPI × 326**\n\nAverage hourly earnings adjusted for inflation, in 2025 dollars. Calculated by dividing nominal wages by CPI and scaling to current price levels. Rising values mean workers' purchasing power is increasing."
+  },
   "wage growth": {
     "series": [
       "CES0500000003"
@@ -495,5 +521,231 @@
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "Initial unemployment claims (ICSA) measure new filings for unemployment benefits - the timeliest labor market indicator. Continuing claims (CCSA) show how many people remain on unemployment. Rising claims signal weakening labor market; falling claims indicate improvement."
+  },
+  "manufacturing employment": {
+    "series": [
+      "MANEMP",
+      "IPMAN"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "MANEMP shows manufacturing employment (factory jobs), while IPMAN shows industrial production in manufacturing (output). Together they reveal whether manufacturing is creating jobs and how productive the sector is. YoY growth shows the trend."
+  },
+  "manufacturing jobs": {
+    "series": [
+      "MANEMP",
+      "IPMAN",
+      "NEWORDER",
+      "TCU"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Manufacturing employment (MANEMP) alongside production context: Industrial production in manufacturing (IPMAN) shows factory output, new orders (NEWORDER) signal demand, and capacity utilization (TCU) indicates if factories are running hot or have slack. Together these reveal whether manufacturing is creating jobs due to demand growth or shedding them due to weakness."
+  },
+  "construction employment": {
+    "series": [
+      "USCONS",
+      "HOUST",
+      "PERMIT",
+      "MORTGAGE30US"
+    ],
+    "show_yoy": [true, true, true, false],
+    "combine_chart": false,
+    "explanation": "Construction employment (USCONS) with demand drivers: Housing starts (HOUST) and permits (PERMIT) show residential building activity, while mortgage rates (MORTGAGE30US) indicate affordability - the key rate sensitivity of construction hiring. When rates rise, building slows and construction jobs follow."
+  },
+  "construction jobs": {
+    "series": [
+      "USCONS",
+      "HOUST",
+      "PERMIT",
+      "TLRESCONS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Construction employment (USCONS) with full pipeline context: Housing starts (HOUST) show new projects beginning, permits (PERMIT) indicate future activity, and total residential construction spending (TLRESCONS) shows the dollar volume driving labor demand."
+  },
+  "healthcare employment": {
+    "series": [
+      "USHCS",
+      "CES0500000003",
+      "CUSR0000SAM"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Healthcare employment (USHCS) with wage and cost context: Average hourly earnings (CES0500000003) shows whether healthcare is competing for workers with higher wages, while medical care CPI (CUSR0000SAM) indicates the cost pressures driving healthcare spending and hiring. Healthcare has been one of the most reliable job creators, with consistent growth even during recessions."
+  },
+  "healthcare jobs": {
+    "series": [
+      "USHCS",
+      "CPIMEDSL",
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Healthcare sector employment (USHCS) compared to overall job growth (PAYEMS), with medical services CPI (CPIMEDSL) showing the cost pressures driving healthcare expansion. Healthcare rarely loses jobs even during downturns, often accounting for a large share of total job creation."
+  },
+  "tech employment": {
+    "series": [
+      "USINFO",
+      "DGORDER",
+      "GPDIC1",
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Information sector employment (USINFO) with business investment context: Durable goods orders (DGORDER) and gross private domestic investment (GPDIC1) signal business spending cycles that drive tech hiring. Compared to total payrolls (PAYEMS) to show tech's relative performance vs the broader job market."
+  },
+  "tech jobs": {
+    "series": [
+      "USINFO",
+      "ICSA",
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Information sector employment (USINFO) - tech, media, telecom - alongside initial jobless claims (ICSA) to show real-time layoff trends, and total payrolls (PAYEMS) for context. Tech layoffs make headlines but this shows the actual magnitude relative to the broader economy."
+  },
+  "restaurant employment": {
+    "series": [
+      "USLAH",
+      "RSXFS",
+      "UMCSENT",
+      "CUSR0000SEFV"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Leisure and hospitality employment (USLAH) with demand drivers: Retail sales ex food services (RSXFS) shows consumer spending strength, consumer sentiment (UMCSENT) indicates willingness to spend on dining out, and food away from home CPI (CUSR0000SEFV) shows restaurant price inflation. Together these reveal whether restaurant hiring is driven by consumer demand or constrained by costs."
+  },
+  "hospitality jobs": {
+    "series": [
+      "USLAH",
+      "UMCSENT",
+      "RSXFS",
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Leisure and hospitality employment (USLAH) with consumer demand context: Consumer sentiment (UMCSENT) and retail sales (RSXFS) indicate consumer willingness to spend on travel, dining, and entertainment. Compared to total payrolls (PAYEMS) to show hospitality's recovery relative to the overall job market."
+  },
+  "government employment": {
+    "series": [
+      "USGOVT",
+      "FGEXPND",
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Government employment (USGOVT) with fiscal context: Federal government expenditures (FGEXPND) show the spending that drives public sector hiring, compared to total nonfarm payrolls (PAYEMS) to show public vs private sector job creation. Government hiring is less cyclical but responds to budget constraints and policy priorities."
+  },
+  "retail employment": {
+    "series": [
+      "USTRADE",
+      "RSXFS",
+      "ECOMPCTNSA",
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Trade/transportation/utilities employment (USTRADE) with demand drivers: Retail sales (RSXFS) shows consumer spending, e-commerce share (ECOMPCTNSA) reveals the structural shift from stores to warehouses, and total payrolls (PAYEMS) provides context. E-commerce has shifted retail jobs from store clerks to warehouse workers and delivery drivers."
+  },
+  "veterans employment": {
+    "series": [
+      "LNS14049526",
+      "UNRATE",
+      "LNS14000001",
+      "PAYEMS"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Post-9/11 veteran unemployment (LNS14049526) compared to overall unemployment (UNRATE) and male unemployment (LNS14000001) for demographic context. Total payrolls (PAYEMS) shows overall job market conditions. When veteran unemployment exceeds the overall rate, it signals transition challenges."
+  },
+  "how are veterans doing": {
+    "series": [
+      "LNS14049526",
+      "UNRATE",
+      "CIVPART"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Post-9/11 veteran unemployment rate compared to overall unemployment (UNRATE) and labor force participation (CIVPART). This comparison shows whether veterans face unique challenges or track the broader labor market."
+  },
+  "employment by sector": {
+    "series": [
+      "MANEMP",
+      "USCONS",
+      "USHCS",
+      "USLAH"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Employment across key sectors: Manufacturing (MANEMP), Construction (USCONS), Healthcare/Education (USHCS), and Leisure/Hospitality (USLAH). Year-over-year growth rates on one chart reveal which sectors are leading job creation and which are lagging."
+  },
+  "sector employment": {
+    "series": [
+      "MANEMP",
+      "USCONS",
+      "USHCS",
+      "USTRADE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Major sector employment comparison: Manufacturing (MANEMP), Construction (USCONS), Healthcare/Education (USHCS), and Trade/Transport/Utilities (USTRADE). These four sectors together represent a large share of total employment and show divergent cyclical patterns."
+  },
+  "which sectors are growing": {
+    "series": [
+      "USHCS",
+      "USCONS",
+      "USLAH",
+      "MANEMP"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Sector employment growth comparison: Healthcare (USHCS) typically leads, Construction (USCONS) is cyclical, Leisure/Hospitality (USLAH) is consumer-driven, Manufacturing (MANEMP) is trade-sensitive. Shown as YoY growth rates to directly compare which sectors are adding jobs fastest."
+  },
+  "which sectors are losing jobs": {
+    "series": [
+      "MANEMP",
+      "USTRADE",
+      "USINFO",
+      "ICSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Sectors vulnerable to job losses: Manufacturing (MANEMP), Trade/Transport (USTRADE), and Information/Tech (USINFO) are most cyclical. Initial jobless claims (ICSA) provides real-time signal of where layoffs are occurring across the economy."
+  },
+  "sector job growth": {
+    "series": [
+      "MANEMP",
+      "USHCS",
+      "USCONS",
+      "USLAH"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Year-over-year job growth by sector: Manufacturing (MANEMP), Healthcare (USHCS), Construction (USCONS), and Leisure/Hospitality (USLAH). Combined chart shows relative performance - healthcare typically outpaces other sectors while manufacturing is more volatile."
+  },
+  "unemployment rate vs job openings": {
+    "series": ["UNRATE", "JTSJOL"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Beveridge Curve relationship: Unemployment rate (UNRATE) vs job openings (JTSJOL). In a healthy labor market, when job openings are high, unemployment should be low. The ratio of openings to unemployed workers shows labor market tightness - values above 1 indicate more jobs than job seekers. Post-COVID this relationship shifted, with high openings coexisting with elevated unemployment initially."
+  },
+  "unemployment vs job openings": {
+    "series": ["UNRATE", "JTSJOL"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Beveridge Curve relationship: Unemployment rate (UNRATE) vs job openings (JTSJOL). In a healthy labor market, when job openings are high, unemployment should be low. The ratio of openings to unemployed workers shows labor market tightness - values above 1 indicate more jobs than job seekers."
+  },
+  "gdp vs employment": {
+    "series": ["A191RL1Q225SBEA", "PAYEMS", "UNRATE"],
+    "show_yoy": [false, true, false],
+    "combine_chart": false,
+    "explanation": "GDP growth (A191RL1Q225SBEA) vs employment metrics: Nonfarm payrolls (PAYEMS) and unemployment rate (UNRATE). Okun's Law suggests roughly 2% GDP growth is needed to keep unemployment stable. Payrolls shown as YoY to compare job growth with GDP growth rates."
+  },
+  "inflation vs wage growth": {
+    "series": ["CPIAUCSL", "CES0500000003", "LES1252881600Q"],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Inflation (CPIAUCSL) vs nominal wages (CES0500000003) and real wages (LES1252881600Q). When wage growth exceeds inflation, workers gain purchasing power. When inflation outpaces wages, living standards erode. Real median weekly earnings already adjusts for inflation."
   }
 }

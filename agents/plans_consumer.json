@@ -265,5 +265,36 @@
     "show_yoy": true,
     "combine_chart": false,
     "explanation": "Consumer strength requires examining three key pillars: confidence (UMCSENT - University of Michigan Consumer Sentiment shows how optimistic consumers feel), spending power (RSXFS - retail sales excluding food services captures discretionary spending strength), and financial resilience (PSAVERT - personal saving rate indicates buffer for future spending). Together these reveal whether consumers are confident, actively spending, and financially positioned for sustained consumption. YoY shows momentum and trends in consumer strength over time."
+  },
+  "household spending": {
+    "series": [
+      "PCE",
+      "RSXFS",
+      "DSPIC96",
+      "UMCSENT"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Household spending comprehensively: Personal consumption expenditures (PCE) is the broadest spending measure covering goods and services. Retail sales (RSXFS) shows goods spending more frequently. Real disposable income (DSPIC96) shows the income supporting spending. Consumer sentiment (UMCSENT) indicates willingness to spend. Together they reveal both actual spending and capacity to sustain it."
+  },
+  "personal consumption": {
+    "series": [
+      "PCEC96",
+      "RSXFS",
+      "DSPIC96"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Personal consumption: Real PCE (PCEC96) is the comprehensive measure of consumer spending on goods and services, inflation-adjusted. Retail sales (RSXFS) provides monthly goods spending data. Real disposable income (DSPIC96) shows the income available to support consumption. Consumption is ~70% of GDP, so these trends drive overall economic growth."
+  },
+  "median household income": {
+    "series": [
+      "MEHOINUSA672N",
+      "DSPIC96",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Median household income (MEHOINUSA672N) shows the middle-class benchmark - half of households earn more, half less. Real disposable income (DSPIC96) shows purchasing power after taxes and inflation. CPI (CPIAUCSL) shows inflation eating into nominal income gains. Note: Median income is annual, updated with lag."
   }
 }

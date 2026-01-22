@@ -205,13 +205,25 @@ def generate_ensemble_plan(
     if verbose:
         print(f"  Generating parallel plans...")
 
-    # Generate plans in parallel
+    # Generate plans in parallel (with timeout to prevent hanging)
+    LLM_TIMEOUT = 45  # seconds
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         claude_future = executor.submit(call_claude, full_prompt)
         gemini_future = executor.submit(call_gemini, full_prompt)
 
-        claude_plan = claude_future.result()
-        gemini_plan = gemini_future.result()
+        try:
+            claude_plan = claude_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            claude_plan = None
+            if verbose:
+                print(f"    Claude timed out or failed: {e}")
+
+        try:
+            gemini_plan = gemini_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            gemini_plan = None
+            if verbose:
+                print(f"    Gemini timed out or failed: {e}")
 
     if verbose:
         print(f"    Claude: {claude_plan.get('series', []) if claude_plan else 'FAILED'}")
@@ -589,13 +601,25 @@ Consider whether this is a follow-up question that should modify or add to the p
     if verbose:
         print(f"Generating ensemble plan for: {query}")
 
-    # Generate plans in parallel
+    # Generate plans in parallel (with timeout to prevent hanging)
+    LLM_TIMEOUT = 45  # seconds
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         claude_future = executor.submit(call_claude, full_prompt)
         gemini_future = executor.submit(call_gemini, full_prompt)
 
-        claude_plan = claude_future.result()
-        gemini_plan = gemini_future.result()
+        try:
+            claude_plan = claude_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            claude_plan = None
+            if verbose:
+                print(f"  Claude timed out or failed: {e}")
+
+        try:
+            gemini_plan = gemini_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            gemini_plan = None
+            if verbose:
+                print(f"  Gemini timed out or failed: {e}")
 
     if verbose:
         print(f"  Claude: {claude_plan.get('series', []) if claude_plan else 'FAILED'}")
@@ -738,13 +762,25 @@ Keep it to 4-6 concise sentences. Return only the explanation text, nothing else
     if verbose:
         print(f"  Generating ensemble description...")
 
-    # Generate descriptions in parallel
+    # Generate descriptions in parallel (with timeout to prevent hanging)
+    LLM_TIMEOUT = 45  # seconds
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         claude_future = executor.submit(_generate_description_claude, description_prompt)
         gemini_future = executor.submit(_generate_description_gemini, description_prompt)
 
-        claude_desc = claude_future.result()
-        gemini_desc = gemini_future.result()
+        try:
+            claude_desc = claude_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            claude_desc = None
+            if verbose:
+                print(f"    Claude desc timed out or failed: {e}")
+
+        try:
+            gemini_desc = gemini_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            gemini_desc = None
+            if verbose:
+                print(f"    Gemini desc timed out or failed: {e}")
 
     if verbose:
         print(f"    Claude: {'OK' if claude_desc else 'FAILED'}")
@@ -927,13 +963,25 @@ Example for "How are restaurants doing?" with existing price data:
 
 If the existing data already covers the question well, return empty lists."""
 
-    # Generate suggestions in parallel from Claude and Gemini
+    # Generate suggestions in parallel from Claude and Gemini (with timeout)
+    LLM_TIMEOUT = 45  # seconds
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         claude_future = executor.submit(call_claude, dimension_prompt)
         gemini_future = executor.submit(call_gemini, dimension_prompt)
 
-        claude_result = claude_future.result()
-        gemini_result = gemini_future.result()
+        try:
+            claude_result = claude_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            claude_result = None
+            if verbose:
+                print(f"    Claude dimension timed out or failed: {e}")
+
+        try:
+            gemini_result = gemini_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            gemini_result = None
+            if verbose:
+                print(f"    Gemini dimension timed out or failed: {e}")
 
     if verbose:
         print(f"    Claude: {claude_result.get('search_terms', []) if claude_result else 'FAILED'}")
@@ -1051,23 +1099,28 @@ Be VERY STRICT. When in doubt, REJECT."""
     response = call_gpt(validation_prompt)
 
     if not response:
-        # Fallback: keep all series if validation fails
+        # CRITICAL: Don't return unvalidated data - return empty with warning
+        # This prevents wrong demographic/industry data from being shown
         if verbose:
-            print("    Validation failed, keeping all series")
+            print("    Validation failed - returning empty to prevent wrong data")
         return {
-            'valid_series': [s.get('id') for s in series_list],
+            'valid_series': [],
             'rejected_series': [],
-            'validation_reasoning': 'Validation unavailable'
+            'validation_reasoning': 'Validation unavailable - skipping to prevent wrong data',
+            'validation_failed': True
         }
 
     result = _extract_json(response)
 
     if not result:
-        # Fallback: keep all series if parsing fails
+        # CRITICAL: Don't return unvalidated data on parse failure
+        if verbose:
+            print("    Validation parse failed - returning empty")
         return {
-            'valid_series': [s.get('id') for s in series_list],
+            'valid_series': [],
             'rejected_series': [],
-            'validation_reasoning': 'Could not parse validation response'
+            'validation_reasoning': 'Could not parse validation response',
+            'validation_failed': True
         }
 
     if verbose:
@@ -1202,13 +1255,25 @@ Return JSON:
 If the plan is already comprehensive, return empty additional_series.
 Only suggest series you're confident exist in FRED."""
 
-    # Generate suggestions in parallel
+    # Generate suggestions in parallel (with timeout to prevent hanging)
+    LLM_TIMEOUT = 45  # seconds
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         claude_future = executor.submit(call_claude, augment_prompt)
         gemini_future = executor.submit(call_gemini, augment_prompt)
 
-        claude_result = claude_future.result()
-        gemini_result = gemini_future.result()
+        try:
+            claude_result = claude_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            claude_result = None
+            if verbose:
+                print(f"    Claude augment timed out or failed: {e}")
+
+        try:
+            gemini_result = gemini_future.result(timeout=LLM_TIMEOUT)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            gemini_result = None
+            if verbose:
+                print(f"    Gemini augment timed out or failed: {e}")
 
     if verbose:
         print(f"    Claude suggests: {claude_result.get('additional_series', []) if claude_result else 'FAILED'}")
@@ -1445,19 +1510,108 @@ Return JSON only:
     # Use GPT for this judgment task
     response = call_gpt(presentation_prompt)
 
+    # Known series that should NEVER be shown as raw levels
+    # Stock series that should show YoY changes (cumulative totals where level is less meaningful)
+    KNOWN_STOCKS = {
+        # Employment stocks (total workers - show job growth)
+        'PAYEMS': 'yoy_change',     # Total nonfarm payrolls
+        'MANEMP': 'yoy_change',     # Manufacturing employment
+        'USCONS': 'yoy_change',     # Construction employment
+        'USHCS': 'yoy_change',      # Healthcare employment
+        'USLAH': 'yoy_change',      # Leisure & hospitality employment
+        'USINFO': 'yoy_change',     # Information employment
+        'USTRADE': 'yoy_change',    # Trade employment
+        'USGOVT': 'yoy_change',     # Government employment
+        'USPBS': 'yoy_change',      # Professional services employment
+        'USMINE': 'yoy_change',     # Mining employment
+        'USGOOD': 'yoy_change',     # Goods-producing employment
+        'CES0500000001': 'yoy_change',  # Total private employment
+        'LNS12000000': 'yoy_change',    # Employment level (household survey)
+        'CE16OV': 'yoy_change',         # Civilian employment level
+
+        # GDP and production (show growth rates)
+        'GDPC1': 'yoy_change',      # Real GDP
+        'GDP': 'yoy_change',        # Nominal GDP
+        'INDPRO': 'yoy_change',     # Industrial production
+        'IPMAN': 'yoy_change',      # Manufacturing production
+
+        # Consumer spending (show growth rates)
+        'PCE': 'yoy_change',        # Personal consumption expenditures
+        'PCEC96': 'yoy_change',     # Real PCE
+        'RSAFS': 'yoy_change',      # Retail sales
+        'RSXFS': 'yoy_change',      # Retail sales ex food services
+
+        # Price indices (show inflation rates)
+        'CPIAUCSL': 'yoy_change',   # CPI all items
+        'CPILFESL': 'yoy_change',   # Core CPI
+        'PCEPI': 'yoy_change',      # PCE price index
+        'PCEPILFE': 'yoy_change',   # Core PCE
+        'CSUSHPINSA': 'yoy_change', # Case-Shiller home price index
+        'MSPUS': 'yoy_change',      # Median home sale price
+        'CUSR0000SEHA': 'yoy_change',  # Shelter CPI
+        'CUSR0000SAF11': 'yoy_change', # Food CPI
+        'CUUR0000SETB01': 'yoy_change', # Gas CPI
+
+        # Money supply and Fed balance sheet (show growth)
+        'M2SL': 'yoy_change',       # M2 money supply
+        'M1SL': 'yoy_change',       # M1 money supply
+        'WALCL': 'yoy_change',      # Fed total assets
+        'GFDEBTN': 'yoy_change',    # Federal debt total
+
+        # Wages (show growth)
+        'CES0500000003': 'yoy_change',   # Avg hourly earnings
+        'LES1252881600Q': 'yoy_change',  # Real median wages
+        'AHETPI': 'yoy_change',          # Production worker hourly earnings
+
+        # Trade (show growth)
+        'EXPGS': 'yoy_change',      # Exports
+        'IMPGS': 'yoy_change',      # Imports
+        'BOPGSTB': 'yoy_change',    # Trade balance
+    }
+
+    # Rate/flow series that should show as levels (already per-period or percentages)
+    KNOWN_RATES = {
+        # Unemployment rates
+        'UNRATE', 'U6RATE', 'LNS14000006', 'LNS14000009', 'LNS14000003',
+        'LNS14000001', 'LNS14000002',
+        # Interest rates
+        'FEDFUNDS', 'DGS10', 'DGS2', 'DGS30', 'MORTGAGE30US', 'PRIME',
+        # Participation rates
+        'CIVPART', 'LNS11300006', 'LNS11300009',
+        # Sentiment indices (already normalized)
+        'UMCSENT',
+        # Housing flows (monthly rates, not cumulative)
+        'HOUST', 'HSN1F', 'PERMIT', 'EXHOSLUSM495S',
+        # Claims (weekly flow, not cumulative)
+        'ICSA', 'CCSA',
+    }
+
+    def get_smart_default(series_id):
+        """Use known series characteristics for smart defaults."""
+        if series_id in KNOWN_STOCKS:
+            return {'display_as': KNOWN_STOCKS[series_id], 'category': 'stock', 'reasoning': 'known stock series'}
+        if series_id in KNOWN_RATES:
+            return {'display_as': 'level', 'category': 'rate', 'reasoning': 'known rate/flow series'}
+        # Pattern-based detection for rates/percentages
+        if 'RATE' in series_id or series_id.startswith('LNS14') or series_id.startswith('U6'):
+            return {'display_as': 'level', 'category': 'rate', 'reasoning': 'rate series (pattern match)'}
+        # Employment-population ratios show as levels
+        if series_id.startswith('LNS12') or series_id.startswith('LNS11'):
+            return {'display_as': 'level', 'category': 'rate', 'reasoning': 'employment ratio series'}
+        # Default to level for unknown series (safer than wrong transformation)
+        return {'display_as': 'level', 'category': 'unknown', 'reasoning': 'unknown series - defaulting to level'}
+
     if not response:
         if verbose:
-            print("    Presentation validation failed, using defaults")
-        # Return defaults - assume level display
-        return {s.get('id'): {'display_as': 'level', 'category': 'unknown', 'reasoning': 'default'}
-                for s in series_data}
+            print("    Presentation validation failed, using smart defaults")
+        return {s.get('id'): get_smart_default(s.get('id')) for s in series_data}
 
     result = _extract_json(response)
 
     if not result or 'presentations' not in result:
-        # Fallback to defaults
-        return {s.get('id'): {'display_as': 'level', 'category': 'unknown', 'reasoning': 'parse failed'}
-                for s in series_data}
+        if verbose:
+            print("    Presentation parse failed, using smart defaults")
+        return {s.get('id'): get_smart_default(s.get('id')) for s in series_data}
 
     if verbose:
         for sid, config in result.get('presentations', {}).items():
