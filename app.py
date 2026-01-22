@@ -508,6 +508,57 @@ def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
 
     return None
 
+
+def is_holistic_query(query: str) -> bool:
+    """
+    Detect 'how is X doing?' style queries that need multi-dimensional answers.
+
+    These queries should bypass pre-computed plans and use RAG instead,
+    because they need comprehensive answers covering multiple dimensions
+    (employment, prices, wages, output) rather than a single narrow series.
+
+    Examples:
+    - "How are restaurants doing?" -> True (needs employment + prices + wages)
+    - "How is the economy for immigrants?" -> True (needs demographic-specific series)
+    - "What is the unemployment rate?" -> False (specific question, use precomputed)
+    - "restaurant prices" -> False (narrow focus, precomputed is fine)
+    """
+    q = query.lower().strip()
+
+    # Pattern 1: "how is/are X doing?"
+    if q.startswith('how') and ('doing' in q or 'performing' in q or 'faring' in q):
+        return True
+
+    # Pattern 2: "how is the economy/market for X?"
+    if q.startswith('how') and ('economy' in q or 'market' in q or 'sector' in q):
+        return True
+
+    # Pattern 3: "what's happening with/in X?" (open-ended)
+    if ("what's happening" in q or "what is happening" in q or
+        "whats happening" in q or "what has been happening" in q):
+        return True
+
+    # Pattern 4: "tell me about X" (open-ended, needs multiple dimensions)
+    if q.startswith('tell me about') or q.startswith('explain'):
+        return True
+
+    # Pattern 5: "overview of X" or "state of X"
+    if 'overview' in q or 'state of' in q or 'outlook' in q:
+        return True
+
+    # Pattern 6: Questions about specific demographics or groups
+    # These need specialized series, not generic ones
+    demographic_terms = ['immigrants', 'foreign-born', 'women', 'men', 'black',
+                        'hispanic', 'asian', 'white', 'veterans', 'disabled',
+                        'young', 'older', 'youth', 'teenage', 'seniors']
+    if any(term in q for term in demographic_terms):
+        # But only if it's an open-ended question
+        if q.startswith('how') or 'for ' in q or 'among ' in q:
+            return True
+
+    return False
+
+
 # Google Sheets helper - reusable connection
 def get_sheets_client():
     """Get authenticated Google Sheets client, or None if not configured."""
@@ -5058,7 +5109,20 @@ def main():
         # Check if this looks like a follow-up command (transformation, time range, etc.)
         local_parsed = parse_followup_command(query, st.session_state.last_series) if previous_context else None
 
-        if precomputed_plan and not local_parsed:
+        # Check if this is a "how is X doing?" style query that needs multi-dimensional answers
+        # These bypass pre-computed plans and go to RAG for comprehensive results
+        holistic = is_holistic_query(query)
+        use_rag_for_holistic = holistic and RAG_AVAILABLE and st.session_state.get('rag_mode', False)
+
+        if use_rag_for_holistic:
+            # Holistic query - skip pre-computed plans, use RAG for multi-dimensional answer
+            with st.spinner("Finding comprehensive data (RAG search)..."):
+                interpretation = rag_query_plan(query, verbose=False)
+            interpretation['used_rag'] = True
+            interpretation['used_ensemble'] = False
+            interpretation['used_precomputed'] = False
+            interpretation['skipped_precomputed_for_holistic'] = True
+        elif precomputed_plan and not local_parsed:
             # Use pre-computed plan - instant response! (even if there's previous context)
             interpretation = {
                 'series': precomputed_plan.get('series', []),
@@ -6020,7 +6084,10 @@ def main():
             elif interpretation.get('used_local_parser'):
                 st.write("**Method:** Local follow-up parser (instant)")
             elif interpretation.get('used_rag'):
-                st.write("**Method:** RAG (Semantic Search + GPT Selection)")
+                if interpretation.get('skipped_precomputed_for_holistic'):
+                    st.write("**Method:** RAG (holistic query - bypassed pre-computed plans)")
+                else:
+                    st.write("**Method:** RAG (Semantic Search + GPT Selection)")
             elif interpretation.get('used_ensemble'):
                 st.write("**Method:** AI Ensemble (Claude + Gemini + GPT)")
                 # Show ensemble metadata if available
