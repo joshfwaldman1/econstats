@@ -1,0 +1,2005 @@
+{
+  "timestamp": "2026-01-22T15:18:20.910108",
+  "overall_score": 2.2,
+  "total_questions": 120,
+  "category_scores": {
+    "Employment - General": {
+      "avg_score": 2.125,
+      "good": 7,
+      "partial": 1,
+      "failed": 0,
+      "total": 8
+    },
+    "Employment - Sectors": {
+      "avg_score": 2.5,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "Employment - Demographics": {
+      "avg_score": 2.875,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "Inflation - General": {
+      "avg_score": 2.0,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "Inflation - Components": {
+      "avg_score": 2.875,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "GDP and Growth": {
+      "avg_score": 2.0,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "Housing": {
+      "avg_score": 2.25,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "Interest Rates": {
+      "avg_score": 2.125,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "Consumer": {
+      "avg_score": 2.0,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "Wages and Income": {
+      "avg_score": 2.25,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "Geographic": {
+      "avg_score": 2.25,
+      "good": 7,
+      "partial": 1,
+      "failed": 0,
+      "total": 8
+    },
+    "Temporal": {
+      "avg_score": 2.0,
+      "good": 7,
+      "partial": 1,
+      "failed": 0,
+      "total": 8
+    },
+    "Complex/Hard Questions": {
+      "avg_score": 1.75,
+      "good": 5,
+      "partial": 3,
+      "failed": 0,
+      "total": 8
+    },
+    "Comparative": {
+      "avg_score": 2.375,
+      "good": 8,
+      "partial": 0,
+      "failed": 0,
+      "total": 8
+    },
+    "Edge Cases": {
+      "avg_score": 1.625,
+      "good": 5,
+      "partial": 3,
+      "failed": 0,
+      "total": 8
+    }
+  },
+  "all_results": [
+    {
+      "query": "How is the job market?",
+      "category": "Employment - General",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PAYEMS",
+        "UNRATE",
+        "JTSJOL",
+        "LNS12300060"
+      ],
+      "explanation_preview": "Comprehensive job market view: (1) Payrolls show monthly job creation. (2) Unemployment rate shows j",
+      "source": "precomputed"
+    },
+    {
+      "query": "What is the unemployment rate?",
+      "category": "Employment - General",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "UNRATE"
+      ],
+      "explanation_preview": "UNRATE is the official U-3 unemployment rate - the headline unemployment statistic that measures the",
+      "source": "precomputed"
+    },
+    {
+      "query": "How many jobs were added last month?",
+      "category": "Employment - General",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PAYEMS",
+        "UNRATE",
+        "JTSJOL",
+        "LNS12300060"
+      ],
+      "explanation_preview": "Four key labor market views: (1) Nonfarm payrolls shows monthly job gains/losses - THE jobs number. ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Show me employment trends",
+      "category": "Employment - General",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNS12300060",
+        "EMRATIO"
+      ],
+      "explanation_preview": "Prime-age employment-population ratio (LNS12300060) is the gold standard for employment rate health ",
+      "source": "precomputed"
+    },
+    {
+      "query": "What is the labor force participation rate?",
+      "category": "Employment - General",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 1,
+      "assessment": "PARTIAL",
+      "series": [
+        "LNS11300000",
+        "LNS11300060"
+      ],
+      "explanation_preview": "LNS11300000 is the overall labor force participation rate - the core metric showing what percentage ",
+      "source": "precomputed"
+    },
+    {
+      "query": "How is the labor market doing?",
+      "category": "Employment - General",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PAYEMS",
+        "UNRATE",
+        "LNS12300060"
+      ],
+      "explanation_preview": "For a comprehensive labor market overview: PAYEMS (total nonfarm payrolls) shows job creation moment",
+      "source": "precomputed"
+    },
+    {
+      "query": "Show me nonfarm payrolls",
+      "category": "Employment - General",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PAYEMS"
+      ],
+      "explanation_preview": "PAYEMS is THE nonfarm payrolls series - the total count of paid employees in the U.S. This level sho",
+      "source": "precomputed"
+    },
+    {
+      "query": "What is the current jobs situation?",
+      "category": "Employment - General",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PAYEMS",
+        "UNRATE",
+        "JTSJOL",
+        "LNS12300060"
+      ],
+      "explanation_preview": "Four key labor market views: (1) Nonfarm payrolls shows monthly job gains/losses - THE jobs number. ",
+      "source": "precomputed"
+    },
+    {
+      "query": "How is manufacturing employment?",
+      "category": "Employment - Sectors",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "MANEMP",
+        "IPMAN"
+      ],
+      "explanation_preview": "MANEMP shows manufacturing employment (factory jobs), while IPMAN shows industrial production in man",
+      "source": "precomputed"
+    },
+    {
+      "query": "Show me tech sector jobs",
+      "category": "Employment - Sectors",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "USINFO",
+        "ICSA",
+        "PAYEMS"
+      ],
+      "explanation_preview": "Information sector employment (USINFO) - tech, media, telecom - alongside initial jobless claims (IC",
+      "source": "precomputed"
+    },
+    {
+      "query": "Healthcare employment trends",
+      "category": "Employment - Sectors",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "USHCS",
+        "CES0500000003",
+        "CUSR0000SAM"
+      ],
+      "explanation_preview": "Healthcare employment (USHCS) with wage and cost context: Average hourly earnings (CES0500000003) sh",
+      "source": "precomputed"
+    },
+    {
+      "query": "Construction jobs",
+      "category": "Employment - Sectors",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "USCONS",
+        "HOUST",
+        "PERMIT",
+        "TLRESCONS"
+      ],
+      "explanation_preview": "Construction employment (USCONS) with full pipeline context: Housing starts (HOUST) show new project",
+      "source": "precomputed"
+    },
+    {
+      "query": "Retail employment",
+      "category": "Employment - Sectors",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "USTRADE",
+        "RSXFS",
+        "ECOMPCTNSA",
+        "PAYEMS"
+      ],
+      "explanation_preview": "Trade/transportation/utilities employment (USTRADE) with demand drivers: Retail sales (RSXFS) shows ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Government employment",
+      "category": "Employment - Sectors",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "USGOVT",
+        "FGEXPND",
+        "PAYEMS"
+      ],
+      "explanation_preview": "Government employment (USGOVT) with fiscal context: Federal government expenditures (FGEXPND) show t",
+      "source": "precomputed"
+    },
+    {
+      "query": "How are restaurant jobs doing?",
+      "category": "Employment - Sectors",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PAYEMS",
+        "UNRATE",
+        "JTSJOL",
+        "LNS12300060"
+      ],
+      "explanation_preview": "Four key labor market views: (1) Nonfarm payrolls shows monthly job gains/losses - THE jobs number. ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Leisure and hospitality employment",
+      "category": "Employment - Sectors",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "USLAH"
+      ],
+      "explanation_preview": "The selected series 'USLAH' provides data specifically on employment in the leisure and hospitality ",
+      "source": "hybrid"
+    },
+    {
+      "query": "Black unemployment rate",
+      "category": "Employment - Demographics",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNS14000006",
+        "LNS14000003"
+      ],
+      "explanation_preview": "LNS14000006 is the unemployment rate specifically for Black or African American workers. Including L",
+      "source": "precomputed"
+    },
+    {
+      "query": "Hispanic employment",
+      "category": "Employment - Demographics",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNS14000009",
+        "LNS12300009",
+        "LNS11300009"
+      ],
+      "explanation_preview": "For Hispanic employment analysis, I'm using three demographic-specific series: LNS14000009 (Hispanic",
+      "source": "precomputed"
+    },
+    {
+      "query": "Women in the workforce",
+      "category": "Employment - Demographics",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNS12300062",
+        "LNS11300002",
+        "LNS14000002"
+      ],
+      "explanation_preview": "For women in the workforce, I'm using three key demographic-specific series: LNS12300062 (employment",
+      "source": "precomputed"
+    },
+    {
+      "query": "Youth unemployment",
+      "category": "Employment - Demographics",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNS14000012",
+        "LNS14000036"
+      ],
+      "explanation_preview": "Youth unemployment requires age-specific series: LNS14000012 captures teenagers (16-19 years) who ha",
+      "source": "precomputed"
+    },
+    {
+      "query": "How are Black workers doing?",
+      "category": "Employment - Demographics",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "LNS14000006",
+        "LNS12300006",
+        "LNS11300006"
+      ],
+      "explanation_preview": "To assess how Black workers are doing in the economy, I'm using three key demographic-specific serie",
+      "source": "precomputed"
+    },
+    {
+      "query": "Immigrant labor force participation",
+      "category": "Employment - Demographics",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNU04073395",
+        "LNU02073395",
+        "LNU01073395"
+      ],
+      "explanation_preview": "To assess immigrant workers' economic situation, these foreign-born specific series show unemploymen",
+      "source": "precomputed"
+    },
+    {
+      "query": "Men vs women employment",
+      "category": "Employment - Demographics",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNS12300062",
+        "LNS14000002",
+        "LNS11300002"
+      ],
+      "explanation_preview": "For women's employment, I'm using three key demographic-specific series: LNS12300062 (employment-pop",
+      "source": "precomputed"
+    },
+    {
+      "query": "Older worker employment",
+      "category": "Employment - Demographics",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNS14000095",
+        "LNS14000097",
+        "LNS11300012",
+        "LNS11300013"
+      ],
+      "explanation_preview": "For older workers analysis, I'm using unemployment rates for 55-64 years (LNS14000095) and 65+ years",
+      "source": "precomputed"
+    },
+    {
+      "query": "What is inflation?",
+      "category": "Inflation - General",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL",
+        "PCEPILFE",
+        "LES1252881600Q"
+      ],
+      "explanation_preview": "\u2022 CPI All Items: Headline inflation - what consumers actually pay. The most widely cited measure.\n\u2022 ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Show me CPI",
+      "category": "Inflation - General",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "explanation_preview": "For CPI analysis, you need both headline CPI (CPIAUCSL) which includes all items and Core CPI (CPILF",
+      "source": "precomputed"
+    },
+    {
+      "query": "How is inflation doing?",
+      "category": "Inflation - General",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL",
+        "PCEPILFE"
+      ],
+      "explanation_preview": "To assess if inflation is 'high', we need both headline CPI inflation (CPIAUCSL) which captures what",
+      "source": "precomputed"
+    },
+    {
+      "query": "What is the inflation rate?",
+      "category": "Inflation - General",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "explanation_preview": "For inflation rate, I'm showing both headline CPI (CPIAUCSL) and core CPI (CPILFESL) as year-over-ye",
+      "source": "precomputed"
+    },
+    {
+      "query": "Core inflation trends",
+      "category": "Inflation - General",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPILFESL",
+        "PCEPILFE"
+      ],
+      "explanation_preview": "Core inflation removes volatile food and energy prices to show underlying price pressures. CPILFESL ",
+      "source": "precomputed"
+    },
+    {
+      "query": "PCE inflation",
+      "category": "Inflation - General",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PCEPI",
+        "PCEPILFE"
+      ],
+      "explanation_preview": "PCE inflation requires both headline PCE (PCEPI) and Core PCE (PCEPILFE). Core PCE is the Fed's prim",
+      "source": "precomputed"
+    },
+    {
+      "query": "Is inflation going up or down?",
+      "category": "Inflation - General",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL",
+        "PCEPILFE"
+      ],
+      "explanation_preview": "To assess if inflation is coming down, we need to track both headline inflation (CPIAUCSL) and core ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Consumer prices",
+      "category": "Inflation - General",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "explanation_preview": "For CPI analysis, you need both headline CPI (CPIAUCSL) which includes all items and Core CPI (CPILF",
+      "source": "precomputed"
+    },
+    {
+      "query": "Food prices",
+      "category": "Inflation - Components",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "CUSR0000SAF11",
+        "CUSR0000SEFV",
+        "CPIAUCSL",
+        "DCOILWTICO"
+      ],
+      "explanation_preview": "Food prices through multiple lenses: Food at home (CUSR0000SAF11) covers groceries, Food away from h",
+      "source": "precomputed"
+    },
+    {
+      "query": "Gas prices",
+      "category": "Inflation - Components",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "GASREGW",
+        "CUSR0000SETB01"
+      ],
+      "explanation_preview": "GASREGW shows actual retail gasoline prices in dollars per gallon (what consumers pay at the pump), ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Shelter inflation",
+      "category": "Inflation - Components",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "CUSR0000SAH1",
+        "CUSR0000SEHA",
+        "CUSR0000SEHC",
+        "MORTGAGE30US"
+      ],
+      "explanation_preview": "Shelter inflation breakdown: Overall shelter (CUSR0000SAH1) is 33% of CPI. Rent of primary residence",
+      "source": "precomputed"
+    },
+    {
+      "query": "Housing costs inflation",
+      "category": "Inflation - Components",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "CUSR0000SAH1",
+        "CUSR0000SEHA",
+        "CUSR0000SEHC",
+        "MORTGAGE30US"
+      ],
+      "explanation_preview": "Shelter inflation breakdown: Overall shelter (CUSR0000SAH1) is 33% of CPI. Rent of primary residence",
+      "source": "precomputed"
+    },
+    {
+      "query": "Energy prices",
+      "category": "Inflation - Components",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "CUSR0000SETB01",
+        "DCOILWTICO",
+        "GASREGW",
+        "CUSR0000SEHE"
+      ],
+      "explanation_preview": "Energy prices comprehensively: CPI Gasoline (CUSR0000SETB01) measures pump price inflation, WTI Crud",
+      "source": "precomputed"
+    },
+    {
+      "query": "Used car prices",
+      "category": "Inflation - Components",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CUSR0000SETA02",
+        "CPIAUCSL"
+      ],
+      "explanation_preview": "CUSR0000SETA02 is the CPI component for used cars and trucks, directly measuring used vehicle price ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Medical care inflation",
+      "category": "Inflation - Components",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "CUSR0000SAM",
+        "CPIMEDSL",
+        "USHCS",
+        "CES0500000003"
+      ],
+      "explanation_preview": "Medical inflation with cost drivers: Overall medical care CPI (CUSR0000SAM) and medical services CPI",
+      "source": "precomputed"
+    },
+    {
+      "query": "Rent inflation",
+      "category": "Inflation - Components",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "CUSR0000SEHA",
+        "CUSR0000SEHC"
+      ],
+      "explanation_preview": "CPI Rent of Primary Residence (CUSR0000SEHA) and Owners' Equivalent Rent (CUSR0000SEHC). CRITICAL: C",
+      "source": "precomputed"
+    },
+    {
+      "query": "What is GDP growth?",
+      "category": "GDP and Growth",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "A191RO1Q156NBEA",
+        "A191RL1Q225SBEA",
+        "PB0000031Q225SBEA",
+        "GDPNOW"
+      ],
+      "explanation_preview": "Four complementary GDP measures: (1) Annual growth (YoY) shows the stable underlying trend. (2) Quar",
+      "source": "precomputed"
+    },
+    {
+      "query": "How is the economy doing?",
+      "category": "GDP and Growth",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "BBKMLEIX",
+        "A191RL1Q225SBEA",
+        "UNRATE"
+      ],
+      "explanation_preview": "For economic outlook, I'm showing the BBK Leading Index (BBKMLEIX) from the Chicago Fed, which forec",
+      "source": "precomputed"
+    },
+    {
+      "query": "Show me real GDP",
+      "category": "GDP and Growth",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "GDPC1"
+      ],
+      "explanation_preview": "GDPC1 is real GDP in billions of chained 2017 dollars. Shown as year-over-year % change since the le",
+      "source": "precomputed"
+    },
+    {
+      "query": "Economic growth rate",
+      "category": "GDP and Growth",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "DPRIME",
+        "FEDFUNDS"
+      ],
+      "explanation_preview": "The prime rate (DPRIME) is the base rate banks charge their most creditworthy customers and directly",
+      "source": "precomputed"
+    },
+    {
+      "query": "Is the economy in recession?",
+      "category": "GDP and Growth",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "A191RL1Q225SBEA",
+        "T10Y2Y",
+        "UNRATE"
+      ],
+      "explanation_preview": "To assess recession risk, I'm showing the three key indicators: Real GDP growth rate (negative growt",
+      "source": "precomputed"
+    },
+    {
+      "query": "GDP trends",
+      "category": "GDP and Growth",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "A191RL1Q225SBEA",
+        "GDPC1"
+      ],
+      "explanation_preview": "For a GDP report, you need the headline growth rate (A191RL1Q225SBEA) which shows quarterly annualiz",
+      "source": "precomputed"
+    },
+    {
+      "query": "Quarterly GDP growth",
+      "category": "GDP and Growth",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "A191RL1Q225SBEA"
+      ],
+      "explanation_preview": "A191RL1Q225SBEA is the quarterly real GDP growth rate (annualized), which is the standard measure fo",
+      "source": "precomputed"
+    },
+    {
+      "query": "Industrial production",
+      "category": "GDP and Growth",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "INDPRO"
+      ],
+      "explanation_preview": "INDPRO is the primary measure of industrial production, covering manufacturing, mining, and utilitie",
+      "source": "precomputed"
+    },
+    {
+      "query": "How is the housing market?",
+      "category": "Housing",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CSUSHPINSA",
+        "EXHOSLUSM495S",
+        "MORTGAGE30US"
+      ],
+      "explanation_preview": "Case-Shiller (CSUSHPINSA) shows home prices. Existing home sales (EXHOSLUSM495S) shows actual market",
+      "source": "precomputed"
+    },
+    {
+      "query": "Home prices",
+      "category": "Housing",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CSUSHPINSA",
+        "MSPUS",
+        "MORTGAGE30US",
+        "DSPIC96"
+      ],
+      "explanation_preview": "Home prices comprehensively: Case-Shiller index (CSUSHPINSA) shows price appreciation trends. Median",
+      "source": "precomputed"
+    },
+    {
+      "query": "Mortgage rates",
+      "category": "Housing",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "MORTGAGE30US",
+        "MORTGAGE15US"
+      ],
+      "explanation_preview": "The 30-year fixed rate is America's most common mortgage. Small rate changes have big affordability ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Housing starts",
+      "category": "Housing",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "HOUST"
+      ],
+      "explanation_preview": "HOUST is the total housing starts series, measuring when new residential construction begins. This i",
+      "source": "precomputed"
+    },
+    {
+      "query": "Home sales",
+      "category": "Housing",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "EXHOSLUSM495S",
+        "HSN1F"
+      ],
+      "explanation_preview": "EXHOSLUSM495S captures existing home sales, which represent about 85-90% of the total housing market",
+      "source": "precomputed"
+    },
+    {
+      "query": "New home construction",
+      "category": "Housing",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "HOUST",
+        "PERMIT"
+      ],
+      "explanation_preview": "Housing starts (HOUST) measures when construction actually begins, while building permits (PERMIT) i",
+      "source": "precomputed"
+    },
+    {
+      "query": "Housing affordability",
+      "category": "Housing",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "FIXHAI",
+        "MORTGAGE30US",
+        "CSUSHPINSA",
+        "DSPIC96"
+      ],
+      "explanation_preview": "Housing affordability comprehensively: FIXHAI (Affordability Index) directly measures if median fami",
+      "source": "precomputed"
+    },
+    {
+      "query": "Case-Shiller index",
+      "category": "Housing",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CSUSHPINSA"
+      ],
+      "explanation_preview": "The S&P/Case-Shiller National Home Price Index (CSUSHPINSA) is the gold standard for tracking U.S. h",
+      "source": "precomputed"
+    },
+    {
+      "query": "What is the fed funds rate?",
+      "category": "Interest Rates",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "FEDFUNDS"
+      ],
+      "explanation_preview": "FEDFUNDS is the federal funds effective rate - the actual rate at which banks lend to each other ove",
+      "source": "precomputed"
+    },
+    {
+      "query": "Interest rates",
+      "category": "Interest Rates",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "FEDFUNDS",
+        "DGS2",
+        "DGS10",
+        "T10Y2Y"
+      ],
+      "explanation_preview": "FEDFUNDS is the Fed's policy rate. DGS2 (2-year Treasury) reflects market expectations of near-term ",
+      "source": "precomputed"
+    },
+    {
+      "query": "10-year Treasury yield",
+      "category": "Interest Rates",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "DGS10"
+      ],
+      "explanation_preview": "DGS10 is the 10-year Treasury constant maturity rate, which is the benchmark long-term interest rate",
+      "source": "precomputed"
+    },
+    {
+      "query": "Mortgage rates trend",
+      "category": "Interest Rates",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "MORTGAGE30US",
+        "MORTGAGE15US"
+      ],
+      "explanation_preview": "The 30-year fixed rate is America's most common mortgage. Small rate changes have big affordability ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Fed policy rate",
+      "category": "Interest Rates",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "FEDFUNDS",
+        "DFEDTARU",
+        "DFEDTARL"
+      ],
+      "explanation_preview": "These three series show the complete picture of Fed monetary policy: FEDFUNDS is the actual federal ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Short term interest rates",
+      "category": "Interest Rates",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "FEDFUNDS",
+        "DGS3MO",
+        "DGS6MO",
+        "DGS1"
+      ],
+      "explanation_preview": "Short-term rates include the Fed funds rate (the primary policy tool) and Treasury securities with m",
+      "source": "precomputed"
+    },
+    {
+      "query": "Long term rates",
+      "category": "Interest Rates",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "DGS10",
+        "DGS30"
+      ],
+      "explanation_preview": "Long-term rates are best represented by the 10-year and 30-year Treasury yields. The 10-year is the ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Yield curve",
+      "category": "Interest Rates",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "T10Y2Y"
+      ],
+      "explanation_preview": "The 10-year minus 2-year Treasury spread (T10Y2Y) is the classic yield curve indicator that economis",
+      "source": "precomputed"
+    },
+    {
+      "query": "Consumer spending",
+      "category": "Consumer",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PCE",
+        "RSXFS"
+      ],
+      "explanation_preview": "PCE (Personal Consumption Expenditures) is the comprehensive measure of consumer spending covering a",
+      "source": "precomputed"
+    },
+    {
+      "query": "Retail sales",
+      "category": "Consumer",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "RSXFS"
+      ],
+      "explanation_preview": "RSXFS (Retail Sales Excluding Food Services) is the cleanest measure of retail sales as it removes t",
+      "source": "precomputed"
+    },
+    {
+      "query": "Consumer sentiment",
+      "category": "Consumer",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "UMCSENT"
+      ],
+      "explanation_preview": "UMCSENT (University of Michigan Consumer Sentiment Index) is the most widely cited and comprehensive",
+      "source": "precomputed"
+    },
+    {
+      "query": "Consumer confidence",
+      "category": "Consumer",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "UMCSENT"
+      ],
+      "explanation_preview": "UMCSENT (University of Michigan Consumer Sentiment Index) is the most widely cited and authoritative",
+      "source": "precomputed"
+    },
+    {
+      "query": "Personal consumption",
+      "category": "Consumer",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PCEC96",
+        "RSXFS",
+        "DSPIC96"
+      ],
+      "explanation_preview": "Personal consumption: Real PCE (PCEC96) is the comprehensive measure of consumer spending on goods a",
+      "source": "precomputed"
+    },
+    {
+      "query": "Household spending",
+      "category": "Consumer",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PCE",
+        "RSXFS",
+        "DSPIC96",
+        "UMCSENT"
+      ],
+      "explanation_preview": "Household spending comprehensively: Personal consumption expenditures (PCE) is the broadest spending",
+      "source": "precomputed"
+    },
+    {
+      "query": "Are consumers spending?",
+      "category": "Consumer",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "RSXFS",
+        "PCEC96"
+      ],
+      "explanation_preview": "RSXFS (retail sales excluding food services) provides the cleanest measure of consumer goods spendin",
+      "source": "precomputed"
+    },
+    {
+      "query": "Consumer outlook",
+      "category": "Consumer",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "UMCSENT",
+        "UMCSENT1",
+        "UMCSENT5"
+      ],
+      "explanation_preview": "Consumer outlook is best captured by the University of Michigan Consumer Sentiment Index (UMCSENT) a",
+      "source": "precomputed"
+    },
+    {
+      "query": "Wage growth",
+      "category": "Wages and Income",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CES0500000003"
+      ],
+      "explanation_preview": "CES0500000003 (Average Hourly Earnings of All Employees, Total Private) is the primary measure of wa",
+      "source": "precomputed"
+    },
+    {
+      "query": "Average hourly earnings",
+      "category": "Wages and Income",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CES0500000003",
+        "AHETPI"
+      ],
+      "explanation_preview": "These series provide a comprehensive view of earnings: CES0500000003 covers average hourly earnings ",
+      "source": "hybrid"
+    },
+    {
+      "query": "Real wages",
+      "category": "Wages and Income",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "LES1252881600Q"
+      ],
+      "explanation_preview": "LES1252881600Q is real (inflation-adjusted) median weekly earnings for full-time workers, in constan",
+      "source": "precomputed"
+    },
+    {
+      "query": "Income trends",
+      "category": "Wages and Income",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "MEPAINUSA672N",
+        "DSPIC96",
+        "CES0500000003",
+        "LES1252881600Q"
+      ],
+      "explanation_preview": "These series provide a comprehensive view of income trends: median personal income (MEPAINUSA672N) c",
+      "source": "hybrid"
+    },
+    {
+      "query": "Are wages keeping up with inflation?",
+      "category": "Wages and Income",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LES1252881600Q",
+        "CES0500000003",
+        "CPIAUCSL"
+      ],
+      "explanation_preview": "\u2022 **Real Median Weekly Earnings** (LES1252881600Q): The definitive measure of whether wages are keep",
+      "source": "precomputed"
+    },
+    {
+      "query": "Median household income",
+      "category": "Wages and Income",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "MEHOINUSA672N",
+        "DSPIC96",
+        "CPIAUCSL"
+      ],
+      "explanation_preview": "Median household income (MEHOINUSA672N) shows the middle-class benchmark - half of households earn m",
+      "source": "precomputed"
+    },
+    {
+      "query": "Personal income",
+      "category": "Wages and Income",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PI",
+        "DSPIC96"
+      ],
+      "explanation_preview": "PI shows total personal income in nominal terms, while DSPIC96 shows real disposable personal income",
+      "source": "precomputed"
+    },
+    {
+      "query": "Earnings growth",
+      "category": "Wages and Income",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CES0500000003"
+      ],
+      "explanation_preview": "CES0500000003 (Average Hourly Earnings of All Employees, Total Private) is the primary measure of wa",
+      "source": "precomputed"
+    },
+    {
+      "query": "Texas unemployment",
+      "category": "Geographic",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNS14000012"
+      ],
+      "explanation_preview": "LNS14000012 is the unemployment rate for 16-19 year olds, which is the specific demographic measure ",
+      "source": "precomputed"
+    },
+    {
+      "query": "California economy",
+      "category": "Geographic",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CAUR",
+        "CANA",
+        "UNRATE",
+        "PAYEMS"
+      ],
+      "explanation_preview": "California economy: State unemployment (CAUR) and nonfarm payrolls (CANA) vs national benchmarks. Ca",
+      "source": "precomputed"
+    },
+    {
+      "query": "How is Florida doing?",
+      "category": "Geographic",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "ACTLISCOUFL",
+        "FLUR",
+        "MEDLISPRIFL"
+      ],
+      "explanation_preview": "These series provide a comprehensive view of Florida's economic health by covering economic growth (",
+      "source": "hybrid"
+    },
+    {
+      "query": "New York employment",
+      "category": "Geographic",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 1,
+      "assessment": "PARTIAL",
+      "series": [
+        "MANEMP",
+        "USCONS",
+        "USHCS",
+        "USTRADE"
+      ],
+      "explanation_preview": "Major sector employment comparison: Manufacturing (MANEMP), Construction (USCONS), Healthcare/Educat",
+      "source": "precomputed"
+    },
+    {
+      "query": "Midwest manufacturing",
+      "category": "Geographic",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "IPG3361T3S",
+        "CES3133600101",
+        "MANEMP"
+      ],
+      "explanation_preview": "IPG3361T3S tracks industrial production of motor vehicles and parts (index). CES3133600101 shows emp",
+      "source": "precomputed"
+    },
+    {
+      "query": "Ohio jobs",
+      "category": "Geographic",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "OHNA",
+        "OHUR",
+        "PAYEMS"
+      ],
+      "explanation_preview": "Ohio employment: State nonfarm payrolls (OHNA) show Ohio job creation vs national payrolls (PAYEMS).",
+      "source": "precomputed"
+    },
+    {
+      "query": "Pennsylvania economy",
+      "category": "Geographic",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "BBKMLEIX",
+        "A191RL1Q225SBEA",
+        "UNRATE"
+      ],
+      "explanation_preview": "For economic outlook, I'm showing the BBK Leading Index (BBKMLEIX) from the Chicago Fed, which forec",
+      "source": "precomputed"
+    },
+    {
+      "query": "Georgia unemployment rate",
+      "category": "Geographic",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "OHUR",
+        "UNRATE",
+        "PAYEMS"
+      ],
+      "explanation_preview": "Ohio unemployment (OHUR) compared to national unemployment (UNRATE) and total payrolls (PAYEMS) for ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Inflation in 2022",
+      "category": "Temporal",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL",
+        "PCEPILFE",
+        "LES1252881600Q"
+      ],
+      "explanation_preview": "\u2022 CPI All Items: Headline inflation - what consumers actually pay. The most widely cited measure.\n\u2022 ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Pre-covid unemployment",
+      "category": "Temporal",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "OHUR",
+        "UNRATE",
+        "PAYEMS"
+      ],
+      "explanation_preview": "Ohio unemployment (OHUR) compared to national unemployment (UNRATE) and total payrolls (PAYEMS) for ",
+      "source": "precomputed"
+    },
+    {
+      "query": "GDP during the pandemic",
+      "category": "Temporal",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "A191RO1Q156NBEA",
+        "A191RL1Q225SBEA",
+        "PB0000031Q225SBEA",
+        "GDPNOW"
+      ],
+      "explanation_preview": "Four views of GDP: (1) Year-over-year growth is the most stable and meaningful measure of economic p",
+      "source": "precomputed"
+    },
+    {
+      "query": "Post-covid recovery",
+      "category": "Temporal",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 1,
+      "assessment": "PARTIAL",
+      "series": [
+        "ICSA",
+        "DSPIC96",
+        "RSAFS",
+        "UMCSENT"
+      ],
+      "explanation_preview": "These series provide a comprehensive view of post-COVID economic recovery by examining labor market ",
+      "source": "hybrid"
+    },
+    {
+      "query": "Unemployment during great recession",
+      "category": "Temporal",
+      "series_found": 1,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "UNRATE"
+      ],
+      "explanation_preview": "UNRATE is the official U-3 unemployment rate - the headline unemployment statistic that measures the",
+      "source": "precomputed"
+    },
+    {
+      "query": "Last 5 years of job growth",
+      "category": "Temporal",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PAYEMS",
+        "UNRATE",
+        "LNS12300060"
+      ],
+      "explanation_preview": "5-year job market trends: Total nonfarm payrolls (PAYEMS) shows job creation trajectory. Unemploymen",
+      "source": "precomputed"
+    },
+    {
+      "query": "2023 inflation",
+      "category": "Temporal",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL",
+        "PCEPILFE",
+        "LES1252881600Q"
+      ],
+      "explanation_preview": "\u2022 CPI All Items: Headline inflation - what consumers actually pay. The most widely cited measure.\n\u2022 ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Employment since 2020",
+      "category": "Temporal",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "LNS12300060",
+        "EMRATIO"
+      ],
+      "explanation_preview": "Prime-age employment-population ratio (LNS12300060) is the gold standard for employment rate health ",
+      "source": "precomputed"
+    },
+    {
+      "query": "How are tariffs affecting the economy?",
+      "category": "Complex/Hard Questions",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "BOPGSTB",
+        "IMPGS",
+        "PPIACO",
+        "MANEMP"
+      ],
+      "explanation_preview": "Tariff economic impact: (1) Trade balance - did tariffs reduce the deficit? (2) Total imports - are ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Is there stagflation?",
+      "category": "Complex/Hard Questions",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 1,
+      "assessment": "PARTIAL",
+      "series": [
+        "A191RL1Q225SBEA",
+        "CPIAUCSL",
+        "UNRATE",
+        "LES1252881600Q"
+      ],
+      "explanation_preview": "Stagflation = slow/negative growth + high inflation + rising unemployment. (1) GDP growth shows econ",
+      "source": "precomputed"
+    },
+    {
+      "query": "What is the federal deficit?",
+      "category": "Complex/Hard Questions",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "FYFSD",
+        "GFDEBTN",
+        "FGEXPND",
+        "FGRECPT"
+      ],
+      "explanation_preview": "Federal budget deficit (not trade deficit): (1) FYFSD shows annual surplus/deficit - negative values",
+      "source": "precomputed"
+    },
+    {
+      "query": "Trade war impact on manufacturing",
+      "category": "Complex/Hard Questions",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "MANEMP",
+        "IMPCH",
+        "PPIACO",
+        "NAPMPMD"
+      ],
+      "explanation_preview": "Trade war impact on manufacturing: (1) Manufacturing employment (MANEMP) - are factory jobs being ga",
+      "source": "precomputed"
+    },
+    {
+      "query": "How is AI affecting jobs?",
+      "category": "Complex/Hard Questions",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 1,
+      "assessment": "PARTIAL",
+      "series": [
+        "USINFO",
+        "MANEMP",
+        "CES0500000003",
+        "ICSA"
+      ],
+      "explanation_preview": "AI job impact proxies (FRED lacks direct AI data): (1) Information sector employment - includes tech",
+      "source": "precomputed"
+    },
+    {
+      "query": "Supply chain issues",
+      "category": "Complex/Hard Questions",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "NAPMPMD",
+        "NAPMPI",
+        "TSIFRGHT",
+        "PPIACO"
+      ],
+      "explanation_preview": "Supply chain indicators: ISM Supplier Deliveries (NAPMPMD) measures delivery delays - above 50 means",
+      "source": "precomputed"
+    },
+    {
+      "query": "Small business trends",
+      "category": "Complex/Hard Questions",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 1,
+      "assessment": "PARTIAL",
+      "series": [
+        "BUSLOANS",
+        "DRTSCLCC"
+      ],
+      "explanation_preview": "Business lending conditions: C&I Loans outstanding shows total business borrowing, while Bank Lendin",
+      "source": "precomputed"
+    },
+    {
+      "query": "Labor shortage",
+      "category": "Complex/Hard Questions",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "JTSJOL",
+        "JTSQUR",
+        "CIVPART",
+        "CES0500000003"
+      ],
+      "explanation_preview": "Labor shortage indicators: Job openings (JTSJOL) show unfilled positions - high levels signal shorta",
+      "source": "precomputed"
+    },
+    {
+      "query": "Inflation vs wage growth",
+      "category": "Comparative",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "CES0500000003",
+        "LES1252881600Q"
+      ],
+      "explanation_preview": "Inflation (CPIAUCSL) vs nominal wages (CES0500000003) and real wages (LES1252881600Q). When wage gro",
+      "source": "precomputed"
+    },
+    {
+      "query": "GDP vs employment",
+      "category": "Comparative",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "A191RL1Q225SBEA",
+        "PAYEMS",
+        "UNRATE"
+      ],
+      "explanation_preview": "GDP growth (A191RL1Q225SBEA) vs employment metrics: Nonfarm payrolls (PAYEMS) and unemployment rate ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Unemployment rate vs job openings",
+      "category": "Comparative",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 3,
+      "assessment": "GOOD",
+      "series": [
+        "UNRATE",
+        "JTSJOL"
+      ],
+      "explanation_preview": "The Beveridge Curve relationship: Unemployment rate (UNRATE) vs job openings (JTSJOL). In a healthy ",
+      "source": "precomputed"
+    },
+    {
+      "query": "Compare CPI and PCE",
+      "category": "Comparative",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CPIAUCSL",
+        "PCEPI",
+        "CPILFESL",
+        "PCEPILFE"
+      ],
+      "explanation_preview": "CPI vs PCE comparison:\n\n**Headline:** CPIAUCSL (CPI) vs PCEPI (PCE). CPI is widely reported in news;",
+      "source": "precomputed"
+    },
+    {
+      "query": "Housing prices vs income",
+      "category": "Comparative",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "CSUSHPINSA",
+        "HOUST",
+        "EXHOSLUSM495S"
+      ],
+      "explanation_preview": "A housing crash involves dramatic declines in home prices, construction activity, and sales volumes.",
+      "source": "precomputed"
+    },
+    {
+      "query": "Exports vs imports",
+      "category": "Comparative",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "EXPGSC1",
+        "IMPGSC1",
+        "NETEXP"
+      ],
+      "explanation_preview": "U.S. trade flows: Exports (EXPGSC1) are goods and services sold abroad, Imports (IMPGSC1) are purcha",
+      "source": "precomputed"
+    },
+    {
+      "query": "Manufacturing vs services",
+      "category": "Comparative",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "MANEMP",
+        "SRVPRD",
+        "IPMAN",
+        "DPCERD3Q086SBEA"
+      ],
+      "explanation_preview": "Manufacturing vs services comparison: Manufacturing employment (MANEMP) vs services employment (SRVP",
+      "source": "precomputed"
+    },
+    {
+      "query": "10-year vs 2-year Treasury",
+      "category": "Comparative",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "DGS10",
+        "DGS2",
+        "T10Y2Y"
+      ],
+      "explanation_preview": "10-year Treasury (DGS10) vs 2-year Treasury (DGS2) comparison with their spread (T10Y2Y). The 2-year",
+      "source": "precomputed"
+    },
+    {
+      "query": "food trucks",
+      "category": "Edge Cases",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "USLAH",
+        "CUSR0000SEFV",
+        "BUSLOANS"
+      ],
+      "explanation_preview": "Food truck industry proxies (no dedicated FRED series): Leisure/hospitality employment (USLAH) inclu",
+      "source": "precomputed"
+    },
+    {
+      "query": "solar industry jobs",
+      "category": "Edge Cases",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 1,
+      "assessment": "PARTIAL",
+      "series": [
+        "USCONS",
+        "IPG3211A2S",
+        "USINFO"
+      ],
+      "explanation_preview": "Solar industry proxies (FRED lacks dedicated solar employment data): Construction employment (USCONS",
+      "source": "precomputed"
+    },
+    {
+      "query": "cryptocurrency",
+      "category": "Edge Cases",
+      "series_found": 3,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 1,
+      "assessment": "PARTIAL",
+      "series": [
+        "DTWEXBGS",
+        "DGS10",
+        "SP500"
+      ],
+      "explanation_preview": "Cryptocurrency context (FRED does not track crypto prices directly): Dollar strength (DTWEXBGS) ofte",
+      "source": "precomputed"
+    },
+    {
+      "query": "gig economy",
+      "category": "Edge Cases",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 1,
+      "assessment": "PARTIAL",
+      "series": [
+        "LNS12032194",
+        "LNS12032197",
+        "PAYEMS",
+        "USLAH"
+      ],
+      "explanation_preview": "Gig economy proxies (FRED lacks direct gig worker data): Self-employed workers (LNS12032194 - uninco",
+      "source": "precomputed"
+    },
+    {
+      "query": "rates",
+      "category": "Edge Cases",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "FEDFUNDS",
+        "DGS10"
+      ],
+      "explanation_preview": "For a general 'rates' query, I'm showing the two most important benchmark rates: the Federal funds r",
+      "source": "precomputed"
+    },
+    {
+      "query": "stocks",
+      "category": "Edge Cases",
+      "series_found": 2,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "SP500",
+        "VIXCLS"
+      ],
+      "explanation_preview": "Stock market indicators: S&P 500 index (SP500) represents about 80% of US equity market cap. VIX vol",
+      "source": "precomputed"
+    },
+    {
+      "query": "economy",
+      "category": "Edge Cases",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PAYEMS",
+        "UNRATE",
+        "A191RO1Q156NBEA",
+        "CPIAUCSL"
+      ],
+      "explanation_preview": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market sl",
+      "source": "precomputed"
+    },
+    {
+      "query": "jobs",
+      "category": "Edge Cases",
+      "series_found": 4,
+      "has_explanation": true,
+      "no_data": false,
+      "score": 2,
+      "assessment": "GOOD",
+      "series": [
+        "PAYEMS",
+        "UNRATE",
+        "JTSJOL",
+        "LNS12300060"
+      ],
+      "explanation_preview": "Four key labor market views: (1) Nonfarm payrolls shows monthly job gains/losses - THE jobs number. ",
+      "source": "precomputed"
+    }
+  ]
+}
