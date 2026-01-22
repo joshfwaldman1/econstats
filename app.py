@@ -30,7 +30,7 @@ except ImportError:
 
 # Import ensemble query plan generator (optional, graceful fallback)
 try:
-    from agents.agent_ensemble import call_ensemble_for_app, generate_ensemble_description
+    from agents.agent_ensemble import call_ensemble_for_app, generate_ensemble_description, suggest_missing_dimensions
     ENSEMBLE_AVAILABLE = True
 except ImportError:
     ENSEMBLE_AVAILABLE = False
@@ -2745,6 +2745,16 @@ Only set combine_chart=true when ALL of these are true:
 - Visual comparison adds insight (comparing them on one chart tells a story)
 Otherwise use separate charts (combine_chart=false).
 
+## ***CRITICAL RULES FOR EXPLANATIONS***
+
+**DO NOT HALLUCINATE DATES!** Only use dates that come from actual data. If you don't know the exact date, say "recent data" or "latest available". NEVER make up dates.
+
+**PAYROLLS = CHANGES, NOT LEVELS!** For employment/payroll data:
+- BAD: "Total nonfarm payrolls are 159.5 million"
+- GOOD: "The economy added 150K jobs last month" or "Job growth has averaged 180K/month"
+- ALWAYS focus on monthly gains, 3-month averages, year-over-year changes
+- The LEVEL of total employment is almost meaningless - CHANGES tell the story
+
 ## RESPONSE FORMAT
 Return JSON only:
 {
@@ -5110,22 +5120,36 @@ def main():
         local_parsed = parse_followup_command(query, st.session_state.last_series) if previous_context else None
 
         # Check if this is a "how is X doing?" style query that needs multi-dimensional answers
-        # These bypass pre-computed plans and go to RAG for comprehensive results
         holistic = is_holistic_query(query)
-        use_rag_for_holistic = holistic and RAG_AVAILABLE and st.session_state.get('rag_mode', False)
 
-        if use_rag_for_holistic:
-            # Holistic query - skip pre-computed plans, use RAG for multi-dimensional answer
-            with st.spinner("Finding comprehensive data (RAG search)..."):
-                interpretation = rag_query_plan(query, verbose=False)
-            interpretation['used_rag'] = True
-            interpretation['used_ensemble'] = False
-            interpretation['used_precomputed'] = False
-            interpretation['skipped_precomputed_for_holistic'] = True
-        elif precomputed_plan and not local_parsed:
-            # Use pre-computed plan - instant response! (even if there's previous context)
+        # ROUTING LOGIC:
+        # 1. Has pre-computed plan -> use it, but for holistic queries ask LLMs what's missing
+        # 2. No pre-computed plan -> RAG > Ensemble > Claude
+        #
+        # For holistic queries with pre-computed plans:
+        # - LLMs suggest missing DIMENSIONS (not series IDs - they hallucinate those)
+        # - We search FRED for those dimensions to get valid series
+        # - Combine pre-computed + searched series
+
+        if precomputed_plan and not local_parsed:
+            # Found a pre-computed plan - use it as the base
+            base_series = precomputed_plan.get('series', [])
+            additional_search_terms = []
+
+            # For holistic queries, ask LLMs what dimensions are missing
+            if holistic and ENSEMBLE_AVAILABLE:
+                with st.spinner("Checking for additional data dimensions..."):
+                    # Get series names for context (not IDs)
+                    existing_names = [precomputed_plan.get('explanation', query)]
+                    dimension_result = suggest_missing_dimensions(
+                        query,
+                        existing_names,
+                        verbose=False
+                    )
+                    additional_search_terms = dimension_result.get('search_terms', [])
+
             interpretation = {
-                'series': precomputed_plan.get('series', []),
+                'series': base_series,
                 'explanation': precomputed_plan.get('explanation', f'Showing data for: {query}'),
                 'show_yoy': precomputed_plan.get('show_yoy', False),
                 'show_yoy_series': precomputed_plan.get('show_yoy_series', []),
@@ -5135,8 +5159,9 @@ def main():
                 'is_followup': False,
                 'add_to_previous': False,
                 'keep_previous_series': False,
-                'search_terms': [],
+                'search_terms': additional_search_terms,  # FRED will search for these
                 'used_precomputed': True,
+                'holistic_augmented': len(additional_search_terms) > 0,
                 'show_payroll_changes': precomputed_plan.get('show_payroll_changes', False),
                 'chart_groups': precomputed_plan.get('chart_groups', None),
             }
@@ -6080,7 +6105,11 @@ def main():
 
             # Query interpretation method
             if interpretation.get('used_precomputed'):
-                st.write("**Method:** Pre-computed query plan (instant)")
+                if interpretation.get('holistic_augmented'):
+                    st.write("**Method:** Pre-computed + LLM dimension discovery + FRED search")
+                    st.write(f"  - Additional searches: {interpretation.get('search_terms', [])}")
+                else:
+                    st.write("**Method:** Pre-computed query plan (instant)")
             elif interpretation.get('used_local_parser'):
                 st.write("**Method:** Local follow-up parser (instant)")
             elif interpretation.get('used_rag'):

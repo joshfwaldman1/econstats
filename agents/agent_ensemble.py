@@ -371,6 +371,15 @@ Think like an economist writing a briefing - you wouldn't answer "how is the eco
 ### Anti-Pattern:
 NEVER return just one dimension. A single metric is an INCOMPLETE answer.
 
+### CRITICAL RULES:
+
+**DO NOT HALLUCINATE DATES!** Only reference dates that come from actual data. If unsure, say "recent" or "latest available".
+
+**PAYROLLS = CHANGES, NOT LEVELS!** For employment data:
+- BAD explanation: "Total nonfarm payrolls are 159.5 million"
+- GOOD explanation: "The economy added 150K jobs last month, averaging 180K over 3 months"
+- Always focus on job GROWTH and CHANGES - the level is almost meaningless
+
 The explanation field should briefly describe what EACH series measures and why it's included.
 """
 
@@ -708,10 +717,20 @@ Write an improved explanation that:
 3. Answers the user's actual question directly
 4. Avoids jargon - write for a general audience
 5. Be fact-based. Characterize as "strong", "weak", "cooling", etc. only if data supports it
-6. For employment data: Focus on job GROWTH, not total levels. Mention monthly gains, 3-month average, 12-month average if available
-7. If multiple series are shown, explain what EACH measures and why it matters
+6. If multiple series are shown, explain what EACH measures and why it matters
 
-CRITICAL: Use exact dates from the data. Do NOT hallucinate dates.
+***CRITICAL - DO NOT HALLUCINATE DATES!***
+- ONLY use dates that appear in the DATA SUMMARY above
+- If you don't see a specific date in the data, say "recent data" or "latest available"
+- NEVER guess or make up dates like "December 2024" unless that exact date is in the data
+
+***CRITICAL - PAYROLLS = CHANGES, NOT LEVELS!***
+- For employment/payroll data, ALWAYS focus on job GROWTH and CHANGES
+- BAD: "Total nonfarm payrolls stand at 159.5 million"
+- GOOD: "The economy added 150,000 jobs last month, with a 3-month average of 180,000"
+- The absolute LEVEL of employment is almost meaningless - CHANGES tell the story
+- Mention: monthly gains, 3-month averages, year-over-year job gains
+
 CRITICAL: Do NOT start with "The data shows..." or "Looking at...". Answer directly.
 
 Keep it to 4-6 concise sentences. Return only the explanation text, nothing else."""
@@ -838,6 +857,361 @@ Return ONLY the final improved explanation text. No commentary or meta-discussio
     if response:
         return response.strip().strip('"\'')
     return None
+
+
+# ============================================================================
+# DIMENSION DISCOVERY: Ask LLMs what topics are missing, then search FRED
+# ============================================================================
+
+def suggest_missing_dimensions(
+    query: str,
+    existing_series_names: list,
+    verbose: bool = False
+) -> Dict:
+    """
+    Ask LLMs what DIMENSIONS/TOPICS are missing to fully answer a query.
+
+    IMPORTANT: This returns SEARCH TERMS, not series IDs. LLMs hallucinate
+    series IDs, but they're good at identifying what topics are missing.
+    The caller should use FRED search API to find actual series.
+
+    Args:
+        query: The user's original question
+        existing_series_names: Names of series already in the plan (not IDs)
+        verbose: Whether to print progress
+
+    Returns:
+        Dict with:
+        - missing_dimensions: List of topic descriptions
+        - search_terms: List of FRED search terms to find those dimensions
+    """
+    if verbose:
+        print(f"  Finding missing dimensions for: {query}")
+        print(f"  Already have: {existing_series_names}")
+
+    dimension_prompt = f"""You are an expert economist. A user asked: "{query}"
+
+We already have data on: {existing_series_names if existing_series_names else "Nothing yet"}
+
+## YOUR TASK
+Identify what ADDITIONAL DIMENSIONS are needed to fully answer this question.
+
+Think like an economist writing a comprehensive briefing:
+- Industry health needs: employment + prices + wages + output/sales
+- Economy health needs: GDP + jobs + inflation + rates
+- Demographic questions need: group-specific employment, unemployment, participation, wages
+- Housing needs: prices + sales + starts + affordability
+
+## CRITICAL RULES
+1. Return SEARCH TERMS for FRED, not series IDs (you don't know the exact IDs)
+2. Be SPECIFIC to the query topic (for restaurants, search "restaurant employment" not "total employment")
+3. Only suggest dimensions we DON'T already have
+4. Suggest 1-3 additional dimensions maximum
+
+## RESPONSE FORMAT
+Return JSON only:
+```json
+{{
+    "missing_dimensions": ["dimension 1 description", "dimension 2 description"],
+    "search_terms": ["specific FRED search term 1", "specific FRED search term 2"]
+}}
+```
+
+Example for "How are restaurants doing?" with existing price data:
+```json
+{{
+    "missing_dimensions": ["restaurant/food service employment", "restaurant worker wages"],
+    "search_terms": ["food services employment", "leisure hospitality earnings"]
+}}
+```
+
+If the existing data already covers the question well, return empty lists."""
+
+    # Generate suggestions in parallel from Claude and Gemini
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        claude_future = executor.submit(call_claude, dimension_prompt)
+        gemini_future = executor.submit(call_gemini, dimension_prompt)
+
+        claude_result = claude_future.result()
+        gemini_result = gemini_future.result()
+
+    if verbose:
+        print(f"    Claude: {claude_result.get('search_terms', []) if claude_result else 'FAILED'}")
+        print(f"    Gemini: {gemini_result.get('search_terms', []) if gemini_result else 'FAILED'}")
+
+    # Merge results - combine unique search terms from both
+    all_search_terms = set()
+    all_dimensions = set()
+
+    if claude_result:
+        all_search_terms.update(claude_result.get('search_terms', []))
+        all_dimensions.update(claude_result.get('missing_dimensions', []))
+
+    if gemini_result:
+        all_search_terms.update(gemini_result.get('search_terms', []))
+        all_dimensions.update(gemini_result.get('missing_dimensions', []))
+
+    # Limit to 3 search terms to avoid overloading
+    search_terms = list(all_search_terms)[:3]
+
+    return {
+        'missing_dimensions': list(all_dimensions),
+        'search_terms': search_terms,
+        'claude_suggestion': claude_result,
+        'gemini_suggestion': gemini_result
+    }
+
+
+# ============================================================================
+# AUGMENTATION: Enhance pre-computed plans with missing dimensions (DEPRECATED)
+# Use suggest_missing_dimensions + FRED search instead
+# ============================================================================
+
+def augment_query_plan(
+    query: str,
+    existing_series: list,
+    existing_explanation: str = "",
+    verbose: bool = False
+) -> Dict:
+    """
+    Augment a pre-computed query plan with missing dimensions.
+
+    Uses ensemble approach: Claude and Gemini suggest additions in parallel,
+    GPT judges and merges the best suggestions.
+
+    Args:
+        query: The user's original question
+        existing_series: Series IDs already in the pre-computed plan
+        existing_explanation: Explanation from pre-computed plan
+        verbose: Whether to print progress
+
+    Returns:
+        Dict with:
+        - additional_series: List of new series to add
+        - combined_series: Original + new series
+        - augmented_explanation: Updated explanation
+        - augmentation_metadata: Details about what was added and why
+    """
+    if verbose:
+        print(f"  Augmenting plan for: {query}")
+        print(f"  Existing series: {existing_series}")
+
+    augment_prompt = f"""You are an expert economist reviewing a query plan for FRED economic data.
+
+USER QUERY: "{query}"
+
+CURRENT PLAN has these series: {existing_series}
+Current explanation: {existing_explanation if existing_explanation else "None"}
+
+## YOUR TASK: Identify what dimensions are MISSING
+
+For comprehensive answers, queries need MULTIPLE DIMENSIONS:
+
+**Industry/Sector** ("how is [industry] doing?") needs:
+- Employment (sector jobs)
+- Prices (relevant CPI component)
+- Wages/Earnings (sector pay)
+- Output/Sales (production, revenue)
+
+**Overall Economy** ("how is the economy?") needs:
+- Growth (GDP)
+- Labor (jobs, unemployment)
+- Prices (inflation)
+- Rates (Fed policy)
+
+**Demographic Group** ("how are [group] doing?") needs:
+- Employment rate (group-specific, NOT overall)
+- Unemployment rate (group-specific, NOT overall)
+- Labor force participation (group-specific)
+- Wages/Earnings (group-specific if available)
+
+**Housing Market** needs:
+- Prices (Case-Shiller)
+- Activity (sales, starts)
+- Affordability (mortgage rates)
+
+## WELL-KNOWN FRED SERIES BY CATEGORY:
+
+Employment by Industry:
+- USLAH = Leisure & hospitality employment (includes restaurants)
+- MANEMP = Manufacturing employment
+- CES4300000001 = Retail trade employment
+- USCONS = Construction employment
+- USFIRE = Finance/insurance employment
+- USINFO = Information sector employment
+- USPBS = Professional/business services
+
+Prices by Category:
+- CUSR0000SEFV = Food away from home (restaurant prices)
+- CUSR0000SAH1 = Shelter prices
+- CUSR0000SETB01 = Gasoline prices
+- CPIMEDSL = Medical care prices
+- CUSR0000SEEB = Tuition prices
+
+Wages/Earnings:
+- CES7000000003 = Leisure/hospitality hourly earnings
+- CES3000000003 = Manufacturing hourly earnings
+- CES0500000003 = Private sector avg hourly earnings
+
+Demographics (Foreign-born):
+- LNU02073395 = Foreign-born unemployment rate
+- LNU02073413 = Foreign-born employed
+- LNU01073413 = Foreign-born labor force
+
+Demographics (Women):
+- LNS14000002 = Women unemployment rate
+- LNS12000002 = Women employed
+
+## CRITICAL RULES FOR EXPLANATIONS
+
+**DO NOT HALLUCINATE DATES!** Only use dates that come directly from the data. If you don't know the exact date, say "recent data" or "latest available".
+
+**PAYROLLS = FOCUS ON CHANGES, NOT LEVELS!** For employment/payroll data:
+- BAD: "Total employment is 159.5 million"
+- GOOD: "The economy added 150,000 jobs last month" or "Job growth has averaged 200K/month"
+- Always emphasize monthly gains, 3-month averages, or year-over-year changes
+- The LEVEL of employment matters far less than the CHANGE
+
+## RESPONSE FORMAT
+
+Return JSON:
+```json
+{{
+    "missing_dimensions": ["dimension 1", "dimension 2"],
+    "additional_series": ["SERIES1", "SERIES2"],
+    "reasoning": "Why these series complete the picture",
+    "augmented_explanation": "Updated explanation covering all dimensions"
+}}
+```
+
+If the plan is already comprehensive, return empty additional_series.
+Only suggest series you're confident exist in FRED."""
+
+    # Generate suggestions in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        claude_future = executor.submit(call_claude, augment_prompt)
+        gemini_future = executor.submit(call_gemini, augment_prompt)
+
+        claude_result = claude_future.result()
+        gemini_result = gemini_future.result()
+
+    if verbose:
+        print(f"    Claude suggests: {claude_result.get('additional_series', []) if claude_result else 'FAILED'}")
+        print(f"    Gemini suggests: {gemini_result.get('additional_series', []) if gemini_result else 'FAILED'}")
+
+    # Handle failures
+    if not claude_result and not gemini_result:
+        return {
+            'additional_series': [],
+            'combined_series': existing_series,
+            'augmented_explanation': existing_explanation,
+            'augmentation_metadata': {'error': 'Both models failed'}
+        }
+
+    if not claude_result:
+        return _finalize_augmentation(existing_series, existing_explanation, gemini_result, 'gemini')
+
+    if not gemini_result:
+        return _finalize_augmentation(existing_series, existing_explanation, claude_result, 'claude')
+
+    # Both succeeded - have GPT judge
+    if verbose:
+        print(f"  GPT judging augmentation suggestions...")
+
+    judgment = _judge_augmentations(query, existing_series, claude_result, gemini_result)
+
+    if not judgment:
+        # Fallback to Claude's suggestions
+        return _finalize_augmentation(existing_series, existing_explanation, claude_result, 'claude')
+
+    if verbose:
+        print(f"    Final additions: {judgment.get('additional_series', [])}")
+
+    return _finalize_augmentation(
+        existing_series,
+        existing_explanation,
+        judgment,
+        f"merged ({judgment.get('winner', 'gpt')})"
+    )
+
+
+def _judge_augmentations(
+    query: str,
+    existing_series: list,
+    suggestion_a: Dict,
+    suggestion_b: Dict
+) -> Optional[Dict]:
+    """Have GPT judge two augmentation suggestions and merge the best."""
+    judge_prompt = f"""You are an expert economist evaluating two suggestions for augmenting a FRED data query plan.
+
+USER QUERY: "{query}"
+EXISTING SERIES: {existing_series}
+
+SUGGESTION A (what to add):
+- Missing dimensions: {suggestion_a.get('missing_dimensions', [])}
+- Additional series: {suggestion_a.get('additional_series', [])}
+- Reasoning: {suggestion_a.get('reasoning', '')}
+
+SUGGESTION B (what to add):
+- Missing dimensions: {suggestion_b.get('missing_dimensions', [])}
+- Additional series: {suggestion_b.get('additional_series', [])}
+- Reasoning: {suggestion_b.get('reasoning', '')}
+
+## EVALUATION CRITERIA:
+1. **Relevance**: Do the suggested series actually address the query?
+2. **Validity**: Are these real FRED series IDs? (Reject made-up IDs)
+3. **Completeness**: Do the additions cover important missing dimensions?
+4. **Non-redundancy**: Avoid adding series that measure the same thing as existing ones
+
+## RESPONSE
+
+Return JSON:
+```json
+{{
+    "winner": "A" or "B" or "tie",
+    "additional_series": ["SERIES1", "SERIES2"],
+    "missing_dimensions": ["dimension 1", "dimension 2"],
+    "reasoning": "Why these additions improve the answer",
+    "augmented_explanation": "Updated explanation covering original + new series"
+}}
+```
+
+Combine the best suggestions from both. Remove any series you're unsure about."""
+
+    response = call_gpt(judge_prompt)
+    if not response:
+        return None
+
+    return _extract_json(response)
+
+
+def _finalize_augmentation(
+    existing_series: list,
+    existing_explanation: str,
+    augmentation: Dict,
+    source: str
+) -> Dict:
+    """Finalize the augmentation result."""
+    additional = augmentation.get('additional_series', [])
+
+    # Remove duplicates and ensure we don't add series that already exist
+    additional = [s for s in additional if s not in existing_series]
+
+    # Combine series (existing first, then additions)
+    combined = existing_series + additional
+
+    return {
+        'additional_series': additional,
+        'combined_series': combined,
+        'augmented_explanation': augmentation.get('augmented_explanation', existing_explanation),
+        'missing_dimensions': augmentation.get('missing_dimensions', []),
+        'augmentation_metadata': {
+            'source': source,
+            'reasoning': augmentation.get('reasoning', ''),
+            'original_series': existing_series,
+            'added_series': additional
+        }
+    }
 
 
 # Quick test function
