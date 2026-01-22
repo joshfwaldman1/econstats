@@ -5282,33 +5282,43 @@ def main():
         holistic = is_holistic_query(query)
 
         # ROUTING LOGIC:
-        # 1. Has pre-computed plan -> use it, but for holistic queries ask LLMs what's missing
-        # 2. No pre-computed plan -> RAG > Ensemble > Claude
+        # 1. Has pre-computed plan -> use it as base
+        #    - For holistic queries: augment with hybrid (RAG + FRED search)
+        #    - For specific queries: use as-is (instant)
+        # 2. No pre-computed plan -> Hybrid (RAG + FRED search)
         #
-        # For holistic queries with pre-computed plans:
-        # - LLMs suggest missing DIMENSIONS (not series IDs - they hallucinate those)
-        # - We search FRED for those dimensions to get valid series
-        # - Combine pre-computed + searched series
+        # All paths use the same high-quality pipeline:
+        # - Merge series from multiple sources
+        # - Dedupe
+        # - Validate relevance
 
         if precomputed_plan and not local_parsed:
             # Found a pre-computed plan - use it as the base
             base_series = precomputed_plan.get('series', [])
-            additional_search_terms = []
+            hybrid_sources = {'precomputed': base_series, 'rag': [], 'fred': []}
 
-            # For holistic queries, ask LLMs what dimensions are missing
-            if holistic and ENSEMBLE_AVAILABLE:
-                with st.spinner("Checking for additional data dimensions..."):
-                    # Get series names for context (not IDs)
-                    existing_names = [precomputed_plan.get('explanation', query)]
-                    dimension_result = suggest_missing_dimensions(
-                        query,
-                        existing_names,
-                        verbose=False
-                    )
-                    additional_search_terms = dimension_result.get('search_terms', [])
+            # For holistic queries, augment with hybrid search (RAG + FRED)
+            if holistic and RAG_AVAILABLE:
+                with st.spinner("Finding additional data dimensions..."):
+                    # Run hybrid search to find complementary series
+                    hybrid_result = hybrid_query_plan(query, verbose=False)
+                    hybrid_series = hybrid_result.get('series', [])
+                    hybrid_sources['rag'] = hybrid_result.get('hybrid_sources', {}).get('rag', [])
+                    hybrid_sources['fred'] = hybrid_result.get('hybrid_sources', {}).get('fred', [])
+
+                    # Merge: precomputed first, then hybrid additions (no duplicates)
+                    all_series = base_series.copy()
+                    for sid in hybrid_series:
+                        if sid not in all_series:
+                            all_series.append(sid)
+
+                    # Limit to 4 series
+                    all_series = all_series[:4]
+            else:
+                all_series = base_series
 
             interpretation = {
-                'series': base_series,
+                'series': all_series,
                 'explanation': precomputed_plan.get('explanation', f'Showing data for: {query}'),
                 'show_yoy': precomputed_plan.get('show_yoy', False),
                 'show_yoy_series': precomputed_plan.get('show_yoy_series', []),
@@ -5318,9 +5328,10 @@ def main():
                 'is_followup': False,
                 'add_to_previous': False,
                 'keep_previous_series': False,
-                'search_terms': additional_search_terms,  # FRED will search for these
+                'search_terms': [],  # Already searched via hybrid
                 'used_precomputed': True,
-                'holistic_augmented': len(additional_search_terms) > 0,
+                'used_hybrid': holistic and RAG_AVAILABLE,
+                'hybrid_sources': hybrid_sources,
                 'show_payroll_changes': precomputed_plan.get('show_payroll_changes', False),
                 'chart_groups': precomputed_plan.get('chart_groups', None),
             }
@@ -6303,9 +6314,12 @@ def main():
 
             # Query interpretation method
             if interpretation.get('used_precomputed'):
-                if interpretation.get('holistic_augmented'):
-                    st.write("**Method:** Pre-computed + LLM dimension discovery + FRED search")
-                    st.write(f"  - Additional searches: {interpretation.get('search_terms', [])}")
+                if interpretation.get('used_hybrid'):
+                    sources = interpretation.get('hybrid_sources', {})
+                    st.write("**Method:** Pre-computed + Hybrid Augmentation")
+                    st.write(f"  - Pre-computed: {sources.get('precomputed', [])}")
+                    st.write(f"  - From RAG: {sources.get('rag', [])}")
+                    st.write(f"  - From FRED: {sources.get('fred', [])}")
                 else:
                     st.write("**Method:** Pre-computed query plan (instant)")
             elif interpretation.get('used_local_parser'):
