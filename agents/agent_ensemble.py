@@ -998,27 +998,40 @@ def validate_series_relevance(
         for s in series_list
     ])
 
-    validation_prompt = f"""You are an expert economist validating data series for a user query.
+    validation_prompt = f"""You are a STRICT economist validating data series for a user query.
 
 USER QUERY: "{query}"
 
 PROPOSED SERIES:
 {series_desc}
 
-## YOUR TASK
-Review each series and determine if it ADDS VALUE to answering this specific query.
+## STRICT REJECTION RULES
 
-REJECT series that are:
-1. **Irrelevant**: Don't relate to the query topic (e.g., "Corporate Profits" for a "laundry businesses" query)
-2. **Overly broad**: Too general to be useful (e.g., "All Industries" when asking about a specific industry)
-3. **Wrong scope**: National data when asking about a state, or vice versa
-4. **Redundant**: Duplicates information from another series
-5. **Historical only**: Only covers old time periods, not useful for current questions
+### DEMOGRAPHIC QUERIES (about women, Black workers, Hispanic, immigrants, etc.)
+- **REJECT any series for a DIFFERENT demographic group**
+- "Black workers" query MUST NOT include women's employment/unemployment data
+- "Women" query MUST NOT include Black/Hispanic/immigrant data
+- Only accept series SPECIFICALLY for the demographic mentioned in the query
 
-KEEP series that:
-1. Directly measure something the query asks about
-2. Are specific enough to be meaningful
-3. Add a unique dimension to the answer
+### INDUSTRY QUERIES (about restaurants, trucking, food trucks, solar, etc.)
+- **REJECT generic "All Industries" or "Manufacturing" for specific industry queries**
+- **REJECT demographic data** (women's employment, etc.) for industry queries
+- Only accept industry-SPECIFIC series or DIRECT proxies (e.g., "Food Services" for restaurants)
+
+### GEOGRAPHIC QUERIES (about Texas, California, specific states/regions)
+- **REJECT national data** if query asks about a specific state/region
+- Flag when no state-level data is available
+
+### GENERAL REJECTION RULES
+1. **Irrelevant**: Don't relate to the query topic
+2. **Overly broad**: Too general to be useful
+3. **Wrong scope**: Wrong demographic, geography, or industry
+4. **Redundant**: Duplicates information
+5. **Historical only**: No recent data
+
+## CRITICAL: When NO series are relevant
+If NONE of the proposed series actually answer the query, return an EMPTY valid_series list.
+It is BETTER to return no data than to return WRONG data.
 
 ## RESPONSE FORMAT
 Return JSON only:
@@ -1026,13 +1039,13 @@ Return JSON only:
 {{
     "valid_series": ["SERIES_ID_1", "SERIES_ID_2"],
     "rejected_series": [
-        {{"id": "SERIES_ID_3", "reason": "Too broad - measures all corporations, not laundry specifically"}}
+        {{"id": "SERIES_ID_3", "reason": "Wrong demographic - women's data for Black workers query"}}
     ],
     "validation_reasoning": "Brief explanation of the filtering decisions"
 }}
 ```
 
-Be STRICT. It's better to show fewer, highly relevant series than to include marginally relevant ones."""
+Be VERY STRICT. When in doubt, REJECT."""
 
     # Use GPT for validation (it's good at this kind of judgment)
     response = call_gpt(validation_prompt)
@@ -1314,6 +1327,143 @@ def _finalize_augmentation(
             'added_series': additional
         }
     }
+
+
+# ============================================================================
+# PRESENTATION VALIDATION: Determine how to display each series (stock/flow/rate)
+# ============================================================================
+
+def validate_presentation(
+    query: str,
+    series_data: list,
+    verbose: bool = False
+) -> Dict:
+    """
+    Determine the appropriate presentation format for each series based on
+    economic concepts: stock vs flow vs rate.
+
+    This uses AI to apply economic reasoning rather than hardcoding series IDs.
+
+    Args:
+        query: The user's original question
+        series_data: List of dicts with 'id', 'title', 'units', and optionally 'latest_value'
+
+    Returns:
+        Dict mapping series_id to presentation config:
+        {
+            "SERIES_ID": {
+                "display_as": "level" | "change" | "mom_change" | "yoy_change",
+                "category": "stock" | "flow" | "rate",
+                "reasoning": "why this presentation"
+            }
+        }
+    """
+    if not series_data:
+        return {}
+
+    if verbose:
+        print(f"  Validating presentation for {len(series_data)} series...")
+
+    # Format series info for the prompt
+    series_desc = "\n".join([
+        f"- {s.get('id', 'Unknown')}: {s.get('title', 'No title')} (units: {s.get('units', 'unknown')})"
+        for s in series_data
+    ])
+
+    presentation_prompt = f"""You are an expert economist determining how to present economic data.
+
+USER QUERY: "{query}"
+
+SERIES TO DISPLAY:
+{series_desc}
+
+## KEY ECONOMIC CONCEPT: Stock vs Flow vs Rate
+
+**STOCK** = Cumulative total at a point in time
+- Examples: Total employment (159M jobs), GDP level, debt level, price index level, wealth
+- Problem: "159.5 million jobs" doesn't tell you if things are good or bad
+- Solution: Show as CHANGE (month-over-month or year-over-year)
+
+**FLOW** = Activity measured over a period (already "per period")
+- Examples: Initial jobless claims (200K this week), monthly job gains, quarterly GDP growth, income per month
+- Why level is OK: "200K filed claims this week" IS the meaningful number
+- Solution: Show as LEVEL (it's already a flow measure)
+
+**RATE** = Already a percentage or ratio
+- Examples: Unemployment rate (4.4%), interest rates, inflation rate (YoY %), labor force participation
+- Why level is OK: It's already normalized/comparable
+- Solution: Show as LEVEL
+
+## YOUR TASK
+
+For each series, determine:
+1. Is it a STOCK, FLOW, or RATE?
+2. What's the best display format?
+
+## DISPLAY FORMAT OPTIONS:
+- "level": Show the raw value (good for flows and rates)
+- "mom_change": Show month-over-month change (good for stocks like total payrolls)
+- "yoy_change": Show year-over-year change (good for price indexes, GDP level)
+- "yoy_pct": Show as year-over-year percent change (already computed for some series)
+
+## COMMON SERIES GUIDANCE:
+
+STOCKS (show as change):
+- PAYEMS, MANEMP, USLAH, etc. (total employment) → mom_change
+- CPIAUCSL (CPI index level) → yoy_change or yoy_pct
+- GDP level → yoy_change
+
+FLOWS (level is fine):
+- ICSA (initial claims per week) → level
+- Job gains/losses per month → level
+- JTSJOL (job openings) → level (it's a count at a point, but changes rapidly so level is meaningful)
+
+RATES (level is fine):
+- UNRATE (unemployment rate) → level
+- FEDFUNDS (interest rate) → level
+- Any series already in "Percent" or "% Change" → level
+
+## RESPONSE FORMAT
+Return JSON only:
+```json
+{{
+    "presentations": {{
+        "SERIES_ID_1": {{
+            "display_as": "mom_change",
+            "category": "stock",
+            "reasoning": "Total payrolls is a stock - showing monthly change is more meaningful than 159M level"
+        }},
+        "SERIES_ID_2": {{
+            "display_as": "level",
+            "category": "rate",
+            "reasoning": "Unemployment rate is already a percentage - level is appropriate"
+        }}
+    }}
+}}
+```"""
+
+    # Use GPT for this judgment task
+    response = call_gpt(presentation_prompt)
+
+    if not response:
+        if verbose:
+            print("    Presentation validation failed, using defaults")
+        # Return defaults - assume level display
+        return {s.get('id'): {'display_as': 'level', 'category': 'unknown', 'reasoning': 'default'}
+                for s in series_data}
+
+    result = _extract_json(response)
+
+    if not result or 'presentations' not in result:
+        # Fallback to defaults
+        return {s.get('id'): {'display_as': 'level', 'category': 'unknown', 'reasoning': 'parse failed'}
+                for s in series_data}
+
+    if verbose:
+        for sid, config in result.get('presentations', {}).items():
+            print(f"    {sid}: {config.get('display_as')} ({config.get('category')})")
+
+    return result.get('presentations', {})
 
 
 # Quick test function

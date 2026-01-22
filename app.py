@@ -30,7 +30,7 @@ except ImportError:
 
 # Import ensemble query plan generator (optional, graceful fallback)
 try:
-    from agents.agent_ensemble import call_ensemble_for_app, generate_ensemble_description, suggest_missing_dimensions, validate_series_relevance
+    from agents.agent_ensemble import call_ensemble_for_app, generate_ensemble_description, suggest_missing_dimensions, validate_series_relevance, validate_presentation
     ENSEMBLE_AVAILABLE = True
 except ImportError:
     ENSEMBLE_AVAILABLE = False
@@ -434,6 +434,79 @@ def apply_synonyms(query: str) -> str:
             q = q.replace(synonym, canonical)
     return q
 
+# Demographic keywords for routing queries to correct demographic group
+DEMOGRAPHIC_KEYWORDS = {
+    # Race/Ethnicity
+    'black': 'black', 'african american': 'black', 'african-american': 'black',
+    'hispanic': 'hispanic', 'latino': 'hispanic', 'latina': 'hispanic',
+    'asian': 'asian',
+    'white': 'white',
+    # Gender
+    'women': 'women', 'female': 'women', "women's": 'women', 'woman': 'women',
+    'men': 'men', 'male': 'men', "men's": 'men',
+    # Age
+    'youth': 'youth', 'teen': 'youth', 'young': 'youth', 'teenager': 'youth',
+    'older': 'older', 'senior': 'older', 'elderly': 'older',
+    'prime age': 'prime age', 'prime-age': 'prime age',
+    # Nativity
+    'immigrant': 'immigrant', 'foreign-born': 'immigrant', 'foreign born': 'immigrant',
+}
+
+def extract_demographic_group(query: str) -> str | None:
+    """
+    Extract demographic group from query to ensure correct routing.
+    Returns the canonical demographic group name, or None if no demographic detected.
+    """
+    query_lower = query.lower()
+    for keyword, group in DEMOGRAPHIC_KEYWORDS.items():
+        if keyword in query_lower:
+            return group
+    return None
+
+
+# US States for geographic detection
+US_STATES = {
+    'alabama', 'alaska', 'arizona', 'arkansas', 'california', 'colorado',
+    'connecticut', 'delaware', 'florida', 'georgia', 'hawaii', 'idaho',
+    'illinois', 'indiana', 'iowa', 'kansas', 'kentucky', 'louisiana',
+    'maine', 'maryland', 'massachusetts', 'michigan', 'minnesota',
+    'mississippi', 'missouri', 'montana', 'nebraska', 'nevada',
+    'new hampshire', 'new jersey', 'new mexico', 'new york',
+    'north carolina', 'north dakota', 'ohio', 'oklahoma', 'oregon',
+    'pennsylvania', 'rhode island', 'south carolina', 'south dakota',
+    'tennessee', 'texas', 'utah', 'vermont', 'virginia', 'washington',
+    'west virginia', 'wisconsin', 'wyoming', 'dc', 'district of columbia'
+}
+
+US_REGIONS = {'midwest', 'northeast', 'south', 'west', 'pacific', 'mountain', 'southeast', 'southwest'}
+
+
+def detect_geographic_scope(query: str) -> dict:
+    """
+    Detect if query asks about a specific state or region.
+
+    Returns dict with:
+    - type: 'national', 'state', or 'region'
+    - name: The detected geographic name (or 'US' for national)
+    """
+    query_lower = query.lower()
+
+    # Check for states
+    for state in US_STATES:
+        if state in query_lower:
+            # Avoid false positive: "Georgia" could be the country
+            if state == 'georgia' and 'country' in query_lower:
+                continue
+            return {'type': 'state', 'name': state}
+
+    # Check for regions
+    for region in US_REGIONS:
+        if region in query_lower:
+            return {'type': 'region', 'name': region}
+
+    return {'type': 'national', 'name': 'US'}
+
+
 def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
     """
     Find the best matching query plan using normalization and fuzzy matching.
@@ -471,23 +544,51 @@ def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
             if difflib.SequenceMatcher(None, normalized, syn).ratio() > 0.65:
                 return plan
 
-    # 4. Fuzzy match - find closest query in plans
+    # 3.5 Demographic-aware matching - CRITICAL to prevent cross-demographic confusion
+    # e.g., "Black workers" should NOT match "women doing in economy"
+    query_demographic = extract_demographic_group(query)
     all_queries = list(QUERY_PLANS.keys())
 
+    if query_demographic:
+        # Filter plans to only those with the SAME demographic group
+        demographic_queries = [q for q in all_queries if extract_demographic_group(q) == query_demographic]
+        if demographic_queries:
+            # Try fuzzy match within demographic-specific plans only
+            matches = difflib.get_close_matches(normalized, demographic_queries, n=1, cutoff=0.5)
+            if matches:
+                return QUERY_PLANS[matches[0]]
+            # If no fuzzy match, return shortest matching plan (most specific)
+            demographic_queries.sort(key=len)
+            return QUERY_PLANS[demographic_queries[0]]
+
+    # 4. Fuzzy match - find closest query in plans (for non-demographic queries)
     # Try matching against synonym-mapped query first
     matches = difflib.get_close_matches(synonym_mapped, all_queries, n=1, cutoff=threshold)
     if matches:
-        return QUERY_PLANS[matches[0]]
+        # Double-check: don't return a demographic plan for a non-demographic query
+        match_demographic = extract_demographic_group(matches[0])
+        if not query_demographic and match_demographic:
+            pass  # Skip this match, it's a demographic plan for non-demographic query
+        else:
+            return QUERY_PLANS[matches[0]]
 
     # Try matching against normalized query
     matches = difflib.get_close_matches(normalized, all_queries, n=1, cutoff=threshold)
     if matches:
-        return QUERY_PLANS[matches[0]]
+        match_demographic = extract_demographic_group(matches[0])
+        if not query_demographic and match_demographic:
+            pass  # Skip demographic mismatch
+        else:
+            return QUERY_PLANS[matches[0]]
 
     # Try matching against original (for cases like typos)
     matches = difflib.get_close_matches(original_lower, all_queries, n=1, cutoff=threshold)
     if matches:
-        return QUERY_PLANS[matches[0]]
+        match_demographic = extract_demographic_group(matches[0])
+        if not query_demographic and match_demographic:
+            pass  # Skip demographic mismatch
+        else:
+            return QUERY_PLANS[matches[0]]
 
     # 5. Word-based matching for longer queries
     # If query contains key economic terms, try to match those
@@ -2958,6 +3059,33 @@ QUERY_SERIES_ALIGNMENT = {
     # Business
     'corporate profit': ['CP', 'CPROFIT'],
     'business investment': ['PRFI', 'PNFI'],
+
+    # Demographic - Race/Ethnicity (CRITICAL: prevents cross-demographic confusion)
+    'black': ['LNS14000006', 'LNS12300006', 'LNS11300006'],
+    'african american': ['LNS14000006', 'LNS12300006', 'LNS11300006'],
+    'hispanic': ['LNS14000009', 'LNS12300009', 'LNS11300009'],
+    'latino': ['LNS14000009', 'LNS12300009', 'LNS11300009'],
+    'latina': ['LNS14000009', 'LNS12300009', 'LNS11300009'],
+    'asian': ['LNS14000004', 'LNS14032183'],
+    'white': ['LNS14000003', 'LNS12300003', 'LNS11300003'],
+
+    # Demographic - Gender
+    'women': ['LNS14000002', 'LNS12300062', 'LNS11300002'],
+    'female': ['LNS14000002', 'LNS12300062', 'LNS11300002'],
+    'men': ['LNS14000001', 'LNS12300061', 'LNS11300001'],
+    'male': ['LNS14000001', 'LNS12300061', 'LNS11300001'],
+
+    # Demographic - Age
+    'youth': ['LNS14000012', 'LNS14000036'],
+    'teen': ['LNS14000012'],
+    'young worker': ['LNS14000012', 'LNS14000036', 'LNS14000089'],
+    'older worker': ['LNS14000095', 'LNS14000097'],
+    'prime age': ['LNS12300060', 'LNS11300060', 'LNS14000089'],
+
+    # Demographic - Nativity
+    'immigrant': ['LNU04073395', 'LNU02073395', 'LNU01073395'],
+    'foreign-born': ['LNU04073395', 'LNU02073395', 'LNU01073395'],
+    'foreign born': ['LNU04073395', 'LNU02073395', 'LNU01073395'],
 }
 
 
@@ -3926,6 +4054,30 @@ def hybrid_query_plan(query: str, verbose: bool = False) -> dict:
                 rejected = validation.get('rejected_series', [])
                 if rejected:
                     print(f"  Rejected: {[r.get('id') for r in rejected]}")
+        else:
+            # Validation rejected ALL series - no relevant data found
+            all_series = []
+            if verbose:
+                print(f"  All series rejected - no relevant data for query")
+
+    # Handle case where no relevant series were found
+    if not all_series:
+        return {
+            'series': [],
+            'explanation': f"I couldn't find FRED data specifically about '{query}'. "
+                          "FRED primarily covers macroeconomic indicators (employment, inflation, GDP, etc.). "
+                          "Try a broader query like 'restaurant employment', 'food prices', or 'small business trends'.",
+            'show_yoy': False,
+            'show_mom': False,
+            'show_avg_annual': False,
+            'combine_chart': False,
+            'is_followup': False,
+            'add_to_previous': False,
+            'keep_previous_series': False,
+            'search_terms': [],
+            'no_data_available': True,
+            'hybrid_sources': sources,
+        }
 
     # Limit to 4 series max
     all_series = all_series[:4]
@@ -5496,6 +5648,12 @@ def main():
             log_query(query, [], "no_results")
             st.stop()
 
+        # Geographic scope detection - warn if query asks about a state but we only have national data
+        geo_scope = detect_geographic_scope(query)
+        if geo_scope['type'] != 'national':
+            st.info(f"📍 Note: EconStats currently provides national (US-level) data. "
+                   f"Showing national indicators as context for understanding {geo_scope['name'].title()}'s economy.")
+
         # Validate series relevance - filter out irrelevant/overly broad series
         # Validate if: (1) multiple series AND (2) not pure pre-computed OR holistic-augmented
         needs_validation = (
@@ -5682,6 +5840,66 @@ def main():
                 else:
                     pct_data.append((series_id, dates, values, info))
             series_data = pct_data
+
+        # AI-driven presentation validation: determine stock vs flow vs rate for proper display
+        # Only apply if user hasn't explicitly requested a transformation (YoY, MoM, normalize, etc.)
+        # and if we have ensemble capability
+        user_requested_transform = show_yoy or show_mom or normalize or pct_change_from_start or show_avg_annual
+        if ENSEMBLE_AVAILABLE and series_data and not user_requested_transform:
+            with st.spinner("Validating presentation format..."):
+                # Build series info for the validator
+                series_info_for_validation = []
+                for sid, dates_v, values_v, info_v in series_data:
+                    # Skip if already transformed (payroll changes, etc.)
+                    if info_v.get('is_payroll_change') or info_v.get('is_yoy') or info_v.get('is_mom'):
+                        continue
+                    series_info_for_validation.append({
+                        'id': sid,
+                        'title': info_v.get('name', info_v.get('title', sid)),
+                        'units': info_v.get('unit', info_v.get('units', 'unknown'))
+                    })
+
+                if series_info_for_validation:
+                    presentation_config = validate_presentation(query, series_info_for_validation, verbose=False)
+
+                    # Apply transformations based on AI recommendations
+                    transformed_data = []
+                    for sid, dates_v, values_v, info_v in series_data:
+                        config = presentation_config.get(sid, {})
+                        display_as = config.get('display_as', 'level')
+                        category = config.get('category', 'unknown')
+
+                        # Store the presentation metadata
+                        info_copy = dict(info_v)
+                        info_copy['presentation_category'] = category
+                        info_copy['presentation_display_as'] = display_as
+
+                        # Apply transformation if AI determined this is a STOCK that should show changes
+                        if display_as == 'mom_change' and len(values_v) > 1 and not info_v.get('is_payroll_change'):
+                            # Convert stock to month-over-month change
+                            change_dates = dates_v[1:]
+                            change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
+                            info_copy['name'] = info_v.get('name', sid) + ' (Monthly Change)'
+                            info_copy['unit'] = 'Change from Prior Month'
+                            info_copy['is_stock_to_change'] = True
+                            info_copy['original_values'] = values_v
+                            info_copy['original_dates'] = dates_v
+                            transformed_data.append((sid, change_dates, change_values, info_copy))
+                        elif display_as == 'yoy_change' and len(values_v) > 12:
+                            # Convert stock to year-over-year change
+                            yoy_dates, yoy_values = calculate_yoy(dates_v, values_v)
+                            if yoy_dates:
+                                info_copy['name'] = info_v.get('name', sid) + ' (YoY %)'
+                                info_copy['unit'] = '% Change YoY'
+                                info_copy['is_yoy'] = True
+                                transformed_data.append((sid, yoy_dates, yoy_values, info_copy))
+                            else:
+                                transformed_data.append((sid, dates_v, values_v, info_copy))
+                        else:
+                            # Level display is appropriate (flows, rates)
+                            transformed_data.append((sid, dates_v, values_v, info_copy))
+
+                    series_data = transformed_data
 
         # Call economist reviewer agent for ALL queries to ensure quality explanations
         if series_data:

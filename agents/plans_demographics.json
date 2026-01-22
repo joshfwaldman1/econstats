@@ -175,6 +175,26 @@
     "combine_chart": true,
     "explanation": "For Black employment analysis, I'm using three key demographic-specific series: LNS14000006 (unemployment rate for Black workers), LNS12300006 (employment-population ratio for Black workers - the best measure of employment strength), and LNS11300006 (labor force participation rate for Black workers). These three metrics together provide a comprehensive view of Black labor market outcomes - unemployment shows job-seeking success, employment-pop ratio shows actual employment relative to population, and LFPR shows labor market engagement. Never use aggregate employment data like PAYEMS as it tells us nothing about specific demographic groups."
   },
+  "how are black workers doing": {
+    "series": [
+      "LNS14000006",
+      "LNS12300006",
+      "LNS11300006"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "To assess how Black workers are doing in the economy, I'm using three key demographic-specific series: LNS14000006 (unemployment rate for Black workers), LNS12300006 (employment-population ratio for Black workers - the best measure of labor market health), and LNS11300006 (labor force participation rate for Black workers). Together these show unemployment levels, actual employment relative to population, and overall labor market engagement among Black workers."
+  },
+  "how are black americans doing": {
+    "series": [
+      "LNS14000006",
+      "LNS12300006",
+      "LNS11300006"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "To assess how Black Americans are faring economically, these three demographic-specific series provide a comprehensive view: unemployment rate, employment-population ratio (best measure of actual employment), and labor force participation rate for Black workers."
+  },
   "hispanic unemployment": {
     "series": [
       "LNS14000009"
@@ -200,6 +220,46 @@
     "show_yoy": false,
     "combine_chart": true,
     "explanation": "For Hispanic employment analysis, I'm using three demographic-specific series: LNS14000009 (Hispanic unemployment rate) shows job market difficulties, LNS12300009 (Hispanic employment-population ratio) is the best measure of actual employment strength as it shows the share of Hispanic population that is working, and LNS11300009 (Hispanic labor force participation rate) shows workforce engagement. These Hispanic-specific series provide the complete picture of Hispanic labor market performance that aggregate employment data cannot show."
+  },
+  "how are hispanic workers doing": {
+    "series": [
+      "LNS14000009",
+      "LNS12300009",
+      "LNS11300009"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "To assess how Hispanic workers are doing in the economy, I'm using three demographic-specific series: unemployment rate, employment-population ratio (the best measure of labor market health), and labor force participation rate for Hispanic workers. These show the complete picture of Hispanic labor market outcomes."
+  },
+  "how are latino workers doing": {
+    "series": [
+      "LNS14000009",
+      "LNS12300009",
+      "LNS11300009"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "To assess how Latino workers are faring economically, these demographic-specific series provide unemployment rate, employment-population ratio, and labor force participation for Hispanic/Latino workers."
+  },
+  "how are immigrants doing": {
+    "series": [
+      "LNU04073395",
+      "LNU02073395",
+      "LNU01073395"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "To assess how immigrants are doing in the economy, I'm using foreign-born worker specific series: LNU04073395 (unemployment rate), LNU02073395 (employment level), and LNU01073395 (labor force). These show how immigrant workers are faring in the US labor market."
+  },
+  "how are immigrant workers doing": {
+    "series": [
+      "LNU04073395",
+      "LNU02073395",
+      "LNU01073395"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "To assess immigrant workers' economic situation, these foreign-born specific series show unemployment rate, employment levels, and labor force participation for foreign-born workers in the US."
   },
   "white unemployment": {
     "series": [
