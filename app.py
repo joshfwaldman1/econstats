@@ -6183,7 +6183,8 @@ def main():
 
         # Fetch data
         series_data = []
-        raw_series_data = {}  # Store raw data for chart_groups and derived calculations
+        raw_series_data = {}  # Store raw data for chart_groups (4-tuple: sid, dates, values, info)
+        derived_raw_data = {}  # Store raw data for derived calculations (2-tuple: dates, values)
         series_names_fetched = []
         derived_config = interpretation.get('derived', None)  # Formula for calculated series
         with st.spinner("Fetching data from FRED..."):
@@ -6208,8 +6209,9 @@ def main():
                     series_name = info.get('name', info.get('title', series_id))
                     series_names_fetched.append(series_name)
 
-                    # Store raw data for chart_groups and derived calculations (before any transformations)
-                    raw_series_data[series_id] = (dates, values)
+                    # Store raw data for chart_groups (4-tuple) and derived calculations (2-tuple)
+                    raw_series_data[series_id] = (series_id, list(dates), list(values), dict(info))
+                    derived_raw_data[series_id] = (dates, values)
 
                     # Apply transformations based on user request or series config
                     if show_payroll_changes and series_id == 'PAYEMS' and len(dates) > 1:
@@ -6298,14 +6300,14 @@ def main():
                         series_data.append((series_id, dates, values, info))
 
         # Calculate derived series if formula specified (e.g., effective tariff rate = customs/imports*100)
-        if derived_config and raw_series_data:
+        if derived_config and derived_raw_data:
             formula = derived_config.get('formula', '')
             derived_name = derived_config.get('name', 'Calculated Value')
             derived_unit = derived_config.get('unit', '')
 
             if formula:
                 derived_dates, derived_values, derived_info = calculate_derived_series(
-                    raw_series_data, formula, derived_name, derived_unit
+                    derived_raw_data, formula, derived_name, derived_unit
                 )
                 if derived_dates and derived_values:
                     # Add derived series as the PRIMARY series (first in list)
