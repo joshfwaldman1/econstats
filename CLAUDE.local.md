@@ -35,8 +35,9 @@ The `extract_demographic_group()` function prevents cross-demographic confusion:
 
 ## Geographic Handling
 The `detect_geographic_scope()` function detects state/regional queries:
-- Shows warning: "EconStats provides national data" for state queries
-- Future: Could search FRED for state-specific series (TXUR for Texas unemployment)
+- **Searches FRED** for state-specific series (e.g., TXUR, TXNA for Texas)
+- Falls back to national data with warning if no state series found
+- State series examples: {STATE}UR (unemployment), {STATE}NA (nonfarm payrolls), {STATE}RGSP (GDP)
 
 ## Presentation Validation (Stock vs Flow vs Rate)
 The `validate_presentation()` function uses AI to determine how each series should be displayed:
