@@ -3837,6 +3837,139 @@ def search_series(query: str, limit: int = 5, require_recent: bool = True) -> li
     return results
 
 
+def hybrid_query_plan(query: str, verbose: bool = False) -> dict:
+    """
+    Hybrid approach: Combine RAG catalog search + FRED API search.
+
+    This gives the best of both worlds:
+    - RAG provides high-quality curated series for known topics
+    - FRED search finds niche/specific series not in the catalog
+    - Validation filters out garbage from both sources
+
+    Args:
+        query: User's question
+        verbose: Whether to print progress
+
+    Returns:
+        Query plan dict with series, explanation, etc.
+    """
+    all_series = []
+    all_series_info = []  # For validation
+    sources = {'rag': [], 'fred': []}
+
+    # Step 1: Get RAG results (from curated catalog)
+    if RAG_AVAILABLE:
+        try:
+            rag_result = rag_query_plan(query, verbose=verbose)
+            rag_series = rag_result.get('series', [])
+            sources['rag'] = rag_series
+            for sid in rag_series:
+                if sid not in all_series:
+                    all_series.append(sid)
+            if verbose:
+                print(f"  RAG found: {rag_series}")
+        except Exception as e:
+            if verbose:
+                print(f"  RAG error: {e}")
+            rag_result = {}
+    else:
+        rag_result = {}
+
+    # Step 2: Also search FRED API directly for additional series
+    # Extract key terms from query for targeted search
+    search_terms = _extract_search_terms(query)
+    if verbose:
+        print(f"  FRED search terms: {search_terms}")
+
+    for term in search_terms[:2]:  # Limit to 2 searches
+        try:
+            fred_results = search_series(term, limit=4, require_recent=True)
+            for r in fred_results:
+                sid = r['id']
+                title = r.get('title', sid)
+                # Check relevance: title should contain query words
+                query_words = [w.lower() for w in query.split() if len(w) > 3]
+                title_lower = title.lower()
+                is_relevant = any(word in title_lower for word in query_words)
+
+                if is_relevant and sid not in all_series:
+                    all_series.append(sid)
+                    all_series_info.append({'id': sid, 'title': title})
+                    sources['fred'].append(sid)
+                    if verbose:
+                        print(f"    FRED found: {sid} - {title}")
+        except Exception as e:
+            if verbose:
+                print(f"  FRED search error: {e}")
+
+    # Step 3: Validate combined results (if we have enough and ensemble is available)
+    if ENSEMBLE_AVAILABLE and len(all_series) > 2:
+        # Get info for RAG series too
+        for sid in sources['rag']:
+            if not any(s['id'] == sid for s in all_series_info):
+                try:
+                    info = get_series_info(sid)
+                    all_series_info.append({'id': sid, 'title': info.get('title', sid)})
+                except:
+                    all_series_info.append({'id': sid, 'title': sid})
+
+        if verbose:
+            print(f"  Validating {len(all_series_info)} series...")
+
+        validation = validate_series_relevance(query, all_series_info, verbose=verbose)
+        valid_ids = validation.get('valid_series', all_series)
+
+        if valid_ids:
+            # Keep only validated series, preserve order
+            all_series = [s for s in all_series if s in valid_ids]
+            if verbose:
+                rejected = validation.get('rejected_series', [])
+                if rejected:
+                    print(f"  Rejected: {[r.get('id') for r in rejected]}")
+
+    # Limit to 4 series max
+    all_series = all_series[:4]
+
+    # Build result, preferring RAG's explanation if available
+    result = {
+        'series': all_series,
+        'explanation': rag_result.get('explanation', f'Data for: {query}'),
+        'show_yoy': rag_result.get('show_yoy', False),
+        'show_mom': False,
+        'show_avg_annual': False,
+        'combine_chart': rag_result.get('combine_chart', False),
+        'is_followup': False,
+        'add_to_previous': False,
+        'keep_previous_series': False,
+        'search_terms': [],  # Already searched
+        'hybrid_sources': sources,
+    }
+
+    return result
+
+
+def _extract_search_terms(query: str) -> list:
+    """Extract meaningful search terms from a query for FRED API search."""
+    # Remove common words
+    stop_words = {'how', 'are', 'is', 'the', 'what', 'doing', 'for', 'in', 'of', 'and', 'a', 'an', 'to'}
+    words = [w.lower().strip('?.,!') for w in query.split()]
+    meaningful = [w for w in words if w not in stop_words and len(w) > 2]
+
+    # Build search terms
+    terms = []
+
+    # Full phrase (minus stop words)
+    if meaningful:
+        terms.append(' '.join(meaningful))
+
+    # Key noun phrases
+    if len(meaningful) >= 2:
+        terms.append(f"{meaningful[0]} employment")
+        terms.append(f"{meaningful[0]} prices")
+
+    return terms[:3]
+
+
 def get_series_info(series_id: str) -> dict:
     """Get metadata for a series."""
     data = fred_request('series', {'series_id': series_id})
@@ -5216,10 +5349,11 @@ def main():
             # Fall back to AI for unknown queries or follow-ups
             # Priority: RAG > Ensemble > Single Claude
             if RAG_AVAILABLE and st.session_state.get('rag_mode', False):
-                # RAG mode: semantic search + LLM selection (recommended)
-                with st.spinner("Finding relevant data (RAG search)..."):
-                    interpretation = rag_query_plan(query, verbose=False)
+                # Hybrid mode: RAG catalog + FRED search combined
+                with st.spinner("Finding relevant data (hybrid search)..."):
+                    interpretation = hybrid_query_plan(query, verbose=False)
                 interpretation['used_rag'] = True
+                interpretation['used_hybrid'] = True
                 interpretation['used_ensemble'] = False
             elif ENSEMBLE_AVAILABLE and st.session_state.get('ensemble_mode', False):
                 # Ensemble mode: Claude + Gemini + GPT judge
@@ -6177,8 +6311,11 @@ def main():
             elif interpretation.get('used_local_parser'):
                 st.write("**Method:** Local follow-up parser (instant)")
             elif interpretation.get('used_rag'):
-                if interpretation.get('skipped_precomputed_for_holistic'):
-                    st.write("**Method:** RAG (holistic query - bypassed pre-computed plans)")
+                if interpretation.get('used_hybrid'):
+                    sources = interpretation.get('hybrid_sources', {})
+                    st.write("**Method:** Hybrid (RAG Catalog + FRED Search)")
+                    st.write(f"  - From RAG: {sources.get('rag', [])}")
+                    st.write(f"  - From FRED: {sources.get('fred', [])}")
                 else:
                     st.write("**Method:** RAG (Semantic Search + GPT Selection)")
             elif interpretation.get('used_ensemble'):
