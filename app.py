@@ -3785,12 +3785,21 @@ def fred_request(endpoint: str, params: dict) -> dict:
         return {'error': str(e)}
 
 
-def search_series(query: str, limit: int = 5) -> list:
-    """Search FRED for series matching the query."""
+def search_series(query: str, limit: int = 5, require_recent: bool = True) -> list:
+    """Search FRED for series matching the query.
+
+    Args:
+        query: Search terms
+        limit: Max results to return
+        require_recent: If True, filter out series with no data after 2020
+    """
+    # Request more results than needed so we can filter
+    fetch_limit = limit * 3 if require_recent else limit
+
     # Try popularity-ordered search first
     data = fred_request('series/search', {
         'search_text': query,
-        'limit': limit,
+        'limit': fetch_limit,
         'order_by': 'popularity',
         'sort_order': 'desc',
         'filter_variable': 'frequency',
@@ -3802,11 +3811,28 @@ def search_series(query: str, limit: int = 5) -> list:
     if not results:
         data = fred_request('series/search', {
             'search_text': query,
-            'limit': limit,
+            'limit': fetch_limit,
             'order_by': 'popularity',
             'sort_order': 'desc'
         })
         results = data.get('seriess', [])
+
+    # Filter out stale/discontinued series
+    if require_recent and results:
+        filtered = []
+        for series in results:
+            # Check if series has recent data (after 2020)
+            observation_end = series.get('observation_end', '')
+            if observation_end:
+                try:
+                    end_year = int(observation_end[:4])
+                    if end_year >= 2020:
+                        filtered.append(series)
+                except (ValueError, IndexError):
+                    pass  # Skip series with invalid dates
+        results = filtered[:limit] if filtered else results[:limit]
+    else:
+        results = results[:limit]
 
     return results
 
@@ -5287,9 +5313,17 @@ def main():
         if search_terms:
             with st.spinner(f"Searching FRED for: {', '.join(search_terms[:2])}..."):
                 for term in search_terms[:3]:
-                    results = search_series(term, limit=3)
+                    results = search_series(term, limit=5)  # Get more, then filter
                     for r in results:
-                        if r['id'] not in series_to_fetch and len(series_to_fetch) < 4:
+                        # Relevance check: series title should relate to search term
+                        title = r.get('title', '').lower()
+                        term_words = term.lower().split()
+                        # At least one significant word from search term should appear in title
+                        # (ignore common words like "the", "for", "and")
+                        significant_words = [w for w in term_words if len(w) > 3]
+                        is_relevant = any(word in title for word in significant_words) if significant_words else True
+
+                        if is_relevant and r['id'] not in series_to_fetch and len(series_to_fetch) < 4:
                             series_to_fetch.append(r['id'])
                             # Add explanation if we found something via search
                             if not ai_explanation:
