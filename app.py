@@ -30,7 +30,7 @@ except ImportError:
 
 # Import ensemble query plan generator (optional, graceful fallback)
 try:
-    from agents.agent_ensemble import call_ensemble_for_app, generate_ensemble_description, suggest_missing_dimensions
+    from agents.agent_ensemble import call_ensemble_for_app, generate_ensemble_description, suggest_missing_dimensions, validate_series_relevance
     ENSEMBLE_AVAILABLE = True
 except ImportError:
     ENSEMBLE_AVAILABLE = False
@@ -5351,6 +5351,36 @@ def main():
             log_query(query, [], "no_results")
             st.stop()
 
+        # Validate series relevance - filter out irrelevant/overly broad series
+        # Validate if: (1) multiple series AND (2) not pure pre-computed OR holistic-augmented
+        needs_validation = (
+            ENSEMBLE_AVAILABLE and
+            len(series_to_fetch) > 1 and
+            (not interpretation.get('used_precomputed') or interpretation.get('holistic_augmented'))
+        )
+        if needs_validation:
+            with st.spinner("Validating data relevance..."):
+                # Get series info for validation
+                series_info_list = []
+                for sid in series_to_fetch[:6]:  # Check up to 6 series
+                    try:
+                        info = get_series_info(sid)
+                        series_info_list.append({
+                            'id': sid,
+                            'title': info.get('title', sid)
+                        })
+                    except:
+                        series_info_list.append({'id': sid, 'title': sid})
+
+                validation = validate_series_relevance(query, series_info_list, verbose=False)
+                valid_ids = validation.get('valid_series', series_to_fetch)
+
+                # Only use validation if it kept at least one series
+                if valid_ids:
+                    # Preserve order, only keep validated series
+                    series_to_fetch = [s for s in series_to_fetch if s in valid_ids]
+                    interpretation['validation_result'] = validation
+
         # Log the query for analytics
         source = "precomputed" if interpretation.get('used_precomputed') else "claude"
         log_query(query, series_to_fetch[:4], source)
@@ -6163,6 +6193,16 @@ def main():
                 st.write("**Method:** Claude AI interpretation")
 
             st.write(f"**Series fetched:** {', '.join(series_to_fetch)}")
+
+            # Show validation results if any
+            validation_result = interpretation.get('validation_result')
+            if validation_result:
+                rejected = validation_result.get('rejected_series', [])
+                if rejected:
+                    st.write(f"**Rejected (irrelevant):** {', '.join([r.get('id', '?') for r in rejected])}")
+                    for r in rejected:
+                        st.write(f"  - {r.get('id')}: {r.get('reason', 'No reason given')}")
+
             st.write(f"**Chart type:** {chart_type}")
             st.write(f"**Combine charts:** {combine}")
 

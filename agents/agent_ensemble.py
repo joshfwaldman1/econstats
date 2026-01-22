@@ -962,6 +962,108 @@ If the existing data already covers the question well, return empty lists."""
     }
 
 
+def validate_series_relevance(
+    query: str,
+    series_list: list,
+    verbose: bool = False
+) -> Dict:
+    """
+    Validate that each series in the list is relevant and adds value to answering the query.
+
+    Uses GPT to review series and filter out:
+    - Irrelevant series (don't relate to the query topic)
+    - Overly broad series (e.g., "All Corporations" for a specific industry question)
+    - Redundant series (duplicate information)
+
+    Args:
+        query: The user's original question
+        series_list: List of dicts with 'id', 'title', and optionally 'description'
+        verbose: Whether to print progress
+
+    Returns:
+        Dict with:
+        - valid_series: List of series IDs that passed validation
+        - rejected_series: List of rejected series with reasons
+        - validation_reasoning: Overall explanation
+    """
+    if not series_list:
+        return {'valid_series': [], 'rejected_series': [], 'validation_reasoning': 'No series to validate'}
+
+    if verbose:
+        print(f"  Validating {len(series_list)} series for: {query}")
+
+    # Format series for the prompt
+    series_desc = "\n".join([
+        f"- {s.get('id', 'Unknown')}: {s.get('title', 'No title')}"
+        for s in series_list
+    ])
+
+    validation_prompt = f"""You are an expert economist validating data series for a user query.
+
+USER QUERY: "{query}"
+
+PROPOSED SERIES:
+{series_desc}
+
+## YOUR TASK
+Review each series and determine if it ADDS VALUE to answering this specific query.
+
+REJECT series that are:
+1. **Irrelevant**: Don't relate to the query topic (e.g., "Corporate Profits" for a "laundry businesses" query)
+2. **Overly broad**: Too general to be useful (e.g., "All Industries" when asking about a specific industry)
+3. **Wrong scope**: National data when asking about a state, or vice versa
+4. **Redundant**: Duplicates information from another series
+5. **Historical only**: Only covers old time periods, not useful for current questions
+
+KEEP series that:
+1. Directly measure something the query asks about
+2. Are specific enough to be meaningful
+3. Add a unique dimension to the answer
+
+## RESPONSE FORMAT
+Return JSON only:
+```json
+{{
+    "valid_series": ["SERIES_ID_1", "SERIES_ID_2"],
+    "rejected_series": [
+        {{"id": "SERIES_ID_3", "reason": "Too broad - measures all corporations, not laundry specifically"}}
+    ],
+    "validation_reasoning": "Brief explanation of the filtering decisions"
+}}
+```
+
+Be STRICT. It's better to show fewer, highly relevant series than to include marginally relevant ones."""
+
+    # Use GPT for validation (it's good at this kind of judgment)
+    response = call_gpt(validation_prompt)
+
+    if not response:
+        # Fallback: keep all series if validation fails
+        if verbose:
+            print("    Validation failed, keeping all series")
+        return {
+            'valid_series': [s.get('id') for s in series_list],
+            'rejected_series': [],
+            'validation_reasoning': 'Validation unavailable'
+        }
+
+    result = _extract_json(response)
+
+    if not result:
+        # Fallback: keep all series if parsing fails
+        return {
+            'valid_series': [s.get('id') for s in series_list],
+            'rejected_series': [],
+            'validation_reasoning': 'Could not parse validation response'
+        }
+
+    if verbose:
+        print(f"    Valid: {result.get('valid_series', [])}")
+        print(f"    Rejected: {[r.get('id') for r in result.get('rejected_series', [])]}")
+
+    return result
+
+
 # ============================================================================
 # AUGMENTATION: Enhance pre-computed plans with missing dimensions (DEPRECATED)
 # Use suggest_missing_dimensions + FRED search instead
