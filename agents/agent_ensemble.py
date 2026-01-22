@@ -1,0 +1,892 @@
+#!/usr/bin/env python3
+"""
+Ensemble query plan generation using multiple LLMs.
+
+Architecture:
+1. Claude (Sonnet) generates a query plan
+2. Gemini generates a parallel query plan
+3. GPT-4 judges both plans blindly and merges the best aspects
+
+This approach leverages the strengths of each model to produce
+higher-quality query plans than any single model alone.
+"""
+
+import json
+import os
+import time
+import concurrent.futures
+from pathlib import Path
+from urllib.request import urlopen, Request
+from typing import Optional, Dict, Any, Tuple
+
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    # Look for .env in parent directory (project root)
+    env_path = Path(__file__).parent.parent / '.env'
+    load_dotenv(env_path)
+except ImportError:
+    pass  # dotenv not installed, rely on system env vars
+
+# API Keys - loaded from environment variables
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+
+
+def call_claude(prompt: str, retries: int = 3) -> Optional[Dict]:
+    """
+    Call Claude Sonnet to generate a query plan.
+
+    Args:
+        prompt: The full prompt including expert context and user query
+        retries: Number of retry attempts on failure
+
+    Returns:
+        Parsed JSON query plan or None on failure
+    """
+    url = 'https://api.anthropic.com/v1/messages'
+    payload = {
+        'model': 'claude-sonnet-4-20250514',
+        'max_tokens': 1000,
+        'messages': [{'role': 'user', 'content': prompt}]
+    }
+    headers = {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+    }
+
+    for attempt in range(retries):
+        try:
+            req = Request(url, data=json.dumps(payload).encode('utf-8'),
+                         headers=headers, method='POST')
+            with urlopen(req, timeout=60) as response:
+                result = json.loads(response.read().decode('utf-8'))
+                content = result['content'][0]['text']
+                return _extract_json(content)
+        except Exception as e:
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+            else:
+                print(f"  Claude ERROR after {retries} attempts: {e}")
+                return None
+    return None
+
+
+def call_gemini(prompt: str, retries: int = 3) -> Optional[Dict]:
+    """
+    Call Google Gemini to generate a query plan.
+
+    Args:
+        prompt: The full prompt including expert context and user query
+        retries: Number of retry attempts on failure
+
+    Returns:
+        Parsed JSON query plan or None on failure
+    """
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}'
+    payload = {
+        'contents': [{'parts': [{'text': prompt}]}],
+        'generationConfig': {
+            'temperature': 0.7,
+            'maxOutputTokens': 1000
+        }
+    }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    for attempt in range(retries):
+        try:
+            req = Request(url, data=json.dumps(payload).encode('utf-8'),
+                         headers=headers, method='POST')
+            with urlopen(req, timeout=60) as response:
+                result = json.loads(response.read().decode('utf-8'))
+                content = result['candidates'][0]['content']['parts'][0]['text']
+                return _extract_json(content)
+        except Exception as e:
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+            else:
+                print(f"  Gemini ERROR after {retries} attempts: {e}")
+                return None
+    return None
+
+
+def call_gpt(prompt: str, retries: int = 3) -> Optional[str]:
+    """
+    Call GPT-4 to judge and merge query plans.
+
+    Args:
+        prompt: The judging prompt with both plans
+        retries: Number of retry attempts on failure
+
+    Returns:
+        GPT's response text or None on failure
+    """
+    url = 'https://api.openai.com/v1/chat/completions'
+    payload = {
+        'model': 'gpt-4o',
+        'messages': [{'role': 'user', 'content': prompt}],
+        'max_tokens': 1500,
+        'temperature': 0.3  # Lower temperature for more consistent judging
+    }
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {OPENAI_API_KEY}'
+    }
+
+    for attempt in range(retries):
+        try:
+            req = Request(url, data=json.dumps(payload).encode('utf-8'),
+                         headers=headers, method='POST')
+            with urlopen(req, timeout=60) as response:
+                result = json.loads(response.read().decode('utf-8'))
+                return result['choices'][0]['message']['content']
+        except Exception as e:
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+            else:
+                print(f"  GPT ERROR after {retries} attempts: {e}")
+                return None
+    return None
+
+
+def _extract_json(content: str) -> Optional[Dict]:
+    """
+    Extract JSON from LLM response, handling markdown code blocks.
+
+    Args:
+        content: Raw LLM response text
+
+    Returns:
+        Parsed JSON dict or None if parsing fails
+    """
+    try:
+        # Try to extract from markdown code blocks
+        if '```json' in content:
+            content = content.split('```json')[1].split('```')[0]
+        elif '```' in content:
+            content = content.split('```')[1].split('```')[0]
+        return json.loads(content.strip())
+    except json.JSONDecodeError:
+        # Try parsing the whole content as JSON
+        try:
+            return json.loads(content.strip())
+        except:
+            return None
+
+
+def generate_ensemble_plan(
+    user_query: str,
+    expert_prompt: str,
+    verbose: bool = True
+) -> Tuple[Dict, Dict]:
+    """
+    Generate a query plan using the ensemble approach.
+
+    This function:
+    1. Calls Claude and Gemini in parallel with the same prompt
+    2. Sends both plans (anonymized as Plan A/B) to GPT-4 for judgment
+    3. Returns the final merged plan along with judgment metadata
+
+    Args:
+        user_query: The user's economic data query
+        expert_prompt: Domain-specific expert prompt for the agent
+        verbose: Whether to print progress updates
+
+    Returns:
+        Tuple of (final_plan, judgment_metadata)
+    """
+    # Build the full prompt
+    full_prompt = expert_prompt + MULTI_CHART_GUIDANCE + f"\n\nUSER QUERY: {user_query}"
+
+    if verbose:
+        print(f"  Generating parallel plans...")
+
+    # Generate plans in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        claude_future = executor.submit(call_claude, full_prompt)
+        gemini_future = executor.submit(call_gemini, full_prompt)
+
+        claude_plan = claude_future.result()
+        gemini_plan = gemini_future.result()
+
+    if verbose:
+        print(f"    Claude: {claude_plan.get('series', []) if claude_plan else 'FAILED'}")
+        print(f"    Gemini: {gemini_plan.get('series', []) if gemini_plan else 'FAILED'}")
+
+    # Handle failures - fall back to whichever succeeded
+    if not claude_plan and not gemini_plan:
+        return None, {'error': 'Both models failed'}
+    if not claude_plan:
+        return gemini_plan, {'winner': 'gemini', 'reason': 'Claude failed'}
+    if not gemini_plan:
+        return claude_plan, {'winner': 'claude', 'reason': 'Gemini failed'}
+
+    # Both succeeded - have GPT judge
+    if verbose:
+        print(f"  GPT judging plans...")
+
+    judgment = judge_plans(user_query, claude_plan, gemini_plan)
+
+    if not judgment:
+        # Fallback to Claude if judging fails
+        return claude_plan, {'winner': 'claude', 'reason': 'GPT judging failed, defaulting to Claude'}
+
+    if verbose:
+        print(f"    Winner: {judgment.get('winner', 'merged')}")
+
+    return judgment.get('final_plan', claude_plan), judgment
+
+
+def judge_plans(
+    user_query: str,
+    plan_a: Dict,
+    plan_b: Dict
+) -> Optional[Dict]:
+    """
+    Have GPT-4 judge two query plans and merge the best aspects.
+
+    Plans are presented anonymously as Plan A and Plan B to avoid bias.
+    GPT determines which is better overall and what each got right,
+    then produces a merged final plan.
+
+    Args:
+        user_query: Original user query for context
+        plan_a: First query plan (Claude)
+        plan_b: Second query plan (Gemini)
+
+    Returns:
+        Dict with winner, reasoning, and final merged plan
+    """
+    judge_prompt = f"""You are an expert economist evaluating two query plans for retrieving Federal Reserve (FRED) economic data.
+
+USER QUERY: "{user_query}"
+
+PLAN A:
+{json.dumps(plan_a, indent=2)}
+
+PLAN B:
+{json.dumps(plan_b, indent=2)}
+
+## CRITICAL EVALUATION PRINCIPLE: MULTI-DIMENSIONAL ANSWERS
+
+For any "how is X doing?" query, a good plan should cover MULTIPLE DIMENSIONS of the topic:
+
+- **Industry/Sector health**: employment + prices + wages + output/sales
+- **Overall economy**: GDP + jobs + inflation + rates
+- **Demographic group**: employment rate + unemployment + participation + wages
+- **Housing market**: prices + sales + starts + affordability + rates
+- **Labor market**: payrolls + unemployment + job openings + wages
+
+A plan that only returns ONE dimension (e.g., just prices for "how are restaurants doing?") is INCOMPLETE and should be penalized heavily.
+
+Evaluate both plans based on:
+1. **Multi-Dimensional Coverage**: Does the plan cover multiple relevant aspects of the topic? (MOST IMPORTANT)
+2. **Series Selection**: Are the FRED series IDs correct and relevant?
+3. **Completeness**: Does it tell the full story without being redundant?
+4. **Explanation Quality**: Is the explanation accurate and helpful?
+5. **Configuration**: Are show_yoy and combine_chart set appropriately?
+
+Respond with JSON in this exact format:
+```json
+{{
+    "winner": "A" or "B" or "tie",
+    "plan_a_strengths": ["strength 1", "strength 2"],
+    "plan_a_weaknesses": ["weakness 1"],
+    "plan_b_strengths": ["strength 1", "strength 2"],
+    "plan_b_weaknesses": ["weakness 1"],
+    "reasoning": "Brief explanation of the decision",
+    "final_plan": {{
+        "series": ["SERIES1", "SERIES2"],
+        "show_yoy": true/false,
+        "combine_chart": true/false,
+        "explanation": "Merged explanation taking the best from both plans"
+    }}
+}}
+```
+
+The final_plan should combine the best aspects of both plans. If one plan is clearly superior, use it as the base. If both have unique strengths, merge them intelligently."""
+
+    response = call_gpt(judge_prompt)
+    if not response:
+        return None
+
+    result = _extract_json(response)
+    if result:
+        # Add source tracking
+        result['plan_a_source'] = 'claude'
+        result['plan_b_source'] = 'gemini'
+    return result
+
+
+# Guidance for comprehensive responses (imported from agent_base)
+MULTI_CHART_GUIDANCE = """
+
+## CRITICAL: MULTI-DIMENSIONAL ANSWERS
+
+The key principle: Any "how is X doing?" question requires MULTIPLE DIMENSIONS, not just one metric.
+
+Think like an economist writing a briefing - you wouldn't answer "how is the economy doing?" with just GDP, or "how are restaurants doing?" with just prices.
+
+### Dimension Templates by Query Type:
+
+**Industry/Sector** ("how is [industry] doing?"):
+- Employment (sector jobs)
+- Prices (relevant CPI component)
+- Wages/Earnings (sector pay)
+- Output/Sales (production, revenue)
+
+**Overall Economy** ("how is the economy?"):
+- Growth (GDP)
+- Labor (jobs, unemployment)
+- Prices (inflation)
+- Rates (Fed policy)
+
+**Demographic Group** ("how are [group] doing?"):
+- Employment rate (group-specific, NOT overall)
+- Unemployment rate (group-specific, NOT overall)
+- Labor force participation (group-specific)
+- Wages/Earnings (group-specific if available)
+- NEVER use aggregate series like GDP, UNRATE, PAYEMS for demographic queries
+
+**Housing Market**:
+- Prices (Case-Shiller)
+- Activity (sales, starts)
+- Affordability (mortgage rates, price-to-income)
+
+**Labor Market**:
+- Job gains (payrolls)
+- Slack (unemployment, U6)
+- Demand (job openings)
+- Wages (earnings)
+
+### Examples:
+- "How are restaurants doing?" → USLAH (jobs) + CUSR0000SEFV (prices) + search for earnings
+- "How is manufacturing doing?" → MANEMP (jobs) + INDPRO (output) + manufacturing earnings
+- "How are women doing?" → Women's employment rate + unemployment + participation + wages
+
+### Anti-Pattern:
+NEVER return just one dimension. A single metric is an INCOMPLETE answer.
+
+The explanation field should briefly describe what EACH series measures and why it's included.
+"""
+
+
+def process_prompts_ensemble(
+    prompts: list,
+    expert_prompt: str,
+    output_file: str,
+    category: str
+) -> Dict:
+    """
+    Process a list of prompts using the ensemble approach.
+
+    This is the ensemble equivalent of agent_base.process_prompts().
+
+    Args:
+        prompts: List of user queries to process
+        expert_prompt: Domain-specific expert prompt
+        output_file: Path to save the resulting plans JSON
+        category: Category name for logging
+
+    Returns:
+        Dict mapping prompts to their query plans
+    """
+    print(f"\n{'='*60}")
+    print(f"ENSEMBLE AGENT: {category.upper()}")
+    print(f"{'='*60}")
+    print(f"Processing {len(prompts)} prompts with Claude + Gemini + GPT...")
+
+    plans = {}
+    judgments = {}
+    errors = []
+
+    for i, prompt in enumerate(prompts):
+        print(f"\n[{i+1}/{len(prompts)}] '{prompt}'")
+
+        plan, judgment = generate_ensemble_plan(prompt, expert_prompt)
+
+        if plan and plan.get('series'):
+            plans[prompt] = {
+                'series': plan.get('series', []),
+                'show_yoy': plan.get('show_yoy', False),
+                'combine_chart': plan.get('combine_chart', False),
+                'explanation': plan.get('explanation', ''),
+            }
+            judgments[prompt] = judgment
+            print(f"  -> FINAL: {plan.get('series', [])}")
+        else:
+            errors.append(prompt)
+            print(f"  -> FAILED")
+
+        time.sleep(0.5)  # Rate limiting
+
+    # Save results
+    with open(output_file, 'w') as f:
+        json.dump(plans, f, indent=2)
+
+    # Save judgment metadata separately
+    judgment_file = output_file.replace('.json', '_judgments.json')
+    with open(judgment_file, 'w') as f:
+        json.dump(judgments, f, indent=2)
+
+    print(f"\n{category} COMPLETE: {len(plans)} plans, {len(errors)} errors")
+    print(f"Plans saved to: {output_file}")
+    print(f"Judgments saved to: {judgment_file}")
+
+    return plans
+
+
+# ============================================================================
+# APP INTEGRATION
+# Functions for integrating ensemble into the main EconStats app
+# ============================================================================
+
+def load_few_shot_examples(plans_dir: Optional[str] = None, num_examples: int = 5) -> str:
+    """
+    Load example query plans to use as few-shot examples.
+
+    This helps the models understand the expected format and quality
+    by showing them real examples from pre-computed plans.
+
+    Args:
+        plans_dir: Directory containing plan JSON files
+        num_examples: Number of examples to include
+
+    Returns:
+        Formatted string of few-shot examples
+    """
+    if plans_dir is None:
+        plans_dir = Path(__file__).parent
+
+    examples = []
+
+    # Load examples from various plan files
+    plan_files = [
+        'plans_inflation.json',
+        'plans_employment.json',
+        'plans_gdp.json',
+        'plans_housing.json',
+        'plans_fed_rates.json'
+    ]
+
+    for plan_file in plan_files:
+        plan_path = plans_dir / plan_file
+        if plan_path.exists():
+            try:
+                with open(plan_path) as f:
+                    plans = json.load(f)
+                    # Get first example from each file
+                    for query, plan in list(plans.items())[:1]:
+                        examples.append({
+                            'query': query,
+                            'plan': plan
+                        })
+                        if len(examples) >= num_examples:
+                            break
+            except:
+                continue
+        if len(examples) >= num_examples:
+            break
+
+    if not examples:
+        return ""
+
+    # Format as few-shot examples
+    examples_text = "\n\n## EXAMPLES OF GOOD QUERY PLANS\n"
+    examples_text += "Here are examples of well-structured query plans:\n\n"
+
+    for i, ex in enumerate(examples, 1):
+        examples_text += f"**Example {i}: \"{ex['query']}\"**\n"
+        examples_text += f"```json\n{json.dumps(ex['plan'], indent=2)}\n```\n\n"
+
+    return examples_text
+
+
+def call_ensemble_for_app(
+    query: str,
+    economist_prompt: str,
+    previous_context: Optional[Dict] = None,
+    use_few_shot: bool = True,
+    verbose: bool = False
+) -> Dict:
+    """
+    Ensemble query plan generation for the main EconStats app.
+
+    This function integrates with app.py to provide higher-quality
+    query plans for queries not found in pre-computed plans.
+
+    Args:
+        query: The user's economic data question
+        economist_prompt: The full economist prompt from app.py
+        previous_context: Optional context from previous queries
+        use_few_shot: Whether to include few-shot examples
+        verbose: Whether to print progress
+
+    Returns:
+        Dict in the format expected by app.py:
+        {
+            'series': [...],
+            'search_terms': [...],
+            'explanation': '...',
+            'show_yoy': bool,
+            'show_mom': bool,
+            'show_avg_annual': bool,
+            'combine_chart': bool,
+            'is_followup': bool,
+            'add_to_previous': bool,
+            'keep_previous_series': bool
+        }
+    """
+    # Default response format for app.py
+    default_response = {
+        'series': [],
+        'search_terms': [query],
+        'explanation': '',
+        'show_yoy': False,
+        'show_mom': False,
+        'show_avg_annual': False,
+        'combine_chart': False,
+        'is_followup': False,
+        'add_to_previous': False,
+        'keep_previous_series': False
+    }
+
+    # Build the prompt with few-shot examples
+    full_prompt = economist_prompt
+    if use_few_shot:
+        few_shot = load_few_shot_examples()
+        if few_shot:
+            full_prompt += few_shot
+
+    full_prompt += f"\n\nUSER QUERY: {query}"
+
+    # Handle follow-up context
+    if previous_context and previous_context.get('series'):
+        context_text = f"""
+
+PREVIOUS CONTEXT:
+- Previous query: {previous_context.get('query', '')}
+- Previous series: {previous_context.get('series', [])}
+- Series names: {previous_context.get('series_names', [])}
+
+Consider whether this is a follow-up question that should modify or add to the previous data.
+"""
+        full_prompt += context_text
+
+    if verbose:
+        print(f"Generating ensemble plan for: {query}")
+
+    # Generate plans in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        claude_future = executor.submit(call_claude, full_prompt)
+        gemini_future = executor.submit(call_gemini, full_prompt)
+
+        claude_plan = claude_future.result()
+        gemini_plan = gemini_future.result()
+
+    if verbose:
+        print(f"  Claude: {claude_plan.get('series', []) if claude_plan else 'FAILED'}")
+        print(f"  Gemini: {gemini_plan.get('series', []) if gemini_plan else 'FAILED'}")
+
+    # Handle failures
+    if not claude_plan and not gemini_plan:
+        return default_response
+
+    if not claude_plan:
+        return _normalize_plan_for_app(gemini_plan, default_response)
+
+    if not gemini_plan:
+        return _normalize_plan_for_app(claude_plan, default_response)
+
+    # Both succeeded - have GPT judge
+    if verbose:
+        print(f"  GPT judging plans...")
+
+    judgment = judge_plans(query, claude_plan, gemini_plan)
+
+    if not judgment or not judgment.get('final_plan'):
+        # Fallback to Claude if judging fails
+        return _normalize_plan_for_app(claude_plan, default_response)
+
+    final_plan = judgment.get('final_plan', claude_plan)
+
+    if verbose:
+        print(f"  Final: {final_plan.get('series', [])}")
+        print(f"  Winner: {judgment.get('winner', 'merged')}")
+
+    result = _normalize_plan_for_app(final_plan, default_response)
+
+    # Add ensemble metadata
+    result['ensemble_metadata'] = {
+        'winner': judgment.get('winner'),
+        'reasoning': judgment.get('reasoning'),
+        'claude_series': claude_plan.get('series', []),
+        'gemini_series': gemini_plan.get('series', [])
+    }
+
+    return result
+
+
+def _normalize_plan_for_app(plan: Dict, default: Dict) -> Dict:
+    """
+    Normalize a query plan to match app.py's expected format.
+
+    Args:
+        plan: The raw plan from an LLM
+        default: Default response dict
+
+    Returns:
+        Normalized plan dict
+    """
+    result = default.copy()
+
+    # Map plan fields to app fields
+    result['series'] = plan.get('series', [])
+    result['explanation'] = plan.get('explanation', '')
+    result['show_yoy'] = plan.get('show_yoy', False)
+    result['combine_chart'] = plan.get('combine_chart', False)
+
+    # Handle additional fields if present
+    result['show_mom'] = plan.get('show_mom', False)
+    result['show_avg_annual'] = plan.get('show_avg_annual', False)
+    result['search_terms'] = plan.get('search_terms', [])
+    result['is_followup'] = plan.get('is_followup', False)
+    result['add_to_previous'] = plan.get('add_to_previous', False)
+    result['keep_previous_series'] = plan.get('keep_previous_series', False)
+
+    return result
+
+
+# ============================================================================
+# ENSEMBLE DESCRIPTION/NARRATIVE GENERATION
+# Uses Claude + Gemini + GPT to generate better explanations
+# ============================================================================
+
+def generate_ensemble_description(
+    query: str,
+    data_summary: list,
+    original_explanation: str = "",
+    verbose: bool = False
+) -> str:
+    """
+    Generate an improved description/narrative using the ensemble approach.
+
+    This function:
+    1. Calls Claude and Gemini in parallel with the data summary
+    2. Has GPT-4 judge both explanations and merge the best aspects
+    3. Returns the final improved explanation
+
+    Args:
+        query: The user's original question
+        data_summary: List of dicts with series data (name, latest_value, yoy_change, etc.)
+        original_explanation: Initial explanation to improve upon
+        verbose: Whether to print progress
+
+    Returns:
+        Improved explanation string
+    """
+    if not data_summary:
+        return original_explanation
+
+    # Build the prompt for generating descriptions
+    description_prompt = f"""You are an expert economist writing a clear, insightful summary for a user.
+
+USER QUERY: {query}
+
+DATA SUMMARY:
+{json.dumps(data_summary, indent=2)}
+
+INITIAL EXPLANATION: {original_explanation if original_explanation else "None provided"}
+
+Write an improved explanation that:
+1. States current values clearly with proper formatting (if unit is "Thousands", convert to millions - e.g., 159500 thousands = 159.5 million)
+2. Provides meaningful context (high/low historically? trending up/down?)
+3. Answers the user's actual question directly
+4. Avoids jargon - write for a general audience
+5. Be fact-based. Characterize as "strong", "weak", "cooling", etc. only if data supports it
+6. For employment data: Focus on job GROWTH, not total levels. Mention monthly gains, 3-month average, 12-month average if available
+7. If multiple series are shown, explain what EACH measures and why it matters
+
+CRITICAL: Use exact dates from the data. Do NOT hallucinate dates.
+CRITICAL: Do NOT start with "The data shows..." or "Looking at...". Answer directly.
+
+Keep it to 4-6 concise sentences. Return only the explanation text, nothing else."""
+
+    if verbose:
+        print(f"  Generating ensemble description...")
+
+    # Generate descriptions in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        claude_future = executor.submit(_generate_description_claude, description_prompt)
+        gemini_future = executor.submit(_generate_description_gemini, description_prompt)
+
+        claude_desc = claude_future.result()
+        gemini_desc = gemini_future.result()
+
+    if verbose:
+        print(f"    Claude: {'OK' if claude_desc else 'FAILED'}")
+        print(f"    Gemini: {'OK' if gemini_desc else 'FAILED'}")
+
+    # Handle failures
+    if not claude_desc and not gemini_desc:
+        return original_explanation
+    if not claude_desc:
+        return gemini_desc
+    if not gemini_desc:
+        return claude_desc
+
+    # Both succeeded - have GPT judge and merge
+    if verbose:
+        print(f"  GPT judging descriptions...")
+
+    final_desc = _judge_descriptions(query, data_summary, claude_desc, gemini_desc)
+
+    if verbose:
+        print(f"    Final: {'OK' if final_desc else 'FAILED'}")
+
+    return final_desc if final_desc else claude_desc
+
+
+def _generate_description_claude(prompt: str) -> Optional[str]:
+    """Generate description using Claude."""
+    url = 'https://api.anthropic.com/v1/messages'
+    payload = {
+        'model': 'claude-sonnet-4-20250514',
+        'max_tokens': 400,
+        'messages': [{'role': 'user', 'content': prompt}]
+    }
+    headers = {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+    }
+
+    try:
+        req = Request(url, data=json.dumps(payload).encode('utf-8'),
+                     headers=headers, method='POST')
+        with urlopen(req, timeout=15) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            return result['content'][0]['text'].strip().strip('"\'')
+    except Exception as e:
+        return None
+
+
+def _generate_description_gemini(prompt: str) -> Optional[str]:
+    """Generate description using Gemini."""
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}'
+    payload = {
+        'contents': [{'parts': [{'text': prompt}]}],
+        'generationConfig': {
+            'temperature': 0.7,
+            'maxOutputTokens': 400
+        }
+    }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    try:
+        req = Request(url, data=json.dumps(payload).encode('utf-8'),
+                     headers=headers, method='POST')
+        with urlopen(req, timeout=15) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            return result['candidates'][0]['content']['parts'][0]['text'].strip().strip('"\'')
+    except Exception as e:
+        return None
+
+
+def _judge_descriptions(
+    query: str,
+    data_summary: list,
+    desc_a: str,
+    desc_b: str
+) -> Optional[str]:
+    """Have GPT-4 judge two descriptions and produce the best merged version."""
+    judge_prompt = f"""You are an expert economist and editor evaluating two explanations of economic data.
+
+USER QUERY: "{query}"
+
+DATA CONTEXT:
+{json.dumps(data_summary, indent=2)}
+
+EXPLANATION A:
+{desc_a}
+
+EXPLANATION B:
+{desc_b}
+
+Evaluate both explanations on:
+1. **Accuracy**: Are the numbers and dates correct?
+2. **Clarity**: Is it easy to understand for a general audience?
+3. **Completeness**: Does it address all the data shown, not just one series?
+4. **Insight**: Does it provide meaningful context (trends, comparisons, implications)?
+5. **Directness**: Does it answer the question without preamble?
+
+Write the BEST possible explanation by:
+- Using the most accurate facts from either explanation
+- Combining the best insights from both
+- Maintaining a clear, direct style
+- Ensuring all series are addressed if multiple are shown
+
+Return ONLY the final improved explanation text. No commentary or meta-discussion."""
+
+    response = call_gpt(judge_prompt)
+    if response:
+        return response.strip().strip('"\'')
+    return None
+
+
+# Quick test function
+def test_ensemble():
+    """Test the ensemble system with a sample query."""
+    test_prompt = """You are an expert economist specializing in FRED data.
+Return a JSON query plan with: series (list of FRED IDs), show_yoy (bool), combine_chart (bool), explanation (string)."""
+
+    print("Testing ensemble query plan generation...")
+    plan, judgment = generate_ensemble_plan("inflation", test_prompt)
+
+    print(f"\nFinal Plan: {json.dumps(plan, indent=2)}")
+    print(f"\nJudgment: {json.dumps(judgment, indent=2)}")
+
+
+def test_app_integration():
+    """Test the app integration function."""
+    # Simplified economist prompt for testing
+    economist_prompt = """You are an expert economist helping interpret economic data questions for FRED.
+
+Return JSON with:
+- series: list of FRED series IDs
+- explanation: why these series answer the question
+- show_yoy: whether to show year-over-year changes
+- combine_chart: whether to combine series on one chart
+- search_terms: terms to search if you don't know exact IDs
+
+WELL-KNOWN SERIES:
+- CPIAUCSL = CPI All Items
+- UNRATE = Unemployment rate
+- PAYEMS = Nonfarm payrolls
+- FEDFUNDS = Federal funds rate
+- GDPC1 = Real GDP
+
+USER QUERY: """
+
+    print("Testing app integration...")
+    result = call_ensemble_for_app(
+        "What's happening with semiconductor employment?",
+        economist_prompt,
+        verbose=True
+    )
+
+    print(f"\nResult: {json.dumps(result, indent=2)}")
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == 'app':
+        test_app_integration()
+    else:
+        test_ensemble()

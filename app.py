@@ -20,6 +20,28 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 
+# Load environment variables from .env if available
+try:
+    from dotenv import load_dotenv
+    from pathlib import Path
+    load_dotenv(Path(__file__).parent / '.env')
+except ImportError:
+    pass
+
+# Import ensemble query plan generator (optional, graceful fallback)
+try:
+    from agents.agent_ensemble import call_ensemble_for_app, generate_ensemble_description
+    ENSEMBLE_AVAILABLE = True
+except ImportError:
+    ENSEMBLE_AVAILABLE = False
+
+# Import RAG-based series retrieval (recommended approach)
+try:
+    from agents.series_rag import rag_query_plan
+    RAG_AVAILABLE = True
+except ImportError:
+    RAG_AVAILABLE = False
+
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
     Parse common follow-up commands locally without calling Claude API.
@@ -583,6 +605,10 @@ def get_secret(key, default=''):
 FRED_API_KEY = get_secret('FRED_API_KEY', 'c43c82548c611ec46800c51f898026d6')
 FRED_BASE = 'https://api.stlouisfed.org/fred'
 ANTHROPIC_API_KEY = get_secret('ANTHROPIC_API_KEY', '')
+
+# Ensure API keys are available to ensemble module via environment
+if ANTHROPIC_API_KEY:
+    os.environ['ANTHROPIC_API_KEY'] = ANTHROPIC_API_KEY
 
 # NBER Recession periods (peaks and troughs)
 RECESSIONS = [
@@ -2527,11 +2553,17 @@ Interpret the user's question and return EITHER:
 IMPORTANT: For ANY topic you don't have memorized series IDs for, ALWAYS provide search_terms. FRED has 800,000+ series covering almost any economic topic - auto sales, semiconductor production, restaurant employment, avocado prices, etc. If unsure of exact IDs, give search terms.
 
 ## CORE PRINCIPLES
-1. BE COMPREHENSIVE: When there are multiple relevant charts, include ALL of them (up to 4). Do NOT be lazy and just pick one. For example, GDP should show: annual growth, quarterly growth, core GDP, and GDPNow.
-2. USE SEASONALLY ADJUSTED DATA by default.
-3. For topics you don't know exact series for, provide SPECIFIC search terms that would find them in FRED.
-4. Each series you include should tell a different part of the story - don't include redundant series.
-5. EVERY CHART MUST HAVE AN EXPLANATORY BULLET - each series needs a clear explanation of what it shows and why it matters.
+1. **MULTI-DIMENSIONAL ANSWERS**: Any "how is X doing?" question needs MULTIPLE dimensions, not one metric. Think like an economist writing a briefing:
+   - Industry health → employment + prices + wages + output
+   - Economy health → GDP + jobs + inflation + rates
+   - Demographic group → employment + unemployment + participation + wages
+   - Housing → prices + sales + starts + affordability
+   A single metric is an INCOMPLETE answer.
+2. BE COMPREHENSIVE: Include up to 4 series that tell different parts of the story.
+3. USE SEASONALLY ADJUSTED DATA by default.
+4. For topics you don't know exact series for, provide SPECIFIC search terms.
+5. Each series should add unique insight - don't include redundant measures.
+6. EVERY CHART MUST HAVE AN EXPLANATORY BULLET.
 
 ## WELL-KNOWN SERIES
 
@@ -2610,11 +2642,41 @@ IMPORTANT: For ANY topic you don't have memorized series IDs for, ALWAYS provide
 - LNS14000009 = Unemployment rate - Hispanic or Latino
 - LNS14000003 = Unemployment rate - White
 
+### Demographics - Foreign-Born / Immigrants
+- LNU04073395 = Unemployment rate - Foreign born
+- LNU02073395 = Employment level - Foreign born
+- LNU01373395 = Labor force - Foreign born
+- LNU02073413 = Employment level - Native born (for comparison)
+- Search for "foreign born employment" or "immigrant labor" for additional series
+
 ## CRITICAL RULE FOR DEMOGRAPHIC QUESTIONS
-When asked about a specific demographic group (women, men, Black workers, Hispanic workers, etc.), NEVER use aggregate series like PAYEMS (total nonfarm payrolls) or UNRATE (overall unemployment). These tell you nothing about that specific group. Instead, use the demographic-specific series listed above. For example:
+When asked about a specific demographic group (women, men, Black workers, Hispanic workers, immigrants, foreign-born, etc.), NEVER use aggregate series like PAYEMS (total nonfarm payrolls) or UNRATE (overall unemployment). These tell you nothing about that specific group. Instead, use the demographic-specific series listed above. For example:
 - "How are women doing?" → Use LNS14000002, LNS12300062, LNS11300002 (women-specific series)
 - "Black unemployment" → Use LNS14000006 (Black unemployment rate)
-- Do NOT mix in PAYEMS or other aggregate measures that don't break down by demographic.
+- "How is the economy for immigrants?" → Use LNU04073395 (foreign-born unemployment), LNU02073395 (foreign-born employment), plus search for wages
+- Do NOT mix in PAYEMS, UNRATE, GDP, or other aggregate measures that don't break down by demographic.
+
+## DESCRIBING JOB GAINS (PAYEMS)
+When describing employment/jobs data from PAYEMS, use these metrics:
+- Monthly job gains (e.g., "The economy added 200,000 jobs in January")
+- Average monthly job gains over 3 months, 6 months, or 12 months (e.g., "averaging 180,000 jobs per month over the past quarter")
+- Annual jobs growth relative to previous years (e.g., "2024 added 2.4 million jobs vs 2.7 million in 2023")
+
+Do NOT use year-over-year job growth as a percentage or millions figure. Economists don't describe employment that way - they focus on monthly gains and averages.
+
+## INDUSTRY/SECTOR HEALTH QUERIES
+When asked "how is [industry] doing?" or about an industry's health, provide a HOLISTIC view with multiple dimensions:
+1. **Employment** - Jobs in that sector (e.g., USLAH for leisure/hospitality, MANEMP for manufacturing)
+2. **Prices** - Relevant CPI component (e.g., CUSR0000SEFV for food away from home/restaurants)
+3. **Wages/Earnings** - Sector-specific earnings if available, or search for it
+4. **Output/Sales** - Production index or sales data if relevant
+
+Examples:
+- "How are restaurants doing?" → USLAH (leisure/hospitality jobs), CUSR0000SEFV (restaurant prices), search for "food services earnings"
+- "How is manufacturing doing?" → MANEMP (manufacturing jobs), INDPRO (industrial production), CES3000000008 (manufacturing earnings)
+- "How is construction doing?" → USCONS (construction jobs), search for "construction spending", CES2000000008 (construction earnings)
+
+Do NOT just return one metric (like prices alone) - give the full picture.
 
 ## FOR UNKNOWN TOPICS
 If the user asks about something not listed above (e.g., "semiconductor production", "restaurant sales", "California unemployment", "auto manufacturing"), provide search_terms like:
@@ -3060,6 +3122,80 @@ Keep it to 4-6 concise sentences if multiple series are shown. Do not use bullet
             return improved if improved else original_explanation
     except Exception as e:
         return original_explanation
+
+
+def _build_data_summary_for_ensemble(series_data: list) -> list:
+    """Build data summary in format expected by ensemble description generator.
+
+    Args:
+        series_data: List of (series_id, dates, values, info) tuples
+
+    Returns:
+        List of dicts with series data for the ensemble
+    """
+    data_summary = []
+    for series_id, dates, values, info in series_data:
+        if not values:
+            continue
+        name = info.get('name', info.get('title', series_id))
+        unit = info.get('unit', info.get('units', ''))
+        latest = values[-1]
+        latest_date = dates[-1]
+
+        # Calculate YoY change
+        monthly_change = None
+        avg_3mo_change = None
+        avg_12mo_change = None
+
+        if info.get('is_payroll_change') and info.get('original_values'):
+            orig_values = info['original_values']
+            if len(orig_values) >= 2:
+                monthly_change = orig_values[-1] - orig_values[-2]
+            if len(orig_values) >= 4:
+                changes_3mo = [orig_values[i] - orig_values[i-1] for i in range(-3, 0)]
+                avg_3mo_change = sum(changes_3mo) / 3
+            if len(orig_values) >= 13:
+                changes_12mo = [orig_values[i] - orig_values[i-1] for i in range(-12, 0)]
+                avg_12mo_change = sum(changes_12mo) / 12
+                yoy_change = orig_values[-1] - orig_values[-12]
+            else:
+                yoy_change = None
+            latest = orig_values[-1]
+            unit = 'Thousands of Persons'
+            name = info.get('original_name', 'Total Nonfarm Payrolls')
+        elif len(values) >= 12:
+            year_ago_val = values[-12]
+            yoy_change = latest - year_ago_val
+        else:
+            yoy_change = None
+
+        # Get min/max in recent period
+        vals_for_stats = info.get('original_values', values) if info.get('is_payroll_change') else values
+        recent_vals = vals_for_stats[-60:] if len(vals_for_stats) >= 60 else vals_for_stats
+        recent_min = min(recent_vals)
+        recent_max = max(recent_vals)
+
+        summary = {
+            'series_id': series_id,
+            'name': name,
+            'unit': unit,
+            'latest_value': round(latest, 2),
+            'latest_date': latest_date,
+            'yoy_change': round(yoy_change, 2) if yoy_change else None,
+            'recent_5yr_min': round(recent_min, 2),
+            'recent_5yr_max': round(recent_max, 2),
+        }
+
+        if monthly_change is not None:
+            summary['monthly_job_change'] = round(monthly_change, 1)
+        if avg_3mo_change is not None:
+            summary['avg_monthly_change_3mo'] = round(avg_3mo_change, 1)
+        if avg_12mo_change is not None:
+            summary['avg_monthly_change_12mo'] = round(avg_12mo_change, 1)
+
+        data_summary.append(summary)
+
+    return data_summary
 
 
 # Short descriptions matching how economists actually describe these metrics
@@ -3938,6 +4074,11 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
         # Event annotations removed - they cluttered the charts
 
         unit = series_data[0][3].get('unit', series_data[0][3].get('units', ''))
+        # Build source annotation text
+        sources = set(info.get('source', 'FRED') for _, _, _, info in series_data)
+        series_ids = [sid for sid, _, _, _ in series_data]
+        source_text = f"Source: {', '.join(sources)} | {' | '.join(series_ids)}"
+
         fig.update_layout(
             template='plotly_white',
             hovermode='x unified',
@@ -3945,13 +4086,13 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
             legend=dict(
                 orientation='h',
                 yanchor='top',
-                y=-0.15,  # Position below the chart
+                y=-0.15,
                 xanchor='center',
                 x=0.5,
                 font=dict(size=11),
                 bgcolor='rgba(255,255,255,0.8)',
             ),
-            margin=dict(l=60, r=150 if use_direct_labels else 20, t=20, b=80),  # More bottom margin for legend
+            margin=dict(l=60, r=150 if use_direct_labels else 20, t=20, b=60),
             yaxis_title=unit[:30] if len(unit) > 30 else unit,
             xaxis=dict(
                 tickformat='%Y',
@@ -3960,7 +4101,17 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                 rangeslider=dict(visible=True, thickness=0.05),
             ),
             yaxis=dict(gridcolor='#e5e5e5'),
-            height=320,  # Compact chart height
+            height=300,
+            annotations=[
+                dict(
+                    text=source_text,
+                    xref='paper', yref='paper',
+                    x=0, y=-0.18,
+                    showarrow=False,
+                    font=dict(size=9, color='#78716c'),
+                    xanchor='left',
+                )
+            ]
         )
     else:
         fig = make_subplots(
@@ -4375,7 +4526,7 @@ def main():
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: #6b7280;
-        margin: 1.5rem 0 0.75rem 0;
+        margin: 0.75rem 0 0.75rem 0;
         font-weight: 600;
         font-style: normal !important;
         text-align: center;
@@ -4421,13 +4572,13 @@ def main():
         text-align: center;
         color: #6b7280;
         font-size: 0.9rem;
-        margin-top: 0.5rem;
+        margin: 0.75rem 0 0.5rem 0;
         font-style: normal !important;
     }
 
     /* Search bar - warm theme */
     .search-wrapper {
-        margin: 20px 0 10px 0;
+        margin: 16px 0 8px 0;
         border-radius: 16px;
         overflow: hidden;
         background: #FFFDFB;
@@ -4524,6 +4675,12 @@ def main():
     # Chat history for conversation format
     if 'messages' not in st.session_state:
         st.session_state.messages = []
+    # Ensemble mode - use Claude + Gemini + GPT for better query plans
+    if 'ensemble_mode' not in st.session_state:
+        st.session_state.ensemble_mode = ENSEMBLE_AVAILABLE  # Default on if available
+    # RAG mode - use semantic search + LLM selection (recommended)
+    if 'rag_mode' not in st.session_state:
+        st.session_state.rag_mode = RAG_AVAILABLE  # Default on if available (takes priority)
 
     # Default timeframe - show all available data for full historical context
     years = None
@@ -4654,15 +4811,27 @@ def main():
                                         delta_color = "inverse"
 
                                 with metric_cols[idx % len(metric_cols)]:
-                                    # Format value based on type
-                                    if 'percent' in unit.lower() or '%' in unit:
+                                    # Format value based on type, accounting for unit multipliers
+                                    unit_lower = unit.lower()
+                                    display_val = latest_val
+                                    # Convert to actual number if unit indicates thousands/millions
+                                    if 'thousands' in unit_lower:
+                                        display_val = latest_val * 1000
+                                    elif 'millions' in unit_lower:
+                                        display_val = latest_val * 1e6
+                                    elif 'billions' in unit_lower:
+                                        display_val = latest_val * 1e9
+
+                                    if 'percent' in unit_lower or '%' in unit:
                                         val_str = f"{latest_val:.2f}%"
-                                    elif latest_val > 1000000:
-                                        val_str = f"{latest_val/1000000:.1f}M"
-                                    elif latest_val > 1000:
-                                        val_str = f"{latest_val/1000:.1f}K"
+                                    elif display_val >= 1e9:
+                                        val_str = f"{display_val/1e9:.1f}B"
+                                    elif display_val >= 1e6:
+                                        val_str = f"{display_val/1e6:.1f}M"
+                                    elif display_val >= 1000:
+                                        val_str = f"{display_val/1000:.1f}K"
                                     else:
-                                        val_str = f"{latest_val:,.2f}"
+                                        val_str = f"{display_val:,.2f}"
                                     st.metric(label=name, value=val_str, delta=delta, delta_color=delta_color)
 
                     # Summary callout box (after metrics)
@@ -4762,11 +4931,6 @@ def main():
                                 fig = create_chart(group_data, combine=len(group_data) > 1, chart_type=chart_type)
                                 st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_group_{group_idx}")
 
-                                # Source line
-                                sources = set(i.get('source', 'FRED') for _, _, _, i in group_data)
-                                series_ids = [sid for sid, _, _, _ in group_data]
-                                st.markdown(f"<div class='source-line'>Source: {', '.join(sources)} | {' | '.join(series_ids)}</div>", unsafe_allow_html=True)
-
                         elif combine and len(series_data) > 1:
                             # Vertical layout: title, bullets, chart
                             st.markdown("---")
@@ -4789,11 +4953,6 @@ def main():
                             # Chart (full width)
                             fig = create_chart(series_data, combine=True, chart_type=chart_type)
                             st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_combined")
-
-                            # Source line
-                            sources = set(i.get('source', 'FRED') for _, _, _, i in series_data)
-                            series_ids = [sid for sid, _, _, _ in series_data]
-                            st.markdown(f"<div class='source-line'>Source: {', '.join(sources)} | {' | '.join(series_ids)}</div>", unsafe_allow_html=True)
 
                         else:
                             # Individual charts - vertical layout
@@ -4820,10 +4979,6 @@ def main():
                                 # Chart (full width)
                                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                                 st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_{series_id}")
-
-                                # Source line
-                                source = info.get('source', 'FRED')
-                                st.markdown(f"<div class='source-line'>Source: {source} | {series_id}</div>", unsafe_allow_html=True)
 
         # Follow-up section at bottom - Anthropic chat style
         if not query and st.session_state.messages:
@@ -4943,9 +5098,31 @@ def main():
                 'filter_end_date': local_parsed.get('filter_end_date'),
             }
         else:
-            # Fall back to Claude for unknown queries or follow-ups
-            with st.spinner("Analyzing your question with AI economist..."):
-                interpretation = call_claude(query, previous_context)
+            # Fall back to AI for unknown queries or follow-ups
+            # Priority: RAG > Ensemble > Single Claude
+            if RAG_AVAILABLE and st.session_state.get('rag_mode', False):
+                # RAG mode: semantic search + LLM selection (recommended)
+                with st.spinner("Finding relevant data (RAG search)..."):
+                    interpretation = rag_query_plan(query, verbose=False)
+                interpretation['used_rag'] = True
+                interpretation['used_ensemble'] = False
+            elif ENSEMBLE_AVAILABLE and st.session_state.get('ensemble_mode', False):
+                # Ensemble mode: Claude + Gemini + GPT judge
+                with st.spinner("Analyzing with AI ensemble (Claude + Gemini + GPT)..."):
+                    interpretation = call_ensemble_for_app(
+                        query,
+                        ECONOMIST_PROMPT_BASE,
+                        previous_context=previous_context,
+                        use_few_shot=True,
+                        verbose=False
+                    )
+                interpretation['used_rag'] = False
+                interpretation['used_ensemble'] = True
+            else:
+                with st.spinner("Analyzing your question with AI economist..."):
+                    interpretation = call_claude(query, previous_context)
+                interpretation['used_rag'] = False
+                interpretation['used_ensemble'] = False
             interpretation['used_precomputed'] = False
 
         # QA Validation Layer: Check query-series alignment
@@ -4954,7 +5131,11 @@ def main():
 
         # Log query resolution for analysis
         source = 'precomputed' if interpretation.get('used_precomputed') else (
-            'local_followup' if interpretation.get('used_local_parser') else 'claude'
+            'local_followup' if interpretation.get('used_local_parser') else (
+                'rag' if interpretation.get('used_rag') else (
+                    'ensemble' if interpretation.get('used_ensemble') else 'claude'
+                )
+            )
         )
         log_query_resolution(query, source, series_for_validation, validation_result)
 
@@ -5206,8 +5387,17 @@ def main():
 
         # Call economist reviewer agent for ALL queries to ensure quality explanations
         if series_data:
-            with st.spinner("Economist reviewing analysis..."):
-                ai_explanation = call_economist_reviewer(query, series_data, ai_explanation)
+            # Use ensemble for descriptions if enabled
+            if ENSEMBLE_AVAILABLE and st.session_state.get('ensemble_mode', False):
+                with st.spinner("Ensemble reviewing analysis (Claude + Gemini + GPT)..."):
+                    # Build data summary for ensemble
+                    data_summary = _build_data_summary_for_ensemble(series_data)
+                    ai_explanation = generate_ensemble_description(
+                        query, data_summary, ai_explanation, verbose=False
+                    )
+            else:
+                with st.spinner("Economist reviewing analysis..."):
+                    ai_explanation = call_economist_reviewer(query, series_data, ai_explanation)
 
         # Store ALL context atomically for follow-up queries (prevents race conditions)
         st.session_state.last_query = query
@@ -5270,15 +5460,27 @@ def main():
                                         delta_color = "inverse"
 
                             with metric_cols[idx % len(metric_cols)]:
-                                # Format value based on type
-                                if 'percent' in unit.lower() or '%' in unit:
+                                # Format value based on type, accounting for unit multipliers
+                                unit_lower = unit.lower()
+                                display_val = latest_val
+                                # Convert to actual number if unit indicates thousands/millions
+                                if 'thousands' in unit_lower:
+                                    display_val = latest_val * 1000
+                                elif 'millions' in unit_lower:
+                                    display_val = latest_val * 1e6
+                                elif 'billions' in unit_lower:
+                                    display_val = latest_val * 1e9
+
+                                if 'percent' in unit_lower or '%' in unit:
                                     val_str = f"{latest_val:.2f}%"
-                                elif latest_val > 1000000:
-                                    val_str = f"{latest_val/1000000:.1f}M"
-                                elif latest_val > 1000:
-                                    val_str = f"{latest_val/1000:.1f}K"
+                                elif display_val >= 1e9:
+                                    val_str = f"{display_val/1e9:.1f}B"
+                                elif display_val >= 1e6:
+                                    val_str = f"{display_val/1e6:.1f}M"
+                                elif display_val >= 1000:
+                                    val_str = f"{display_val/1000:.1f}K"
                                 else:
-                                    val_str = f"{latest_val:,.2f}"
+                                    val_str = f"{display_val:,.2f}"
                                 st.metric(label=name, value=val_str, delta=delta, delta_color=delta_color)
 
         for series_id, dates, values, info in series_data:
@@ -5667,17 +5869,6 @@ def main():
                 combine_group = len(group_data) > 1
                 fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
                 st.plotly_chart(fig, use_container_width=True)
-
-                sources = set(s[3].get('source', 'FRED') for s in group_data) if group_data else {'FRED'}
-                source_str = ', '.join(sources)
-                series_ids = [s[0] for s in group_data] if group_data else []
-                series_list = ' | '.join(series_ids)
-                transform_note = ""
-                if group_show_yoy:
-                    transform_note = " YoY % change."
-                elif group_pct_from_start:
-                    transform_note = " Indexed."
-                st.markdown(f"<div class='source-line'>Source: {source_str} | Series: {series_list}.{transform_note} Shaded = recessions.</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
 
         # Regular Charts (when not using chart_groups)
@@ -5701,16 +5892,9 @@ def main():
                     if bullet and bullet.strip():
                         st.markdown(f"- {bullet}")
 
-            # Chart
+            # Chart (source is built into the chart)
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
             st.plotly_chart(fig, use_container_width=True)
-
-            # Build source line with series IDs
-            sources = set(s[3].get('source', 'FRED') for s in series_data)
-            source_str = ', '.join(sources) if sources else 'FRED'
-            series_ids = [f"{s[0]}" for s in series_data]
-            series_list = ' | '.join(series_ids)
-            st.markdown(f"<div class='source-line'>Source: {source_str} | Series: {series_list}. Shaded areas = recessions.</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
         else:
             for series_id, dates, values, info in series_data:
@@ -5790,11 +5974,10 @@ def main():
                         for bullet in valid_bullets:
                             st.markdown(f"- {bullet}")
 
-                    # Chart
+                    # Chart (source is built into the chart)
                     fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                     st.plotly_chart(fig, use_container_width=True)
 
-                st.markdown(f"<div class='source-line'>Source: {source} | Series: {series_id}. {sa_note}{transform_note} Shaded = recessions.</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
 
         # Download button
@@ -5816,11 +5999,36 @@ def main():
 
         # Debug info expander
         with st.expander("🔧 Debug Info", expanded=False):
+            # Settings toggles
+            if RAG_AVAILABLE:
+                st.session_state.rag_mode = st.checkbox(
+                    "🔍 RAG Mode (Semantic Search + LLM) - Recommended",
+                    value=st.session_state.get('rag_mode', True),
+                    help="Use semantic search to find relevant series, then LLM selects best ones"
+                )
+            if ENSEMBLE_AVAILABLE:
+                st.session_state.ensemble_mode = st.checkbox(
+                    "🧠 Ensemble Mode (Claude + Gemini + GPT)",
+                    value=st.session_state.get('ensemble_mode', False),
+                    help="Use multiple AI models (only if RAG is off)",
+                    disabled=st.session_state.get('rag_mode', False)
+                )
+
             # Query interpretation method
             if interpretation.get('used_precomputed'):
                 st.write("**Method:** Pre-computed query plan (instant)")
             elif interpretation.get('used_local_parser'):
                 st.write("**Method:** Local follow-up parser (instant)")
+            elif interpretation.get('used_rag'):
+                st.write("**Method:** RAG (Semantic Search + GPT Selection)")
+            elif interpretation.get('used_ensemble'):
+                st.write("**Method:** AI Ensemble (Claude + Gemini + GPT)")
+                # Show ensemble metadata if available
+                ensemble_meta = interpretation.get('ensemble_metadata', {})
+                if ensemble_meta:
+                    st.write(f"  - Winner: {ensemble_meta.get('winner', 'N/A')}")
+                    st.write(f"  - Claude suggested: {ensemble_meta.get('claude_series', [])}")
+                    st.write(f"  - Gemini suggested: {ensemble_meta.get('gemini_series', [])}")
             else:
                 st.write("**Method:** Claude AI interpretation")
 
