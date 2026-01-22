@@ -32,14 +32,16 @@ except ImportError:
 try:
     from agents.agent_ensemble import call_ensemble_for_app, generate_ensemble_description, suggest_missing_dimensions, validate_series_relevance, validate_presentation
     ENSEMBLE_AVAILABLE = True
-except ImportError:
+except Exception:
+    # Catch all exceptions (including KeyError on some Python versions)
     ENSEMBLE_AVAILABLE = False
 
 # Import RAG-based series retrieval (recommended approach)
 try:
     from agents.series_rag import rag_query_plan
     RAG_AVAILABLE = True
-except ImportError:
+except Exception:
+    # Catch all exceptions (including KeyError on some Python versions)
     RAG_AVAILABLE = False
 
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
