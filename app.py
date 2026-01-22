@@ -6762,7 +6762,6 @@ def main():
                         pre_covid = values[covid_idx]
                         pre_covid_date = dates[covid_idx]
                         # Format the date nicely
-                        from datetime import datetime
                         try:
                             dt = datetime.strptime(pre_covid_date[:10], '%Y-%m-%d')
                             date_label = dt.strftime('%b %Y')  # e.g., "Jan 2020" or "Dec 2019"
