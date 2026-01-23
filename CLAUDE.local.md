@@ -82,6 +82,12 @@ Added series and plans for:
 - **Caching**: 15-minute TTL to avoid API spam
 - **API**: Uses Polymarket Gamma API (https://gamma-api.polymarket.com)
 
+## Stock Market Integration
+- `agents/stocks.py` - Query plans for stock market data (uses FRED, not external APIs)
+- **Series**: SP500, DJIA, NASDAQCOM, VIXCLS, T10Y2Y, BAMLH0A0HYM2, GOLDAMGBD228NLBM, DCOILWTICO
+- **Queries handled**: "stock market", "s&p 500", "dow jones", "nasdaq", "vix", "yield curve", "gold price", "oil price"
+- **Integration**: Falls back to stock plans if no precomputed economic plan matches
+
 ## Key Files
 - `app.py` - Main Streamlit app with query routing, temporal handling, geographic search
 - `agents/agent_ensemble.py` - LLM ensemble for dimension discovery and validation

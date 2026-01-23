@@ -51,6 +51,13 @@ try:
 except Exception:
     POLYMARKET_AVAILABLE = False
 
+# Import stock market query plans
+try:
+    from agents.stocks import find_market_plan, is_market_query, MARKET_SERIES
+    STOCKS_AVAILABLE = True
+except Exception:
+    STOCKS_AVAILABLE = False
+
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
     Parse common follow-up commands locally without calling Claude API.
@@ -5878,6 +5885,14 @@ def main():
         # First check pre-computed query plans (fast, no API call needed)
         # Uses smart matching: normalization + fuzzy matching for typos
         precomputed_plan = find_query_plan(query)
+
+        # Check stock market queries if no precomputed plan found
+        if not precomputed_plan and STOCKS_AVAILABLE:
+            market_plan = find_market_plan(query)
+            if market_plan:
+                precomputed_plan = market_plan
+                # Mark source for debugging
+                precomputed_plan['source'] = 'stocks'
 
         # Check if this looks like a follow-up command (transformation, time range, etc.)
         local_parsed = parse_followup_command(query, st.session_state.last_series) if previous_context else None

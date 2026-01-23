@@ -251,6 +251,12 @@ FRED_SERIES_CATALOG = [
     {"id": "VIXCLS", "name": "VIX Volatility Index",
      "description": "CBOE volatility index, the fear gauge. Market uncertainty, expected volatility."},
 
+    # === CREDIT / BOND SPREADS ===
+    {"id": "T10Y2Y", "name": "10Y-2Y Treasury Spread",
+     "description": "Yield curve spread between 10-year and 2-year Treasury. Yield curve inversion, recession indicator."},
+    {"id": "BAMLH0A0HYM2", "name": "High Yield Corporate Bond Spread",
+     "description": "ICE BofA high yield spread over Treasuries. Credit risk, junk bond spreads, corporate distress."},
+
     # === RECESSION INDICATORS ===
     {"id": "SAHMREALTIME", "name": "Sahm Rule Recession Indicator",
      "description": "Sahm rule recession indicator. Signals recession when unemployment rises quickly."},
