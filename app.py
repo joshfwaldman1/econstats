@@ -5724,7 +5724,7 @@ def main():
 
                                 # Chart (full width)
                                 fig = create_chart(group_data, combine=len(group_data) > 1, chart_type=chart_type)
-                                st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_group_{group_idx}")
+                                st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_group_{group_idx}")
 
                         elif combine and len(series_data) > 1:
                             # Vertical layout: title, bullets, chart
@@ -5747,7 +5747,7 @@ def main():
 
                             # Chart (full width)
                             fig = create_chart(series_data, combine=True, chart_type=chart_type)
-                            st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_combined")
+                            st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_combined")
 
                         else:
                             # Individual charts - vertical layout
@@ -5773,7 +5773,7 @@ def main():
 
                                 # Chart (full width)
                                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
-                                st.plotly_chart(fig, use_container_width=True, key=f"hist_chart_{msg_idx}_{series_id}")
+                                st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
 
         # Follow-up section at bottom - Anthropic chat style
         if not query and st.session_state.messages:
@@ -5820,11 +5820,11 @@ def main():
 
             btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
             with btn_col1:
-                if st.button(followup1[0], key="followup_1", use_container_width=True):
+                if st.button(followup1[0], key="followup_1", width='stretch'):
                     st.session_state.pending_query = followup1[1]
                     st.rerun()
             with btn_col2:
-                if st.button(followup2[0], key="followup_2", use_container_width=True):
+                if st.button(followup2[0], key="followup_2", width='stretch'):
                     st.session_state.pending_query = followup2[1]
                     st.rerun()
 
@@ -6962,7 +6962,7 @@ def main():
                 # Chart
                 combine_group = len(group_data) > 1
                 fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
                 st.markdown("</div>", unsafe_allow_html=True)
 
         # Regular Charts (when not using chart_groups)
@@ -6988,7 +6988,7 @@ def main():
 
             # Chart (source is built into the chart)
             fig = create_chart(series_data, combine=True, chart_type=chart_type)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             st.markdown("</div>", unsafe_allow_html=True)
         else:
             for series_id, dates, values, info in series_data:
@@ -7070,7 +7070,7 @@ def main():
 
                     # Chart (source is built into the chart)
                     fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
 
                 st.markdown("</div>", unsafe_allow_html=True)
 
