@@ -4878,7 +4878,7 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                 font=dict(size=11),
                 bgcolor='rgba(255,255,255,0.8)',
             ),
-            margin=dict(l=60, r=150 if use_direct_labels else 20, t=20, b=60),
+            margin=dict(l=60, r=150 if use_direct_labels else 20, t=20, b=80),
             yaxis_title=unit[:30] if len(unit) > 30 else unit,
             xaxis=dict(
                 tickformat='%Y',
@@ -4887,12 +4887,12 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                 rangeslider=dict(visible=True, thickness=0.05),
             ),
             yaxis=dict(gridcolor='#e5e5e5'),
-            height=300,
+            height=320,
             annotations=[
                 dict(
                     text=source_text,
                     xref='paper', yref='paper',
-                    x=0, y=-0.18,
+                    x=0, y=-0.32,
                     showarrow=False,
                     font=dict(size=9, color='#78716c'),
                     xanchor='left',
