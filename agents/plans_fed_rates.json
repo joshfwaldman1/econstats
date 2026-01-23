@@ -391,5 +391,133 @@
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "10-year Treasury (DGS10) vs 2-year Treasury (DGS2) comparison with their spread (T10Y2Y). The 2-year reflects near-term Fed policy expectations while the 10-year reflects long-term economic and inflation expectations. The spread (T10Y2Y) shows the yield curve shape - negative values indicate inversion, which has historically preceded recessions."
+  },
+
+  "fed projections": {
+    "series": ["FEDTARMD", "UNRATEMD", "GDPC1MD", "PCECTPIMD"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Fed's Summary of Economic Projections (SEP) shows FOMC participants' median forecasts: FEDTARMD (fed funds rate path), UNRATEMD (unemployment rate), GDPC1MD (real GDP growth), and PCECTPIMD (PCE inflation). These projections, released quarterly, reveal where the Fed expects the economy to go and guide market expectations of policy."
+  },
+  "fed forecast": {
+    "series": ["FEDTARMD", "UNRATEMD", "GDPC1MD", "PCECTPIMD"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Fed's Summary of Economic Projections (SEP) shows FOMC participants' median forecasts: FEDTARMD (fed funds rate path), UNRATEMD (unemployment rate), GDPC1MD (real GDP growth), and PCECTPIMD (PCE inflation). These projections, released quarterly, reveal where the Fed expects the economy to go and guide market expectations of policy."
+  },
+  "sep": {
+    "series": ["FEDTARMD", "UNRATEMD", "GDPC1MD", "PCECTPIMD"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Summary of Economic Projections (SEP) includes FOMC participants' median forecasts: FEDTARMD (fed funds rate), UNRATEMD (unemployment), GDPC1MD (real GDP growth), and PCECTPIMD (PCE inflation). Released after March, June, September, and December FOMC meetings, the SEP reveals Fed expectations for economic conditions and the policy rate path."
+  },
+  "summary of economic projections": {
+    "series": ["FEDTARMD", "UNRATEMD", "GDPC1MD", "PCECTPIMD"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Summary of Economic Projections (SEP) includes FOMC participants' median forecasts: FEDTARMD (fed funds rate), UNRATEMD (unemployment), GDPC1MD (real GDP growth), and PCECTPIMD (PCE inflation). Released after March, June, September, and December FOMC meetings, the SEP reveals Fed expectations for economic conditions and the policy rate path."
+  },
+  "dot plot": {
+    "series": ["FEDTARMD", "FEDTARCTL", "FEDTARCTH"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "The Fed's 'dot plot' shows FOMC participants' projections for the federal funds rate. FEDTARMD is the median projection, while FEDTARCTL and FEDTARCTH show the central tendency (middle 10 of 19 participants, excluding 3 highest and 3 lowest). The dot plot signals the expected path of rate hikes or cuts and is closely watched by markets."
+  },
+  "fed rate forecast": {
+    "series": ["FEDTARMD", "FEDFUNDS"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Comparing the Fed's rate projection (FEDTARMD - median dot plot) with the actual federal funds rate (FEDFUNDS). This shows where the Fed expects rates to go versus where they are now. The gap between projection and current rate indicates expected policy changes."
+  },
+  "fed rate projection": {
+    "series": ["FEDTARMD", "FEDFUNDS"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Comparing the Fed's rate projection (FEDTARMD - median dot plot) with the actual federal funds rate (FEDFUNDS). This shows where the Fed expects rates to go versus where they are now. The gap between projection and current rate indicates expected policy changes."
+  },
+  "fed unemployment forecast": {
+    "series": ["UNRATEMD", "UNRATE"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Comparing the Fed's unemployment projection (UNRATEMD - median SEP forecast) with the actual unemployment rate (UNRATE). If the Fed projects higher unemployment than current levels, they expect labor market softening. If projections are stable or declining, they see a soft landing as achievable."
+  },
+  "fed unemployment projection": {
+    "series": ["UNRATEMD", "UNRATE"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Comparing the Fed's unemployment projection (UNRATEMD - median SEP forecast) with the actual unemployment rate (UNRATE). If the Fed projects higher unemployment than current levels, they expect labor market softening. If projections are stable or declining, they see a soft landing as achievable."
+  },
+  "fed inflation forecast": {
+    "series": ["PCECTPIMD", "JCXFEMD"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "The Fed's inflation projections: PCECTPIMD (headline PCE inflation median) and JCXFEMD (core PCE inflation median, excluding food and energy). The Fed targets 2% PCE inflation. Projections above 2% suggest the Fed sees persistent inflation; projections converging to 2% signal confidence in achieving their target."
+  },
+  "fed inflation projection": {
+    "series": ["PCECTPIMD", "JCXFEMD"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "The Fed's inflation projections: PCECTPIMD (headline PCE inflation median) and JCXFEMD (core PCE inflation median, excluding food and energy). The Fed targets 2% PCE inflation. Projections above 2% suggest the Fed sees persistent inflation; projections converging to 2% signal confidence in achieving their target."
+  },
+  "fed gdp forecast": {
+    "series": ["GDPC1MD", "GDPC1CTL", "GDPC1CTH"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "The Fed's GDP growth projections: GDPC1MD (median), GDPC1CTL (central tendency low), GDPC1CTH (central tendency high). These show expected Q4/Q4 real GDP growth. Projections near trend (1.8-2%) suggest stable growth; below-trend projections signal expected slowdown; above-trend indicates economic strength."
+  },
+  "fed gdp projection": {
+    "series": ["GDPC1MD", "GDPC1CTL", "GDPC1CTH"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "The Fed's GDP growth projections: GDPC1MD (median), GDPC1CTL (central tendency low), GDPC1CTH (central tendency high). These show expected Q4/Q4 real GDP growth. Projections near trend (1.8-2%) suggest stable growth; below-trend projections signal expected slowdown; above-trend indicates economic strength."
+  },
+  "unemployment forecast vs actual": {
+    "series": ["UNRATEMD", "UNRATE"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Fed unemployment projection (UNRATEMD) versus actual unemployment rate (UNRATE). This comparison reveals whether the Fed's forecasts have been accurate and whether current conditions are better or worse than expected. Actual below projection = labor market stronger than Fed expected."
+  },
+  "inflation forecast vs actual": {
+    "series": ["PCECTPIMD", "PCEPI"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "chart_groups": [
+      {
+        "series": ["PCECTPIMD", "PCEPI"],
+        "title": "PCE Inflation: Fed Projection vs Actual",
+        "show_yoy": true
+      }
+    ],
+    "explanation": "Fed PCE inflation projection (PCECTPIMD) versus actual PCE inflation (PCEPI, shown as YoY change). This reveals forecast accuracy and whether inflation is running hotter or cooler than the Fed expected. Actual above projection = inflation more persistent than Fed anticipated."
+  },
+  "gdp forecast vs actual": {
+    "series": ["GDPC1MD", "A191RL1Q225SBEA"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Fed real GDP growth projection (GDPC1MD) versus actual real GDP growth (A191RL1Q225SBEA - quarterly annualized). This shows whether economic growth is meeting, exceeding, or falling short of Fed expectations. Sustained outperformance may lead to tighter policy; underperformance may prompt easing."
+  },
+  "long run projections": {
+    "series": ["FEDTARMDLR", "UNRATEMDLR", "GDPC1MDLR", "PCECTPIMDLR"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Fed's long-run projections represent FOMC participants' view of where the economy settles in the long term: FEDTARMDLR (neutral fed funds rate, ~2.5%), UNRATEMDLR (natural unemployment rate, ~4%), GDPC1MDLR (potential GDP growth, ~1.8%), PCECTPIMDLR (inflation target, 2%). These are structural estimates, not forecasts."
+  },
+  "neutral rate projection": {
+    "series": ["FEDTARMDLR", "FEDFUNDS"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "The Fed's long-run fed funds rate projection (FEDTARMDLR) represents their estimate of the neutral rate - where policy is neither stimulative nor restrictive. Comparing to actual FEDFUNDS shows whether current policy is above neutral (restrictive) or below (accommodative). The neutral rate has been revised up recently from ~2.5% toward ~3%."
+  },
+  "where does the fed see rates going": {
+    "series": ["FEDTARMD", "FEDFUNDS", "DGS2"],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Three views of future Fed policy: FEDTARMD (the Fed's own median projection from the dot plot), FEDFUNDS (current policy rate), and DGS2 (2-year Treasury, reflecting market expectations). When DGS2 diverges from FEDTARMD, markets disagree with the Fed's guidance - often markets prove more accurate."
+  },
+  "what is the fed expecting": {
+    "series": ["FEDTARMD", "UNRATEMD", "PCECTPIMD", "GDPC1MD"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The Fed's current expectations from the Summary of Economic Projections: their rate path (FEDTARMD), unemployment forecast (UNRATEMD), inflation forecast (PCECTPIMD), and GDP growth forecast (GDPC1MD). Together these reveal the Fed's baseline economic scenario and policy intentions."
   }
 }
