@@ -6229,13 +6229,12 @@ def main():
             for series_id in series_to_fetch[:4]:
                 dates, values, info = get_observations(series_id, years)
                 if dates and values:
-                    # Recency check: reject series if latest observation is more than 1 year old
+                    # Recency check: silently skip series if latest observation is more than 1 year old
                     try:
                         latest_date = datetime.strptime(dates[-1], '%Y-%m-%d')
                         days_stale = (datetime.now() - latest_date).days
                         if days_stale > 365:
-                            st.warning(f"⚠️ Skipping {series_id}: data is {days_stale // 30} months stale (last obs: {dates[-1]})")
-                            continue
+                            continue  # Skip stale data silently
                     except (ValueError, IndexError):
                         pass  # If we can't parse the date, proceed anyway
 
