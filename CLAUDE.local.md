@@ -4,6 +4,25 @@
 - **DO NOT HALLUCINATE DATES** - Never make up or guess date ranges
 - **PAYROLLS = CHANGES NOT LEVELS** - When using payroll data, focus on month-over-month or year-over-year changes, not absolute employment levels
 
+## Economic Comparison Fundamentals (CRITICAL)
+**NEVER compare apples to oranges. All comparisons must be equivalent:**
+
+| Dimension | Rule | Example Violation |
+|-----------|------|-------------------|
+| **YoY vs QoQ** | NEVER mix year-over-year with quarter-over-quarter | US GDP 2.3% YoY vs Eurozone 0.6% QoQ = WRONG |
+| **Real vs Nominal** | ALWAYS compare real with real (inflation-adjusted) | Real GDP vs Nominal GDP = WRONG |
+| **Same periodicity** | Match monthly/quarterly/annual data appropriately | Annual IMF data vs Monthly FRED = Be careful |
+
+**Series metadata in `dbnomics.py` and `query_router.py`:**
+- `measure_type`: "real", "nominal", "rate", "index"
+- `change_type`: "yoy", "qoq", "mom", "level"
+- `transform`: What to apply to raw FRED data (e.g., "yoy_pct")
+
+**FRED series that need transformation:**
+- GDPC1 (Real GDP): Level → must calculate YoY % change
+- CPIAUCSL (CPI): Index → must calculate YoY % change
+- UNRATE, FEDFUNDS: Already rates, display as-is
+
 ## LLM Integration Patterns
 - **LLMs hallucinate series IDs** - Never have LLMs generate FRED series IDs directly
 - **Use topic discovery instead** - Have LLMs suggest dimensions/topics, then use FRED API to find valid series
@@ -129,6 +148,14 @@ Added series and plans for:
   - `plans_consumer.json` - Sentiment, spending, retail
   - `plans_trade_markets.json` - Trade, stocks, commodities
 
+## Chart Design Principles (The Economist Style)
+1. **Minimal but Informative** - Use simple charts (line, bar, scatter). Complex issues need simple visuals.
+2. **Purpose-Driven** - Each chart answers ONE question. Ask "What insight do readers take away?"
+3. **Clear Hierarchy** - Title (attention), subtitle (context/what we see), source (grayed out)
+4. **Annotations** - Mark key events/turning points. Explain "why", not just "what"
+5. **Restraint** - Show less to communicate more. Use color purposefully, not decoratively.
+6. **Small Multiples** - Break complex comparisons into related smaller charts
+
 ## Recent Fixes (January 2026)
 1. **Greedy synonym replacement** - Fixed substring corruption using word boundaries
 2. **GDPC1 presentation** - Now shows YoY growth, not raw $28T level
@@ -137,3 +164,5 @@ Added series and plans for:
 5. **Temporal queries** - Added extraction for year/period references
 6. **Holistic patterns** - Expanded to catch "what about", "compare", industry queries
 7. **Polymarket integration** - Added forward-looking prediction market data (recession, Fed, GDP)
+8. **Eurozone GDP YoY fix** - Changed from QoQ (CLV_PCH_PRE) to YoY (CLV_PCH_SM) for proper US comparison
+9. **Comparison metadata** - Added measure_type/change_type to all DBnomics and FRED comparison series

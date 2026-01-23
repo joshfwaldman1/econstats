@@ -32,10 +32,23 @@ REGIONS = {
 }
 
 # Indicator mappings to series
+# CRITICAL: Metadata ensures apples-to-apples comparisons
+#   - measure_type: "real" or "nominal" or "rate"
+#   - change_type: "yoy", "qoq", "level"
+#   - transform: what to do with FRED level data ("yoy_pct" = calculate YoY % change)
 INDICATORS = {
     "gdp": {
         "keywords": ["gdp", "growth", "economic growth", "output", "economy"],
-        "fred_series": ["GDPC1"],  # Real GDP
+        "fred_series": ["GDPC1"],  # Real GDP (level in billions)
+        # FRED metadata - GDPC1 is a level, must transform to YoY growth
+        "fred_metadata": {
+            "GDPC1": {
+                "measure_type": "real",
+                "change_type": "level",  # Raw data is level
+                "transform": "yoy_pct",  # Transform to YoY % change for comparison
+                "display_as": "yoy",     # After transform, it's YoY growth
+            }
+        },
         "dbnomics_series": {
             "eurozone": "eurozone_gdp",
             "uk": "uk_gdp",
@@ -47,32 +60,61 @@ INDICATORS = {
             "india": "india_gdp",
             "brazil": "brazil_gdp",
         },
+        # All DBnomics GDP series are already YoY real growth rates
+        "comparison_type": "yoy_real",
     },
     "inflation": {
         "keywords": ["inflation", "cpi", "prices", "consumer prices"],
-        "fred_series": ["CPIAUCSL"],  # CPI
+        "fred_series": ["CPIAUCSL"],  # CPI (level, index)
+        "fred_metadata": {
+            "CPIAUCSL": {
+                "measure_type": "index",
+                "change_type": "level",
+                "transform": "yoy_pct",  # Transform to YoY % change
+                "display_as": "yoy",
+            }
+        },
         "dbnomics_series": {
             "eurozone": "eurozone_inflation",
             "uk": "uk_inflation",
             "japan": "japan_inflation",
             "china": "china_inflation",
         },
+        "comparison_type": "yoy_rate",
     },
     "unemployment": {
         "keywords": ["unemployment", "jobless", "jobs"],
-        "fred_series": ["UNRATE"],
+        "fred_series": ["UNRATE"],  # Already a rate level
+        "fred_metadata": {
+            "UNRATE": {
+                "measure_type": "rate",
+                "change_type": "level",
+                "transform": None,  # No transform needed, display as-is
+                "display_as": "level",
+            }
+        },
         "dbnomics_series": {
             "eurozone": "eurozone_unemployment",
             "germany": "germany_unemployment",
         },
+        "comparison_type": "level_rate",
     },
     "rates": {
         "keywords": ["interest rate", "rates", "fed", "central bank", "policy rate"],
-        "fred_series": ["FEDFUNDS"],
+        "fred_series": ["FEDFUNDS"],  # Already a rate level
+        "fred_metadata": {
+            "FEDFUNDS": {
+                "measure_type": "rate",
+                "change_type": "level",
+                "transform": None,
+                "display_as": "level",
+            }
+        },
         "dbnomics_series": {
             "eurozone": "ecb_rate",
             "uk": "uk_bank_rate",
         },
+        "comparison_type": "level_rate",
     },
 }
 

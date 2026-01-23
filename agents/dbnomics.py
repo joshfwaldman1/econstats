@@ -21,21 +21,40 @@ DBNOMICS_API = "https://api.db.nomics.world/v22"
 
 # Curated international series with full DBnomics IDs
 # Format: provider/dataset/series_code
+#
+# CRITICAL METADATA for apples-to-apples comparisons:
+# - measure_type: "real" (inflation-adjusted) or "nominal" or "rate"
+# - change_type: "yoy" (year-over-year), "qoq" (quarter-over-quarter), "level"
+# - frequency: "annual", "quarterly", "monthly", "daily"
+#
+# COMPARISON RULES:
+# - GDP: Must compare real with real, YoY with YoY
+# - Inflation: YoY rates are standard
+# - Unemployment: Levels (rates) are comparable
+# - Interest rates: Levels are comparable
+#
 INTERNATIONAL_SERIES = {
     # === EUROZONE ===
     "eurozone_gdp": {
-        "id": "Eurostat/namq_10_gdp/Q.CLV_PCH_PRE.SCA.B1GQ.EA20",
-        "name": "Eurozone GDP Growth (QoQ)",
-        "description": "Euro area quarterly GDP growth rate",
+        "id": "Eurostat/namq_10_gdp/Q.CLV_PCH_SM.SCA.B1GQ.EA20",
+        "name": "Eurozone GDP Growth (YoY)",
+        "description": "Euro area real GDP growth, year-over-year",
         "keywords": ["eurozone", "euro area", "europe", "gdp", "eu"],
         "provider": "Eurostat",
+        # Metadata for comparison validation
+        "measure_type": "real",  # Chain-linked volumes = inflation-adjusted
+        "change_type": "yoy",    # PCH_SM = same period previous year
+        "frequency": "quarterly",
     },
     "eurozone_inflation": {
         "id": "Eurostat/prc_hicp_manr/M.RCH_A.CP00.EA",
         "name": "Eurozone Inflation (HICP)",
-        "description": "Euro area harmonized CPI annual change",
+        "description": "Euro area harmonized CPI, year-over-year",
         "keywords": ["eurozone", "euro", "inflation", "hicp", "cpi", "europe"],
         "provider": "Eurostat",
+        "measure_type": "rate",
+        "change_type": "yoy",  # RCH_A = annual rate of change
+        "frequency": "monthly",
     },
     "eurozone_unemployment": {
         "id": "Eurostat/une_rt_m/M.SA.TOTAL.PC_ACT.T.EA20",
@@ -43,21 +62,30 @@ INTERNATIONAL_SERIES = {
         "description": "Euro area unemployment rate, seasonally adjusted",
         "keywords": ["eurozone", "unemployment", "europe", "jobs"],
         "provider": "Eurostat",
+        "measure_type": "rate",
+        "change_type": "level",  # It's a rate level, not a change
+        "frequency": "monthly",
     },
     # === UK ===
     "uk_gdp": {
         "id": "BOE/GDP/IHYR.Q",
-        "name": "UK GDP Growth",
-        "description": "UK quarterly real GDP growth",
+        "name": "UK GDP Growth (YoY)",
+        "description": "UK real GDP growth, year-over-year",
         "keywords": ["uk", "britain", "british", "gdp", "england"],
         "provider": "Bank of England",
+        "measure_type": "real",
+        "change_type": "yoy",  # IHYR = YoY growth rate
+        "frequency": "quarterly",
     },
     "uk_inflation": {
         "id": "BOE/CPI/D7G7.M",
         "name": "UK Inflation (CPI)",
-        "description": "UK Consumer Price Index annual rate",
+        "description": "UK CPI inflation, year-over-year",
         "keywords": ["uk", "britain", "inflation", "cpi"],
         "provider": "Bank of England",
+        "measure_type": "rate",
+        "change_type": "yoy",
+        "frequency": "monthly",
     },
     "uk_bank_rate": {
         "id": "BOE/BANKRATE/IUMABEDR.D",
@@ -65,44 +93,62 @@ INTERNATIONAL_SERIES = {
         "description": "Bank of England official bank rate",
         "keywords": ["uk", "boe", "bank rate", "interest rate", "britain"],
         "provider": "Bank of England",
+        "measure_type": "rate",
+        "change_type": "level",
+        "frequency": "daily",
     },
     # === JAPAN ===
     "japan_gdp": {
         "id": "IMF/WEO:2024-10/JPN.NGDP_RPCH.pcent_change",
-        "name": "Japan GDP Growth",
-        "description": "Japan annual real GDP growth (IMF)",
+        "name": "Japan GDP Growth (YoY)",
+        "description": "Japan real GDP growth, year-over-year (IMF)",
         "keywords": ["japan", "japanese", "gdp", "asia"],
         "provider": "IMF",
+        "measure_type": "real",  # RPCH = Real Percent Change
+        "change_type": "yoy",
+        "frequency": "annual",
     },
     "japan_inflation": {
         "id": "IMF/WEO:2024-10/JPN.PCPIPCH.pcent_change",
         "name": "Japan Inflation",
-        "description": "Japan inflation rate (IMF)",
+        "description": "Japan CPI inflation, year-over-year (IMF)",
         "keywords": ["japan", "inflation", "cpi"],
         "provider": "IMF",
+        "measure_type": "rate",
+        "change_type": "yoy",
+        "frequency": "annual",
     },
     # === CHINA ===
     "china_gdp": {
         "id": "IMF/WEO:2024-10/CHN.NGDP_RPCH.pcent_change",
-        "name": "China GDP Growth",
-        "description": "China annual real GDP growth (IMF)",
+        "name": "China GDP Growth (YoY)",
+        "description": "China real GDP growth, year-over-year (IMF)",
         "keywords": ["china", "chinese", "gdp", "asia"],
         "provider": "IMF",
+        "measure_type": "real",
+        "change_type": "yoy",
+        "frequency": "annual",
     },
     "china_inflation": {
         "id": "IMF/WEO:2024-10/CHN.PCPIPCH.pcent_change",
         "name": "China Inflation",
-        "description": "China inflation rate (IMF)",
+        "description": "China CPI inflation, year-over-year (IMF)",
         "keywords": ["china", "inflation", "cpi"],
         "provider": "IMF",
+        "measure_type": "rate",
+        "change_type": "yoy",
+        "frequency": "annual",
     },
     # === GERMANY ===
     "germany_gdp": {
         "id": "IMF/WEO:2024-10/DEU.NGDP_RPCH.pcent_change",
-        "name": "Germany GDP Growth",
-        "description": "Germany annual real GDP growth",
+        "name": "Germany GDP Growth (YoY)",
+        "description": "Germany real GDP growth, year-over-year",
         "keywords": ["germany", "german", "gdp", "europe"],
         "provider": "IMF",
+        "measure_type": "real",
+        "change_type": "yoy",
+        "frequency": "annual",
     },
     "germany_unemployment": {
         "id": "Eurostat/une_rt_m/M.SA.TOTAL.PC_ACT.T.DE",
@@ -110,38 +156,53 @@ INTERNATIONAL_SERIES = {
         "description": "Germany unemployment rate",
         "keywords": ["germany", "unemployment", "jobs"],
         "provider": "Eurostat",
+        "measure_type": "rate",
+        "change_type": "level",
+        "frequency": "monthly",
     },
     # === CANADA ===
     "canada_gdp": {
         "id": "IMF/WEO:2024-10/CAN.NGDP_RPCH.pcent_change",
-        "name": "Canada GDP Growth",
-        "description": "Canada annual real GDP growth",
+        "name": "Canada GDP Growth (YoY)",
+        "description": "Canada real GDP growth, year-over-year",
         "keywords": ["canada", "canadian", "gdp"],
         "provider": "IMF",
+        "measure_type": "real",
+        "change_type": "yoy",
+        "frequency": "annual",
     },
     # === MEXICO ===
     "mexico_gdp": {
         "id": "IMF/WEO:2024-10/MEX.NGDP_RPCH.pcent_change",
-        "name": "Mexico GDP Growth",
-        "description": "Mexico annual real GDP growth",
+        "name": "Mexico GDP Growth (YoY)",
+        "description": "Mexico real GDP growth, year-over-year",
         "keywords": ["mexico", "mexican", "gdp"],
         "provider": "IMF",
+        "measure_type": "real",
+        "change_type": "yoy",
+        "frequency": "annual",
     },
     # === INDIA ===
     "india_gdp": {
         "id": "IMF/WEO:2024-10/IND.NGDP_RPCH.pcent_change",
-        "name": "India GDP Growth",
-        "description": "India annual real GDP growth",
+        "name": "India GDP Growth (YoY)",
+        "description": "India real GDP growth, year-over-year",
         "keywords": ["india", "indian", "gdp"],
         "provider": "IMF",
+        "measure_type": "real",
+        "change_type": "yoy",
+        "frequency": "annual",
     },
     # === BRAZIL ===
     "brazil_gdp": {
         "id": "IMF/WEO:2024-10/BRA.NGDP_RPCH.pcent_change",
-        "name": "Brazil GDP Growth",
-        "description": "Brazil annual real GDP growth",
+        "name": "Brazil GDP Growth (YoY)",
+        "description": "Brazil real GDP growth, year-over-year",
         "keywords": ["brazil", "brazilian", "gdp"],
         "provider": "IMF",
+        "measure_type": "real",
+        "change_type": "yoy",
+        "frequency": "annual",
     },
     # === ECB ===
     "ecb_rate": {
@@ -150,6 +211,9 @@ INTERNATIONAL_SERIES = {
         "description": "European Central Bank main policy rate",
         "keywords": ["ecb", "euro", "rate", "europe", "interest"],
         "provider": "ECB",
+        "measure_type": "rate",
+        "change_type": "level",
+        "frequency": "daily",
     },
 }
 
