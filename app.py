@@ -65,6 +65,13 @@ try:
 except Exception:
     DBNOMICS_AVAILABLE = False
 
+# Import smart query router for comparison queries
+try:
+    from agents.query_router import smart_route_query, is_comparison_query
+    QUERY_ROUTER_AVAILABLE = True
+except Exception:
+    QUERY_ROUTER_AVAILABLE = False
+
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
     Parse common follow-up commands locally without calling Claude API.
@@ -5889,24 +5896,45 @@ def main():
                 'series_names': st.session_state.last_series_names
             }
 
+        # Check for comparison queries FIRST (US vs Eurozone, etc.)
+        # These need data from multiple sources
+        comparison_route = None
+        if QUERY_ROUTER_AVAILABLE and DBNOMICS_AVAILABLE:
+            comparison_route = smart_route_query(query)
+            if comparison_route.get('is_comparison'):
+                # Build a combined plan from multiple sources
+                fred_series = comparison_route.get('series_to_fetch', {}).get('fred', [])
+                dbnomics_series = comparison_route.get('series_to_fetch', {}).get('dbnomics', [])
+
+                precomputed_plan = {
+                    'series': fred_series,  # FRED series fetched normally
+                    'dbnomics_series': dbnomics_series,  # DBnomics series fetched separately
+                    'explanation': comparison_route.get('explanation', ''),
+                    'source': 'comparison',
+                    'is_comparison': True,
+                }
+            else:
+                comparison_route = None  # Not a comparison, continue normal flow
+
         # First check pre-computed query plans (fast, no API call needed)
         # Uses smart matching: normalization + fuzzy matching for typos
-        precomputed_plan = find_query_plan(query)
+        if not comparison_route:
+            precomputed_plan = find_query_plan(query)
 
-        # Check stock market queries if no precomputed plan found
-        if not precomputed_plan and STOCKS_AVAILABLE:
-            market_plan = find_market_plan(query)
-            if market_plan:
-                precomputed_plan = market_plan
-                # Mark source for debugging
-                precomputed_plan['source'] = 'stocks'
+            # Check stock market queries if no precomputed plan found
+            if not precomputed_plan and STOCKS_AVAILABLE:
+                market_plan = find_market_plan(query)
+                if market_plan:
+                    precomputed_plan = market_plan
+                    # Mark source for debugging
+                    precomputed_plan['source'] = 'stocks'
 
-        # Check international queries (DBnomics: IMF, Eurostat, ECB, etc.)
-        if not precomputed_plan and DBNOMICS_AVAILABLE:
-            intl_plan = find_international_plan(query)
-            if intl_plan:
-                precomputed_plan = intl_plan
-                precomputed_plan['source'] = 'dbnomics'
+            # Check international queries (DBnomics: IMF, Eurostat, ECB, etc.)
+            if not precomputed_plan and DBNOMICS_AVAILABLE:
+                intl_plan = find_international_plan(query)
+                if intl_plan:
+                    precomputed_plan = intl_plan
+                    precomputed_plan['source'] = 'dbnomics'
 
         # Check if this looks like a follow-up command (transformation, time range, etc.)
         local_parsed = parse_followup_command(query, st.session_state.last_series) if previous_context else None
@@ -6255,11 +6283,33 @@ def main():
         series_names_fetched = []
         derived_config = interpretation.get('derived', None)  # Formula for calculated series
         data_source = interpretation.get('source', 'fred')
-        spinner_msg = "Fetching data from DBnomics..." if data_source == 'dbnomics' else "Fetching data from FRED..."
+        is_comparison = interpretation.get('is_comparison', False)
+
+        # For comparison queries, also fetch DBnomics series
+        dbnomics_series_to_fetch = interpretation.get('dbnomics_series', []) if is_comparison else []
+
+        spinner_msg = "Fetching data..." if is_comparison else (
+            "Fetching data from DBnomics..." if data_source == 'dbnomics' else "Fetching data from FRED..."
+        )
+
+        # Combine all series to fetch (FRED + DBnomics for comparisons)
+        all_series_to_fetch = []
+        series_source_map = {}  # Track which source each series comes from
+
+        for sid in series_to_fetch[:4]:
+            all_series_to_fetch.append(sid)
+            series_source_map[sid] = 'dbnomics' if data_source == 'dbnomics' else 'fred'
+
+        for sid in dbnomics_series_to_fetch[:2]:  # Limit DBnomics to 2 for comparisons
+            if sid not in all_series_to_fetch:
+                all_series_to_fetch.append(sid)
+                series_source_map[sid] = 'dbnomics'
+
         with st.spinner(spinner_msg):
-            for series_id in series_to_fetch[:4]:
+            for series_id in all_series_to_fetch[:4]:
                 # Fetch from appropriate source
-                if data_source == 'dbnomics' and DBNOMICS_AVAILABLE:
+                source_for_series = series_source_map.get(series_id, 'fred')
+                if source_for_series == 'dbnomics' and DBNOMICS_AVAILABLE:
                     dates, values, info = get_observations_dbnomics(series_id)
                 else:
                     dates, values, info = get_observations(series_id, years)

@@ -102,6 +102,17 @@ Added series and plans for:
 - **Queries handled**: "eurozone economy", "how is china doing", "uk inflation", "ecb rate"
 - **Data format**: Converted to FRED-compatible (dates, values, info) for seamless integration
 
+## Smart Query Router (Comparison Queries)
+- `agents/query_router.py` - Handles multi-source queries
+- **Comparison detection**: "vs", "compared to", "compare", multiple regions mentioned
+- **Region extraction**: US, Eurozone, UK, Japan, China, Germany, Canada, Mexico, India, Brazil
+- **Indicator extraction**: GDP/growth, inflation/CPI, unemployment, rates
+- **Multi-source fetch**: Combines FRED (US) + DBnomics (international) for comparisons
+- **Example queries**:
+  - "US vs Eurozone GDP" → FRED:GDPC1 + DBnomics:eurozone_gdp
+  - "Compare US and China growth" → FRED:GDPC1 + DBnomics:china_gdp
+  - "UK inflation vs US" → FRED:CPIAUCSL + DBnomics:uk_inflation
+
 ## Key Files
 - `app.py` - Main Streamlit app with query routing, temporal handling, geographic search
 - `agents/agent_ensemble.py` - LLM ensemble for dimension discovery and validation
