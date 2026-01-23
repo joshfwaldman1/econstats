@@ -5983,7 +5983,7 @@ def main():
                 'explanation': precomputed_plan.get('explanation', f'Showing data for: {query}'),
                 'show_yoy': precomputed_plan.get('show_yoy', False),
                 'show_yoy_series': precomputed_plan.get('show_yoy_series', []),
-                'combine_chart': precomputed_plan.get('combine_chart', False),
+                'combine_chart': precomputed_plan.get('combine_chart', True) if precomputed_plan.get('is_comparison') else precomputed_plan.get('combine_chart', False),
                 'show_mom': False,
                 'show_avg_annual': False,
                 'is_followup': False,
@@ -5996,6 +5996,10 @@ def main():
                 'show_payroll_changes': precomputed_plan.get('show_payroll_changes', False),
                 'chart_groups': precomputed_plan.get('chart_groups', None),
                 'derived': precomputed_plan.get('derived', None),  # Formula for calculated series
+                # Comparison query support - pass through DBnomics series
+                'source': precomputed_plan.get('source', 'fred'),
+                'is_comparison': precomputed_plan.get('is_comparison', False),
+                'dbnomics_series': precomputed_plan.get('dbnomics_series', []),
             }
         elif local_parsed:
             # Try local parser for common follow-up commands (no API call needed)
