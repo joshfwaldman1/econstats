@@ -6445,27 +6445,53 @@ def main():
                         info_copy['presentation_category'] = category
                         info_copy['presentation_display_as'] = display_as
 
+                        # Check if this series should NEVER be shown as percentage change
+                        series_db_info = SERIES_DB.get(sid, {})
+                        force_absolute = series_db_info.get('show_absolute_change', False)
+
                         # Apply transformation if AI determined this is a STOCK that should show changes
                         if display_as == 'mom_change' and len(values_v) > 1 and not info_v.get('is_payroll_change'):
-                            # Convert stock to month-over-month change
-                            change_dates = dates_v[1:]
-                            change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
-                            info_copy['name'] = info_v.get('name', sid) + ' (Monthly Change)'
-                            info_copy['unit'] = 'Change from Prior Month'
-                            info_copy['is_stock_to_change'] = True
-                            info_copy['original_values'] = values_v
-                            info_copy['original_dates'] = dates_v
-                            transformed_data.append((sid, change_dates, change_values, info_copy))
-                        elif display_as == 'yoy_change' and len(values_v) > 12:
-                            # Convert stock to year-over-year change
-                            yoy_dates, yoy_values = calculate_yoy(dates_v, values_v)
-                            if yoy_dates:
-                                info_copy['name'] = info_v.get('name', sid) + ' (YoY %)'
-                                info_copy['unit'] = '% Change YoY'
-                                info_copy['is_yoy'] = True
-                                transformed_data.append((sid, yoy_dates, yoy_values, info_copy))
+                            if force_absolute:
+                                # PAYEMS etc - show absolute monthly change, not percent
+                                change_dates = dates_v[1:]
+                                change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
+                                info_copy['name'] = 'Monthly Job Change'
+                                info_copy['unit'] = 'Thousands of Jobs'
+                                info_copy['is_payroll_change'] = True
+                                info_copy['original_values'] = values_v
+                                info_copy['original_dates'] = dates_v
+                                transformed_data.append((sid, change_dates, change_values, info_copy))
                             else:
-                                transformed_data.append((sid, dates_v, values_v, info_copy))
+                                # Convert stock to month-over-month change
+                                change_dates = dates_v[1:]
+                                change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
+                                info_copy['name'] = info_v.get('name', sid) + ' (Monthly Change)'
+                                info_copy['unit'] = 'Change from Prior Month'
+                                info_copy['is_stock_to_change'] = True
+                                info_copy['original_values'] = values_v
+                                info_copy['original_dates'] = dates_v
+                                transformed_data.append((sid, change_dates, change_values, info_copy))
+                        elif display_as == 'yoy_change' and len(values_v) > 12:
+                            if force_absolute:
+                                # PAYEMS etc - NEVER show as YoY %, show monthly job change instead
+                                change_dates = dates_v[1:]
+                                change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
+                                info_copy['name'] = 'Monthly Job Change'
+                                info_copy['unit'] = 'Thousands of Jobs'
+                                info_copy['is_payroll_change'] = True
+                                info_copy['original_values'] = values_v
+                                info_copy['original_dates'] = dates_v
+                                transformed_data.append((sid, change_dates, change_values, info_copy))
+                            else:
+                                # Convert stock to year-over-year change
+                                yoy_dates, yoy_values = calculate_yoy(dates_v, values_v)
+                                if yoy_dates:
+                                    info_copy['name'] = info_v.get('name', sid) + ' (YoY %)'
+                                    info_copy['unit'] = '% Change YoY'
+                                    info_copy['is_yoy'] = True
+                                    transformed_data.append((sid, yoy_dates, yoy_values, info_copy))
+                                else:
+                                    transformed_data.append((sid, dates_v, values_v, info_copy))
                         else:
                             # Level display is appropriate (flows, rates)
                             transformed_data.append((sid, dates_v, values_v, info_copy))

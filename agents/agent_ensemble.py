@@ -1474,7 +1474,9 @@ For each series, determine:
 ## COMMON SERIES GUIDANCE:
 
 STOCKS (show as change):
-- PAYEMS, MANEMP, USLAH, etc. (total employment) → mom_change
+- PAYEMS, MANEMP, USLAH, etc. (total employment) → mom_change (NEVER yoy_change!)
+  * Economists report jobs as "+256K this month" not "0.37% YoY growth"
+  * YoY % for employment is WRONG - always use monthly job gains
 - CPIAUCSL (CPI index level) → yoy_change or yoy_pct
 - GDP level → yoy_change
 
@@ -1511,23 +1513,24 @@ Return JSON only:
     response = call_gpt(presentation_prompt)
 
     # Known series that should NEVER be shown as raw levels
-    # Stock series that should show YoY changes (cumulative totals where level is less meaningful)
+    # Stock series need to show changes (cumulative totals where level is less meaningful)
     KNOWN_STOCKS = {
-        # Employment stocks (total workers - show job growth)
-        'PAYEMS': 'yoy_change',     # Total nonfarm payrolls
-        'MANEMP': 'yoy_change',     # Manufacturing employment
-        'USCONS': 'yoy_change',     # Construction employment
-        'USHCS': 'yoy_change',      # Healthcare employment
-        'USLAH': 'yoy_change',      # Leisure & hospitality employment
-        'USINFO': 'yoy_change',     # Information employment
-        'USTRADE': 'yoy_change',    # Trade employment
-        'USGOVT': 'yoy_change',     # Government employment
-        'USPBS': 'yoy_change',      # Professional services employment
-        'USMINE': 'yoy_change',     # Mining employment
-        'USGOOD': 'yoy_change',     # Goods-producing employment
-        'CES0500000001': 'yoy_change',  # Total private employment
-        'LNS12000000': 'yoy_change',    # Employment level (household survey)
-        'CE16OV': 'yoy_change',         # Civilian employment level
+        # Employment stocks (total workers - show MONTHLY job change, NOT YoY %)
+        # Economists report payrolls as "+256K jobs" not "0.37% YoY growth"
+        'PAYEMS': 'mom_change',     # Total nonfarm payrolls → show as monthly job gains
+        'MANEMP': 'mom_change',     # Manufacturing employment
+        'USCONS': 'mom_change',     # Construction employment
+        'USHCS': 'mom_change',      # Healthcare employment
+        'USLAH': 'mom_change',      # Leisure & hospitality employment
+        'USINFO': 'mom_change',     # Information employment
+        'USTRADE': 'mom_change',    # Trade employment
+        'USGOVT': 'mom_change',     # Government employment
+        'USPBS': 'mom_change',      # Professional services employment
+        'USMINE': 'mom_change',     # Mining employment
+        'USGOOD': 'mom_change',     # Goods-producing employment
+        'CES0500000001': 'mom_change',  # Total private employment
+        'LNS12000000': 'mom_change',    # Employment level (household survey)
+        'CE16OV': 'mom_change',         # Civilian employment level
 
         # GDP and production (show growth rates)
         'GDPC1': 'yoy_change',      # Real GDP
