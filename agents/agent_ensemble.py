@@ -1081,6 +1081,16 @@ PROPOSED SERIES:
 If NONE of the proposed series actually answer the query, return an EMPTY valid_series list.
 It is BETTER to return no data than to return WRONG data.
 
+### OUT-OF-SCOPE QUERIES
+Many questions are OUTSIDE what FRED economic data covers. Examples:
+- "What's the average retirement age?" → FRED doesn't have this
+- "What's the population of Texas?" → Not economic data
+- "Who is the Fed chair?" → Not a data series
+- "What's the weather?" → Completely unrelated
+
+If the query asks for something FRED doesn't track, REJECT ALL SERIES.
+Do NOT show inflation/GDP/jobs data for non-economic questions!
+
 ## RESPONSE FORMAT
 Return JSON only:
 ```json

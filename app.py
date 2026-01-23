@@ -6180,11 +6180,24 @@ def main():
                 validation = validate_series_relevance(query, series_info_list, verbose=False)
                 valid_ids = validation.get('valid_series', series_to_fetch)
 
-                # Only use validation if it kept at least one series
                 if valid_ids:
                     # Preserve order, only keep validated series
                     series_to_fetch = [s for s in series_to_fetch if s in valid_ids]
                     interpretation['validation_result'] = validation
+                else:
+                    # Validation rejected ALL series - this query has no relevant FRED data
+                    st.warning("🔍 **No relevant economic data found for this query.**")
+                    st.info("""EconStats specializes in macroeconomic data from FRED (Federal Reserve Economic Data), including:
+• Employment & jobs (payrolls, unemployment, job openings)
+• Inflation & prices (CPI, PCE, housing prices)
+• GDP & economic growth
+• Interest rates & Fed policy
+• Consumer spending & sentiment
+• Trade & international data
+
+Your question may be outside this scope. Try rephrasing with economic terms, or ask about a specific indicator.""")
+                    # Clear series to prevent showing irrelevant data
+                    series_to_fetch = []
 
         # Log the query for analytics
         source = "precomputed" if interpretation.get('used_precomputed') else "claude"
