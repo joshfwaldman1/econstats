@@ -155,6 +155,22 @@ INTERNATIONAL_SERIES = {
 
 # Query plans for international queries
 INTERNATIONAL_QUERY_PLANS = {
+    # Comparison queries - US vs international
+    "us compared to eurozone": {
+        "series": ["eurozone_gdp"],  # Will be combined with US GDP from FRED
+        "explanation": "Eurozone GDP growth for comparison with US.",
+        "compare_with_us": True,
+    },
+    "us vs eurozone": {
+        "series": ["eurozone_gdp"],
+        "explanation": "Eurozone GDP growth for comparison with US.",
+        "compare_with_us": True,
+    },
+    "growth in the us compared to eurozone": {
+        "series": ["eurozone_gdp"],
+        "explanation": "Eurozone GDP growth for comparison with US.",
+        "compare_with_us": True,
+    },
     "eurozone economy": {
         "series": ["eurozone_gdp", "eurozone_inflation", "eurozone_unemployment"],
         "explanation": "Key Eurozone economic indicators.",
@@ -166,6 +182,10 @@ INTERNATIONAL_QUERY_PLANS = {
     "europe economy": {
         "series": ["eurozone_gdp", "eurozone_inflation", "germany_gdp"],
         "explanation": "European economic indicators.",
+    },
+    "eurozone gdp": {
+        "series": ["eurozone_gdp"],
+        "explanation": "Eurozone quarterly GDP growth.",
     },
     "uk economy": {
         "series": ["uk_gdp", "uk_inflation", "uk_bank_rate"],
@@ -347,12 +367,27 @@ def find_international_plan(query: str) -> Optional[dict]:
     """
     query_lower = query.lower().strip()
 
-    # Exact/partial match on plans first
+    # Exact/partial match on plans first (check all plans, find best match)
+    best_plan = None
+    best_match_len = 0
     for plan_query, plan in INTERNATIONAL_QUERY_PLANS.items():
-        if plan_query in query_lower or query_lower in plan_query:
-            return {**plan, "source": "dbnomics"}
+        if plan_query in query_lower:
+            if len(plan_query) > best_match_len:
+                best_match_len = len(plan_query)
+                best_plan = plan
+        elif query_lower in plan_query:
+            if len(query_lower) > best_match_len:
+                best_match_len = len(query_lower)
+                best_plan = plan
+
+    if best_plan:
+        return {**best_plan, "source": "dbnomics"}
 
     # Score-based keyword matching on series
+    # Boost GDP series if "growth" is in query
+    is_growth_query = "growth" in query_lower or "gdp" in query_lower
+    is_inflation_query = "inflation" in query_lower or "cpi" in query_lower or "prices" in query_lower
+
     matches = []
     for series_key, meta in INTERNATIONAL_SERIES.items():
         keywords = meta.get("keywords", [])
@@ -361,7 +396,14 @@ def find_international_plan(query: str) -> Optional[dict]:
             if kw in query_lower:
                 # Longer keyword matches score higher
                 score += len(kw)
+
+        # Apply category boost based on query intent
         if score > 0:
+            if is_growth_query and "gdp" in series_key:
+                score += 10
+            elif is_inflation_query and "inflation" in series_key:
+                score += 10
+
             matches.append((series_key, meta, score))
 
     # Return highest scoring match
