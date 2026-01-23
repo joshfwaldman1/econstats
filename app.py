@@ -44,6 +44,13 @@ except Exception:
     # Catch all exceptions (including KeyError on some Python versions)
     RAG_AVAILABLE = False
 
+# Import Polymarket prediction markets (forward-looking sentiment)
+try:
+    from agents.polymarket import find_relevant_predictions, format_prediction_for_display
+    POLYMARKET_AVAILABLE = True
+except Exception:
+    POLYMARKET_AVAILABLE = False
+
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
     Parse common follow-up commands locally without calling Claude API.
@@ -5628,6 +5635,28 @@ def main():
                             {summary_html}
                         </div>""", unsafe_allow_html=True)
 
+                    # Polymarket predictions (forward-looking market sentiment)
+                    if msg.get("polymarket"):
+                        predictions = msg["polymarket"]
+                        pm_items = []
+                        for pred in predictions[:2]:  # Show top 2
+                            markets = pred.get('markets', [])
+                            title = pred.get('title', '')
+                            url = pred.get('url', '')
+                            vol = pred.get('volume', 0)
+                            vol_str = f"${vol/1000:.0f}K" if vol >= 1000 else f"${vol:.0f}"
+                            # Find "Yes" probability
+                            for m in markets:
+                                if m.get('outcome') in ('Yes', '1', 'True'):
+                                    prob = m.get('probability', 0) * 100
+                                    pm_items.append(f"<a href='{url}' target='_blank' style='color: #3b82f6;'>{title}</a>: <strong>{prob:.0f}%</strong> ({vol_str} vol)")
+                                    break
+                        if pm_items:
+                            st.markdown(f"""<div style='background: #f8fafc; border-left: 3px solid #f59e0b; padding: 10px 14px; margin: 12px 0; font-size: 0.9rem;'>
+                                <strong style='color: #92400e;'>📈 Market Expectations (Polymarket)</strong><br>
+                                {'<br>'.join(pm_items)}
+                            </div>""", unsafe_allow_html=True)
+
                     # Render charts from stored series_data
                     if msg.get("series_data"):
                         chart_type = msg.get("chart_type", "line")
@@ -6530,6 +6559,14 @@ def main():
                 with st.spinner("Economist reviewing analysis..."):
                     ai_explanation = call_economist_reviewer(query, series_data, ai_explanation)
 
+        # Fetch relevant Polymarket predictions for forward-looking context
+        polymarket_predictions = []
+        if POLYMARKET_AVAILABLE:
+            try:
+                polymarket_predictions = find_relevant_predictions(query)[:3]  # Top 3 relevant
+            except Exception as e:
+                print(f"[Polymarket] Error fetching predictions: {e}")
+
         # Store ALL context atomically for follow-up queries (prevents race conditions)
         st.session_state.last_query = query
         st.session_state.last_series = series_to_fetch[:4]
@@ -6549,7 +6586,8 @@ def main():
             "chart_type": chart_type,
             "combine": combine,
             "chart_groups": chart_groups,  # Store chart groups for proper re-rendering
-            "series_names": series_names_fetched
+            "series_names": series_names_fetched,
+            "polymarket": polymarket_predictions,  # Prediction market data
         })
 
         # Activate chat mode and rerun to show chat interface

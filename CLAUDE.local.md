@@ -74,10 +74,19 @@ Added series and plans for:
 - **Energy**: IPG211111CS (oil production), DCOILWTICO
 - **Money supply**: M2SL, WALCL (Fed balance sheet)
 
+## Polymarket Integration (Forward-Looking Data)
+- `agents/polymarket.py` - Fetches prediction market data for forward-looking sentiment
+- **Tracked markets**: recession odds, Fed rate expectations, GDP forecasts, tariff revenue
+- **Display**: Shows relevant predictions below summary when query matches keywords
+- **Keywords matched**: recession, fed, gdp, growth, economy, tariff, inflation, interest rate
+- **Caching**: 15-minute TTL to avoid API spam
+- **API**: Uses Polymarket Gamma API (https://gamma-api.polymarket.com)
+
 ## Key Files
 - `app.py` - Main Streamlit app with query routing, temporal handling, geographic search
 - `agents/agent_ensemble.py` - LLM ensemble for dimension discovery and validation
 - `agents/series_rag.py` - RAG system with 115+ curated series
+- `agents/polymarket.py` - Polymarket prediction market integration
 - `agents/plans_*.json` - Pre-computed query plans by category:
   - `plans_employment.json` - Jobs, sectors, demographics
   - `plans_economy_overview.json` - Economy, small business, supply chain
@@ -96,3 +105,4 @@ Added series and plans for:
 4. **Validation bypass** - Pre-computed plans now always validated
 5. **Temporal queries** - Added extraction for year/period references
 6. **Holistic patterns** - Expanded to catch "what about", "compare", industry queries
+7. **Polymarket integration** - Added forward-looking prediction market data (recession, Fed, GDP)
