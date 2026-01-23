@@ -88,6 +88,20 @@ Added series and plans for:
 - **Queries handled**: "stock market", "s&p 500", "dow jones", "nasdaq", "vix", "yield curve", "gold price", "oil price"
 - **Integration**: Falls back to stock plans if no precomputed economic plan matches
 
+## DBnomics Integration (International Data)
+- `agents/dbnomics.py` - International economic data from IMF, Eurostat, ECB, BOE
+- **API**: https://api.db.nomics.world/v22/
+- **Coverage**:
+  - Eurozone: GDP, inflation (HICP), unemployment
+  - UK: GDP, CPI, Bank of England rate
+  - Japan: GDP, inflation (IMF)
+  - China: GDP, inflation (IMF)
+  - Germany: GDP, unemployment
+  - Canada, Mexico, India, Brazil: GDP (IMF)
+  - ECB main refinancing rate
+- **Queries handled**: "eurozone economy", "how is china doing", "uk inflation", "ecb rate"
+- **Data format**: Converted to FRED-compatible (dates, values, info) for seamless integration
+
 ## Key Files
 - `app.py` - Main Streamlit app with query routing, temporal handling, geographic search
 - `agents/agent_ensemble.py` - LLM ensemble for dimension discovery and validation

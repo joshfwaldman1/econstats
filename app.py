@@ -58,6 +58,13 @@ try:
 except Exception:
     STOCKS_AVAILABLE = False
 
+# Import DBnomics for international data (IMF, Eurostat, ECB, etc.)
+try:
+    from agents.dbnomics import find_international_plan, is_international_query, get_observations_dbnomics
+    DBNOMICS_AVAILABLE = True
+except Exception:
+    DBNOMICS_AVAILABLE = False
+
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
     Parse common follow-up commands locally without calling Claude API.
@@ -5894,6 +5901,13 @@ def main():
                 # Mark source for debugging
                 precomputed_plan['source'] = 'stocks'
 
+        # Check international queries (DBnomics: IMF, Eurostat, ECB, etc.)
+        if not precomputed_plan and DBNOMICS_AVAILABLE:
+            intl_plan = find_international_plan(query)
+            if intl_plan:
+                precomputed_plan = intl_plan
+                precomputed_plan['source'] = 'dbnomics'
+
         # Check if this looks like a follow-up command (transformation, time range, etc.)
         local_parsed = parse_followup_command(query, st.session_state.last_series) if previous_context else None
 
@@ -6240,9 +6254,15 @@ def main():
         derived_raw_data = {}  # Store raw data for derived calculations (2-tuple: dates, values)
         series_names_fetched = []
         derived_config = interpretation.get('derived', None)  # Formula for calculated series
-        with st.spinner("Fetching data from FRED..."):
+        data_source = interpretation.get('source', 'fred')
+        spinner_msg = "Fetching data from DBnomics..." if data_source == 'dbnomics' else "Fetching data from FRED..."
+        with st.spinner(spinner_msg):
             for series_id in series_to_fetch[:4]:
-                dates, values, info = get_observations(series_id, years)
+                # Fetch from appropriate source
+                if data_source == 'dbnomics' and DBNOMICS_AVAILABLE:
+                    dates, values, info = get_observations_dbnomics(series_id)
+                else:
+                    dates, values, info = get_observations(series_id, years)
                 if dates and values:
                     # Recency check: silently skip series if latest observation is more than 1 year old
                     try:
