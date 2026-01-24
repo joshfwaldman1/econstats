@@ -86,6 +86,27 @@ try:
 except Exception:
     QUERY_ROUTER_AVAILABLE = False
 
+# Import Zillow for housing/rent market data
+try:
+    from agents.zillow import get_zillow_series, search_zillow_series, ZILLOW_SERIES
+    ZILLOW_AVAILABLE = True
+except Exception:
+    ZILLOW_AVAILABLE = False
+
+# Import EIA for energy data
+try:
+    from agents.eia import get_eia_series, search_eia_series, EIA_SERIES
+    EIA_AVAILABLE = True
+except Exception:
+    EIA_AVAILABLE = False
+
+# Import Alpha Vantage for stocks and economic data
+try:
+    from agents.alphavantage import get_alphavantage_series, search_alphavantage_series, ALPHAVANTAGE_SERIES
+    ALPHAVANTAGE_AVAILABLE = True
+except Exception:
+    ALPHAVANTAGE_AVAILABLE = False
+
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
     Parse common follow-up commands locally without calling Claude API.
@@ -5097,6 +5118,41 @@ def get_observations(series_id: str, years: int = None) -> tuple:
     return dates, values, info
 
 
+def fetch_series_data(series_id: str, years: int = None) -> tuple:
+    """
+    Unified data fetcher that routes to the appropriate source.
+
+    Routes based on series ID prefix:
+    - zillow_* -> Zillow API
+    - eia_* -> EIA API
+    - av_* -> Alpha Vantage API
+    - DBnomics series (from DBNOMICS catalog) -> DBnomics API
+    - Otherwise -> FRED API
+
+    Returns: (dates, values, info) tuple
+    """
+    # Route to Zillow
+    if series_id.startswith('zillow_') and ZILLOW_AVAILABLE:
+        return get_zillow_series(series_id)
+
+    # Route to EIA
+    if series_id.startswith('eia_') and EIA_AVAILABLE:
+        return get_eia_series(series_id)
+
+    # Route to Alpha Vantage
+    if series_id.startswith('av_') and ALPHAVANTAGE_AVAILABLE:
+        return get_alphavantage_series(series_id)
+
+    # Route to DBnomics (for international series)
+    if DBNOMICS_AVAILABLE:
+        from agents.dbnomics import INTERNATIONAL_SERIES
+        if series_id in INTERNATIONAL_SERIES:
+            return get_observations_dbnomics(series_id)
+
+    # Default to FRED
+    return get_observations(series_id, years)
+
+
 def calculate_yoy(dates: list, values: list) -> tuple:
     """Calculate year-over-year percent change.
 
@@ -7005,12 +7061,9 @@ def main():
 
         with st.spinner(spinner_msg):
             for series_id in all_series_to_fetch[:4]:
-                # Fetch from appropriate source
-                source_for_series = series_source_map.get(series_id, 'fred')
-                if source_for_series == 'dbnomics' and DBNOMICS_AVAILABLE:
-                    dates, values, info = get_observations_dbnomics(series_id)
-                else:
-                    dates, values, info = get_observations(series_id, years)
+                # Use unified fetch function that routes based on series ID prefix
+                # (zillow_*, eia_*, av_* -> respective APIs, DBnomics series -> DBnomics, else FRED)
+                dates, values, info = fetch_series_data(series_id, years)
                 if dates and values:
                     # Recency check: silently skip series if latest observation is more than 1 year old
                     try:

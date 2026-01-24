@@ -178,6 +178,50 @@ DIRECT_SERIES_MAPPINGS = {
     'home sales': ['EXHOSLUSM495S', 'HSN1F'],
     'median home price': ['MSPUS'],
     'average home price': ['ASPUS'],
+
+    # =========================================================================
+    # ZILLOW SERIES (market rents and home values)
+    # =========================================================================
+    'zillow rent': ['zillow_zori_national', 'zillow_rent_yoy'],
+    'market rent': ['zillow_zori_national', 'zillow_rent_yoy'],
+    'actual rent': ['zillow_zori_national'],
+    'zillow home value': ['zillow_zhvi_national', 'zillow_home_value_yoy'],
+    'zillow home prices': ['zillow_zhvi_national', 'zillow_home_value_yoy'],
+    'zori': ['zillow_zori_national'],
+    'zhvi': ['zillow_zhvi_national'],
+
+    # =========================================================================
+    # EIA SERIES (energy data)
+    # =========================================================================
+    'wti crude': ['eia_wti_crude'],
+    'brent crude': ['eia_brent_crude'],
+    'crude oil inventories': ['eia_crude_stocks'],
+    'oil stocks': ['eia_crude_stocks'],
+    'petroleum inventories': ['eia_crude_stocks', 'eia_gasoline_stocks'],
+    'diesel prices': ['eia_diesel_retail'],
+    'diesel fuel': ['eia_diesel_retail'],
+    'henry hub': ['eia_natural_gas_henry_hub'],
+    'electricity prices': ['eia_electricity_residential'],
+    'electric bill': ['eia_electricity_residential'],
+    'oil production': ['eia_crude_production'],
+
+    # =========================================================================
+    # ALPHA VANTAGE SERIES (stocks, forex, more economic data)
+    # =========================================================================
+    'spy': ['av_spy'],
+    'qqq': ['av_qqq'],
+    'nasdaq 100': ['av_qqq'],
+    'tech stocks': ['av_qqq'],
+    'dia': ['av_dia'],
+    'russell 2000': ['av_iwm'],
+    'small cap stocks': ['av_iwm'],
+    'eur usd': ['av_eurusd'],
+    'euro dollar': ['av_eurusd'],
+    'usd jpy': ['av_usdjpy'],
+    'dollar yen': ['av_usdjpy'],
+    'gbp usd': ['av_gbpusd'],
+    'pound dollar': ['av_gbpusd'],
+    'dollar index': ['av_dollar_index', 'DTWEXBGS'],
 }
 
 
@@ -252,12 +296,52 @@ GOOD search terms (will find the right series):
 - "real gross domestic product" → finds GDPC1
 - "job openings total nonfarm" → finds JTSJOL
 
-BAD search terms (too generic, will find wrong series):
+HOUSING & RENT search terms (FRED has these):
+- "rent of primary residence" → finds CUSR0000SEHA (rent CPI)
+- "owners equivalent rent" → finds CUSR0000SEHC (OER)
+- "consumer price index shelter" → finds CUSR0000SAH1 (shelter CPI)
+- "housing starts" → finds HOUST
+- "case shiller home price" → finds CSUSHPINSA
+
+BAD search terms (too generic or not in FRED):
 - "rate" → matches everything
 - "unemployment" alone → too broad
 - "inflation" alone → too broad
 - "jobs" alone → too many matches
 - "index" alone → matches everything
+
+## ALTERNATIVE DATA SOURCES (beyond FRED)
+
+For some topics, we have BETTER data from specialized sources. Use these series IDs directly:
+
+**ZILLOW (actual market rents & home values):**
+- zillow_zori_national → Zillow Observed Rent Index (actual market rents, not CPI)
+- zillow_rent_yoy → Rent growth year-over-year
+- zillow_zhvi_national → Zillow Home Value Index
+- zillow_home_value_yoy → Home value growth year-over-year
+USE THESE when user asks about "actual rents", "market rents", "Zillow", or real-time housing market
+
+**EIA (detailed energy data):**
+- eia_wti_crude → WTI crude oil spot price
+- eia_brent_crude → Brent crude oil price
+- eia_gasoline_retail → Retail gasoline prices
+- eia_diesel_retail → Diesel fuel prices
+- eia_natural_gas_henry_hub → Henry Hub natural gas
+- eia_crude_stocks → US crude oil inventories
+- eia_crude_production → US oil production
+- eia_electricity_residential → Residential electricity prices
+USE THESE for detailed energy analysis beyond what's in FRED
+
+**ALPHA VANTAGE (real-time markets):**
+- av_spy → S&P 500 (SPY ETF) - daily
+- av_qqq → Nasdaq 100 (QQQ ETF) - daily
+- av_dia → Dow Jones (DIA ETF) - daily
+- av_iwm → Russell 2000 small caps
+- av_treasury_10y → 10-year Treasury yield (daily)
+- av_treasury_2y → 2-year Treasury yield (daily)
+- av_eurusd → EUR/USD exchange rate
+- av_crude_oil → WTI crude oil (daily)
+USE THESE for daily market data or when FRED data is too slow
 
 ## DEMOGRAPHIC QUERIES
 
