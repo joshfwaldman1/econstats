@@ -81,19 +81,20 @@ class CausalChain:
 DEMAND_PULL = CausalChain(
     name="DEMAND_PULL",
     description="""
-    Classic demand-pull inflation: Strong aggregate demand exceeds productive capacity,
-    giving firms pricing power and workers bargaining power.
+    When people want to buy more stuff than the economy can produce, prices go up.
+    That's demand-pull inflation - too much money chasing too few goods.
 
-    Transmission: Demand -> Capacity -> Prices -> Wages -> Unit Labor Costs -> Services
+    How it works: People spend more -> Businesses run at full tilt -> They raise prices
+    because they can -> Workers demand higher wages -> Those wages get passed on as higher prices
 
-    Historical examples:
-    - 1960s Great Inflation (guns + butter)
-    - 2021-2022 post-COVID reopening surge
+    When has this happened?
+    - The 1960s: Government spent big on Vietnam AND social programs (guns + butter)
+    - 2021-2022: Everyone got stimulus checks and spent them while factories were still recovering from COVID
     """,
     stages=[
         ChainStage(
-            name="Strong Demand",
-            description="Aggregate demand rises faster than potential output",
+            name="Spending takes off",
+            description="People and businesses are spending faster than the economy can keep up",
             series=[
                 "GDPC1",           # Real GDP
                 "PCEC96",          # Real Personal Consumption
@@ -104,8 +105,8 @@ DEMAND_PULL = CausalChain(
             threshold_rising=3.0,  # GDP growth > 3% signals strong demand
         ),
         ChainStage(
-            name="Capacity Utilization Rises",
-            description="Firms approach production limits, slack disappears",
+            name="Economy running hot",
+            description="Factories are near capacity, employers can't find enough workers",
             series=[
                 "TCU",             # Total Capacity Utilization
                 "UNRATE",          # Unemployment Rate (inverse of labor slack)
@@ -116,8 +117,8 @@ DEMAND_PULL = CausalChain(
             threshold_falling=75.0,
         ),
         ChainStage(
-            name="Pricing Power",
-            description="Firms can raise prices without losing sales",
+            name="Businesses raise prices",
+            description="With customers lined up, businesses can charge more and people will still pay",
             series=[
                 "PPIFIS",          # PPI Final Demand
                 "CPIAUCSL",        # CPI All Items
@@ -127,8 +128,8 @@ DEMAND_PULL = CausalChain(
             threshold_rising=3.0,  # YoY > 3%
         ),
         ChainStage(
-            name="Wage Pressure",
-            description="Tight labor market drives wage gains above productivity",
+            name="Workers demand higher pay",
+            description="With jobs plentiful and prices rising, workers push for raises - and get them",
             series=[
                 "CES0500000003",   # Avg Hourly Earnings (Private)
                 "ECIWAG",          # ECI Wages and Salaries
@@ -138,8 +139,8 @@ DEMAND_PULL = CausalChain(
             threshold_rising=4.0,  # Wage growth > 4% with 1-2% productivity
         ),
         ChainStage(
-            name="Unit Labor Costs",
-            description="Labor costs per unit of output rise (wages > productivity)",
+            name="It costs more to make things",
+            description="If wages rise 5% but productivity only rises 1%, businesses pay 4% more per widget. That gets passed on.",
             series=[
                 "ULCNFB",          # Unit Labor Cost (Nonfarm Business)
                 "OPHNFB",          # Output per Hour (Nonfarm Business)
@@ -149,8 +150,8 @@ DEMAND_PULL = CausalChain(
             threshold_rising=3.0,  # ULC > 3% is concerning
         ),
         ChainStage(
-            name="Core Services Inflation",
-            description="Sustained services inflation (most labor-intensive)",
+            name="Services get expensive",
+            description="Haircuts, doctor visits, restaurants - services are labor-heavy, so wage increases hit them hardest",
             series=[
                 "CUSR0000SAS",     # CPI Services
                 "CUSR0000SASLE",   # CPI Services Less Energy
@@ -161,14 +162,15 @@ DEMAND_PULL = CausalChain(
         ),
     ],
     key_insight="""
-    Demand-pull inflation is the "good" kind in moderation - it signals a strong economy.
-    The key risk is overheating: if the Fed doesn't tighten in time, inflation expectations
-    can become unanchored, requiring painful disinflation later.
+    A little demand-pull inflation is actually fine - it means the economy is strong.
+    The danger is letting it run too hot. Once people expect high inflation, they act
+    on those expectations (demanding bigger raises, raising prices preemptively), and
+    it becomes self-fulfilling. That's when you need a painful recession to break the cycle.
     """,
     policy_relevance="""
-    Fed response: Raise rates to cool demand, reduce capacity pressures.
-    Fiscal response: Avoid pro-cyclical stimulus when economy is already hot.
-    The "soft landing" challenge: cool demand just enough without recession.
+    The Fed's job: Raise rates to cool things down before expectations get out of hand.
+    The government's job: Don't pour gasoline on the fire with stimulus when things are already hot.
+    The challenge: Cool the economy just enough without causing a recession. That's the "soft landing."
     """,
 )
 
@@ -180,21 +182,21 @@ DEMAND_PULL = CausalChain(
 COST_PUSH = CausalChain(
     name="COST_PUSH",
     description="""
-    Supply-side inflation: External shocks raise input costs, which pass through
-    to consumer prices. Unlike demand-pull, this is stagflationary - inflation
-    rises while output falls.
+    When something disrupts supply - oil shock, shipping crisis, war - it costs more
+    to make things, and those costs get passed on to you. This is cost-push inflation.
 
-    Transmission: Supply Shock -> Input Costs -> PPI -> CPI (with pass-through)
+    The nasty part: Unlike demand-pull, this can happen even when the economy is weak.
+    Higher prices AND less output. Economists call this "stagflation."
 
-    Historical examples:
-    - 1973-74 Oil Embargo
-    - 2021-2022 Supply Chain Crisis
-    - 2022 Energy Spike (Ukraine war)
+    When has this happened?
+    - 1973-74: Arab oil embargo quadrupled oil prices almost overnight
+    - 2021-22: Ships stuck at ports, factories closed, everything in short supply
+    - 2022: Russia invaded Ukraine, energy prices spiked across Europe
     """,
     stages=[
         ChainStage(
-            name="Supply Shock",
-            description="External event disrupts supply (oil, shipping, materials)",
+            name="Something breaks",
+            description="Oil spikes, shipping freezes, a war disrupts trade - something outside our control",
             series=[
                 "DCOILWTICO",      # WTI Crude Oil
                 "DCOILBRENTEU",    # Brent Crude
@@ -205,8 +207,8 @@ COST_PUSH = CausalChain(
             threshold_rising=20.0,  # Oil +20% YoY is a shock
         ),
         ChainStage(
-            name="Input Costs Rise",
-            description="Producer input costs increase across sectors",
+            name="Raw materials get expensive",
+            description="Steel, chemicals, components - everything businesses need to make stuff costs more",
             series=[
                 "PPIITM",          # PPI Intermediate Materials
                 "PCUOMFGOMFG",     # PPI Manufacturing
@@ -216,8 +218,8 @@ COST_PUSH = CausalChain(
             threshold_rising=5.0,
         ),
         ChainStage(
-            name="PPI Increases",
-            description="Producer prices rise as firms face higher costs",
+            name="Businesses raise wholesale prices",
+            description="Manufacturers can't eat the cost forever - they raise prices to retailers",
             series=[
                 "PPIFIS",          # PPI Final Demand
                 "PPIFGS",          # PPI Finished Goods
@@ -227,8 +229,8 @@ COST_PUSH = CausalChain(
             threshold_rising=4.0,
         ),
         ChainStage(
-            name="CPI Pass-Through",
-            description="Firms pass costs to consumers (partial, 3-6mo delay)",
+            name="You see it at the store",
+            description="Retailers pass on some (not all) of the cost increase to consumers, usually 3-6 months later",
             series=[
                 "CPIAUCSL",        # CPI All Items
                 "CUSR0000SAC",     # CPI Commodities
@@ -238,8 +240,8 @@ COST_PUSH = CausalChain(
             threshold_rising=3.0,
         ),
         ChainStage(
-            name="Second-Round Effects",
-            description="If expectations shift, cost shock becomes persistent",
+            name="The danger zone",
+            description="If people start expecting high inflation to stick around, they change their behavior - and it becomes permanent",
             series=[
                 "MICH",            # Michigan Inflation Expectations (1yr)
                 "T5YIFR",          # 5yr 5yr Forward Inflation Expectations
@@ -250,17 +252,22 @@ COST_PUSH = CausalChain(
         ),
     ],
     key_insight="""
-    Cost-push inflation is transitory IF expectations stay anchored. The 1970s error
-    was letting supply shocks feed into expectations. The Fed's credibility prevents
-    one-time price jumps from becoming ongoing inflation.
+    Here's the key question: Is this temporary or permanent?
 
-    Pass-through is typically partial (50-70%) and delayed (3-6 months).
-    Goods prices are more affected than services.
+    If people believe it's a one-time shock (oil will come back down, supply chains
+    will unclog), they don't change their behavior much. Inflation spikes and fades.
+
+    But if people think "this is the new normal," they demand higher wages, businesses
+    raise prices preemptively, and it feeds on itself. That's what happened in the 1970s.
+
+    The difference? Whether people trust the Fed to bring it back under control.
     """,
     policy_relevance="""
-    Fed dilemma: Tightening hurts output when economy is already hit by supply shock.
-    The "look-through" strategy works IF expectations stay anchored.
-    If expectations rise, Fed must act despite output costs (Volcker 1979).
+    The Fed's dilemma: If they raise rates during a supply shock, they're slowing an
+    economy that's already hurting. But if they don't, and expectations slip, it gets worse.
+
+    Usually they "look through" temporary shocks and wait. But if expectations start rising,
+    they have to act - even if it means a recession. That's what Volcker did in 1979.
     """,
 )
 
@@ -272,22 +279,22 @@ COST_PUSH = CausalChain(
 SHELTER_INFLATION = CausalChain(
     name="SHELTER_INFLATION",
     description="""
-    Housing costs transmission to CPI Shelter. This is THE key to understanding
-    2023-2025 inflation dynamics. CPI Shelter is a LAGGING indicator because:
+    This is THE most important thing to understand about 2023-2026 inflation.
 
-    1. It measures existing rent contracts, not new leases
-    2. It includes Owner's Equivalent Rent (OER), which is imputed
-    3. It updates slowly as leases roll over
+    The government's rent number is always behind reality - by a year or more. Why?
+    Because they measure what people are actually paying, and most renters are locked
+    into leases signed 6-12 months ago.
 
-    Market rents (Zillow, Apartment List) LEAD CPI Shelter by 12-18 months.
+    So when Zillow shows rents dropping, the official number keeps rising for another
+    year while old expensive leases roll off. It's maddening if you don't know why.
 
-    Current situation (2026): Market rents have cooled, CPI Shelter still elevated
-    but should decline through 2026 as old leases roll off.
+    Right now (2026): Market rents cooled a while ago. The official shelter number is
+    still high but falling. This is why inflation has been slow to come down.
     """,
     stages=[
         ChainStage(
-            name="Interest Rate Shock",
-            description="Fed rate changes alter mortgage affordability",
+            name="The Fed moves",
+            description="When mortgage rates jump, everything downstream changes",
             series=[
                 "FEDFUNDS",        # Fed Funds Rate
                 "MORTGAGE30US",    # 30-Year Mortgage Rate
@@ -298,8 +305,8 @@ SHELTER_INFLATION = CausalChain(
             threshold_falling=4.0,
         ),
         ChainStage(
-            name="Home Buying Surge/Decline",
-            description="Transaction volume responds to rates",
+            name="Home buying slows (or surges)",
+            description="When monthly payments change by hundreds of dollars, people notice",
             series=[
                 "EXHOSLUSM495S",   # Existing Home Sales
                 "HSN1F",           # New Single Family Homes Sold
@@ -308,8 +315,8 @@ SHELTER_INFLATION = CausalChain(
             lag_months=(1, 3),
         ),
         ChainStage(
-            name="Home Prices",
-            description="Case-Shiller and other home price indices react",
+            name="Home prices follow",
+            description="With more or fewer buyers competing, prices adjust over 6-12 months",
             series=[
                 "CSUSHPINSA",      # Case-Shiller US National
                 "MSPUS",           # Median Sales Price
@@ -320,8 +327,8 @@ SHELTER_INFLATION = CausalChain(
             threshold_rising=5.0,  # YoY > 5% is strong appreciation
         ),
         ChainStage(
-            name="Market Rents",
-            description="New lease rents adjust (Zillow ZORI is real-time)",
+            name="New lease rents adjust",
+            description="What landlords charge on NEW leases (Zillow tracks this in real-time)",
             series=[
                 "zillow_zori_national",  # Zillow Observed Rent Index (LEADING)
                 "zillow_rent_yoy",       # Zillow Rent YoY Change
@@ -330,8 +337,8 @@ SHELTER_INFLATION = CausalChain(
             threshold_rising=5.0,
         ),
         ChainStage(
-            name="CPI Shelter",
-            description="CPI rent/OER rises (12-18mo lag from market rents)",
+            name="Official rent numbers catch up (slowly)",
+            description="Takes 12-18 months because most renters are on year-long leases at old prices",
             series=[
                 "CUSR0000SAH1",    # CPI Shelter (headline)
                 "CUSR0000SEHA",    # CPI Rent of Primary Residence
@@ -341,8 +348,8 @@ SHELTER_INFLATION = CausalChain(
             threshold_rising=4.0,  # Above 3% is elevated
         ),
         ChainStage(
-            name="Rate Reversal (if applicable)",
-            description="When rates rise, the chain reverses with same lags",
+            name="Full cycle complete",
+            description="When the official number finally reflects reality, usually 1-2 years later",
             series=[
                 "MORTGAGE30US",    # Mortgage rates
                 "CUSR0000SAH1",    # CPI Shelter (will eventually fall)
@@ -351,20 +358,24 @@ SHELTER_INFLATION = CausalChain(
         ),
     ],
     key_insight="""
-    CPI Shelter is BACKWARD-LOOKING. Market rents (Zillow ZORI) lead by 12+ months.
+    The story of 2021-2026 in one sentence: Rent inflation was baked in when people
+    signed expensive leases in 2021-2022, and it took years to work through the system.
 
-    This explains the 2023-2025 inflation puzzle:
-    - 2021-2022: Low rates -> home buying surge -> home prices spike -> rents rise
-    - 2023-2024: Fed hikes -> market rents cool -> but CPI Shelter stays elevated
-    - 2025-2026: Old high-rent leases finally roll off -> CPI Shelter declines
+    Timeline:
+    - 2021-22: Super low rates -> buying frenzy -> home prices spike 40% -> rents follow
+    - 2023-24: Fed hikes -> market rents cool (Zillow shows it) -> but official CPI stuck
+    - 2025-26: Old leases finally roll off -> official shelter CPI comes down
 
-    Shelter is 1/3 of CPI. This lag is why disinflation took so long despite
-    Fed's aggressive hiking cycle.
+    Shelter is 1/3 of the whole CPI. This lag is why "inflation is falling" took so long
+    even though the Fed started hiking in 2022.
     """,
     policy_relevance="""
-    Fed challenge: They know shelter is lagged, but can't ignore 1/3 of CPI.
-    The "supercore" focus (services ex-housing) helps isolate demand-driven inflation.
-    Rent futures or real-time rent indices could improve policy decisions.
+    The Fed knows shelter is lagged. But they can't ignore 1/3 of the CPI.
+
+    Their workaround: "Supercore" inflation (services minus housing). This tells them
+    what's happening with demand-driven inflation without the shelter noise.
+
+    For you: If you want to know where rent inflation is GOING, look at Zillow, not the CPI.
     """,
 )
 
@@ -376,23 +387,22 @@ SHELTER_INFLATION = CausalChain(
 WAGE_PRICE_SPIRAL = CausalChain(
     name="WAGE_PRICE_SPIRAL",
     description="""
-    The feared feedback loop: wages and prices chase each other upward.
+    The nightmare scenario: prices go up, so workers demand raises, so businesses
+    raise prices to cover wages, so workers demand more raises... and it never stops.
 
-    Key condition: Only happens if inflation EXPECTATIONS become unanchored.
-    If workers believe prices will keep rising, they demand higher wages.
-    If firms believe costs will keep rising, they raise prices preemptively.
+    BUT HERE'S THE KEY: This only happens if people EXPECT it to continue.
+    If everyone thinks "inflation will come back down," they don't panic. They accept
+    one-time wage bumps and wait. The spiral never starts.
 
-    Historical examples:
-    - 1970s stagflation (expectations unanchored after oil shocks)
-    - NOT 2021-2023 (expectations remained anchored despite high inflation)
-
-    The 2021-2023 period is notable: despite high inflation, expectations stayed
-    anchored around 2-3%, preventing a true spiral. This is the Fed's credibility.
+    That's what happened in 2021-2023: inflation hit 9%, but people still expected
+    it to fall back to 2-3%. So wages rose once to catch up, then stabilized.
+    No spiral. The 1970s were different - expectations got unmoored and it took
+    Volcker's brutal recession to break the cycle.
     """,
     stages=[
         ChainStage(
-            name="Tight Labor Market",
-            description="Low unemployment gives workers bargaining power",
+            name="Workers have leverage",
+            description="Unemployment is low, jobs are plentiful, people quit for better offers",
             series=[
                 "UNRATE",          # Unemployment Rate
                 "JTSJOL",          # Job Openings
@@ -403,8 +413,8 @@ WAGE_PRICE_SPIRAL = CausalChain(
             threshold_rising=0.0,  # UNRATE < 4% is tight
         ),
         ChainStage(
-            name="Wage Growth Exceeds Productivity",
-            description="Nominal wages rise faster than output per worker",
+            name="Wages outpace productivity",
+            description="If wages rise 5% but each worker only produces 1% more, that's 4% added cost",
             series=[
                 "CES0500000003",   # Avg Hourly Earnings
                 "ECIWAG",          # ECI Wages
@@ -414,8 +424,8 @@ WAGE_PRICE_SPIRAL = CausalChain(
             threshold_rising=4.0,  # Wages > 4% with ~1% productivity = trouble
         ),
         ChainStage(
-            name="Unit Labor Costs Rise",
-            description="Cost per unit of output increases",
+            name="Making stuff costs more",
+            description="Businesses pay more for the same output - their margins shrink",
             series=[
                 "ULCNFB",          # Unit Labor Cost (Nonfarm Business)
             ],
@@ -423,8 +433,8 @@ WAGE_PRICE_SPIRAL = CausalChain(
             threshold_rising=3.0,
         ),
         ChainStage(
-            name="Firms Raise Prices",
-            description="Firms pass labor costs to consumers",
+            name="Businesses raise prices",
+            description="To protect margins, businesses raise prices - especially in services where labor is the main cost",
             series=[
                 "CUSR0000SAS",     # CPI Services (labor-intensive)
                 "CUSR0000SASLE",   # CPI Services Less Energy
@@ -434,8 +444,8 @@ WAGE_PRICE_SPIRAL = CausalChain(
             threshold_rising=3.5,
         ),
         ChainStage(
-            name="Expectations Shift (KEY TEST)",
-            description="If workers expect higher future inflation, they demand more",
+            name="THE CRITICAL QUESTION: Do expectations shift?",
+            description="If people think 'this is temporary,' it ends here. If they think 'inflation is the new normal,' it spirals.",
             series=[
                 "MICH",            # Michigan 1yr Expectations
                 "T5YIFR",          # 5yr 5yr Forward
@@ -445,8 +455,8 @@ WAGE_PRICE_SPIRAL = CausalChain(
             threshold_rising=3.5,  # Expectations above 3% signals de-anchoring
         ),
         ChainStage(
-            name="Spiral Continues (or Not)",
-            description="If expectations anchored, spiral breaks. If not, repeat.",
+            name="Spiral or stop?",
+            description="With anchored expectations: one-time catch-up, then back to normal. Unanchored: round two of demands, and we're stuck.",
             series=[
                 "CES0500000003",   # Wage growth (does it accelerate?)
                 "PCEPILFE",        # Core inflation (does it persist?)
@@ -455,18 +465,22 @@ WAGE_PRICE_SPIRAL = CausalChain(
         ),
     ],
     key_insight="""
-    The wage-price spiral is NOT automatic. It requires EXPECTATIONS to de-anchor.
+    The spiral is NOT automatic. It requires people to lose faith that inflation will
+    come back down.
 
-    2021-2023 showed this: despite 9% inflation, long-run expectations (5yr 5yr)
-    stayed near 2%. Workers got one-time wage bumps, not accelerating demands.
+    2021-2023 proved this: 9% inflation, but the 5-year expectation stayed near 2%.
+    People trusted the Fed would fix it. So workers got catch-up raises and stopped there.
+    No accelerating demands, no spiral.
 
-    This is the value of Fed credibility built over 40 years of inflation targeting.
-    The 1970s Fed had no such credibility after abandoning the gold standard.
+    That trust took 40 years to build. The 1970s Fed didn't have it.
     """,
     policy_relevance="""
-    Fed must maintain credibility above all. "Whatever it takes" to prevent de-anchoring.
-    Pre-emptive tightening is preferable to post-facto crisis response.
-    Communication and forward guidance are as important as rate moves.
+    The Fed's real job isn't just setting rates - it's maintaining credibility.
+    If people believe the Fed will do "whatever it takes," inflation expectations
+    stay anchored even when prices spike.
+
+    That's why they talk so much about being "data-dependent" and "committed to 2%."
+    The words matter as much as the rate hikes.
     """,
 )
 
@@ -579,101 +593,109 @@ def interpret_demand_pull(position: ChainPosition, data: dict) -> str:
     """Interpret demand-pull inflation position."""
     if position.stage_status == ChainStatus.NOT_TRIGGERED:
         return """
-        Demand-pull inflation is NOT currently active.
+        No signs of demand-driven inflation right now.
 
-        Evidence: Capacity utilization is below tight levels, GDP growth is moderate,
-        and there are no signs of demand overheating. This is consistent with a
-        balanced economy operating near potential without excess demand pressure.
+        The economy isn't overheating. Factories have spare capacity, there's no
+        spending frenzy, and businesses don't have unusual pricing power. This is
+        what a balanced economy looks like.
         """
 
-    if position.current_stage == "Strong Demand":
+    if position.current_stage == "Spending takes off":
         return f"""
-        EARLY STAGE: Strong demand building.
+        Demand is heating up.
 
         {chr(10).join('- ' + e for e in position.evidence)}
 
-        What to watch: Capacity utilization (TCU), job openings vs unemployed (JTSJOL/UNEMPLOY).
-        If capacity tightens, firms will gain pricing power in 1-3 months.
+        What happens next: If this continues, factories will start running at capacity
+        and employers will struggle to find workers. That's when businesses can start
+        raising prices without losing customers. Watch for that in 1-3 months.
         """
 
-    if position.current_stage == "Core Services Inflation":
+    if position.current_stage == "Services get expensive":
         if position.stage_status == ChainStatus.REVERSING:
-            return f"""
-            LATE STAGE: Demand-pull inflation is cooling.
+            return """
+            Good news: demand-driven inflation is cooling off.
 
-            Core services inflation has peaked and is decelerating. This suggests:
-            1. Fed tightening is working
-            2. Labor market is rebalancing (quits falling, wage growth moderating)
-            3. Unit labor cost pressures easing
+            Services inflation has peaked and is coming down. This means:
+            - The Fed's rate hikes are working
+            - The job market is rebalancing (fewer quits, slower wage growth)
+            - It's costing less to produce each unit of output
 
-            Expected: Continued disinflation as wage-price dynamics normalize.
+            If this continues, we should see inflation keep falling.
             """
         else:
             return f"""
-            PEAK STAGE: Demand-pull inflation fully manifested in services.
+            Demand-pull inflation has worked through the whole system.
 
             {chr(10).join('- ' + e for e in position.evidence)}
 
-            Policy implication: Fed must maintain restrictive stance until services
-            inflation convincingly returns to target. This typically requires
-            labor market softening (higher unemployment, fewer job openings).
+            Services are labor-heavy, so this is where wage pressures show up last.
+            The Fed will keep rates high until this comes down convincingly.
+            That usually requires the job market to cool off more.
             """
 
-    return f"""
-    Demand-pull inflation in stage: {position.current_stage}
-    Status: {position.stage_status.value}
+    if position.estimated_lag:
+        return f"""
+        We're in the "{position.current_stage}" stage of demand-pull inflation.
 
-    {chr(10).join('- ' + e for e in position.evidence)}
+        {chr(10).join('- ' + e for e in position.evidence)}
 
-    Next expected: {position.next_expected or 'Terminal stage'}
-    Typical lag: {position.estimated_lag[0]}-{position.estimated_lag[1]} months
-    """ if position.estimated_lag else ""
+        What's coming next: "{position.next_expected or 'End of the chain'}"
+        Expected timing: {position.estimated_lag[0]}-{position.estimated_lag[1]} months from now
+        """
+    return ""
 
 
 def interpret_cost_push(position: ChainPosition, data: dict) -> str:
     """Interpret cost-push inflation position."""
     if position.stage_status == ChainStatus.NOT_TRIGGERED:
         return """
-        No active cost-push inflation.
+        No supply shocks driving prices up right now.
 
-        Supply chains are stable, commodity prices are not spiking, and input costs
-        are contained. This is favorable for disinflation as there are no external
-        cost pressures to pass through.
+        Oil prices are stable, supply chains are working, raw materials aren't spiking.
+        That's good news - there's no outside force pushing prices higher. Makes it
+        easier for inflation to come down.
         """
 
-    if "Second-Round Effects" in str(position.current_stage):
+    if "danger zone" in str(position.current_stage).lower():
         return f"""
-        CRITICAL JUNCTURE: Second-round effects being tested.
+        This is the critical moment.
 
         {chr(10).join('- ' + e for e in position.evidence)}
 
-        The key question: Are inflation expectations de-anchoring?
+        The big question: Do people think this is temporary, or the new normal?
 
-        If 5yr5yr forward (T5YIFR) stays near 2%: Supply shock is transitory.
-        If expectations rise above 3%: Risk of persistent inflation.
+        If long-term expectations (the 5-year forward rate) stay near 2%: The shock
+        will pass. People will grumble about prices but not change their behavior.
 
-        This is where the 1970s went wrong - supply shocks became embedded expectations.
+        If expectations rise above 3%: Danger. People start demanding raises to keep
+        up, businesses raise prices in anticipation, and it feeds on itself. That's
+        what happened in the 1970s - a temporary oil shock became permanent inflation.
+
+        Watch the expectation surveys closely.
         """
 
     if position.stage_status == ChainStatus.REVERSING:
-        return f"""
-        Cost-push inflation is REVERSING.
+        return """
+        The cost shock is fading.
 
-        Input costs are falling back, reducing pass-through pressure. Watch for:
-        - PPI falling faster than CPI (retailers absorbing cost cuts)
-        - Goods prices deflating
-        - Energy prices stabilizing
+        Input costs are falling. This is showing up as:
+        - Wholesale prices (PPI) dropping faster than retail prices (CPI)
+        - Goods getting cheaper
+        - Energy stabilizing
 
-        This typically supports faster disinflation in headline vs core.
+        When this happens, headline inflation falls faster than core inflation
+        because energy and goods are such a big part of the headline number.
         """
 
     return f"""
-    Cost-push inflation in stage: {position.current_stage}
-    Status: {position.stage_status.value}
+    We're seeing cost-push inflation at the "{position.current_stage}" stage.
 
     {chr(10).join('- ' + e for e in position.evidence)}
 
-    Key watch: Are expectations staying anchored? Check T5YIFR and Michigan 5yr.
+    The key thing to watch: Are people's inflation expectations staying put?
+    If the 5-year expectation is still near 2%, this will pass. If it's rising,
+    we could have a bigger problem.
     """
 
 
@@ -687,10 +709,10 @@ def interpret_shelter(position: ChainPosition, data: dict) -> str:
 
     if position.stage_status == ChainStatus.NOT_TRIGGERED:
         return """
-        Shelter inflation dynamics are stable.
+        Nothing unusual happening with housing costs right now.
 
-        No significant rate shock or housing market dislocation is occurring.
-        CPI Shelter is evolving normally based on existing lease rollovers.
+        The official rent numbers are moving at a normal pace. No big shocks from
+        mortgage rates or housing market swings.
         """
 
     # The critical case: market rents leading CPI shelter down
@@ -698,51 +720,49 @@ def interpret_shelter(position: ChainPosition, data: dict) -> str:
         if market_rent_yoy < cpi_shelter_yoy:
             gap = cpi_shelter_yoy - market_rent_yoy
             return f"""
-            KEY INSIGHT: Market rents are LEADING CPI Shelter down.
+            Here's the good news most people miss:
 
-            Current readings:
-            - CPI Shelter: {cpi_shelter_yoy:.1f}% YoY (lagging indicator)
-            - Market Rents (Zillow): {market_rent_yoy:.1f}% YoY (leading indicator)
-            - Gap: {gap:.1f} percentage points
+            The official rent number ({cpi_shelter_yoy:.1f}%) looks scary, but it's
+            looking in the rear-view mirror. Market rents (what new tenants actually
+            pay) are only up {market_rent_yoy:.1f}%.
 
-            What this means:
-            CPI Shelter measures existing leases, which were signed 6-18 months ago
-            at higher rents. As these leases roll over, CPI Shelter will decline.
+            That's a {gap:.1f} percentage point gap that will close over time.
 
-            Estimated timing: Based on typical lease lengths (12mo) and BLS methodology,
-            CPI Shelter should decline toward market rents over the next 6-12 months.
+            Why the gap? The government measures what ALL renters pay, not just new
+            leases. Most people are locked into year-long leases signed when rents
+            were higher. As those leases renew at lower rates, the official number
+            will come down.
 
-            Implication for headline inflation: Shelter is ~33% of CPI. As it normalizes,
-            headline and core CPI should continue falling even if other components are stable.
+            Timeline: Expect official shelter inflation to fall toward market rents
+            over the next 6-12 months. Since housing is a third of the whole CPI,
+            this will pull overall inflation down with it.
             """
 
-    if position.current_stage == "CPI Shelter":
-        return f"""
-        CPI Shelter is the active stage.
+    if position.current_stage == "Official rent numbers catch up (slowly)":
+        base_msg = f"""
+        The official shelter number is finally catching up to reality.
 
         {chr(10).join('- ' + e for e in position.evidence)}
 
-        Remember: This is a LAGGING indicator. To forecast shelter inflation:
-        1. Look at market rents (Zillow ZORI, Apartment List)
-        2. Look at new lease CPI (if available)
-        3. Apply 12-18 month lag
-
-        Current mortgage rates: {mortgage_rate:.1f}% (affects future home prices/rents)
-        """ if mortgage_rate else f"""
-        CPI Shelter is the active stage.
-
-        {chr(10).join('- ' + e for e in position.evidence)}
-
-        Check Zillow ZORI for leading indicator of where CPI Shelter is heading.
+        Remember: This number is always 12-18 months behind what's happening in
+        the market. To see where it's heading, look at Zillow or Apartment List.
         """
+        if mortgage_rate:
+            base_msg += f"""
+
+        Current mortgage rates: {mortgage_rate:.1f}%. That affects how many people
+        buy vs rent, which eventually affects rents themselves.
+        """
+        return base_msg
 
     return f"""
-    Shelter chain in stage: {position.current_stage}
+    We're at the "{position.current_stage}" stage of the housing cycle.
 
     {chr(10).join('- ' + e for e in position.evidence)}
 
-    The 12-18 month lag between market rents and CPI Shelter is crucial for
-    understanding inflation dynamics.
+    The key thing to remember: Official rent inflation runs 12-18 months behind
+    market reality. If you want to know where it's going, look at Zillow ZORI -
+    that shows what NEW leases are actually being signed for.
     """
 
 
@@ -755,62 +775,77 @@ def interpret_wage_spiral(position: ChainPosition, data: dict) -> str:
     wage_growth = data.get("CES0500000003", {}).get("yoy_change")
 
     if position.stage_status == ChainStatus.NOT_TRIGGERED:
-        spiral_status = "NOT occurring"
         if t5yifr and t5yifr < 2.5:
             return f"""
-            Wage-price spiral: {spiral_status}
+            No wage-price spiral. Here's why:
 
-            EXPECTATIONS ARE ANCHORED.
+            People still expect inflation to come back down. The 5-year forward
+            expectation is at {t5yifr:.2f}% - basically where the Fed wants it.
 
-            5yr 5yr Forward Inflation: {t5yifr:.2f}% (well-anchored near 2%)
+            This is the crucial test. Even if inflation spikes temporarily, as long
+            as people believe it's temporary, they don't demand perpetually higher
+            wages, and businesses don't raise prices preemptively. The spiral
+            never starts.
 
-            This is the KEY test for a wage-price spiral. Despite elevated inflation,
-            markets and consumers expect the Fed to bring inflation back to target.
+            Workers got catch-up raises to make up for lost purchasing power, but
+            they're not demanding more every year. That's not a spiral - it's
+            a one-time adjustment.
+            """
+        return """
+            No signs of a wage-price spiral.
 
-            As long as expectations stay anchored, wage gains are one-time catch-ups,
-            not the beginning of a self-reinforcing spiral.
+            Wages and prices are moving normally. No self-reinforcing loop where
+            higher prices lead to higher wages lead to higher prices.
             """
 
-    if "Expectations Shift" in str(position.current_stage):
+    if "CRITICAL" in str(position.current_stage).upper() or "expectations" in str(position.current_stage).lower():
         if t5yifr and t5yifr > 3.0:
             return f"""
-            WARNING: Inflation expectations showing stress.
+            Watch out - expectations are getting wobbly.
 
-            5yr 5yr Forward: {t5yifr:.2f}% (above comfort zone)
-            1yr Michigan: {mich_1yr:.1f}% (if available)
+            The 5-year forward rate is at {t5yifr:.2f}%, which is above the comfort zone.
+            {"The 1-year expectation is at " + f"{mich_1yr:.1f}%." if mich_1yr else ""}
 
-            This is the critical juncture. If expectations de-anchor:
-            - Workers will demand higher wages expecting future inflation
-            - Firms will raise prices expecting future cost increases
-            - A true spiral can develop
+            This is the danger point. If people stop believing inflation will come
+            back down:
+            - Workers start demanding bigger raises to "stay ahead"
+            - Businesses raise prices now, expecting costs to rise later
+            - It becomes a self-fulfilling prophecy
 
-            Fed response required: Aggressive communication and/or additional tightening
-            to re-anchor expectations before they become self-fulfilling.
+            The Fed needs to get on top of this fast - either with tough talk or
+            more rate hikes. The 1970s spiral only broke when Volcker convinced
+            people he'd do whatever it took.
             """
         else:
-            return f"""
-            Wage-price dynamics active, but expectations ANCHORED.
-
-            5yr 5yr Forward: {t5yifr:.2f}% (still near target)
-            Wage Growth: {wage_growth:.1f}% (elevated but not accelerating)
-
-            This is NOT a 1970s-style spiral because:
-            1. Long-run expectations remain anchored
-            2. Fed has credibility from decades of inflation targeting
-            3. Wage gains appear to be one-time catch-ups, not persistent acceleration
-
-            The 2021-2023 period demonstrated this - high inflation without a spiral
-            because expectations stayed anchored.
+            msg = """
+            There's some wage-price activity, but no spiral forming.
             """
+            if t5yifr:
+                msg += f"""
+
+            The key number: Long-term inflation expectations at {t5yifr:.2f}%.
+            Still close to 2%. That means people trust the Fed to fix this.
+            """
+            if wage_growth:
+                msg += f"""
+
+            Wages are up {wage_growth:.1f}%, which is high, but it's not accelerating.
+            These look like catch-up raises, not the start of an endless cycle.
+            """
+            msg += """
+
+            This is what 2021-2023 looked like: 9% inflation but no spiral, because
+            expectations stayed put. The Fed's 40 years of credibility paid off.
+            """
+            return msg
 
     return f"""
-    Wage-price dynamics in stage: {position.current_stage}
-    Status: {position.stage_status.value}
+    Looking at wage-price dynamics: we're at "{position.current_stage}"
 
     {chr(10).join('- ' + e for e in position.evidence)}
 
-    Key test: Are inflation expectations (T5YIFR) staying near 2%?
-    If yes: No spiral. If rising above 3%: Spiral risk.
+    The one number that matters most: Are long-term expectations near 2%?
+    If yes, this won't spiral. If they're rising above 3%, we could have a problem.
     """
 
 
@@ -868,80 +903,122 @@ def get_current_inflation_narrative(data: dict) -> str:
         interpretation = interpret_inflation_dynamics(chain, position, data)
         interpretations.append((chain.name, interpretation))
 
-    # Build narrative
-    narrative = """
-================================================================================
-INFLATION DYNAMICS ANALYSIS
-================================================================================
-
-"""
-
-    for chain_name, interp in interpretations:
-        narrative += f"""
---- {chain_name} ---
-{interp}
-"""
-
-    # Add synthesis
-    narrative += """
-================================================================================
-SYNTHESIS: Where Are We?
-================================================================================
-
-"""
-
-    # Check key indicators for synthesis
+    # Check key indicators for the summary
     core_pce = data.get("PCEPILFE", {}).get("yoy_change")
     cpi_shelter = data.get("CUSR0000SAH1", {}).get("yoy_change")
     cpi_goods = data.get("CUSR0000SAC", {}).get("yoy_change")
     t5yifr = data.get("T5YIFR", {}).get("value")
 
-    if core_pce is not None:
-        if core_pce < 3.0:
-            narrative += f"""
-Core PCE at {core_pce:.1f}% - approaching target range.
+    # Start with the bottom line - what does this mean for me?
+    narrative = """
+================================================================================
+THE INFLATION PICTURE: Where We Are and What's Coming
+================================================================================
 
 """
-        elif core_pce > 4.0:
-            narrative += f"""
-Core PCE at {core_pce:.1f}% - still elevated, work remains.
+
+    # Lead with the synthesis - the story, not the data
+    if core_pce is not None:
+        if core_pce < 2.5:
+            narrative += f"""BOTTOM LINE: Inflation is basically back to normal.
+
+Core inflation is at {core_pce:.1f}%, close to the Fed's 2% target. The hard part
+is mostly behind us.
+
+"""
+        elif core_pce < 3.0:
+            narrative += f"""BOTTOM LINE: We're almost there.
+
+Core inflation at {core_pce:.1f}% is within striking distance of the 2% target.
+The Fed can see the finish line.
+
+"""
+        elif core_pce < 4.0:
+            narrative += f"""BOTTOM LINE: Progress, but not done yet.
+
+Core inflation at {core_pce:.1f}% has come down a lot, but there's still work to do.
+The Fed will stay cautious until it's clearly below 3%.
 
 """
         else:
-            narrative += f"""
-Core PCE at {core_pce:.1f}% - progress but not yet at target.
+            narrative += f"""BOTTOM LINE: Inflation is still a problem.
+
+At {core_pce:.1f}%, core inflation remains stubbornly high. The Fed will keep rates
+elevated until this comes down convincingly.
 
 """
 
+    # Explain the story of what's happening
     if cpi_shelter and cpi_goods:
         if cpi_goods < 0 and cpi_shelter > 3:
             narrative += f"""
-KEY DYNAMIC: Goods deflation ({cpi_goods:.1f}%) offset by sticky shelter ({cpi_shelter:.1f}%).
+WHAT'S HAPPENING: It's all about housing vs everything else.
 
-This is the mechanical story of 2024-2026 disinflation:
-- Goods prices fell as supply chains normalized and demand cooled
-- Shelter remains elevated due to 12-18 month lag from prior rent increases
-- Services ex-shelter (the "supercore") is the true test of underlying inflation
+Two forces are pulling in opposite directions:
+- Stuff you buy (goods): prices FALLING at {abs(cpi_goods):.1f}%
+- Housing costs: still UP {cpi_shelter:.1f}%
 
-As shelter catches up to market rents, core inflation should continue declining.
+Why is housing so stubborn? The official rent number is backward-looking.
+It measures what ALL renters pay, including those on old leases. Market rents
+for NEW leases have already cooled, but it takes 12-18 months for that to show
+up in the official numbers as old leases roll over.
+
+This is actually good news in disguise: that high shelter number is going to
+come down over the next year as reality catches up.
 """
 
+    # The confidence check
     if t5yifr:
         if t5yifr < 2.5:
             narrative += f"""
-ANCHORED EXPECTATIONS: 5yr5yr forward at {t5yifr:.2f}%.
 
-This is the most important single number. Expectations near 2% mean:
-- Wage-price spiral risk is minimal
-- One-time price shocks don't become persistent inflation
-- Fed has credibility to achieve soft landing
+THE MOST IMPORTANT NUMBER: {t5yifr:.2f}%
+
+That's what markets expect inflation to be, on average, 5-10 years from now.
+Near 2% means people trust the Fed to keep inflation under control.
+
+Why does this matter so much? As long as people expect low inflation:
+- Workers don't demand ever-bigger raises to "keep up"
+- Businesses don't raise prices preemptively
+- One-time shocks stay one-time instead of becoming permanent
+
+The 1970s spiral happened because this expectation got unmoored. Today? Still anchored.
 """
         elif t5yifr > 3.0:
             narrative += f"""
-WARNING: Expectations elevated at {t5yifr:.2f}%.
 
-This requires close monitoring. If expectations de-anchor, the Fed
-may need to tighten further even if the economy is slowing.
+WATCH THIS NUMBER: {t5yifr:.2f}%
+
+That's where markets expect inflation to be in the long run. At {t5yifr:.2f}%,
+it's starting to drift up from the Fed's 2% target.
+
+If this keeps rising, it could become a self-fulfilling prophecy - people
+expect inflation, so they act in ways that cause it. The Fed will be watching
+this closely.
+"""
+
+    # Add the detailed analysis for those who want to dig deeper
+    narrative += """
+
+================================================================================
+DETAILED ANALYSIS: The Four Drivers of Inflation
+================================================================================
+
+"""
+
+    # Rename the chains for readability
+    friendly_names = {
+        "DEMAND_PULL": "Demand-Pull (too much spending)",
+        "COST_PUSH": "Cost-Push (supply shocks)",
+        "SHELTER_INFLATION": "Housing Costs",
+        "WAGE_PRICE_SPIRAL": "Wage-Price Spiral Risk"
+    }
+
+    for chain_name, interp in interpretations:
+        friendly_name = friendly_names.get(chain_name, chain_name)
+        narrative += f"""
+--- {friendly_name} ---
+{interp}
 """
 
     return narrative

@@ -1,15 +1,33 @@
 """
-Recession Probability and Detection Frameworks.
+Recession Risk Assessment: Are We Headed for a Downturn?
 
-Provides comprehensive recession risk assessment using:
-- Yield curve signals (10Y-2Y, 10Y-3M spreads)
-- Leading economic indicators composite
-- Probabilistic models combining multiple signals
-- Expansion age and historical context
+This module answers the question everyone asks: Is a recession coming?
 
-Key insight: No single indicator reliably predicts recessions.
-The value is in combining multiple signals with different lead times
-and historical accuracy to form a probabilistic assessment.
+The honest answer: Nobody knows for sure. But we can look at signals that have
+historically warned of trouble - and combine them to get a probability estimate.
+
+WHAT WE LOOK AT:
+
+1. THE YIELD CURVE (most famous warning sign)
+   When short-term interest rates exceed long-term rates, it's called an "inversion."
+   This has preceded every US recession since 1970 - usually by 12-18 months.
+   It's not perfect (sometimes it gives false alarms), but it has a strong track record.
+
+2. LEADING INDICATORS (things that turn before the economy does)
+   - Jobless claims: When layoffs spike, trouble follows
+   - Building permits: Construction slows before recessions
+   - Consumer confidence: When people get scared, they stop spending
+   - Factory orders: Businesses pull back before downturns
+
+3. A COMBINED PROBABILITY
+   We weight these signals to estimate: What are the odds of recession
+   in the next 6 months? 12 months?
+
+4. HOW LONG HAS IT BEEN?
+   Expansions don't "die of old age," but longer ones often build up imbalances.
+
+THE BOTTOM LINE: We synthesize all this into a simple assessment -
+green (low risk), yellow (elevated risk), or red (high risk).
 """
 
 from dataclasses import dataclass
@@ -251,29 +269,36 @@ def analyze_yield_curve(data: dict) -> YieldCurveSignal:
                 break
         signal.days_inverted = days_inverted if days_inverted > 0 else None
 
-    # Build interpretation
+    # Build interpretation - explain what this actually means to people
     if signal.status == "inverted":
+        spread_10y3m = signal.spread_10y_3m if signal.spread_10y_3m is not None else 0
         signal.interpretation = (
-            f"YIELD CURVE INVERTED. "
-            f"10Y-3M spread: {signal.spread_10y_3m:.2f}% | 10Y-2Y spread: {signal.spread_10y_2y:.2f}%. "
-            f"Historical pattern: inversions precede recessions by {YieldCurveSignal.INVERSION_LEAD_TIME}. "
+            f"The yield curve is inverted - a classic recession warning sign. "
+            f"What this means: Investors are accepting LOWER returns on 10-year bonds than "
+            f"3-month bonds. That's backwards from normal, and it suggests investors expect "
+            f"the economy to weaken and the Fed to cut rates. "
         )
         if signal.days_inverted:
-            signal.interpretation += f"Currently inverted for ~{signal.days_inverted} trading days. "
+            signal.interpretation += f"It's been inverted for about {signal.days_inverted} trading days. "
         signal.interpretation += (
-            f"Accuracy: ~{YieldCurveSignal.HISTORICAL_ACCURACY:.0%} of inversions since 1970 preceded recessions."
+            f"The track record: Inversions have preceded every US recession since 1970, "
+            f"usually by 12-18 months. Not a guarantee of recession (about 15% are false alarms), "
+            f"but definitely worth taking seriously."
         )
     elif signal.status == "flat":
+        spread_10y3m = signal.spread_10y_3m if signal.spread_10y_3m is not None else 0
         signal.interpretation = (
-            f"Yield curve is flat (10Y-3M: {signal.spread_10y_3m:.2f}%). "
-            f"This often precedes inversion. Warrants close monitoring. "
-            f"Not yet signaling recession but risk is elevated."
+            f"The yield curve is nearly flat - a cautionary sign. The gap between long-term "
+            f"and short-term rates ({spread_10y3m:.2f}%) is small. This often happens before "
+            f"an inversion. Think of it as a yellow light: not yet a recession signal, but "
+            f"the warning system is warming up. Worth watching closely."
         )
     else:
+        spread_10y3m = signal.spread_10y_3m if signal.spread_10y_3m is not None else 0
         signal.interpretation = (
-            f"Yield curve is {signal.status} (10Y-3M: {signal.spread_10y_3m:.2f}%). "
-            f"No recession signal from yield curve. "
-            f"Normal/steep curves historically associated with economic expansion."
+            f"The yield curve looks healthy. Long-term rates are higher than short-term rates "
+            f"(spread: {spread_10y3m:.2f}%), which is normal. Investors expect the economy to "
+            f"keep growing. No recession warning from this indicator."
         )
 
     return signal
@@ -310,32 +335,31 @@ def analyze_leading_indicators(data: dict) -> LeadingIndicatorsComposite:
         icsa.data_available = True
         icsa.trend = _calculate_trend(icsa_values, periods=4)
 
-        # Score based on level and trend
-        # Historical context: <250K = strong, 250-350K = normal, >350K = weak, >500K = recession
+        # Score based on level and trend - with human-readable explanations
         if icsa_value < 225000:
             icsa.score = 2
             icsa.traffic_light = "green"
-            icsa.interpretation = f"Very low claims ({icsa_value/1000:.0f}K) - strong labor market"
+            icsa.interpretation = f"Only {icsa_value/1000:.0f}K people filed for unemployment last week - very few layoffs happening"
         elif icsa_value < 300000:
             icsa.score = 1
             icsa.traffic_light = "green"
-            icsa.interpretation = f"Low claims ({icsa_value/1000:.0f}K) - healthy labor market"
+            icsa.interpretation = f"{icsa_value/1000:.0f}K weekly jobless claims is low - employers are holding onto workers"
         elif icsa_value < 400000:
             icsa.score = 0
             icsa.traffic_light = "yellow"
-            icsa.interpretation = f"Moderate claims ({icsa_value/1000:.0f}K) - neutral signal"
+            icsa.interpretation = f"{icsa_value/1000:.0f}K claims per week - neither good nor bad, but worth watching"
         else:
             icsa.score = -2 if icsa_value > 500000 else -1
             icsa.traffic_light = "red"
-            icsa.interpretation = f"Elevated claims ({icsa_value/1000:.0f}K) - labor market weakening"
+            icsa.interpretation = f"{icsa_value/1000:.0f}K claims per week is elevated - layoffs are picking up"
 
         # Adjust for trend
         if icsa.trend == "rising" and icsa.score > -2:
             icsa.score -= 1
-            icsa.interpretation += " (trending higher)"
+            icsa.interpretation += " and rising - concerning trend"
         elif icsa.trend == "falling" and icsa.score < 2:
             icsa.score += 1
-            icsa.interpretation += " (trending lower)"
+            icsa.interpretation += " and falling - improving"
     else:
         icsa.data_available = False
 
@@ -355,26 +379,26 @@ def analyze_leading_indicators(data: dict) -> LeadingIndicatorsComposite:
         permit.data_available = True
         permit.trend = _calculate_trend(permit_values)
 
-        # Historical context: typically 1.2-1.6M annualized is healthy
+        # Explain what building permits mean for the economy
         if permit_value > 1500:
             permit.score = 2
             permit.traffic_light = "green"
-            permit.interpretation = f"Strong permits ({permit_value/1000:.1f}M) - housing demand robust"
+            permit.interpretation = f"Builders are pulling {permit_value/1000:.1f}M permits/year - strong confidence in future demand"
         elif permit_value > 1200:
             permit.score = 1
             permit.traffic_light = "green"
-            permit.interpretation = f"Healthy permits ({permit_value/1000:.1f}M) - stable housing"
+            permit.interpretation = f"{permit_value/1000:.1f}M building permits/year is healthy - construction outlook stable"
         elif permit_value > 900:
             permit.score = 0
             permit.traffic_light = "yellow"
-            permit.interpretation = f"Moderate permits ({permit_value/1000:.1f}M) - housing cooling"
+            permit.interpretation = f"Building permits at {permit_value/1000:.1f}M/year - housing is slowing but not collapsing"
         else:
             permit.score = -2 if permit_value < 700 else -1
             permit.traffic_light = "red"
-            permit.interpretation = f"Weak permits ({permit_value/1000:.1f}M) - housing contraction"
+            permit.interpretation = f"Only {permit_value/1000:.1f}M permits/year - builders are pulling back sharply"
 
         if permit.trend == "falling":
-            permit.interpretation += " (declining trend)"
+            permit.interpretation += " and declining - red flag for housing"
     else:
         permit.data_available = False
 
@@ -394,23 +418,23 @@ def analyze_leading_indicators(data: dict) -> LeadingIndicatorsComposite:
         umcsent.data_available = True
         umcsent.trend = _calculate_trend(umcsent_values)
 
-        # Historical context: avg ~85, >90 = optimistic, <70 = pessimistic
+        # Explain what consumer sentiment means
         if umcsent_value > 95:
             umcsent.score = 2
             umcsent.traffic_light = "green"
-            umcsent.interpretation = f"Very high sentiment ({umcsent_value:.1f}) - consumers optimistic"
+            umcsent.interpretation = f"Consumers feel great (index: {umcsent_value:.0f}) - they're spending confidently"
         elif umcsent_value > 80:
             umcsent.score = 1
             umcsent.traffic_light = "green"
-            umcsent.interpretation = f"Healthy sentiment ({umcsent_value:.1f}) - consumers confident"
+            umcsent.interpretation = f"Consumer confidence is solid ({umcsent_value:.0f}) - people feel OK about the economy"
         elif umcsent_value > 65:
             umcsent.score = 0
             umcsent.traffic_light = "yellow"
-            umcsent.interpretation = f"Below-average sentiment ({umcsent_value:.1f}) - caution"
+            umcsent.interpretation = f"Consumer confidence is below average ({umcsent_value:.0f}) - people are cautious"
         else:
             umcsent.score = -2 if umcsent_value < 55 else -1
             umcsent.traffic_light = "red"
-            umcsent.interpretation = f"Weak sentiment ({umcsent_value:.1f}) - consumers pessimistic"
+            umcsent.interpretation = f"Consumer confidence is low ({umcsent_value:.0f}) - people are worried and likely cutting back"
     else:
         umcsent.data_available = False
 
@@ -435,19 +459,19 @@ def analyze_leading_indicators(data: dict) -> LeadingIndicatorsComposite:
         neworder.data_available = True
         neworder.trend = _calculate_trend(neworder_values)
 
-        # Score based on trend (level varies too much to use directly)
+        # Explain what factory orders tell us
         if neworder.trend == "rising":
             neworder.score = 1
             neworder.traffic_light = "green"
-            neworder.interpretation = f"Rising orders - manufacturing demand increasing"
+            neworder.interpretation = f"Factory orders are rising - businesses are buying equipment and goods"
         elif neworder.trend == "stable":
             neworder.score = 0
             neworder.traffic_light = "yellow"
-            neworder.interpretation = f"Flat orders - manufacturing stable"
+            neworder.interpretation = f"Factory orders are flat - manufacturing holding steady"
         else:
             neworder.score = -1
             neworder.traffic_light = "red"
-            neworder.interpretation = f"Falling orders - manufacturing weakening"
+            neworder.interpretation = f"Factory orders are falling - businesses are pulling back on spending"
     else:
         neworder.data_available = False
 
@@ -468,23 +492,23 @@ def analyze_leading_indicators(data: dict) -> LeadingIndicatorsComposite:
         hours.data_available = True
         hours.trend = _calculate_trend(hours_values)
 
-        # Historical context: typically 40-42 hours, <40 = weak
+        # Why work hours matter: companies cut hours before they cut jobs
         if hours_value > 41:
             hours.score = 2
             hours.traffic_light = "green"
-            hours.interpretation = f"Strong hours ({hours_value:.1f}) - robust demand for labor"
+            hours.interpretation = f"Factory workers averaging {hours_value:.1f} hours/week - employers need all the labor they can get"
         elif hours_value > 40:
             hours.score = 1
             hours.traffic_light = "green"
-            hours.interpretation = f"Normal hours ({hours_value:.1f}) - stable labor demand"
+            hours.interpretation = f"Work week at {hours_value:.1f} hours - normal, healthy demand for labor"
         elif hours_value > 39:
             hours.score = 0
             hours.traffic_light = "yellow"
-            hours.interpretation = f"Below-average hours ({hours_value:.1f}) - softening demand"
+            hours.interpretation = f"Work week down to {hours_value:.1f} hours - employers may be trimming before layoffs"
         else:
             hours.score = -1
             hours.traffic_light = "red"
-            hours.interpretation = f"Weak hours ({hours_value:.1f}) - employers cutting hours"
+            hours.interpretation = f"Work week at just {hours_value:.1f} hours - employers cutting hours is often a prelude to layoffs"
     else:
         hours.data_available = False
 
@@ -514,27 +538,28 @@ def analyze_leading_indicators(data: dict) -> LeadingIndicatorsComposite:
     else:
         composite.traffic_light = "red"
 
-    # Build interpretation
+    # Build interpretation - clear, synthesized
     available_count = sum(1 for ind in composite.indicators if ind.data_available)
     warning_count = sum(1 for ind in composite.indicators if ind.data_available and ind.score < 0)
+    positive_count = sum(1 for ind in composite.indicators if ind.data_available and ind.score > 0)
 
     if composite.composite_score > 0.5:
         composite.interpretation = (
-            f"Leading indicators broadly positive (score: {composite.composite_score:.2f}). "
-            f"{available_count} indicators tracked, {warning_count} showing weakness. "
-            f"No near-term recession signal from leading indicators."
+            f"Most economic warning lights are green. Of {available_count} indicators we track, "
+            f"{positive_count} look good and only {warning_count} are flashing warnings. "
+            f"No imminent recession signal here."
         )
     elif composite.composite_score > -0.5:
         composite.interpretation = (
-            f"Leading indicators mixed (score: {composite.composite_score:.2f}). "
-            f"{warning_count} of {available_count} indicators showing weakness. "
-            f"Economy slowing but not in imminent recession territory."
+            f"Mixed signals from the economy. {warning_count} of {available_count} indicators are "
+            f"showing some weakness. The economy is slowing, but not collapsing. "
+            f"Think of this as a 'pay attention' signal rather than a 'panic' signal."
         )
     else:
         composite.interpretation = (
-            f"Leading indicators concerning (score: {composite.composite_score:.2f}). "
-            f"{warning_count} of {available_count} indicators deteriorating. "
-            f"Elevated recession risk in coming quarters."
+            f"Warning signs are piling up. {warning_count} of {available_count} indicators are "
+            f"deteriorating. This doesn't guarantee a recession, but historically, this pattern "
+            f"has often preceded downturns. Time to pay close attention."
         )
 
     return composite
@@ -635,31 +660,34 @@ def calculate_recession_probability(
     if polymarket is not None:
         prob.polymarket_prob = polymarket / 100  # Convert from percentage
 
-    # Build interpretation
-    prob.interpretation = (
-        f"12-month recession probability: {prob.probability_12m:.0%} "
-        f"(6-month: {prob.probability_6m:.0%}). "
-        f"Confidence: {prob.confidence}. "
-    )
-
+    # Build interpretation - make it clear what the numbers mean
     if prob.probability_12m > 0.50:
-        prob.interpretation += (
-            "Multiple indicators suggest elevated recession risk. "
-            "Historical accuracy of similar signal combinations: ~70-80%."
+        prob.interpretation = (
+            f"ELEVATED RECESSION RISK. Our model puts the odds of recession at "
+            f"roughly {prob.probability_12m:.0%} over the next year (and about {prob.probability_6m:.0%} "
+            f"in the next 6 months). Multiple warning signs are flashing at once. "
+            f"This doesn't mean recession is certain - but the risk is high enough to take seriously."
         )
     elif prob.probability_12m > 0.25:
-        prob.interpretation += (
-            "Mixed signals warrant monitoring. "
-            "Recession possible but not the base case."
+        prob.interpretation = (
+            f"WATCH CLOSELY. Recession odds are around {prob.probability_12m:.0%} for the next year "
+            f"(about {prob.probability_6m:.0%} in the next 6 months). That's not our base case - "
+            f"the economy will probably be fine - but there are enough warning signs that we "
+            f"shouldn't get complacent. Keep an eye on how these indicators evolve."
         )
     else:
-        prob.interpretation += (
-            "Indicators not signaling imminent recession. "
-            "Economy appears on stable footing."
+        prob.interpretation = (
+            f"LOW RECESSION RISK. Our model puts the odds at just {prob.probability_12m:.0%} "
+            f"for the next year ({prob.probability_6m:.0%} for 6 months). Most indicators look healthy. "
+            f"Of course, surprises happen, but right now the data isn't pointing toward trouble."
         )
 
+    # Add comparison if available
     if prob.polymarket_prob is not None:
-        prob.interpretation += f" Polymarket: {prob.polymarket_prob:.0%} recession odds."
+        prob.interpretation += (
+            f" For context, prediction markets (Polymarket) currently show {prob.polymarket_prob:.0%} "
+            f"recession odds - that's what bettors are putting money on."
+        )
 
     return prob
 
@@ -697,27 +725,29 @@ def calculate_expansion_age() -> ExpansionAge:
     else:
         expansion.traffic_light = "green"
 
-    # Interpretation
-    expansion.interpretation = (
-        f"Current expansion: {expansion.months_since_recession} months "
-        f"({expansion.years_since_recession:.1f} years) since June 2020. "
-        f"This ranks in the {expansion.percentile_vs_history:.0f}th percentile of post-1945 expansions. "
-        f"Historical average: {expansion.historical_average:.0f} months, "
-        f"median: {expansion.historical_median:.0f} months. "
-    )
+    # Interpretation - explain what this means in practical terms
+    years = expansion.years_since_recession
 
     if expansion.percentile_vs_history > 75:
-        expansion.interpretation += (
-            "Expansion is mature by historical standards. "
-            "However, expansions don't die of old age - they end due to shocks or imbalances."
+        expansion.interpretation = (
+            f"This expansion is {years:.1f} years old - longer than {expansion.percentile_vs_history:.0f}% "
+            f"of post-WWII expansions. But here's the important thing: expansions don't 'die of old age.' "
+            f"The longest one ever (2009-2020) ran nearly 11 years until COVID hit. Age alone doesn't "
+            f"predict recession - shocks, policy mistakes, and imbalances do. That said, longer expansions "
+            f"sometimes build up excesses (debt, speculation, overconfidence) that make them vulnerable."
         )
     elif expansion.percentile_vs_history > 50:
-        expansion.interpretation += (
-            "Expansion is middle-aged. Still room for continued growth if no major shocks."
+        expansion.interpretation = (
+            f"The economy has been growing for {years:.1f} years - a middle-aged expansion. "
+            f"That's longer than the typical expansion ({expansion.historical_median:.0f} months / "
+            f"{expansion.historical_median/12:.1f} years), but well short of the longest ones. "
+            f"No particular reason for concern based on age alone."
         )
     else:
-        expansion.interpretation += (
-            "Expansion is relatively young. Historically, most recessions occur later in the cycle."
+        expansion.interpretation = (
+            f"At {years:.1f} years old, this is a relatively young expansion. "
+            f"It's shorter than about half of all post-WWII expansions. Historically, "
+            f"recessions don't usually hit this early in the cycle unless there's a major shock."
         )
 
     return expansion
@@ -768,26 +798,69 @@ def get_recession_dashboard(data: dict) -> dict:
         overall_message = "HIGH RECESSION RISK"
     elif red_count >= 1 or yellow_count >= 2:
         overall_status = "yellow"
-        overall_message = "ELEVATED CAUTION"
+        overall_message = "WATCH CLOSELY"
     else:
         overall_status = "green"
-        overall_message = "LOW RECESSION RISK"
+        overall_message = "NO RECESSION WARNING"
 
-    # Build summary
-    summary = f"RECESSION DASHBOARD: {overall_message}\n\n"
-    summary += f"Overall Assessment: {overall_status.upper()}\n"
-    summary += f"12-Month Recession Probability: {recession_prob.probability_12m:.0%}\n"
-    summary += f"Expansion Age: {expansion_age.months_since_recession} months\n\n"
+    # Build summary - synthesize, don't just list
+    summary = "=" * 60 + "\n"
+    summary += f"RECESSION RISK CHECK: {overall_message}\n"
+    summary += "=" * 60 + "\n\n"
 
-    summary += "SIGNAL BREAKDOWN:\n"
-    summary += f"  Yield Curve: {yield_curve.traffic_light.upper()} - {yield_curve.status}\n"
-    summary += f"  Leading Indicators: {leading_indicators.traffic_light.upper()} (score: {leading_indicators.composite_score:.2f})\n"
-    summary += f"  Recession Probability: {recession_prob.traffic_light.upper()}\n"
-    summary += f"  Expansion Age: {expansion_age.traffic_light.upper()}\n\n"
+    # THE BOTTOM LINE - one clear takeaway
+    if overall_status == "red":
+        summary += (
+            f"THE BOTTOM LINE: Multiple warning signs are flashing. Our model puts "
+            f"recession odds at {recession_prob.probability_12m:.0%} over the next year. "
+            f"That's not a guarantee, but it's enough to take seriously.\n\n"
+        )
+    elif overall_status == "yellow":
+        summary += (
+            f"THE BOTTOM LINE: The economy is sending mixed signals. Recession odds are "
+            f"around {recession_prob.probability_12m:.0%} - not our base case, but worth monitoring. "
+            f"Some indicators are concerning, others look fine.\n\n"
+        )
+    else:
+        summary += (
+            f"THE BOTTOM LINE: The economy looks stable. Recession odds are low "
+            f"(around {recession_prob.probability_12m:.0%}). Most indicators are healthy. "
+            f"No reason to worry right now, though things can always change.\n\n"
+        )
 
-    summary += "KEY OBSERVATIONS:\n"
-    summary += f"  - {yield_curve.interpretation[:200]}...\n" if len(yield_curve.interpretation) > 200 else f"  - {yield_curve.interpretation}\n"
-    summary += f"  - {leading_indicators.interpretation[:200]}...\n" if len(leading_indicators.interpretation) > 200 else f"  - {leading_indicators.interpretation}\n"
+    # Individual signals - but synthesized, not just listed
+    summary += "WHAT THE KEY SIGNALS SAY:\n\n"
+
+    # Yield curve
+    yc_emoji = {"green": "OK", "yellow": "CAUTION", "red": "WARNING"}[yield_curve.traffic_light]
+    summary += f"Yield Curve ({yc_emoji}): "
+    if yield_curve.status == "inverted":
+        summary += "Inverted - the classic recession predictor is triggered.\n"
+    elif yield_curve.status == "flat":
+        summary += "Nearly flat - not a warning yet, but close to inverting.\n"
+    else:
+        summary += "Normal - no recession signal from bond markets.\n"
+
+    # Leading indicators
+    li_emoji = {"green": "OK", "yellow": "CAUTION", "red": "WARNING"}[leading_indicators.traffic_light]
+    summary += f"Leading Indicators ({li_emoji}): "
+    warning_count = sum(1 for ind in leading_indicators.indicators if ind.data_available and ind.score < 0)
+    available_count = sum(1 for ind in leading_indicators.indicators if ind.data_available)
+    if warning_count == 0:
+        summary += f"All {available_count} indicators look healthy.\n"
+    elif warning_count <= 2:
+        summary += f"Mostly fine, but {warning_count} of {available_count} showing some weakness.\n"
+    else:
+        summary += f"{warning_count} of {available_count} indicators are deteriorating.\n"
+
+    # Expansion age
+    summary += f"Expansion Age: {expansion_age.years_since_recession:.1f} years old "
+    if expansion_age.percentile_vs_history > 75:
+        summary += "(mature, but expansions don't die of old age).\n"
+    else:
+        summary += "(not unusually long).\n"
+
+    summary += "\n"
 
     return {
         'yield_curve': yield_curve,

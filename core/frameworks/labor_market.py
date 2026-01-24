@@ -1,14 +1,16 @@
 """
 Labor Market Analysis Frameworks
 
-This module provides economic frameworks for analyzing labor market conditions
-using FRED data series. Each framework includes calculation and interpretation
-functions with plain English explanations.
+Tools to answer: How strong is the job market? Are we heading for trouble?
 
-Frameworks included:
-1. BEVERIDGE_CURVE - Vacancy-unemployment relationship and matching efficiency
-2. SAHM_RULE - Real-time recession probability indicator
-3. LABOR_MARKET_HEAT - Composite labor market tightness measure
+What's in here:
+1. JOB MARKET BALANCE - Are there more jobs than workers, or vice versa?
+   (Economists call this the "Beveridge Curve" but you don't need to remember that)
+
+2. RECESSION EARLY WARNING - Is unemployment rising fast enough to signal a recession?
+   (Based on research by economist Claudia Sahm)
+
+3. OVERALL JOB MARKET HEALTH - A combined score: is the job market running hot, cold, or just right?
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -188,16 +190,16 @@ def _predict_vacancy_rate_from_history(
 
 def interpret_beveridge_curve(result: Dict) -> str:
     """
-    Generate plain English interpretation of Beveridge curve analysis.
+    Explain job market balance in plain English - like a smart friend would.
 
     Args:
         result: Output from calculate_beveridge_curve()
 
     Returns:
-        Human-readable interpretation of labor market conditions.
+        Human-readable interpretation that anyone can understand.
     """
     if "error" in result:
-        return f"Unable to analyze Beveridge curve: {result['error']}"
+        return f"Can't analyze job market balance: {result['error']}"
 
     position = result["position"]
     vr = result["vacancy_rate"]
@@ -205,53 +207,53 @@ def interpret_beveridge_curve(result: Dict) -> str:
     vpu = result["vacancies_per_unemployed"]
     shift = result["curve_shift_detected"]
 
-    # Position interpretation
+    # Position interpretation - written like you're explaining to a friend
     position_text = {
         BeveridgePosition.VERY_TIGHT: (
-            f"The labor market is very tight. With a vacancy rate of {vr}% and "
-            f"unemployment at {ur}%, employers are competing intensely for workers. "
-            f"There are {vpu} job openings for every unemployed person."
+            f"Workers have the upper hand right now. There are {vpu} job openings "
+            f"for every unemployed person - companies are fighting over workers. "
+            f"Unemployment is just {ur}%, and employers are desperate to hire. "
+            f"If you're job hunting, this is a great time to negotiate."
         ),
         BeveridgePosition.TIGHT: (
-            f"The labor market is tight. Vacancies ({vr}%) are elevated relative to "
-            f"unemployment ({ur}%), with {vpu} openings per unemployed worker. "
-            "Employers may face hiring difficulties."
+            f"The job market favors workers. With {vpu} openings per unemployed person "
+            f"and unemployment at {ur}%, finding work is easier than usual. "
+            f"Employers may have trouble filling positions quickly."
         ),
         BeveridgePosition.BALANCED: (
-            f"The labor market appears balanced. The vacancy rate ({vr}%) and "
-            f"unemployment rate ({ur}%) are near historical norms, with {vpu} "
-            "openings per unemployed worker."
+            f"The job market is in a healthy balance. There are about {vpu} job openings "
+            f"per unemployed person, and the {ur}% unemployment rate is close to normal. "
+            f"Neither workers nor employers have a big advantage."
         ),
         BeveridgePosition.SLACK: (
-            f"The labor market shows slack. With vacancies at {vr}% and unemployment "
-            f"at {ur}%, workers face reduced job-finding prospects. There are only "
-            f"{vpu} openings per unemployed person."
+            f"Job seekers face a tougher market. With only {vpu} openings per unemployed "
+            f"person and unemployment at {ur}%, competition for jobs is real. "
+            f"It may take longer to find the right opportunity."
         ),
         BeveridgePosition.VERY_SLACK: (
-            f"The labor market is very slack. Low vacancies ({vr}%) combined with "
-            f"high unemployment ({ur}%) indicate weak labor demand. Only {vpu} "
-            "openings exist per unemployed worker."
+            f"The job market is rough for workers. Only {vpu} openings exist per "
+            f"unemployed person, and unemployment sits at {ur}%. Companies have the "
+            f"leverage, and job searches will likely take longer."
         ),
     }
 
-    interpretation = position_text.get(position, "Unable to classify labor market position.")
+    interpretation = position_text.get(position, "Unable to assess job market balance.")
 
-    # Add matching efficiency commentary
+    # Add matching efficiency commentary - but explain what it actually means
     if shift:
         deviation = result["matching_efficiency_deviation"]
         if deviation > 0:
             interpretation += (
-                "\n\nNotably, the Beveridge curve appears to have shifted outward - "
-                "vacancy rates are higher than historical patterns would predict for "
-                "this unemployment level. This suggests reduced matching efficiency, "
-                "possibly due to skills mismatches, geographic barriers, or changes "
-                "in worker preferences."
+                "\n\nSomething unusual: Companies are struggling to fill jobs even "
+                "more than the unemployment rate would suggest. This could mean "
+                "workers don't have the skills employers need, jobs are in the wrong "
+                "places, or people are rethinking what kind of work they want. "
+                "The job market isn't connecting workers to jobs as smoothly as it used to."
             )
         else:
             interpretation += (
-                "\n\nThe Beveridge curve appears to have shifted inward - vacancies "
-                "are lower than expected, suggesting improved matching efficiency "
-                "or structural changes in labor market dynamics."
+                "\n\nGood news: Workers and jobs are finding each other more efficiently "
+                "than usual. The job matching process seems to be working well."
             )
 
     return interpretation
@@ -355,16 +357,19 @@ def calculate_sahm_rule(data: Dict) -> Dict:
 
 def interpret_sahm_rule(result: Dict) -> str:
     """
-    Generate plain English interpretation of Sahm Rule analysis.
+    Explain recession early warning in plain English.
+
+    The core idea: When unemployment starts rising quickly from its recent low,
+    bad things tend to follow. This has correctly flagged every US recession since 1970.
 
     Args:
         result: Output from calculate_sahm_rule()
 
     Returns:
-        Human-readable interpretation of recession risk.
+        Human-readable explanation anyone can understand.
     """
     if "error" in result:
-        return f"Unable to calculate Sahm Rule: {result['error']}"
+        return f"Can't check recession early warning: {result['error']}"
 
     sahm = result["sahm_value"]
     threshold = result["threshold"]
@@ -376,32 +381,31 @@ def interpret_sahm_rule(result: Dict) -> str:
 
     if triggered:
         interpretation = (
-            f"RECESSION SIGNAL TRIGGERED. The Sahm Rule indicator stands at {sahm:.2f}, "
-            f"exceeding the {threshold} threshold. The 3-month average unemployment rate "
-            f"({current_avg}%) has risen {sahm:.2f} percentage points from its 12-month "
-            f"low of {low}%. Historically, this pattern has marked the beginning of every "
-            "U.S. recession since 1970."
+            f"RECESSION WARNING TRIGGERED. Unemployment is rising fast enough to signal "
+            f"a recession may be starting. Here's what happened: unemployment climbed from "
+            f"a low of {low}% to {current_avg}% - a {sahm:.2f} percentage point jump. "
+            f"That crosses the {threshold} point threshold that has preceded every US recession "
+            f"since 1970. This doesn't guarantee a recession, but historically, when unemployment "
+            f"rises this fast, the economy is usually already in trouble."
         )
     elif risk == "high":
         interpretation = (
-            f"Recession risk is elevated. The Sahm indicator at {sahm:.2f} is approaching "
-            f"the {threshold} trigger threshold (only {distance:.2f}pp away). Unemployment "
-            f"has risen from a 12-month low of {low}% to a 3-month average of {current_avg}%. "
-            "Close monitoring is warranted."
+            f"Getting close to recession warning territory. Unemployment has risen from "
+            f"{low}% to {current_avg}% - we're now just {distance:.2f} points away from the "
+            f"threshold that has historically signaled recessions. Not there yet, but the "
+            f"trend is concerning. Worth watching closely over the next few months."
         )
     elif risk == "elevated":
         interpretation = (
-            f"The Sahm indicator shows some deterioration at {sahm:.2f}, still {distance:.2f} "
-            f"percentage points below the {threshold} recession trigger. The 3-month average "
-            f"unemployment ({current_avg}%) has edged up from its recent low of {low}%. "
-            "This bears watching but is not yet alarming."
+            f"Unemployment is creeping up, but not fast enough to trigger recession alarms. "
+            f"It's risen from {low}% to {current_avg}% - still {distance:.2f} points below "
+            f"the danger zone. Think of it as a yellow light: pay attention, but don't panic."
         )
     else:
         interpretation = (
-            f"The Sahm Rule indicator is at {sahm:.2f}, well below the {threshold} recession "
-            f"threshold ({distance:.2f}pp of cushion). The 3-month average unemployment rate "
-            f"of {current_avg}% remains close to its 12-month low of {low}%. No recession "
-            "signal is present."
+            f"No recession warning here. Unemployment at {current_avg}% is barely changed from "
+            f"its recent low of {low}%. We're {distance:.2f} points away from the level that "
+            f"would signal trouble. The job market looks stable."
         )
 
     return interpretation
@@ -615,92 +619,120 @@ def _classify_heat(heat_index: float) -> str:
 
 def interpret_labor_market_heat(result: Dict) -> str:
     """
-    Generate plain English interpretation of labor market heat analysis.
+    Explain overall job market health in plain English.
+
+    Think of it like a thermostat: Is the job market running hot (great for workers,
+    but might cause inflation)? Cold (tough for job seekers)? Or just right?
 
     Args:
         result: Output from calculate_labor_market_heat()
 
     Returns:
-        Human-readable interpretation of labor market tightness.
+        Human-readable explanation anyone can understand.
     """
     if result.get("classification") == "insufficient_data":
         missing = result.get("missing_components", [])
-        return f"Insufficient data for heat analysis. Missing: {', '.join(missing)}"
+        return f"Not enough data to assess job market health. Missing: {', '.join(missing)}"
 
     heat_index = result["heat_index"]
     classification = result["classification"]
     components = result["components"]
     scores = result["component_scores"]
 
-    # Overall assessment
+    # Overall assessment - conversational, not academic
     heat_descriptions = {
         "overheating": (
-            f"The labor market is OVERHEATING (heat index: {heat_index:+.2f}). "
-            "Multiple indicators show extreme tightness that typically generates "
-            "significant wage pressure and may require policy response."
+            f"The job market is running too hot. Workers have enormous leverage right now - "
+            f"companies are desperate to hire and wages are surging. Great if you're looking "
+            f"for a raise, but this kind of heat often leads to inflation problems. "
+            f"The Fed is probably watching this closely."
         ),
         "hot": (
-            f"The labor market is HOT (heat index: {heat_index:+.2f}). "
-            "Conditions favor workers, with strong hiring demand and limited "
-            "labor supply. Some wage pressure is likely."
+            f"It's a workers' market. Companies are hiring aggressively, and people who want "
+            f"jobs can generally find them. If you're employed, you have real bargaining power "
+            f"for raises or better conditions. Wages are likely rising faster than usual."
         ),
         "balanced": (
-            f"The labor market is BALANCED (heat index: {heat_index:+.2f}). "
-            "Supply and demand appear roughly in equilibrium, consistent with "
-            "sustainable growth."
+            f"The job market is in a healthy sweet spot. There's enough demand for workers "
+            f"to keep unemployment low, but not so much that wages spiral out of control. "
+            f"This is roughly what economists consider 'full employment.'"
         ),
         "cooling": (
-            f"The labor market is COOLING (heat index: {heat_index:+.2f}). "
-            "Conditions have softened from peak tightness. Workers have less "
-            "bargaining power than before."
+            f"The job market is cooling off. Hiring has slowed, and workers don't have quite "
+            f"as much leverage as before. Job searches might take a bit longer. This could be "
+            f"fine (a soft landing) or the early stages of something worse - worth monitoring."
         ),
         "cold": (
-            f"The labor market is COLD (heat index: {heat_index:+.2f}). "
-            "Slack conditions prevail, with limited opportunities for workers "
-            "and minimal wage pressure."
+            f"The job market is weak. Finding work is harder, and employers have the upper hand "
+            f"in negotiations. People are less likely to quit for new opportunities. "
+            f"Wage growth is probably sluggish, and job security feels shakier."
         ),
     }
 
-    interpretation = heat_descriptions.get(classification, "Unable to classify labor market heat.")
+    interpretation = heat_descriptions.get(classification, "Can't assess overall job market health.")
 
-    # Add component details
+    # Add component details - explain what each signal means
     details = []
 
     if "quits_rate" in components:
         qr = components["quits_rate"]
         qs = scores["quits_rate"]
         if qs > 0.5:
-            details.append(f"Workers are confident: the quits rate of {qr}% shows people are willing to leave jobs for better opportunities")
+            details.append(
+                f"People are quitting jobs at a {qr}% rate - they're confident they can "
+                f"find something better. That's a sign of a strong market."
+            )
         elif qs < -0.5:
-            details.append(f"Workers are cautious: the low quits rate of {qr}% suggests people are staying put")
+            details.append(
+                f"Few people are quitting (just {qr}%) - workers are playing it safe, "
+                f"which suggests they're worried about finding new jobs."
+            )
 
     if "openings_per_unemployed" in components:
         opu = components["openings_per_unemployed"]
         if opu > 1.0:
-            details.append(f"There are {opu} job openings per unemployed person - more jobs than job seekers")
+            details.append(
+                f"There are {opu} open jobs for every unemployed person. "
+                f"More jobs than job seekers = workers have options."
+            )
         else:
-            details.append(f"There are {opu} job openings per unemployed person - job seekers outnumber openings")
+            details.append(
+                f"Only {opu} open jobs per unemployed person. "
+                f"More people looking than jobs available = tougher competition."
+            )
 
     if "prime_epop" in components:
         epop = components["prime_epop"]
         es = scores["prime_epop"]
         if es > 0.5:
-            details.append(f"Prime-age employment at {epop}% is historically strong")
+            details.append(
+                f"{epop}% of prime working-age adults (25-54) have jobs - "
+                f"that's historically high, meaning the economy is pulling people into work."
+            )
         elif es < -0.5:
-            details.append(f"Prime-age employment at {epop}% indicates underutilization")
+            details.append(
+                f"Only {epop}% of prime working-age adults have jobs - "
+                f"there's room to bring more people into the workforce."
+            )
 
     if "wage_productivity_gap" in components:
         gap = components["wage_productivity_gap"]
         if gap > 0.5:
-            details.append(f"Wages are growing {gap:.1f}pp faster than productivity, adding to inflation pressure")
+            details.append(
+                f"Wages are rising {gap:.1f} points faster than productivity. "
+                f"Great for workers, but it adds fuel to inflation."
+            )
         elif gap < -0.5:
-            details.append(f"Wage growth trails productivity by {abs(gap):.1f}pp, easing inflation concerns")
+            details.append(
+                f"Wages are trailing productivity by {abs(gap):.1f} points. "
+                f"Less inflation pressure, but workers aren't sharing in productivity gains."
+            )
 
     if details:
-        interpretation += "\n\nKey observations:\n- " + "\n- ".join(details)
+        interpretation += "\n\nWhat the signals tell us:\n- " + "\n- ".join(details)
 
     if result["missing_components"]:
-        interpretation += f"\n\n(Note: Analysis excludes {', '.join(result['missing_components'])} due to missing data)"
+        interpretation += f"\n\n(Some data unavailable: {', '.join(result['missing_components'])})"
 
     return interpretation
 

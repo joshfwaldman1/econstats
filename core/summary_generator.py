@@ -36,100 +36,100 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ECONOMIC_FRAMEWORKS = {
     "inflation": {
         "causal_chain": [
-            "Fed raises rates -> mortgage rates rise -> housing demand falls -> shelter inflation lags 18-24 months",
-            "Strong labor market -> wage growth -> services inflation sticky",
-            "Supply chain normalization -> goods deflation (often negative now)",
-            "Oil prices volatile -> energy component swings headline CPI",
+            "Fed raises rates -> mortgages get expensive -> fewer people buy homes -> rent prices eventually fall (takes 18-24 months)",
+            "Lots of jobs -> workers get raises -> businesses charge more for services",
+            "Supply chains fixed -> stuff (cars, furniture, clothes) gets cheaper",
+            "Oil prices jump around -> gas prices swing the headline number",
         ],
         "key_lags": {
-            "shelter": "18-24 months after rate hikes (new rents already falling, CPI rent lags)",
-            "wages": "6-12 months after labor market loosening",
-            "goods": "Near-term (supply chain effects immediate)",
+            "shelter": "18-24 months after rate hikes. Market rents already fell, but the CPI measure is slow to catch up",
+            "wages": "6-12 months after the job market cools off",
+            "goods": "Fast - supply chain effects show up quickly",
         },
         "signals_to_watch": [
-            "Core services ex-housing (supercore) - Fed's focus",
-            "New tenant rent index vs CPI rent (leading indicator)",
-            "Wage growth vs productivity (unit labor costs)",
+            "Services prices (excluding rent) - this is what the Fed watches closest",
+            "Actual market rents vs what the CPI says - market rents lead by months",
+            "Are wages rising faster than workers are producing? That's inflationary",
         ],
-        "fed_reaction": "Fed targets 2% PCE inflation; core PCE > 2.5% keeps them hawkish",
+        "fed_reaction": "Fed wants 2% inflation. Above 2.5%? They'll keep rates high",
     },
     "labor_market": {
         "causal_chain": [
-            "Rate hikes -> business investment falls -> hiring slows -> openings drop first",
-            "Openings drop -> quits fall (workers less confident) -> wage growth moderates",
-            "Continued weakness -> layoffs rise -> unemployment increases (lagging indicator)",
-            "Sahm Rule: 0.5pp rise in 3-month avg unemployment = recession signal",
+            "Higher rates -> businesses invest less -> hire fewer people -> job openings drop first",
+            "Fewer openings -> workers stop quitting (less confident) -> wage growth slows",
+            "If weakness continues -> layoffs start -> unemployment rises (this happens last)",
+            "Rule of thumb: If unemployment rises 0.5% from its low, a recession is likely starting",
         ],
         "key_lags": {
-            "job_openings": "Leading indicator (first to fall in slowdown)",
-            "quits_rate": "Leading indicator (workers quit less when uncertain)",
-            "unemployment": "Lagging indicator (rises late in cycle)",
-            "initial_claims": "Most timely weekly signal of layoffs",
+            "job_openings": "Early warning sign - drops first when things slow down",
+            "quits_rate": "Early warning sign - people stop quitting when nervous",
+            "unemployment": "Late signal - rises after everything else has weakened",
+            "initial_claims": "Fastest signal - weekly data on new layoffs",
         },
         "signals_to_watch": [
-            "Job openings per unemployed worker (was 2.0 at peak, now falling)",
-            "Quits rate below 2.3% signals weak worker confidence",
-            "3-month payroll avg more stable than single month",
+            "Job openings per unemployed person - was 2.0 at peak, now falling",
+            "Are people quitting their jobs? Below 2.3% means workers are nervous",
+            "Look at 3-month averages - single months are noisy",
         ],
-        "current_dynamic": "Labor market normalizing from overheated 2022-2023 levels",
+        "current_dynamic": "Job market cooling off from the red-hot 2022-2023 period",
     },
     "recession": {
         "causal_chain": [
-            "Yield curve inverts -> banks tighten lending -> business investment falls",
-            "Consumer spending slows -> production cuts -> layoffs begin",
-            "Unemployment rises 0.5pp from lows -> Sahm Rule triggers -> recession confirmed",
+            "Long-term rates fall below short-term rates -> banks get cautious about lending -> businesses invest less",
+            "People spend less -> companies cut production -> layoffs start",
+            "Unemployment rises 0.5% from its low -> recession likely starting",
         ],
         "key_signals": {
-            "yield_curve": "Inverted curve predicts recession 12-18 months ahead (has inverted)",
-            "sahm_rule": "0.5pp rise in 3-mo avg unemployment from 12-mo low",
-            "leading_indicators": "LEI declining 6+ months often precedes recession",
-            "consumer_sentiment": "Sharp drops often precede spending pullback",
+            "yield_curve": "When long-term rates fall below short-term rates, recession often follows in 12-18 months",
+            "sahm_rule": "Unemployment rising 0.5% from its recent low = recession warning",
+            "leading_indicators": "If the leading index falls for 6+ months, watch out",
+            "consumer_sentiment": "When confidence crashes, spending usually follows",
         },
         "conflicting_signals": [
-            "Yield curve inverted (bearish) but labor market still strong (bullish)",
-            "Consumer sentiment weak but spending solid",
-            "Manufacturing contracting but services expanding",
+            "Yield curve inverted (bad sign) but job market still strong (good sign)",
+            "People say they feel bad about the economy but keep spending anyway",
+            "Factories are struggling but services are doing fine",
         ],
     },
     "fed_policy": {
         "causal_chain": [
-            "Inflation above target -> Fed raises rates -> financial conditions tighten",
-            "Labor market weakens -> wage growth slows -> services inflation moderates",
-            "Inflation approaches 2% -> Fed pauses then cuts -> economy rebounds",
+            "Inflation too high -> Fed raises rates -> borrowing gets expensive everywhere",
+            "Job market weakens -> wage growth slows -> price increases slow down",
+            "Inflation gets close to 2% -> Fed stops raising, then starts cutting -> economy picks up",
         ],
         "reaction_function": {
-            "hiking": "Core PCE > 2.5% and unemployment < 4.5% = rates higher for longer",
-            "cutting": "Core PCE trending to 2%, unemployment rising = rate cuts begin",
-            "neutral_rate": "R* estimated at 2.5-3.0% - terminal rate above this is restrictive",
+            "hiking": "Inflation above 2.5% and unemployment below 4.5%? Fed keeps rates high",
+            "cutting": "Inflation falling toward 2%, unemployment rising? Fed starts cutting",
+            "neutral_rate": "Normal rate is around 2.5-3%. Above that = Fed is trying to slow things down",
         },
-        "market_expectations": "Fed funds futures show market's rate path expectations",
-        "dot_plot": "FOMC median projections - but markets often disagree",
+        "market_expectations": "You can see what Wall Street expects by looking at futures markets",
+        "dot_plot": "Each Fed official shows where they think rates are going - but the market often disagrees",
     },
     "housing": {
         "causal_chain": [
-            "Fed hikes -> mortgage rates spike -> affordability collapses",
-            "Existing owners locked in at low rates -> supply shortage -> prices sticky",
-            "New construction responds to high prices -> eventual supply relief",
+            "Fed raises rates -> mortgage rates spike -> most people can't afford to buy",
+            "Homeowners with cheap 3% mortgages won't sell -> not enough homes for sale -> prices stay high",
+            "High prices eventually bring more construction -> more supply -> prices ease (eventually)",
         ],
         "key_dynamics": {
-            "lock_in_effect": "Owners with 3% mortgages won't sell to buy at 7%",
-            "affordability": "Payment-to-income ratio at multi-decade highs",
-            "rent_vs_buy": "Renting now often cheaper than buying (unusual)",
+            "lock_in_effect": "If you have a 3% mortgage, why would you sell and get a 7% one?",
+            "affordability": "Monthly payments relative to income are the worst in decades",
+            "rent_vs_buy": "Renting is often cheaper than buying right now (that's unusual)",
         },
     },
     "gdp_growth": {
         "causal_chain": [
-            "Consumer spending (70% of GDP) drives growth",
-            "Business investment responds to demand outlook and rates",
-            "Government spending provides fiscal support",
-            "Net exports typically small drag for US",
+            "Consumer spending is 70% of GDP - when people spend, the economy grows",
+            "Businesses invest when they expect demand and rates aren't too high",
+            "Government spending adds to growth",
+            "Trade: We usually import more than we export, which drags on GDP a bit",
         ],
         "key_dynamics": {
-            "consumer": "Labor income + wealth effects + savings drawdown",
-            "business_investment": "Sensitive to rates and profit expectations",
-            "inventories": "Volatile quarter-to-quarter, often mean-reverts",
+            "consumer": "People spend based on: jobs, how wealthy they feel, savings they can tap",
+            "business_investment": "Depends on interest rates and profit expectations",
+            "inventories": "Jumps around quarter to quarter but tends to even out",
         },
-        "trend_growth": "US potential growth ~2% annually; above = expansion, below = slowdown",
+        "trend_growth": "The US economy normally grows about 2% per year. Above that = strong, below = weak",
     },
 }
 
@@ -140,64 +140,62 @@ ECONOMIC_FRAMEWORKS = {
 # =============================================================================
 
 TOPIC_PROMPTS = {
-    "inflation": """Analyze inflation with focus on:
-- COMPOSITION: Break down core vs headline, goods vs services, shelter vs everything else
-- SHELTER LAG: CPI rent lags new tenant rents by 12-18 months - is relief coming?
-- GOODS DEFLATION: Are goods prices falling? This helps offset sticky services
-- FED REACTION: With this reading, what does the Fed do? Is 2% within reach?
-- FORWARD: When does inflation hit 2%? What could derail the path?
+    "inflation": """Focus on:
+- WHAT'S DRIVING IT: Is it goods, services, or rent? Each tells a different story
+- RENT LAG: The government's rent measure is 12-18 months behind actual market rents
+- GOODS PRICES: Are they falling? That helps offset sticky service prices
+- FED REACTION: What does this mean for interest rates?
+- WHAT'S NEXT: When does inflation get back to 2%? What could go wrong?
 
-Key insight: The "last mile" to 2% inflation is the hardest. Explain why.""",
+Main point: Getting from 3% to 2% inflation is harder than getting from 9% to 3%. Explain why.""",
 
-    "jobs": """Analyze the labor market with focus on:
-- LEADING vs LAGGING: Job openings and quits are LEADING (fall first). Unemployment is LAGGING (rises last).
-- NORMALIZATION vs WEAKENING: Is this a healthy return from overheated 2022 or concerning deterioration?
-- WAGE-PRICE SPIRAL: Is wage growth (compare to productivity) feeding into inflation?
-- FLOW RATES: Hiring rate, quits rate, layoff rate tell different stories
-- FORWARD: What does this mean for Fed policy? Is a soft landing still achievable?
+    "jobs": """Focus on:
+- EARLY vs LATE SIGNALS: Job openings and quits drop first. Unemployment rises last.
+- COOLING vs CRASHING: Is this a healthy slowdown from the 2022 frenzy, or something worse?
+- WAGES: Are raises feeding into higher prices?
+- WHAT'S NEXT: What does this mean for Fed rate cuts? Can we avoid a recession?
 
-Key insight: The labor market tells different stories depending on which metrics you prioritize.""",
+Main point: Different job market numbers tell different stories - explain which ones matter most.""",
 
-    "recession": """Analyze recession risk with focus on:
-- SIGNAL CONFLICTS: Some indicators say recession (yield curve, LEI), others say expansion (jobs, spending)
-- HISTORICAL PATTERNS: How does current data compare to pre-recession periods?
-- SAHM RULE: Current reading? How close to 0.5pp trigger?
-- PROBABILITY: What's your probability estimate for recession in next 12 months?
-- FORWARD: What would need to happen for recession to become likely or unlikely?
+    "recession": """Focus on:
+- MIXED SIGNALS: Some things say recession (yield curve), others say no (jobs, spending)
+- HISTORY: How does this compare to past pre-recession periods?
+- THE 0.5% RULE: Has unemployment risen half a percent from its low? That's the warning sign
+- ODDS: What's the probability of recession in the next year?
+- WHAT'S NEXT: What would push us toward or away from recession?
 
-Key insight: Recession signals are mixed - explain the case for and against.""",
+Main point: The signals are mixed - explain both sides.""",
 
-    "fed": """Analyze Fed policy with focus on:
-- REACTION FUNCTION: Given inflation and jobs data, what's the Fed's likely move?
-- DOT PLOT vs MARKETS: Where does the Fed see rates going vs market expectations?
-- TERMINAL RATE: How high do rates need to go? When can cuts begin?
-- FINANCIAL CONDITIONS: Are current rates restrictive enough?
-- FORWARD: What data would change the Fed's path?
+    "fed": """Focus on:
+- WHAT WILL THEY DO: Given inflation and jobs, what's the Fed's next move?
+- FED vs MARKET: Where does the Fed think rates are going vs what Wall Street thinks?
+- HOW FAR: How high will rates go? When can they start cutting?
+- WHAT'S NEXT: What data would change their plans?
 
-Key insight: The Fed data-dependent - explain what data would matter most.""",
+Main point: The Fed says they're "data-dependent" - explain which data matters most.""",
 
-    "housing": """Analyze housing with focus on:
-- AFFORDABILITY: How do mortgage rates + prices affect buying power?
-- LOCK-IN EFFECT: Owners with low rates won't sell - supply implications
-- RENT vs BUY: Which makes more sense at current prices/rates?
-- NEW CONSTRUCTION: Is supply coming to ease prices?
-- FORWARD: What would it take for housing to become affordable again?
+    "housing": """Focus on:
+- CAN PEOPLE AFFORD IT: How do mortgage rates + home prices affect monthly payments?
+- WHY NO ONE IS SELLING: People with 3% mortgages won't sell to get a 7% one
+- RENT vs BUY: Which makes more financial sense right now?
+- NEW HOMES: Is enough construction happening to bring prices down?
+- WHAT'S NEXT: What would make housing affordable again?
 
-Key insight: The housing market is frozen by rate lock-in - explain the dynamics.""",
+Main point: The housing market is stuck because no one wants to give up their cheap mortgage.""",
 
-    "gdp": """Analyze economic growth with focus on:
-- COMPONENTS: Consumer spending, business investment, government, net exports
-- SUSTAINABILITY: Is growth driven by sustainable factors or one-time effects?
-- TREND vs CYCLE: Is the economy above or below potential? Output gap?
-- FORWARD: What's the growth outlook for the next 2-4 quarters?
+    "gdp": """Focus on:
+- WHAT'S DRIVING IT: Consumer spending, business investment, government, trade
+- WILL IT LAST: Is this real strength or a one-time bump?
+- HOT OR COLD: Is the economy running above or below its normal 2% pace?
+- WHAT'S NEXT: What does this mean for the next few quarters?
 
-Key insight: GDP is backward-looking - explain what it means for the future.""",
+Main point: GDP tells us where we've been - explain what it means for where we're going.""",
 }
 
 
 # Base prompt template that works for any topic
-SUMMARY_PROMPT_TEMPLATE = """You are a senior economist writing a market briefing. Your job is to explain
-not just WHAT the data shows, but WHY it's happening and WHAT IT MEANS.
+SUMMARY_PROMPT_TEMPLATE = """You explain economic data in plain English. Your job is to tell people
+not just WHAT the numbers say, but WHY it's happening and WHAT IT MEANS for them.
 
 USER QUESTION: {query}
 

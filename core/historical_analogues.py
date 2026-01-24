@@ -119,17 +119,14 @@ HISTORICAL_PERIODS = [
             growth=GrowthRegime.ABOVE_TREND,
             yield_curve=YieldCurve.FLAT,
         ),
-        conditions="Economy growing strongly (4%+), inflation ticking up from 2.5% to 3%, "
-                   "unemployment around 5.5-6%. Bond market worried about inflation.",
-        fed_action="Greenspan raised rates 300bp in 12 months (3% to 6%), preemptive move "
-                   "before inflation became entrenched. Doubled rates without waiting for "
-                   "inflation to spike.",
-        outcome="Soft landing achieved. Growth slowed to sustainable pace, inflation contained "
-                "around 3%, no recession. Unemployment continued falling to 5% by 1996. "
-                "Set stage for late-90s boom.",
-        key_lesson="Early, aggressive tightening can slow economy without breaking it. "
-                   "The key was acting before inflation became entrenched, not waiting for "
-                   "clear evidence of overheating.",
+        conditions="Economy growing fast (4%+), inflation creeping up from 2.5% to 3%, "
+                   "unemployment around 5.5-6%.",
+        fed_action="Greenspan doubled interest rates in 12 months (3% to 6%) BEFORE inflation "
+                   "got out of control. He didn't wait for proof it was a problem.",
+        outcome="It worked. Growth slowed to a healthy pace, inflation stayed around 3%, "
+                "no recession. Unemployment kept falling. Set up the late-90s boom.",
+        key_lesson="Acting early and aggressively can slow the economy without crashing it. "
+                   "The Fed moved before inflation became a big problem, not after.",
     ),
 
     HistoricalPeriod(
@@ -142,17 +139,16 @@ HISTORICAL_PERIODS = [
             growth=GrowthRegime.ABOVE_TREND,
             yield_curve=YieldCurve.INVERTED,
         ),
-        conditions="Tech bubble at peak, irrational exuberance in markets, NASDAQ up 400% "
-                   "in 5 years. Unemployment at 4%, inflation around 3.5%. Yield curve "
-                   "inverted in early 2000.",
-        fed_action="Fed raised rates from 4.75% to 6.5% through May 2000, then pivoted "
-                   "to aggressive cuts starting Jan 2001 (cut 475bp by end of 2001).",
-        outcome="Recession March-November 2001. NASDAQ crashed 78% from peak. "
-                "Unemployment rose from 4% to 6%. Recovery slow, jobless into 2003. "
-                "Tech sector devastated, many dot-coms failed.",
-        key_lesson="Yield curve inversion was the warning sign. Asset bubbles can mask "
-                   "underlying economic fragility. When curves invert, recession typically "
-                   "follows within 12-18 months.",
+        conditions="Tech stocks at crazy highs - NASDAQ up 400% in 5 years. Unemployment 4%, "
+                   "inflation around 3.5%. The yield curve inverted early 2000 (warning sign).",
+        fed_action="Fed raised rates to 6.5% by May 2000, then reversed course and "
+                   "cut aggressively through 2001.",
+        outcome="Recession from March-November 2001. NASDAQ crashed 78%. Unemployment "
+                "rose from 4% to 6%. Recovery was slow - jobs didn't come back until 2003. "
+                "Many dot-com companies went bankrupt.",
+        key_lesson="The yield curve inverting was the warning sign. Stock bubbles can hide "
+                   "real economic problems. When long-term rates fall below short-term rates, "
+                   "a recession usually follows in 12-18 months.",
     ),
 
     HistoricalPeriod(
@@ -165,17 +161,16 @@ HISTORICAL_PERIODS = [
             growth=GrowthRegime.TREND,
             yield_curve=YieldCurve.INVERTED,
         ),
-        conditions="Housing bubble peaked 2006, subprime lending rampant. Unemployment 4.4%, "
-                   "inflation 3-4%. Yield curve inverted 2006. Housing starts falling, "
-                   "cracks appearing in mortgage markets.",
-        fed_action="Fed raised rates to 5.25% by June 2006, held through 2007. Started "
-                   "cutting Sept 2007, then emergency cuts and QE in 2008.",
-        outcome="Severe recession Dec 2007 - June 2009, worst since Great Depression. "
-                "Unemployment peaked at 10%. Housing prices fell 33% nationally. Financial "
-                "crisis, bank failures, $700B bailout. Recovery took years.",
-        key_lesson="Inverted yield curve + asset bubble = severe risk. Financial system "
-                   "leverage amplified the housing bust into systemic crisis. The Fed was "
-                   "too slow to recognize systemic risk.",
+        conditions="Housing prices at peak in 2006, banks giving mortgages to anyone with a pulse. "
+                   "Unemployment 4.4%, inflation 3-4%. Yield curve inverted. Cracks starting to show.",
+        fed_action="Fed raised rates to 5.25% by June 2006 and held there. Started cutting "
+                   "in Sept 2007, then emergency cuts and massive intervention in 2008.",
+        outcome="Worst recession since the Great Depression (Dec 2007 - June 2009). "
+                "Unemployment hit 10%. Home prices fell 33%. Banks failed. $700B bailout. "
+                "Recovery took years.",
+        key_lesson="Inverted yield curve + asset bubble = danger. When banks are over-leveraged, "
+                   "a housing crash can turn into a full financial crisis. The Fed was too slow "
+                   "to see how bad it was.",
     ),
 
     HistoricalPeriod(
@@ -188,18 +183,16 @@ HISTORICAL_PERIODS = [
             growth=GrowthRegime.TREND,
             yield_curve=YieldCurve.FLAT,
         ),
-        conditions="Economy growing ~2.5%, unemployment fell to 3.5% (50-year low). "
-                   "Inflation stubbornly below 2% target. Trade war uncertainty. "
-                   "Yield curve flattened, briefly inverted in Aug 2019.",
-        fed_action="Fed raised rates to 2.5% by Dec 2018 (9th hike of cycle). Markets "
-                   "tanked in Dec 2018. Powell pivoted - cut rates 3x in 2019 despite "
-                   "low unemployment. 'Insurance cuts' to extend expansion.",
-        outcome="No recession. Economy continued growing through 2019 into 2020. "
-                "The pivot worked - expansion extended to become longest on record "
-                "(until COVID). Markets recovered strongly.",
-        key_lesson="Fed can pivot without triggering recession if underlying fundamentals "
-                   "are sound. Low inflation gave flexibility to cut. 'Insurance cuts' can "
-                   "work when economy is healthy but facing headwinds.",
+        conditions="Economy growing around 2.5%, unemployment at 3.5% (lowest in 50 years). "
+                   "Inflation actually too LOW. Trade war worries. Yield curve briefly inverted.",
+        fed_action="Fed raised rates to 2.5% by Dec 2018. Markets crashed in December. "
+                   "Powell changed course - cut rates 3 times in 2019 even though "
+                   "unemployment was low. Called them 'insurance cuts.'",
+        outcome="No recession. Economy kept growing. The reversal worked - the expansion "
+                "became the longest ever (until COVID hit). Markets bounced back.",
+        key_lesson="The Fed can change direction without causing a recession if the economy "
+                   "is basically healthy. Low inflation gave them room to cut. Sometimes "
+                   "a few 'just in case' rate cuts are enough.",
     ),
 
     HistoricalPeriod(
@@ -212,18 +205,18 @@ HISTORICAL_PERIODS = [
             growth=GrowthRegime.ABOVE_TREND,
             yield_curve=YieldCurve.INVERTED,
         ),
-        conditions="Inflation hit 9.1% (June 2022), highest since 1981. Supply chain "
-                   "disruptions, energy shock from Ukraine war, fiscal stimulus hangover. "
-                   "Unemployment 3.4-3.7%, very tight labor market. Yield curve deeply inverted.",
-        fed_action="Most aggressive tightening since Volcker: 525bp in 16 months "
-                   "(0% to 5.25-5.5%). Held rates at peak for over a year. Started "
-                   "cutting Sept 2024 as inflation fell toward target.",
-        outcome="Inflation fell from 9.1% to ~2.5% without recession (as of late 2024). "
-                "Unemployment rose only slightly to 4.2%. 'Immaculate disinflation' - "
-                "soft landing achieved despite inverted curve and high starting inflation.",
-        key_lesson="Supply-side inflation can resolve faster than demand-driven. "
-                   "Labor market can remain strong during disinflation if productivity "
-                   "holds up. Inverted curve doesn't always mean recession.",
+        conditions="Inflation hit 9.1% in June 2022 - highest since 1981. Supply chains were broken, "
+                   "Ukraine war spiked energy prices, stimulus checks were still being spent. "
+                   "Unemployment 3.4-3.7% (very low). Yield curve deeply inverted.",
+        fed_action="Fastest rate hikes since Volcker in the 1980s: 0% to 5.25% in 16 months. "
+                   "Held rates high for over a year. Started cutting in Sept 2024 as "
+                   "inflation came down.",
+        outcome="Inflation fell from 9.1% to around 2.5% WITHOUT a recession (as of late 2024). "
+                "Unemployment barely budged (rose to 4.2%). This was the 'soft landing' "
+                "everyone hoped for but few expected.",
+        key_lesson="When inflation comes from supply problems (broken supply chains, oil shocks), "
+                   "it can fall faster than when it comes from too much spending. The job market "
+                   "can stay strong while inflation falls. An inverted yield curve doesn't always mean recession.",
     ),
 
     HistoricalPeriod(
@@ -236,17 +229,17 @@ HISTORICAL_PERIODS = [
             growth=GrowthRegime.BELOW_TREND,
             yield_curve=YieldCurve.FLAT,
         ),
-        conditions="Stagflation: inflation 13%+, unemployment 6-7%, growth stagnant. "
-                   "Oil shocks, wage-price spiral, inflation expectations unanchored. "
-                   "Decade of failed attempts to tame inflation.",
-        fed_action="Volcker raised Fed funds to 20% (June 1981). Committed to crushing "
-                   "inflation regardless of economic pain. Explicit break from past Fed policy.",
-        outcome="Double-dip recession (1980, 1981-82). Unemployment peaked at 10.8%. "
-                "But inflation broken - fell from 13% to 3% by 1983. Set stage for "
-                "Great Moderation and 1983-2007 growth.",
-        key_lesson="Entrenched inflation requires painful measures. Credibility matters - "
-                   "Volcker's commitment broke expectations. Short-term pain, long-term gain. "
-                   "Don't let inflation become embedded.",
+        conditions="The worst of both worlds: inflation over 13%, unemployment 6-7%, economy going nowhere. "
+                   "Oil shocks, workers demanding raises to keep up with prices (which pushed prices higher). "
+                   "A decade of failed attempts to fix it.",
+        fed_action="Volcker raised rates to 20% (yes, twenty percent) in June 1981. He committed to "
+                   "crushing inflation no matter the pain. A complete break from how the Fed had operated.",
+        outcome="Two recessions back-to-back (1980, 1981-82). Unemployment hit 10.8%. "
+                "BUT it worked - inflation fell from 13% to 3% by 1983. Set up 25 years "
+                "of stable growth.",
+        key_lesson="When inflation gets stuck, it takes painful action to break it. Volcker's "
+                   "willingness to accept a recession convinced everyone he was serious, "
+                   "which helped break the cycle. Short-term pain, long-term gain.",
     ),
 
     HistoricalPeriod(
@@ -259,17 +252,17 @@ HISTORICAL_PERIODS = [
             growth=GrowthRegime.TREND,
             yield_curve=YieldCurve.FLAT,
         ),
-        conditions="Oil price collapse (from $100 to $30), China slowdown fears, "
-                   "manufacturing recession but services held up. Unemployment 5%, "
-                   "inflation below 2%. Fed had just started hiking (Dec 2015).",
-        fed_action="Fed hiked once in Dec 2015, then paused for full year (2016). "
-                   "Only raised once more in Dec 2016. Patient approach given global headwinds.",
-        outcome="No recession. Economy muddled through. Manufacturing recovered in "
-                   "2017. Services-led economy proved resilient to manufacturing weakness. "
-                   "Expansion continued.",
-        key_lesson="Sector-specific recessions don't always spread. Services can carry "
-                   "economy through manufacturing weakness. Fed patience paid off - no need "
-                   "to cut rates, just pause.",
+        conditions="Oil crashed from $100 to $30. Fears that China was slowing down. "
+                   "Factories struggling but service businesses doing fine. Unemployment 5%, "
+                   "inflation below 2%. Fed had just raised rates for first time since 2008.",
+        fed_action="Fed raised rates once in Dec 2015, then waited a full year before "
+                   "raising again. They were patient given all the global uncertainty.",
+        outcome="No recession. Economy got through it. Manufacturing bounced back in 2017. "
+                "The service economy (restaurants, healthcare, tech) was strong enough to "
+                "carry things.",
+        key_lesson="Problems in one part of the economy (factories) don't always spread everywhere. "
+                   "Services can keep things going. Sometimes the Fed just needs to wait it out "
+                   "instead of cutting rates.",
     ),
 
     HistoricalPeriod(
@@ -282,17 +275,17 @@ HISTORICAL_PERIODS = [
             growth=GrowthRegime.BELOW_TREND,
             yield_curve=YieldCurve.FLAT,
         ),
-        conditions="S&L crisis fallout, commercial real estate bust, oil spike from "
-                   "Gulf War. Unemployment rising toward 6%, inflation 5-6%. Consumer "
-                   "confidence cratering.",
-        fed_action="Fed cut rates from 8% to 3% over 1990-1992. Aggressive easing but "
-                   "banks reluctant to lend (credit crunch).",
-        outcome="Mild recession (8 months). Unemployment rose to 7.8% but peaked after "
-                "recession ended (jobless recovery). Recovery sluggish, contributed to "
-                "Bush losing 1992 election.",
-        key_lesson="Credit crunches limit Fed effectiveness. Even aggressive rate cuts "
-                   "can't force banks to lend or consumers to borrow. Recovery can be "
-                   "jobless even after recession ends.",
+        conditions="Savings & Loan banks were collapsing, commercial real estate was crashing, "
+                   "oil spiked because of the Gulf War. Unemployment rising toward 6%, "
+                   "inflation 5-6%. People were scared.",
+        fed_action="Fed cut rates from 8% to 3% over 1990-1992. Aggressive cuts, but banks "
+                   "were scared to lend.",
+        outcome="Mild recession (8 months). Unemployment rose to 7.8% and kept rising even "
+                "after the recession ended. Recovery was slow - 'jobless recovery' became "
+                "a phrase. Bush lost the 1992 election partly because of it.",
+        key_lesson="When banks are scared, Fed rate cuts have less power. Lower rates don't "
+                   "help if banks won't lend or people won't borrow. Sometimes jobs don't "
+                   "come back even after the recession officially ends.",
     ),
 ]
 
@@ -587,28 +580,28 @@ def explain_historical_context(analogues: list[HistoricalAnalogue]) -> str:
     # Lead with the best match
     best = analogues[0]
     lines.append(
-        f"Current conditions most resemble the **{best.period.name}** "
+        f"Today looks most like the **{best.period.name}** "
         f"({best.similarity_pct:.0f}% match)."
     )
     lines.append("")
 
     # Describe the best match
-    lines.append(f"**Then ({best.period.period}):** {best.period.conditions}")
+    lines.append(f"**Back then ({best.period.period}):** {best.period.conditions}")
     lines.append("")
     lines.append(f"**What the Fed did:** {best.period.fed_action}")
     lines.append("")
-    lines.append(f"**What happened:** {best.period.outcome}")
+    lines.append(f"**What happened next:** {best.period.outcome}")
     lines.append("")
-    lines.append(f"**Key difference today:** {best.key_difference}")
+    lines.append(f"**What's different now:** {best.key_difference}")
     lines.append("")
-    lines.append(f"**Lesson:** {best.period.key_lesson}")
+    lines.append(f"**The lesson:** {best.period.key_lesson}")
 
     # Briefly mention other matches
     if len(analogues) > 1:
         lines.append("")
         lines.append("---")
         lines.append("")
-        lines.append("**Other relevant periods:**")
+        lines.append("**Other times that looked similar:**")
         lines.append("")
 
         for analogue in analogues[1:]:

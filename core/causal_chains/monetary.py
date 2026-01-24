@@ -40,174 +40,174 @@ from datetime import datetime, timedelta
 
 RATE_TO_HOUSING = [
     {
-        'stage': 'Fed hikes rates',
+        'stage': 'Fed raises rates',
         'lag': 'immediate',
         'lag_months': (0, 0),
         'series': 'FEDFUNDS',
         'direction': '+',
         'threshold': 0.25,
-        'description': 'Federal Reserve raises the federal funds rate target'
+        'description': 'The Fed raises its benchmark interest rate. This is the starting gun for everything else.'
     },
     {
-        'stage': 'Treasury yields rise',
-        'lag': '0-1 months',
+        'stage': 'Mortgage rates jump',
+        'lag': 'within weeks',
         'lag_months': (0, 1),
         'series': 'DGS10',
         'direction': '+',
         'threshold': 0.10,
-        'description': 'Long-term Treasury yields adjust to new rate expectations'
+        'description': 'Mortgage rates are tied to Treasury yields, which respond almost immediately to Fed moves.'
     },
     {
-        'stage': 'Mortgage rates rise',
-        'lag': '0-2 months',
+        'stage': 'Buying a home gets expensive',
+        'lag': '1-2 months',
         'lag_months': (0, 2),
         'series': 'MORTGAGE30US',
         'direction': '+',
         'threshold': 0.25,
-        'description': '30-year fixed mortgage rates follow Treasury yields'
+        'description': 'Higher mortgage rates mean higher monthly payments. A jump from 3% to 7% can add $1,000+/month to a typical mortgage.'
     },
     {
-        'stage': 'Housing demand falls',
+        'stage': 'Fewer people buy homes',
         'lag': '2-6 months',
         'lag_months': (2, 6),
         'series': 'EXHOSLUSM495S',  # Existing home sales
         'direction': '-',
         'threshold': -5.0,
-        'description': 'Higher borrowing costs reduce homebuyer demand'
+        'description': 'When monthly payments double, many buyers drop out. Existing home sales fall as people wait for better rates.'
     },
     {
-        'stage': 'Home prices cool',
+        'stage': 'Home prices start cooling',
         'lag': '6-12 months',
         'lag_months': (6, 12),
         'series': 'CSUSHPINSA',  # Case-Shiller
         'direction': '-',
         'threshold': -2.0,
-        'description': 'Reduced demand slows home price appreciation'
+        'description': 'With fewer buyers competing, sellers lose pricing power. Price growth slows or turns negative in hot markets.'
     },
     {
-        'stage': 'Shelter CPI responds',
-        'lag': '12-24 months',
+        'stage': 'Rent inflation finally slows',
+        'lag': '1-2 years',
         'lag_months': (12, 24),
         'series': 'CUSR0000SAH1',  # Shelter CPI
         'direction': '-',
         'threshold': -1.0,
-        'description': 'CPI shelter inflation (rent + OER) begins to decelerate'
+        'description': 'This takes forever because the government measures what people are actually paying, not new lease prices. Most renters are locked into year-long leases at old prices, so it takes 1-2 years for lower market rents to show up in the official numbers.'
     },
     {
-        'stage': 'Core CPI eases',
-        'lag': '18-30 months',
+        'stage': 'Overall inflation comes down',
+        'lag': '1.5-2.5 years',
         'lag_months': (18, 30),
         'series': 'CPILFESL',  # Core CPI
         'direction': '-',
         'threshold': -0.5,
-        'description': 'Shelter (~40% of core) pulls down overall core inflation'
+        'description': 'Housing costs are about 40% of core inflation. Once rent inflation cools, it pulls down the whole inflation number. This is why rate hikes take so long to work.'
     }
 ]
 
 
 RATE_TO_CONSUMPTION = [
     {
-        'stage': 'Fed hikes rates',
+        'stage': 'Fed raises rates',
         'lag': 'immediate',
         'lag_months': (0, 0),
         'series': 'FEDFUNDS',
         'direction': '+',
         'threshold': 0.25,
-        'description': 'Federal Reserve raises the federal funds rate target'
+        'description': 'The Fed raises its benchmark rate. Credit card companies and lenders respond almost instantly.'
     },
     {
-        'stage': 'Credit card rates rise',
+        'stage': 'Credit cards get more expensive',
         'lag': 'immediate',
         'lag_months': (0, 0),
         'series': 'TERMCBCCALLNS',  # Credit card interest rate
         'direction': '+',
         'threshold': 0.25,
-        'description': 'Variable-rate credit cards adjust immediately to prime rate'
+        'description': 'Credit card rates are variable and move with the Fed. If you carry a balance, you feel this right away.'
     },
     {
-        'stage': 'Auto loan rates rise',
-        'lag': '0-1 months',
+        'stage': 'Car loans cost more',
+        'lag': 'within weeks',
         'lag_months': (0, 1),
         'series': 'TERMCBPER24NS',  # 24-month auto loan rate
         'direction': '+',
         'threshold': 0.25,
-        'description': 'Auto financing costs increase for new loans'
+        'description': 'Auto loan rates rise, adding hundreds of dollars per year to car payments. This makes people think twice about buying new cars.'
     },
     {
-        'stage': 'Durable goods demand slows',
+        'stage': 'Big purchases slow down',
         'lag': '3-6 months',
         'lag_months': (3, 6),
         'series': 'DGORDER',  # Durable goods orders
         'direction': '-',
         'threshold': -3.0,
-        'description': 'Big-ticket purchases decline as financing costs rise'
+        'description': 'Cars, appliances, furniture - anything you might finance. When borrowing costs more, people delay these purchases or buy cheaper options.'
     },
     {
-        'stage': 'Consumer spending cools',
+        'stage': 'Overall spending cools',
         'lag': '6-12 months',
         'lag_months': (6, 12),
         'series': 'PCE',  # Personal consumption expenditures
         'direction': '-',
         'threshold': -1.0,
-        'description': 'Overall consumer spending growth moderates'
+        'description': 'Eventually, higher rates slow down spending across the board. This is how the Fed cools inflation - by making people spend less.'
     }
 ]
 
 
 RATE_TO_LABOR = [
     {
-        'stage': 'Fed hikes rates',
+        'stage': 'Fed raises rates',
         'lag': 'immediate',
         'lag_months': (0, 0),
         'series': 'FEDFUNDS',
         'direction': '+',
         'threshold': 0.25,
-        'description': 'Federal Reserve raises the federal funds rate target'
+        'description': 'The Fed raises rates. Businesses start thinking about what higher borrowing costs mean for their plans.'
     },
     {
-        'stage': 'Financial conditions tighten',
-        'lag': '0-3 months',
+        'stage': 'Borrowing gets harder',
+        'lag': '1-3 months',
         'lag_months': (0, 3),
         'series': 'NFCI',  # Chicago Fed Financial Conditions Index
         'direction': '+',
         'threshold': 0.1,
-        'description': 'Credit spreads widen, lending standards tighten'
+        'description': 'Banks tighten lending standards. Loans cost more and are harder to get. Companies that relied on cheap money start feeling the squeeze.'
     },
     {
-        'stage': 'Business investment slows',
+        'stage': 'Companies cut back on expansion',
         'lag': '6-12 months',
         'lag_months': (6, 12),
         'series': 'PNFI',  # Private nonresidential fixed investment
         'direction': '-',
         'threshold': -2.0,
-        'description': 'Companies pull back on capital expenditures'
+        'description': 'That new factory? The office expansion? Companies put projects on hold when borrowing is expensive. Why invest now if financing costs eat into returns?'
     },
     {
-        'stage': 'Hiring slows',
+        'stage': 'Hiring slows down',
         'lag': '9-15 months',
         'lag_months': (9, 15),
         'series': 'PAYEMS',  # Nonfarm payrolls (look at MoM change)
         'direction': '-',
         'threshold': -50,  # Thousands
-        'description': 'Job creation decelerates as businesses become cautious'
+        'description': 'Companies get cautious. They still add jobs, but fewer than before. Monthly job gains shrink from 300K to 150K, then lower.'
     },
     {
-        'stage': 'Job openings fall',
+        'stage': 'Companies stop posting jobs',
         'lag': '9-15 months',
         'lag_months': (9, 15),
         'series': 'JTSJOL',  # JOLTS job openings (leading indicator)
         'direction': '-',
         'threshold': -500,  # Thousands
-        'description': 'Companies reduce job postings before cutting existing workers'
+        'description': 'Job openings drop before layoffs start. Companies pull back on hiring plans first - it is easier than firing people. This is an early warning sign.'
     },
     {
         'stage': 'Unemployment rises',
-        'lag': '12-24 months',
+        'lag': '1-2 years',
         'lag_months': (12, 24),
         'series': 'UNRATE',  # Unemployment rate (lagging indicator)
         'direction': '+',
         'threshold': 0.3,
-        'description': 'Layoffs and slower hiring push unemployment higher'
+        'description': 'The last domino. Unemployment only rises after everything else has slowed. By the time you see it in headlines, the economy has been cooling for a year.'
     }
 ]
 
@@ -480,58 +480,53 @@ def _explain_housing_chain(months: int, current_stage: int, stage_name: str,
 
     parts = []
 
-    # Opening context
+    # Opening context - conversational
     if months > 0:
-        parts.append(f"We're about {months} months into the rate-to-housing transmission.")
-    else:
-        parts.append("Analyzing the rate-to-housing transmission chain.")
+        if months < 6:
+            parts.append(f"It's been about {months} months since the Fed started raising rates.")
+        elif months < 12:
+            parts.append(f"We're about {months} months in - still early in the process.")
+        elif months < 24:
+            parts.append(f"It's been {months} months. We're in the middle of the cycle, where the real effects start showing up.")
+        else:
+            parts.append(f"It's been {months} months - we should be seeing the full effects by now.")
 
-    # What has responded
-    if len(activated) > 1:
-        responded = [s for s in activated if s != 'Fed hikes rates']
-        if responded:
-            parts.append(f"So far, {_list_to_prose(responded)} have responded to tighter policy.")
-
-    # Current status based on stage
+    # Current status based on stage - tell a story
     if current_stage == 0:
-        parts.append("We're at the very beginning - rate hikes have occurred but effects haven't materialized yet.")
+        parts.append("The Fed raised rates, but the housing market hasn't felt it yet. Give it a few months.")
 
     elif current_stage <= 2:
-        # Early stages - rates adjusting
-        parts.append("Mortgage rates have risen, making home buying more expensive.")
-        if 'Housing demand falls' in pending:
-            parts.append("Housing demand hasn't fully cooled yet - expect that in the coming months.")
+        parts.append("Mortgage rates have jumped, and buying a home just got a lot more expensive.")
+        parts.append("A rate increase from 3% to 7% can add over $1,000 to a monthly payment on a typical home.")
+        if 'Fewer people buy homes' in pending:
+            parts.append("Home sales haven't dropped yet, but they will - buyers are doing the math.")
 
     elif current_stage == 3:
-        # Demand falling
-        parts.append("Housing demand has clearly weakened - fewer buyers can afford homes at current rates.")
-        if 'Home prices cool' in pending:
-            parts.append("Home prices are still elevated but should start cooling soon.")
+        parts.append("Home sales have dropped. Fewer buyers can qualify for mortgages at these rates, and many are waiting for prices to fall.")
+        if 'Home prices start cooling' in pending:
+            parts.append("Prices are still high, but with fewer buyers competing, they should start cooling soon.")
 
     elif current_stage == 4:
-        # Prices cooling
-        parts.append("Home prices are now cooling as reduced demand works through the market.")
-        if 'Shelter CPI responds' in pending:
-            time_hint = "6-12 months" if months < 12 else "within the next 6-12 months"
-            parts.append(f"Shelter CPI hasn't peaked yet - expect relief in {time_hint}.")
+        parts.append("Home prices are finally starting to cool. With fewer buyers bidding, sellers are losing their pricing power.")
+        if 'Rent inflation finally slows' in pending:
+            parts.append("Here's the frustrating part: rent inflation in the official numbers won't drop for another 6-12 months.")
+            parts.append("Why? The government measures what renters are actually paying, and most are locked into leases signed when rents were higher.")
 
     elif current_stage == 5:
-        # Shelter CPI responding
-        parts.append("Shelter CPI is finally starting to decelerate.")
-        parts.append("This is a key inflection point - shelter is ~40% of core CPI.")
-        if 'Core CPI eases' in pending:
-            parts.append("Core inflation should follow within 6-12 months as shelter continues easing.")
+        parts.append("Rent inflation is finally starting to cool in the official numbers.")
+        parts.append("This is a big deal - housing costs are about 40% of core inflation. As they come down, overall inflation follows.")
+        if 'Overall inflation comes down' in pending:
+            parts.append("We should see this pull down core inflation over the next 6-12 months.")
 
     elif current_stage == 6:
-        # Full transmission
-        parts.append("The full transmission is complete - lower shelter costs are now pulling down core CPI.")
-        parts.append("This typically marks the end of the tightening-to-inflation cycle.")
+        parts.append("The full cycle is complete. Lower housing costs are now pulling down overall inflation.")
+        parts.append("This is what the Fed was waiting for - the slow, grinding path from rate hikes to lower inflation.")
 
-    # Forward look
+    # Forward look - make it useful
     if next_stage and next_timing and 'overdue' not in next_timing:
-        parts.append(f"Next expected: {next_stage.lower()} {next_timing}.")
+        parts.append(f"What's next: {next_stage.lower()} should happen {next_timing}.")
     elif next_stage and 'overdue' in str(next_timing):
-        parts.append(f"Note: {next_stage} appears delayed - may indicate unusual market conditions.")
+        parts.append(f"Heads up: We'd normally expect to see {next_stage.lower()} by now. Something unusual might be going on.")
 
     return " ".join(parts)
 
@@ -544,30 +539,28 @@ def _explain_consumption_chain(months: int, current_stage: int, stage_name: str,
     parts = []
 
     if months > 0:
-        parts.append(f"We're about {months} months into the rate-to-consumption transmission.")
-    else:
-        parts.append("Analyzing the rate-to-consumption transmission chain.")
+        parts.append(f"It's been {months} months since rates started rising.")
 
     if current_stage <= 2:
-        # Early - credit costs rising
-        parts.append("Borrowing costs have increased - credit card and auto loan rates are higher.")
-        if 'Durable goods demand slows' in pending:
-            parts.append("Consumer demand for big-ticket items should start slowing in the next few months.")
+        parts.append("If you carry a credit card balance or need a car loan, you're already feeling this.")
+        parts.append("Credit card rates jumped right away - they're tied to the Fed's rate.")
+        parts.append("Auto loans cost a lot more too, which adds up over a 5-year loan.")
+        if 'Big purchases slow down' in pending:
+            parts.append("People haven't stopped buying cars and appliances yet, but give it a few months.")
 
     elif current_stage == 3:
-        # Durable goods slowing
-        parts.append("Durable goods demand has weakened - consumers are pulling back on big purchases.")
-        parts.append("Auto sales and appliance purchases typically lead this slowdown.")
-        if 'Consumer spending cools' in pending:
-            parts.append("Broader consumer spending should follow within 3-6 months.")
+        parts.append("People are pulling back on big purchases. Car sales are down, and appliance orders are slowing.")
+        parts.append("Makes sense - when financing costs more, that new car or kitchen renovation can wait.")
+        if 'Overall spending cools' in pending:
+            parts.append("Once big-ticket spending slows, overall consumer spending usually follows in 3-6 months.")
 
     elif current_stage == 4:
-        # Spending cooling
-        parts.append("Consumer spending growth has moderated as the cumulative effect of higher rates takes hold.")
-        parts.append("This is the intended effect - slowing demand to reduce inflation pressure.")
+        parts.append("Consumer spending has slowed across the board.")
+        parts.append("This is actually what the Fed wants - when people spend less, businesses can't raise prices as easily, and inflation comes down.")
+        parts.append("The tricky part is slowing things down just enough without causing a recession.")
 
     if next_stage and next_timing and 'overdue' not in next_timing:
-        parts.append(f"Next expected: {next_stage.lower()} {next_timing}.")
+        parts.append(f"What's next: {next_stage.lower()} should happen {next_timing}.")
 
     return " ".join(parts)
 
@@ -580,40 +573,35 @@ def _explain_labor_chain(months: int, current_stage: int, stage_name: str,
     parts = []
 
     if months > 0:
-        parts.append(f"We're about {months} months into the rate-to-labor transmission.")
-    else:
-        parts.append("Analyzing the rate-to-labor transmission chain.")
+        parts.append(f"It's been {months} months since rates started rising.")
 
     if current_stage <= 1:
-        # Financial conditions tightening
-        parts.append("Financial conditions have tightened - credit is harder to get and more expensive.")
-        if 'Business investment slows' in pending:
-            parts.append("Business investment should start slowing in the next 3-9 months.")
+        parts.append("Banks are getting pickier about who they lend to, and loans cost more.")
+        parts.append("Companies that were counting on cheap money to fund growth are rethinking their plans.")
+        if 'Companies cut back on expansion' in pending:
+            parts.append("Watch for business investment to slow over the next 3-9 months - that new factory or office expansion might get postponed.")
 
     elif current_stage == 2:
-        # Investment slowing
-        parts.append("Business investment has slowed as companies respond to tighter financial conditions.")
-        if 'Hiring slows' in pending:
-            parts.append("Hiring is typically the next domino - expect payroll growth to moderate soon.")
+        parts.append("Companies are putting expansion plans on hold. Why borrow at 8% to build something that might return 10%? The math doesn't work anymore.")
+        if 'Hiring slows down' in pending:
+            parts.append("Hiring usually slows next. Companies get cautious before they stop adding jobs.")
 
     elif current_stage <= 4:
-        # Hiring/openings stage
-        if 'Hiring slows' in activated or 'Job openings fall' in activated:
-            parts.append("The labor market is cooling - job openings are declining and hiring has slowed.")
-            parts.append("Job openings typically fall before unemployment rises (leading indicator).")
+        if 'Hiring slows down' in activated or 'Companies stop posting jobs' in activated:
+            parts.append("The job market is cooling. Fewer job postings, slower hiring.")
+            parts.append("Here's the thing: job openings drop before layoffs start. Companies pull back on new hires first - it's easier than letting people go.")
         if 'Unemployment rises' in pending:
-            parts.append("Unemployment hasn't risen significantly yet - that's usually the last shoe to drop.")
+            parts.append("Unemployment hasn't spiked yet. That's usually the last domino to fall.")
 
     elif current_stage == 5:
-        # Unemployment rising
-        parts.append("Unemployment has started rising - the labor market has clearly softened.")
-        parts.append("This is typically the final stage of monetary transmission and often signals the Fed will pause or cut.")
+        parts.append("Unemployment is rising now. The job market has clearly softened.")
+        parts.append("This is usually when the Fed starts thinking about cutting rates. Their job is done - maybe too well if unemployment rises too fast.")
 
     if next_stage and next_timing:
         if 'overdue' not in next_timing:
-            parts.append(f"Next expected: {next_stage.lower()} {next_timing}.")
+            parts.append(f"What's next: {next_stage.lower()} should happen {next_timing}.")
         else:
-            parts.append(f"Note: {next_stage} may be delayed - labor market resilience has been unusual this cycle.")
+            parts.append(f"Interesting: We'd normally expect {next_stage.lower()} by now. The job market has been surprisingly resilient.")
 
     return " ".join(parts)
 

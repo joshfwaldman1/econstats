@@ -1,16 +1,22 @@
 """
-Fed Policy Analysis Frameworks
+Fed Policy Analysis: Is the Fed Too Tight or Too Loose?
 
-Economic analysis tools for understanding Federal Reserve monetary policy stance.
-These frameworks help answer: Is policy too tight? Too loose? What is the Fed watching?
+The Federal Reserve controls short-term interest rates to achieve two goals:
+1. Keep unemployment low (people should be able to find jobs)
+2. Keep inflation near 2% (your money shouldn't lose value too fast)
 
-Key Insight: The Fed has a dual mandate (maximum employment + stable prices at 2%).
-These tools help assess whether current policy is appropriate for achieving those goals.
+This module answers three questions:
 
-Frameworks:
-1. TAYLOR_RULE - What rate SHOULD the Fed set based on inflation and employment?
-2. FINANCIAL_CONDITIONS - How tight/loose are overall financial conditions?
-3. FED_REACTION_FUNCTION - What indicators is the Fed focused on right now?
+1. WHERE SHOULD RATES BE? - Based on inflation and unemployment, what interest rate
+   makes sense? (Uses a formula called the "Taylor Rule" - but you don't need to
+   remember that name, just understand it's math that balances inflation vs jobs.)
+
+2. ARE FINANCIAL CONDITIONS ACTUALLY TIGHT? - The Fed sets one rate, but what matters
+   is whether borrowing actually feels expensive. Stock prices, credit availability,
+   and the dollar all affect this. Sometimes the Fed is "tight" but markets are loose.
+
+3. WHAT IS THE FED FOCUSED ON? - Based on current data, is the Fed more worried about
+   inflation (hawkish) or jobs (dovish)? This helps predict their next move.
 """
 
 from dataclasses import dataclass
@@ -162,57 +168,81 @@ def calculate_taylor_rule(
 
 def interpret_taylor_rule(result: TaylorRuleResult) -> str:
     """
-    Interpret Taylor Rule results in plain English.
+    Explain in plain English: Is the Fed's rate too high, too low, or about right?
 
-    Provides economic context for whether Fed policy appears appropriate,
-    too tight, or too loose based on the Taylor Rule benchmark.
+    Uses a formula that balances inflation (higher rates to cool it) against
+    unemployment (lower rates to boost jobs). Tells you if the Fed is being
+    aggressive on inflation, supportive of growth, or balanced.
 
     Args:
         result: TaylorRuleResult from calculate_taylor_rule()
 
     Returns:
-        Human-readable interpretation with economic reasoning.
+        Human-readable explanation anyone can understand.
     """
     gap_bps = result.gap * 100
+    gap_pct = abs(result.gap)
 
-    # Determine stance
+    # Determine stance with plain English explanations
     if abs(gap_bps) < 25:
-        stance = "roughly neutral"
-        stance_detail = "The Fed's current rate is close to what the Taylor Rule suggests."
-    elif gap_bps > 0:
-        stance = "loose"
+        stance = "about right"
         stance_detail = (
-            f"The Fed is running {abs(gap_bps):.0f} basis points BELOW the Taylor Rule implied rate. "
-            "This suggests policy may be more accommodative than the rule recommends."
+            f"The Fed's current rate of {result.actual_rate:.2f}% is close to where the math says "
+            f"it should be ({result.implied_rate:.2f}%). Policy looks balanced."
+        )
+    elif gap_bps > 0:
+        stance = "lower than expected"
+        stance_detail = (
+            f"The formula says rates should be {result.implied_rate:.2f}%, but the Fed has them at "
+            f"{result.actual_rate:.2f}%. That's {gap_pct:.1f} percentage points lower. "
+            f"Either the Fed is being patient about inflation, or they're worried about growth."
         )
     else:
-        stance = "tight"
+        stance = "higher than expected"
         stance_detail = (
-            f"The Fed is running {abs(gap_bps):.0f} basis points ABOVE the Taylor Rule implied rate. "
-            "This suggests policy may be more restrictive than the rule recommends."
+            f"The formula says rates should be {result.implied_rate:.2f}%, but the Fed has them at "
+            f"{result.actual_rate:.2f}%. That's {gap_pct:.1f} percentage points higher. "
+            f"The Fed appears to be taking a hard line against inflation."
         )
 
-    # Build interpretation
+    # Build interpretation - conversational, not a report
     lines = [
-        f"TAYLOR RULE ANALYSIS (as of {result.calculation_date})",
-        "=" * 50,
+        f"WHERE SHOULD INTEREST RATES BE?",
         "",
-        f"Implied Policy Rate: {result.implied_rate:.2f}%",
-        f"Actual Fed Funds:    {result.actual_rate:.2f}%",
-        f"Gap:                 {gap_bps:+.0f} bps",
+        f"The Fed's rate: {result.actual_rate:.2f}%",
+        f"Formula suggests: {result.implied_rate:.2f}%",
+        f"Verdict: Rates are {stance}",
         "",
-        f"Policy Stance: {stance.upper()}",
         stance_detail,
         "",
-        "Components:",
-        f"  - Neutral rate (r*):     {result.r_star:.1f}%",
-        f"  - Current inflation:     {result.inflation:.2f}% ({result.inflation_source})",
-        f"  - Inflation gap:         {result.inflation_gap:+.2f}% (vs 2% target)",
-        f"  - Output gap:            {result.output_gap:+.2f}%",
-        "",
-        "Note: Taylor Rule is a guideline, not a precise target. The Fed considers",
-        "many factors not captured here (financial stability, forward guidance, etc.)."
+        "Why the formula says what it says:",
     ]
+
+    # Explain inflation impact
+    if result.inflation_gap > 0.5:
+        lines.append(f"  - Inflation is {result.inflation:.1f}%, which is {result.inflation_gap:.1f} points above ")
+        lines.append(f"    the Fed's 2% target. That pushes for higher rates.")
+    elif result.inflation_gap < -0.3:
+        lines.append(f"  - Inflation at {result.inflation:.1f}% is actually below the Fed's 2% target.")
+        lines.append(f"    That argues for lower rates.")
+    else:
+        lines.append(f"  - Inflation at {result.inflation:.1f}% is close to the Fed's 2% target. Neutral impact.")
+
+    # Explain output gap impact
+    if result.output_gap > 0.5:
+        lines.append(f"  - The economy is running hot (output gap: +{result.output_gap:.1f}%). ")
+        lines.append(f"    That calls for higher rates to cool things down.")
+    elif result.output_gap < -0.5:
+        lines.append(f"  - The economy has slack (output gap: {result.output_gap:.1f}%). ")
+        lines.append(f"    That argues for lower rates to stimulate growth.")
+    else:
+        lines.append(f"  - The economy is running close to its potential. Neutral impact.")
+
+    lines.extend([
+        "",
+        "Keep in mind: This formula is a useful benchmark, not a commandment. The Fed also",
+        "considers things like financial stability, global risks, and their own guidance."
+    ])
 
     return "\n".join(lines)
 
@@ -400,89 +430,111 @@ def calculate_financial_conditions(
 
 def interpret_financial_conditions(result: FinancialConditionsResult) -> str:
     """
-    Interpret financial conditions in plain English.
+    Explain in plain English: Is money actually hard to come by?
 
-    Explains what tight or loose conditions mean for the economy and
-    how different components are contributing.
+    The Fed sets one interest rate, but that doesn't tell the whole story.
+    What matters is whether borrowing FEELS expensive across the economy.
+    This looks at interest rates, credit availability, stock prices, and the dollar.
 
     Args:
         result: FinancialConditionsResult from calculate_financial_conditions()
 
     Returns:
-        Human-readable interpretation with economic context.
+        Human-readable explanation anyone can understand.
     """
-    # Main assessment
+    # Main assessment - conversational
     if result.stance == "tight":
         main_assessment = (
-            "Financial conditions are TIGHT. This means the Fed's policy is effectively "
-            "restrictive - borrowing is expensive, credit is harder to get, and/or asset "
-            "prices are depressed. This should slow economic activity and inflation."
+            "Money is hard to come by right now. Borrowing costs are high, lenders are "
+            "cautious, and/or markets are nervous. This puts the brakes on spending and "
+            "investment - which is probably what the Fed wants if they're fighting inflation."
         )
     elif result.stance == "loose":
         main_assessment = (
-            "Financial conditions are LOOSE. Despite the Fed's policy stance, financial "
-            "markets are relatively accommodative - credit is flowing, asset prices are "
-            "strong. This may support continued economic growth and could sustain inflation."
+            "Despite the Fed's rate hikes, financial conditions feel pretty easy. Credit is "
+            "flowing, stocks are up, and businesses can still borrow without much trouble. "
+            "This means the Fed's tightening isn't fully biting yet - the economy is shrugging it off."
         )
     else:
         main_assessment = (
-            "Financial conditions are roughly NEUTRAL. Neither particularly tight nor "
-            "loose, suggesting policy is being transmitted as expected."
+            "Financial conditions are neither tight nor loose - roughly what you'd expect "
+            "given where the Fed has rates. The Fed's policy is working as intended."
         )
 
-    # Component contributions
-    components = []
+    # Component contributions - explain what each means
+    details = []
 
+    # Real rates (interest rate minus inflation)
     if result.real_rate > 0.5:
-        components.append(f"Real rates are restrictive at {result.raw_real_rate:.1f}%")
+        details.append(
+            f"Interest rates after inflation (real rate: {result.raw_real_rate:+.1f}%) are meaningfully "
+            f"positive. Savers are rewarded, but borrowers pay a real cost. This restrains spending."
+        )
     elif result.real_rate < -0.5:
-        components.append(f"Real rates remain accommodative at {result.raw_real_rate:.1f}%")
+        details.append(
+            f"Real interest rates are actually negative ({result.raw_real_rate:+.1f}%). "
+            f"Inflation is higher than the rate you earn, so money in the bank loses value. "
+            f"This encourages spending over saving."
+        )
 
+    # Credit spreads
     if result.credit_spread > 0.5:
-        components.append(f"Credit spreads are elevated ({result.raw_credit_spread:.2f}%), signaling stress")
+        details.append(
+            f"Companies are paying a {result.raw_credit_spread:.1f}% premium over Treasury rates to borrow. "
+            f"That's elevated - lenders are nervous about getting paid back."
+        )
     elif result.credit_spread < -0.5:
-        components.append(f"Credit spreads are tight ({result.raw_credit_spread:.2f}%), showing strong risk appetite")
+        details.append(
+            f"Credit spreads are tight ({result.raw_credit_spread:.1f}%) - investors are happy to lend "
+            f"to companies without demanding much extra yield. Risk appetite is strong."
+        )
 
+    # Stock market
     if result.equity_return > 0.5:
-        components.append(f"Weak equity returns ({result.raw_equity_yoy:+.1f}% YoY) tightening conditions")
+        details.append(
+            f"Stocks are down {abs(result.raw_equity_yoy):.0f}% over the past year. That makes people "
+            f"feel poorer and tightens conditions through the 'wealth effect.'"
+        )
     elif result.equity_return < -0.5:
-        components.append(f"Strong equity gains ({result.raw_equity_yoy:+.1f}% YoY) loosening conditions")
+        details.append(
+            f"Stocks are up {result.raw_equity_yoy:.0f}% over the past year. Rising portfolios make "
+            f"people feel wealthier and more willing to spend - that loosens conditions."
+        )
 
+    # Dollar strength
     if result.dollar_strength > 0.5:
-        components.append(f"Strong dollar ({result.raw_dollar_level:.1f}) tightening via trade channel")
+        details.append(
+            f"The dollar is strong (index: {result.raw_dollar_level:.0f}). Good for importers and travelers, "
+            f"but it makes US exports more expensive abroad and tightens conditions for multinationals."
+        )
     elif result.dollar_strength < -0.5:
-        components.append(f"Weak dollar ({result.raw_dollar_level:.1f}) providing accommodation")
+        details.append(
+            f"The dollar is weak (index: {result.raw_dollar_level:.0f}). That helps US exporters compete "
+            f"globally and effectively loosens financial conditions."
+        )
 
     # Build output
-    source_note = "Chicago Fed NFCI" if result.nfci_available else "Proxy composite"
-
     lines = [
-        f"FINANCIAL CONDITIONS ANALYSIS (as of {result.calculation_date})",
-        "=" * 50,
+        f"IS MONEY ACTUALLY TIGHT?",
         "",
-        f"Composite Score: {result.composite_score:+.2f} ({source_note})",
-        f"  (Positive = tighter, Negative = looser)",
+        f"Overall: Financial conditions are {result.stance.upper()}",
         "",
-        f"Overall Stance: {result.stance.upper()}",
         main_assessment,
-        "",
-        "Component Contributions:",
     ]
 
-    if components:
-        for comp in components:
-            lines.append(f"  - {comp}")
-    else:
-        lines.append("  - All components near neutral")
+    if details:
+        lines.extend([
+            "",
+            "What's driving this:",
+        ])
+        for detail in details:
+            lines.append(f"  - {detail}")
 
-    lines.extend([
-        "",
-        "Raw Values:",
-        f"  - Real Fed Funds Rate:  {result.raw_real_rate:+.2f}%",
-        f"  - Credit Spread:        {result.raw_credit_spread:.2f}%",
-        f"  - S&P 500 YoY:          {result.raw_equity_yoy:+.1f}%",
-        f"  - Dollar Index:         {result.raw_dollar_level:.1f}",
-    ])
+    if not details:
+        lines.extend([
+            "",
+            "All major factors (rates, credit, stocks, dollar) are near normal ranges.",
+        ])
 
     return "\n".join(lines)
 
@@ -682,92 +734,116 @@ def calculate_fed_reaction(
 
 def interpret_fed_reaction(result: FedReactionResult) -> str:
     """
-    Interpret Fed reaction function analysis in plain English.
+    Explain in plain English: What is the Fed focused on, and what will they do next?
 
-    Explains what the Fed is likely thinking based on current data
-    and their historical reaction patterns.
+    Is the Fed more worried about inflation (hawkish - likely to raise rates or keep them high)?
+    Or more worried about jobs (dovish - likely to cut rates)? Or watching and waiting?
 
     Args:
         result: FedReactionResult from calculate_fed_reaction()
 
     Returns:
-        Human-readable interpretation with policy implications.
+        Human-readable explanation anyone can understand.
     """
-    # Stance description
+    # Stance description - conversational
     if result.likely_stance == "hawkish":
         stance_desc = (
-            "The Fed is likely in a HAWKISH posture, prioritizing inflation control. "
-            "This means they're more inclined to keep rates higher for longer or "
-            "even consider additional hikes if needed."
+            "The Fed is in inflation-fighting mode. They're likely to keep rates high, "
+            "and don't expect cuts anytime soon. If inflation stays stubborn, they might "
+            "even hike again. Their message: we'll tolerate economic pain to beat inflation."
         )
     elif result.likely_stance == "dovish":
         stance_desc = (
-            "The Fed is likely in a DOVISH posture, with room to ease policy. "
-            "This means they may be looking for opportunities to cut rates "
-            "or at minimum signal that cuts are coming."
+            "The Fed is shifting toward supporting growth. They're likely looking for "
+            "reasons to cut rates - or at least signal that cuts are coming. Inflation "
+            "is less of a worry right now than the job market."
         )
     else:
         stance_desc = (
-            "The Fed is likely in a BALANCED posture, data-dependent with no "
-            "strong bias in either direction. They'll be watching incoming data "
-            "to determine the next move."
+            "The Fed is in wait-and-see mode. They're not rushing to hike OR cut. "
+            "Each new jobs report and inflation reading will matter a lot. Expect them "
+            "to talk about being 'data dependent' a lot."
         )
 
-    # Urgency context
-    urgency_map = {
-        "high": "Policy action may be imminent or strongly signaled.",
-        "moderate": "The Fed is attentive but not in a rush to act.",
-        "low": "No urgency to change policy in either direction."
-    }
-
-    # Assessment translations
-    inflation_status = {
-        "significantly_above_target": f"Core PCE at {result.core_pce:.2f}% is well above the 2% target",
-        "moderately_above_target": f"Core PCE at {result.core_pce:.2f}% is modestly above target",
-        "near_target": f"Core PCE at {result.core_pce:.2f}% is close to the 2% target",
-        "below_target": f"Core PCE at {result.core_pce:.2f}% is below the 2% target"
-    }
-
-    employment_status = {
-        "tight_labor_market": f"Unemployment at {result.unemployment:.1f}% is below NAIRU - labor market is tight",
-        "near_full_employment": f"Unemployment at {result.unemployment:.1f}% is near full employment",
-        "some_slack": f"Unemployment at {result.unemployment:.1f}% shows some labor market slack",
-        "significant_slack": f"Unemployment at {result.unemployment:.1f}% indicates significant slack"
-    }
-
-    expectations_status = {
-        "well_anchored": "Inflation expectations remain well-anchored near 2%",
-        "drifting_higher": "WARNING: Inflation expectations are drifting higher",
-        "anchored_low": "Inflation expectations anchored but on the low side"
+    # Urgency context - make it clear
+    urgency_desc = {
+        "high": "They may act soon - watch the next meeting closely.",
+        "moderate": "No rush, but they're paying close attention to the data.",
+        "low": "Expect them to sit tight for a while unless something big changes."
     }
 
     lines = [
-        f"FED REACTION FUNCTION ANALYSIS (as of {result.calculation_date})",
-        "=" * 50,
+        f"WHAT IS THE FED THINKING?",
         "",
-        f"Likely Stance: {result.likely_stance.upper()}",
-        f"Urgency: {result.urgency.upper()}",
+        f"Current stance: {result.likely_stance.upper()}",
         "",
         stance_desc,
-        urgency_map.get(result.urgency, ""),
         "",
-        f"Primary Concern: {result.primary_concern}",
+        urgency_desc.get(result.urgency, ""),
         "",
-        "Key Indicators the Fed is Watching:",
-        f"  1. {inflation_status.get(result.inflation_assessment, '')}",
-        f"  2. {employment_status.get(result.employment_assessment, '')}",
-        f"  3. {expectations_status.get(result.expectations_assessment, '')}",
+        f"Their biggest concern right now: {result.primary_concern}",
         "",
-        "Data Summary:",
-        f"  - Core PCE:                {result.core_pce:.2f}% (gap: {result.core_pce_gap:+.2f}%)",
-        f"  - Unemployment:            {result.unemployment:.1f}% (gap: {result.unemployment_gap:+.1f}%)",
-        f"  - 5Y5Y Inflation Expect:   {result.inflation_expectations:.2f}%",
-        f"  - Expectations Anchored:   {'Yes' if result.expectations_anchored else 'NO - CONCERN'}",
+        "THE THREE THINGS THEY'RE WATCHING:",
         "",
-        "Note: This analysis reflects typical Fed reaction patterns. Actual policy",
-        "decisions also consider financial stability, global conditions, and forward",
-        "guidance commitments."
     ]
+
+    # Inflation explanation
+    if result.inflation_assessment == "significantly_above_target":
+        lines.append(f"1. INFLATION: {result.core_pce:.1f}% - way above their 2% target")
+        lines.append(f"   This is the Fed's top priority right now. Until this comes down,")
+        lines.append(f"   don't expect them to ease up.")
+    elif result.inflation_assessment == "moderately_above_target":
+        lines.append(f"1. INFLATION: {result.core_pce:.1f}% - still above the 2% target")
+        lines.append(f"   Getting better, but not done yet. The Fed wants to see more progress.")
+    elif result.inflation_assessment == "near_target":
+        lines.append(f"1. INFLATION: {result.core_pce:.1f}% - close to the 2% target")
+        lines.append(f"   Mission nearly accomplished on inflation. This gives the Fed flexibility.")
+    else:
+        lines.append(f"1. INFLATION: {result.core_pce:.1f}% - actually below the 2% target")
+        lines.append(f"   If anything, the Fed might want inflation a bit HIGHER. Unusual situation.")
+
+    lines.append("")
+
+    # Employment explanation
+    if result.employment_assessment == "tight_labor_market":
+        lines.append(f"2. JOBS: Unemployment at {result.unemployment:.1f}% - very low")
+        lines.append(f"   The job market is strong, maybe too strong. Workers have leverage,")
+        lines.append(f"   which can push wages and prices up. The Fed isn't worried about jobs.")
+    elif result.employment_assessment == "near_full_employment":
+        lines.append(f"2. JOBS: Unemployment at {result.unemployment:.1f}% - healthy")
+        lines.append(f"   The job market is solid. Not too hot, not too cold. The Fed can")
+        lines.append(f"   focus on other things.")
+    elif result.employment_assessment == "some_slack":
+        lines.append(f"2. JOBS: Unemployment at {result.unemployment:.1f}% - showing some weakness")
+        lines.append(f"   The job market is softening. The Fed is starting to worry about")
+        lines.append(f"   their other mandate: keeping people employed.")
+    else:
+        lines.append(f"2. JOBS: Unemployment at {result.unemployment:.1f}% - concerning")
+        lines.append(f"   Jobs are the Fed's big worry now. High unemployment means real pain")
+        lines.append(f"   for real people. Expect them to prioritize growth over inflation.")
+
+    lines.append("")
+
+    # Expectations explanation
+    if result.expectations_assessment == "well_anchored":
+        lines.append(f"3. INFLATION EXPECTATIONS: {result.inflation_expectations:.1f}% - stable")
+        lines.append(f"   People still believe the Fed will keep inflation around 2% long-term.")
+        lines.append(f"   This is crucial - it means the Fed hasn't lost credibility.")
+    elif result.expectations_assessment == "drifting_higher":
+        lines.append(f"3. INFLATION EXPECTATIONS: {result.inflation_expectations:.1f}% - WARNING")
+        lines.append(f"   People are starting to expect higher inflation permanently. This is")
+        lines.append(f"   the Fed's nightmare - it can become a self-fulfilling prophecy.")
+        lines.append(f"   Expect aggressive action to restore credibility.")
+    else:
+        lines.append(f"3. INFLATION EXPECTATIONS: {result.inflation_expectations:.1f}% - on the low side")
+        lines.append(f"   If anything, people expect less inflation than the Fed wants.")
+        lines.append(f"   Not a big concern, but worth noting.")
+
+    lines.extend([
+        "",
+        "Bottom line: Watch the Fed's next statement and press conference for clues.",
+        "Their words often signal moves before they actually happen."
+    ])
 
     return "\n".join(lines)
 
@@ -778,18 +854,18 @@ def interpret_fed_reaction(result: FedReactionResult) -> str:
 
 def full_fed_policy_analysis(fetcher: DataFetcher = None) -> str:
     """
-    Run all three Fed policy frameworks and provide a combined assessment.
+    The big picture: Is Fed policy too tight, too loose, or about right?
 
-    This gives a comprehensive view of:
-    1. Where rates SHOULD be (Taylor Rule)
-    2. How conditions FEEL (Financial Conditions)
-    3. What the Fed is WATCHING (Reaction Function)
+    Synthesizes three different ways of looking at the same question:
+    1. Where SHOULD rates be based on inflation and unemployment?
+    2. Does money FEEL tight or loose in the real economy?
+    3. What is the Fed FOCUSED on, and what will they do next?
 
     Args:
         fetcher: DataFetcher instance. Created if None.
 
     Returns:
-        Combined interpretation of all frameworks.
+        A synthesized assessment that non-economists can understand.
     """
     if fetcher is None:
         fetcher = DataFetcher()
@@ -799,57 +875,60 @@ def full_fed_policy_analysis(fetcher: DataFetcher = None) -> str:
     conditions = calculate_financial_conditions(fetcher=fetcher)
     reaction = calculate_fed_reaction(fetcher=fetcher)
 
-    # Build combined assessment
-    lines = [
-        "COMPREHENSIVE FED POLICY ANALYSIS",
-        "=" * 60,
-        "",
-        "EXECUTIVE SUMMARY",
-        "-" * 40,
-    ]
-
-    # Synthesize findings
+    # Build the big picture summary
     taylor_stance = "loose" if taylor.gap > 0.25 else "tight" if taylor.gap < -0.25 else "neutral"
 
-    lines.extend([
-        f"Taylor Rule:         Fed is {abs(taylor.gap)*100:.0f} bps {taylor_stance} vs implied rate",
-        f"Financial Conditions: {conditions.stance.upper()} (score: {conditions.composite_score:+.2f})",
-        f"Fed Likely Stance:   {reaction.likely_stance.upper()} (urgency: {reaction.urgency})",
+    lines = [
+        "THE BIG PICTURE ON FED POLICY",
+        "=" * 60,
         "",
-    ])
+    ]
 
-    # Overall interpretation
+    # Synthesize into ONE clear takeaway
     if taylor_stance == "loose" and conditions.stance == "loose":
-        overall = (
-            "Both Taylor Rule and financial conditions suggest policy is ACCOMMODATIVE. "
-            "If inflation remains elevated, there may be pressure to tighten further."
+        big_picture = (
+            "Policy is on the easy side. The Fed's rates are lower than textbook math "
+            "suggests, and financial conditions feel loose too. If inflation stays sticky, "
+            "expect the Fed to either stay higher for longer or even consider more hikes. "
+            "Markets might be underestimating how serious the Fed is about inflation."
         )
     elif taylor_stance == "tight" and conditions.stance == "tight":
-        overall = (
-            "Both Taylor Rule and financial conditions suggest policy is RESTRICTIVE. "
-            "This should be putting downward pressure on inflation and economic activity."
+        big_picture = (
+            "Policy is genuinely restrictive. The Fed's rates are higher than the textbook "
+            "level, and financial conditions feel tight across the board. This should be "
+            "working to slow inflation - and the economy. The risk now is overdoing it "
+            "and tipping into recession."
         )
     elif conditions.stance == "tight" and taylor_stance != "tight":
-        overall = (
-            "Financial conditions are tighter than the Fed's rate alone suggests. "
-            "Market forces (spreads, equity, dollar) are adding to restrictiveness."
+        big_picture = (
+            "An interesting split: The Fed's rate itself isn't that restrictive, but "
+            "financial conditions feel tight anyway. Credit spreads, stock weakness, or "
+            "a strong dollar are doing some of the Fed's work for them. The Fed might "
+            "not need to be as aggressive as they otherwise would."
         )
     elif conditions.stance == "loose" and taylor_stance != "loose":
-        overall = (
-            "Financial conditions are looser than the Fed's rate alone suggests. "
-            "Strong risk appetite may be offsetting some of the Fed's tightening."
+        big_picture = (
+            "Markets are shrugging off the Fed. Despite rate hikes, financial conditions "
+            "feel easy - stocks are up, credit is flowing, risk appetite is strong. "
+            "The Fed's tightening isn't biting as hard as they'd like. They may need to "
+            "do more, or at least stay tight longer, to actually cool things down."
         )
     else:
-        overall = (
-            "Policy stance is roughly balanced. The Fed has flexibility to be "
-            "data-dependent and adjust as conditions evolve."
+        big_picture = (
+            "Policy looks balanced. The Fed's rate is roughly where the math says it "
+            "should be, and financial conditions are neither too tight nor too loose. "
+            "The Fed has flexibility here - they can wait and see how the data evolve "
+            "before making their next move."
         )
 
     lines.extend([
-        "Overall Assessment:",
-        overall,
+        big_picture,
         "",
-        "-" * 60,
+        f"The Fed's likely next move: {reaction.likely_stance.upper()}",
+        f"How urgently: {reaction.urgency.upper()}",
+        f"Their main focus: {reaction.primary_concern}",
+        "",
+        "=" * 60,
         "",
     ])
 
