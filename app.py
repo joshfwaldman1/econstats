@@ -6561,9 +6561,31 @@ def main():
             else:
                 comparison_route = None  # Not a comparison, continue normal flow
 
-        # First check pre-computed query plans (fast, no API call needed)
-        # Uses smart matching: normalization + fuzzy matching for typos
-        if not comparison_route:
+        # First check DIRECT MAPPINGS (most precise - curated query->series)
+        # These are exact matches for specific queries like "rent inflation", "black unemployment"
+        # Direct mappings take precedence over fuzzy precomputed plan matching
+        from core.economist_reasoning import check_direct_mapping
+        direct_series = check_direct_mapping(query)
+        direct_mapping_plan = None
+        if direct_series and not comparison_route:
+            # Build a plan from the direct mapping
+            direct_mapping_plan = {
+                'series': direct_series[:4],
+                'explanation': '',
+                'used_direct_mapping': True,
+                'combine_chart': len(direct_series) > 1 and len(direct_series) <= 3,
+            }
+            # Try to get rich explanation from precomputed plans
+            query_lower = query.lower().strip().rstrip('?')
+            for plan_key in [query_lower,
+                           query_lower.replace('is ', '').replace('are ', '').replace('what is the ', '').replace('what are the ', '').strip()]:
+                if plan_key in QUERY_PLANS:
+                    direct_mapping_plan['explanation'] = QUERY_PLANS[plan_key].get('explanation', '')
+                    break
+
+        # Then check pre-computed query plans (fuzzy matching for typos)
+        # Only if no direct mapping was found
+        if not comparison_route and not direct_mapping_plan:
             precomputed_plan = find_query_plan(query)
 
             # Check stock market queries if no precomputed plan found
@@ -6598,7 +6620,13 @@ def main():
         # - Dedupe
         # - Validate relevance
 
-        if precomputed_plan and not local_parsed:
+        if direct_mapping_plan and not local_parsed:
+            # Found a direct mapping - use it (highest priority, most precise)
+            interpretation = direct_mapping_plan.copy()
+            interpretation['used_precomputed'] = False
+            interpretation['used_direct_mapping'] = True
+
+        elif precomputed_plan and not local_parsed:
             # Found a pre-computed plan - use it as the base
             base_series = precomputed_plan.get('series', [])
             hybrid_sources = {'precomputed': base_series, 'rag': [], 'fred': []}
