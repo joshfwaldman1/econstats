@@ -561,6 +561,16 @@ QUERY_SYNONYMS = {
     'unemployment rate': 'unemployment',
     'u3': 'unemployment',
     'u6': 'u6 unemployment',
+    'jobs report': 'employment',
+    'jobless': 'unemployment',
+    'unemployed': 'unemployment',
+    'looking for work': 'unemployment',
+    'cant find a job': 'unemployment',
+    'no jobs': 'unemployment',
+    'layoffs': 'unemployment',
+    'getting fired': 'unemployment',
+    'job losses': 'unemployment',
+    'people losing jobs': 'unemployment',
 
     # Inflation synonyms
     'price increases': 'inflation',
@@ -568,6 +578,22 @@ QUERY_SYNONYMS = {
     'consumer prices': 'cpi',
     'price index': 'cpi',
     'price growth': 'inflation',
+    'prices': 'inflation',
+    'everything expensive': 'inflation',
+    'things cost more': 'inflation',
+    'groceries': 'food inflation',
+    'food prices': 'food inflation',
+    'grocery prices': 'food inflation',
+    'supermarket prices': 'food inflation',
+    'eggs': 'food inflation',
+    'milk prices': 'food inflation',
+    'gas prices': 'gasoline',
+    'fuel prices': 'gasoline',
+    'petrol prices': 'gasoline',
+    'at the pump': 'gasoline',
+    'filling up': 'gasoline',
+    'sticker shock': 'inflation',
+    'shrinkflation': 'inflation',
 
     # Jobs/employment synonyms
     'job growth': 'jobs',
@@ -577,12 +603,36 @@ QUERY_SYNONYMS = {
     'nonfarm payrolls': 'payrolls',
     'job market': 'labor market',
     'labour market': 'labor market',
+    'jobs': 'employment',
+    'work': 'employment',
+    'workers': 'employment',
+    'workforce': 'labor force',
+    'working': 'employment',
+    'getting hired': 'employment',
+    'job openings': 'jolts',
+    'help wanted': 'jolts',
+    'positions available': 'jolts',
+    'vacancies': 'jolts',
+    'quit rate': 'quits',
+    'people quitting': 'quits',
+    'the great resignation': 'quits',
 
     # GDP synonyms
     'economic growth': 'gdp',
     'economy': 'economic outlook',
     'growth rate': 'gdp growth',
     'gdp growth rate': 'gdp growth',
+    'economy doing': 'economic outlook',
+    'how we doing': 'economic outlook',
+    'are we in a recession': 'recession risk',
+    'recession coming': 'recession risk',
+    'economic slowdown': 'recession risk',
+    'soft landing': 'economic outlook',
+    'hard landing': 'recession risk',
+    'output': 'gdp',
+    'production': 'industrial production',
+    'manufacturing': 'industrial production',
+    'factories': 'industrial production',
 
     # Interest rate synonyms
     'fed funds': 'fed funds rate',
@@ -591,6 +641,20 @@ QUERY_SYNONYMS = {
     'borrowing costs': 'rates',
     'mortgage': 'mortgage rates',
     'home loan rates': 'mortgage rates',
+    'interest': 'rates',
+    'the fed': 'federal reserve',
+    'powell': 'federal reserve',
+    'jerome powell': 'federal reserve',
+    'fomc': 'federal reserve',
+    'rate hike': 'fed funds rate',
+    'rate cut': 'fed funds rate',
+    'raising rates': 'fed funds rate',
+    'cutting rates': 'fed funds rate',
+    'prime rate': 'rates',
+    'apr': 'rates',
+    'credit card rates': 'rates',
+    'car loan rates': 'auto loan rates',
+    'auto rates': 'auto loan rates',
 
     # Wages synonyms
     'pay': 'wages',
@@ -599,6 +663,16 @@ QUERY_SYNONYMS = {
     'compensation': 'wages',
     'real wages': 'wages adjusted for inflation',
     'wage growth': 'wages',
+    'paycheck': 'wages',
+    'paychecks': 'wages',
+    'income': 'wages',
+    'take home pay': 'wages',
+    'hourly pay': 'wages',
+    'minimum wage': 'wages',
+    'how much people make': 'wages',
+    'what people earn': 'wages',
+    'salary growth': 'wages',
+    'raises': 'wages',
 
     # Housing synonyms
     'home prices': 'housing prices',
@@ -609,13 +683,31 @@ QUERY_SYNONYMS = {
     'rent costs': 'rent inflation',
     'housing expenses': 'shelter inflation',
     'home affordability': 'housing affordability',
+    'rent': 'housing',
+    'renting': 'rent inflation',
+    'apartment prices': 'rent inflation',
+    'apartment costs': 'rent inflation',
+    'buying a house': 'housing',
+    'buying a home': 'housing',
+    'home buying': 'housing',
+    'housing market': 'housing',
+    'can i afford a house': 'housing affordability',
+    'home ownership': 'housing',
+    'new homes': 'housing starts',
+    'home construction': 'housing starts',
+    'building permits': 'housing permits',
 
     # Natural language queries
     'is the economy growing': 'economic growth',
     'is the economy good': 'economic outlook',
     'how is the economy': 'economic outlook',
+    'whats happening with': 'economic outlook',
+    'what about': 'economic outlook',
+    'tell me about': 'economic outlook',
+    'show me': 'economic outlook',
+    'give me': 'economic outlook',
 
-    # Other common synonyms
+    # Stock market and investment synonyms
     'stock market': 'stocks',
     'equities': 'stocks',
     's&p': 'sp500',
@@ -626,6 +718,74 @@ QUERY_SYNONYMS = {
     'downturn': 'recession risk',
     'consumer spending': 'consumption',
     'retail': 'retail sales',
+    'the market': 'stocks',
+    'wall street': 'stocks',
+    'dow': 'stocks',
+    'nasdaq': 'stocks',
+    'my 401k': 'stocks',
+    'retirement account': 'stocks',
+    'portfolio': 'stocks',
+    'investing': 'stocks',
+    'bonds': 'treasury yields',
+    'treasuries': 'treasury yields',
+    't-bills': 'treasury yields',
+    'treasury bills': 'treasury yields',
+    'treasury bonds': 'treasury yields',
+
+    # Consumer and spending synonyms
+    'spending': 'consumption',
+    'shopping': 'retail sales',
+    'buying stuff': 'retail sales',
+    'consumer confidence': 'consumer sentiment',
+    'how people feel': 'consumer sentiment',
+    'are people spending': 'consumption',
+    'credit cards': 'consumer credit',
+    'household debt': 'consumer credit',
+    'people in debt': 'consumer credit',
+    'saving': 'personal savings',
+    'savings rate': 'personal savings',
+    'are people saving': 'personal savings',
+
+    # Trade and international synonyms
+    'imports': 'trade',
+    'exports': 'trade',
+    'trade deficit': 'trade',
+    'trade war': 'tariffs',
+    'china trade': 'trade',
+    'tariffs': 'trade',
+    'global trade': 'trade',
+    'foreign trade': 'trade',
+    'dollar': 'exchange rates',
+    'currency': 'exchange rates',
+    'strong dollar': 'exchange rates',
+    'weak dollar': 'exchange rates',
+
+    # Energy and commodities synonyms
+    'oil': 'oil prices',
+    'crude': 'oil prices',
+    'crude oil': 'oil prices',
+    'oil price': 'oil prices',
+    'barrel of oil': 'oil prices',
+    'energy prices': 'energy inflation',
+    'electricity': 'energy inflation',
+    'power prices': 'energy inflation',
+    'utilities': 'energy inflation',
+    'gold': 'gold prices',
+    'gold price': 'gold prices',
+    'commodities': 'commodity prices',
+
+    # Common misspellings and variations
+    'unemplyment': 'unemployment',
+    'unemployement': 'unemployment',
+    'infation': 'inflation',
+    'intrest': 'rates',
+    'intreset': 'rates',
+    'mortage': 'mortgage rates',
+    'morgage': 'mortgage rates',
+    'reccession': 'recession risk',
+    'recesion': 'recession risk',
+    'econimic': 'economic',
+    'econmic': 'economic',
 }
 
 def apply_synonyms(query: str) -> str:
@@ -756,10 +916,86 @@ def detect_geographic_scope(query: str) -> dict:
     return {'type': 'national', 'name': 'US'}
 
 
+def strip_question_words(query: str) -> str:
+    """
+    Strip question words and phrases from the beginning of a query.
+    This helps with matching queries like "what is the unemployment rate" to "unemployment".
+    """
+    q = query.lower().strip()
+    # Question patterns to strip (order matters - longer patterns first)
+    question_patterns = [
+        r'^what has been happening with\s+',
+        r'^what is happening with\s+',
+        r'^what\'s happening with\s+',
+        r'^can you tell me about\s+',
+        r'^tell me about\s+',
+        r'^can you show me\s+',
+        r'^i want to see\s+',
+        r'^i\'d like to see\s+',
+        r'^please show me\s+',
+        r'^what is the\s+',
+        r'^what are the\s+',
+        r'^what\'s the\s+',
+        r'^how is the\s+',
+        r'^how are the\s+',
+        r'^why is the\s+',
+        r'^why are the\s+',
+        r'^where is the\s+',
+        r'^when is the\s+',
+        r'^show me the\s+',
+        r'^what is\s+',
+        r'^what are\s+',
+        r'^what\'s\s+',
+        r'^whats\s+',
+        r'^how is\s+',
+        r'^how are\s+',
+        r'^why is\s+',
+        r'^why are\s+',
+        r'^show me\s+',
+        r'^show\s+',
+        r'^give me\s+',
+    ]
+    for pattern in question_patterns:
+        q = re.sub(pattern, '', q)
+    # Also strip trailing question marks and punctuation
+    q = re.sub(r'[\?\.\!]+$', '', q)
+    return q.strip()
+
+
+def calculate_word_overlap_score(query_words: set, plan_key: str) -> float:
+    """
+    Calculate word overlap score between query and plan key.
+    Returns a score from 0 to 1 based on how many words overlap.
+    """
+    plan_words = set(plan_key.lower().split())
+    if not query_words or not plan_words:
+        return 0.0
+    # Count matching words
+    matching = query_words & plan_words
+    if not matching:
+        return 0.0
+    # Score based on proportion of plan words that match (rewards specific matches)
+    # Also consider proportion of query words that match (rewards relevance)
+    plan_coverage = len(matching) / len(plan_words)
+    query_coverage = len(matching) / len(query_words)
+    # Weighted average - plan coverage matters more (we want to match the plan)
+    return 0.6 * plan_coverage + 0.4 * query_coverage
+
+
 def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
     """
     Find the best matching query plan using normalization and fuzzy matching.
     Returns the plan dict if found, None otherwise.
+
+    Matching strategies (in order):
+    1. Exact match on original/normalized/synonym-mapped query
+    2. Plan synonym list matching
+    3. Demographic-aware matching
+    4. Keyword extraction and boosting (inflation, prices, job market, etc.)
+    5. Partial phrase matching ("tight job market" -> "job market")
+    6. Word overlap scoring
+    7. Fuzzy matching with dynamic threshold (lower for short queries)
+    8. Key term extraction fallback
     """
     if not QUERY_PLANS:
         return None
@@ -768,8 +1004,14 @@ def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
     normalized = normalize_query(query)
     original_lower = query.lower().strip()
 
+    # Strip question words for better matching
+    question_stripped = strip_question_words(original_lower)
+
     # Apply synonym mappings (e.g., "jobless rate" -> "unemployment")
     synonym_mapped = apply_synonyms(normalized)
+
+    # Also apply synonyms to question-stripped version
+    synonym_mapped_stripped = apply_synonyms(question_stripped)
 
     # 1. Exact match on original (fastest)
     if original_lower in QUERY_PLANS:
@@ -783,10 +1025,18 @@ def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
     if synonym_mapped in QUERY_PLANS:
         return QUERY_PLANS[synonym_mapped]
 
+    # 2c. Exact match on question-stripped version
+    if question_stripped in QUERY_PLANS:
+        return QUERY_PLANS[question_stripped]
+
+    # 2d. Exact match on synonym-mapped question-stripped version
+    if synonym_mapped_stripped in QUERY_PLANS:
+        return QUERY_PLANS[synonym_mapped_stripped]
+
     # 3. Check synonyms - some plans have a "synonyms" list for alternate names
     for plan_key, plan in QUERY_PLANS.items():
         synonyms = plan.get('synonyms', [])
-        if original_lower in synonyms or normalized in synonyms:
+        if original_lower in synonyms or normalized in synonyms or question_stripped in synonyms:
             return plan
         # Also check if query is a fuzzy match to any synonym
         for syn in synonyms:
@@ -810,9 +1060,118 @@ def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
             demographic_queries.sort(key=len)
             return QUERY_PLANS[demographic_queries[0]]
 
-    # 4. Fuzzy match - find closest query in plans (for non-demographic queries)
+    # === SMART MATCHING STRATEGIES ===
+
+    # 4. Keyword extraction and boosting
+    # If query contains specific keywords, boost related plans
+    keyword_boosts = {
+        # Inflation-related keywords
+        'inflation': ['inflation', 'cpi', 'pce', 'prices', 'price index'],
+        'prices': ['inflation', 'cpi', 'pce', 'prices', 'price index', 'shelter inflation', 'food inflation', 'energy inflation'],
+        'cost of living': ['inflation', 'cpi', 'real wages'],
+        'expensive': ['inflation', 'cpi', 'prices'],
+        'costly': ['inflation', 'cpi', 'prices'],
+        # Job market keywords
+        'job market': ['labor market', 'jobs', 'employment', 'unemployment', 'payrolls'],
+        'tight labor': ['labor market', 'unemployment', 'job openings'],
+        'hiring': ['jobs', 'payrolls', 'job openings', 'employment'],
+        'layoffs': ['unemployment', 'initial claims', 'jobs'],
+        'workers': ['employment', 'labor market', 'wages'],
+        # Housing keywords
+        'housing': ['housing', 'home prices', 'housing starts', 'mortgage rates'],
+        'home': ['housing', 'home prices', 'housing starts', 'mortgage rates'],
+        'rent': ['rent inflation', 'shelter inflation', 'housing'],
+        'mortgage': ['mortgage rates', 'housing'],
+        # Fed/rates keywords
+        'fed': ['fed funds rate', 'fed', 'interest rates', 'monetary policy'],
+        'interest': ['rates', 'fed funds rate', 'treasury yields', 'mortgage rates'],
+        'rates': ['rates', 'fed funds rate', 'treasury yields', 'mortgage rates'],
+    }
+
+    query_words_set = set(normalized.split())
+    query_stripped_words = set(question_stripped.split())
+
+    # Check for keyword boosts
+    for keyword, boost_terms in keyword_boosts.items():
+        if keyword in normalized or keyword in question_stripped:
+            # Find plans that match any of the boost terms
+            boosted_plans = []
+            for plan_key in all_queries:
+                plan_lower = plan_key.lower()
+                for boost_term in boost_terms:
+                    if boost_term in plan_lower:
+                        boosted_plans.append(plan_key)
+                        break
+            if boosted_plans:
+                # Filter out demographic mismatches
+                if not query_demographic:
+                    boosted_plans = [p for p in boosted_plans if not extract_demographic_group(p)]
+                if boosted_plans:
+                    # Find best fuzzy match among boosted plans
+                    best = difflib.get_close_matches(normalized, boosted_plans, n=1, cutoff=0.4)
+                    if best:
+                        return QUERY_PLANS[best[0]]
+
+    # 5. Partial phrase matching
+    # "tight job market" should match "job market", "current labor market" should match "labor market"
+    key_phrases = ['job market', 'labor market', 'job openings', 'wage growth', 'price growth',
+                   'gdp growth', 'economic growth', 'housing market', 'stock market',
+                   'interest rates', 'mortgage rates', 'treasury yields', 'initial claims',
+                   'consumer spending', 'retail sales', 'home prices', 'housing prices']
+
+    for phrase in key_phrases:
+        if phrase in normalized or phrase in question_stripped:
+            # Direct match to plan with this phrase
+            if phrase in QUERY_PLANS:
+                return QUERY_PLANS[phrase]
+            # Find plans containing this phrase
+            phrase_matches = [q for q in all_queries if phrase in q]
+            if phrase_matches:
+                # Filter out demographic mismatches
+                if not query_demographic:
+                    phrase_matches = [p for p in phrase_matches if not extract_demographic_group(p)]
+                if phrase_matches:
+                    # Return the most specific (shortest) match
+                    phrase_matches.sort(key=len)
+                    return QUERY_PLANS[phrase_matches[0]]
+
+    # 6. Dynamic threshold based on query length
+    # Short queries need less strict matching since there's less text to compare
+    word_count = len(normalized.split())
+    if word_count <= 2:
+        dynamic_threshold = 0.50  # More lenient for short queries like "jobs" or "cpi data"
+    elif word_count <= 4:
+        dynamic_threshold = 0.55  # Slightly lenient for medium queries
+    else:
+        dynamic_threshold = threshold  # Use default for longer queries
+
+    # 7. Word overlap scoring - find plans with best word overlap
+    # This helps match "current unemployment rate data" to "unemployment"
+    overlap_scores = []
+    for plan_key in all_queries:
+        # Skip demographic plans if query has no demographic
+        plan_demographic = extract_demographic_group(plan_key)
+        if not query_demographic and plan_demographic:
+            continue
+        score = calculate_word_overlap_score(query_stripped_words, plan_key)
+        if score > 0.3:  # Minimum threshold for word overlap
+            overlap_scores.append((plan_key, score))
+
+    if overlap_scores:
+        # Sort by score descending
+        overlap_scores.sort(key=lambda x: x[1], reverse=True)
+        # If top score is significantly better than others, use it
+        if overlap_scores[0][1] >= 0.5:
+            return QUERY_PLANS[overlap_scores[0][0]]
+        # Otherwise, use fuzzy matching among top candidates
+        top_candidates = [p[0] for p in overlap_scores[:5]]
+        best = difflib.get_close_matches(normalized, top_candidates, n=1, cutoff=0.4)
+        if best:
+            return QUERY_PLANS[best[0]]
+
+    # 8. Fuzzy match - find closest query in plans (for non-demographic queries)
     # Try matching against synonym-mapped query first
-    matches = difflib.get_close_matches(synonym_mapped, all_queries, n=1, cutoff=threshold)
+    matches = difflib.get_close_matches(synonym_mapped, all_queries, n=1, cutoff=dynamic_threshold)
     if matches:
         # Double-check: don't return a demographic plan for a non-demographic query
         match_demographic = extract_demographic_group(matches[0])
@@ -822,7 +1181,7 @@ def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
             return QUERY_PLANS[matches[0]]
 
     # Try matching against normalized query
-    matches = difflib.get_close_matches(normalized, all_queries, n=1, cutoff=threshold)
+    matches = difflib.get_close_matches(normalized, all_queries, n=1, cutoff=dynamic_threshold)
     if matches:
         match_demographic = extract_demographic_group(matches[0])
         if not query_demographic and match_demographic:
@@ -831,7 +1190,7 @@ def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
             return QUERY_PLANS[matches[0]]
 
     # Try matching against original (for cases like typos)
-    matches = difflib.get_close_matches(original_lower, all_queries, n=1, cutoff=threshold)
+    matches = difflib.get_close_matches(original_lower, all_queries, n=1, cutoff=dynamic_threshold)
     if matches:
         match_demographic = extract_demographic_group(matches[0])
         if not query_demographic and match_demographic:
@@ -839,7 +1198,16 @@ def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
         else:
             return QUERY_PLANS[matches[0]]
 
-    # 5. Word-based matching for longer queries
+    # Try matching against question-stripped version
+    matches = difflib.get_close_matches(question_stripped, all_queries, n=1, cutoff=dynamic_threshold)
+    if matches:
+        match_demographic = extract_demographic_group(matches[0])
+        if not query_demographic and match_demographic:
+            pass  # Skip demographic mismatch
+        else:
+            return QUERY_PLANS[matches[0]]
+
+    # 9. Word-based matching for longer queries (fallback)
     # If query contains key economic terms, try to match those
     key_terms = ['inflation', 'unemployment', 'gdp', 'jobs', 'rates', 'housing',
                  'wages', 'recession', 'fed', 'cpi', 'pce', 'payrolls']
@@ -848,13 +1216,17 @@ def find_query_plan(query: str, threshold: float = 0.65) -> dict | None:
             # Find all plans containing this term
             term_matches = [q for q in all_queries if term in q]
             if term_matches:
-                # Find best match among these
-                best = difflib.get_close_matches(normalized, term_matches, n=1, cutoff=0.5)
-                if best:
-                    return QUERY_PLANS[best[0]]
-                # If still no fuzzy match, return the simplest one (shortest)
-                term_matches.sort(key=len)
-                return QUERY_PLANS[term_matches[0]]
+                # Filter out demographic mismatches
+                if not query_demographic:
+                    term_matches = [q for q in term_matches if not extract_demographic_group(q)]
+                if term_matches:
+                    # Find best match among these
+                    best = difflib.get_close_matches(normalized, term_matches, n=1, cutoff=0.4)
+                    if best:
+                        return QUERY_PLANS[best[0]]
+                    # If still no fuzzy match, return the simplest one (shortest)
+                    term_matches.sort(key=len)
+                    return QUERY_PLANS[term_matches[0]]
 
     return None
 

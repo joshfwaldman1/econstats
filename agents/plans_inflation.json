@@ -444,5 +444,96 @@
     "show_yoy": false,
     "combine_chart": true,
     "explanation": "Breakeven inflation rates derived from Treasury Inflation-Protected Securities (TIPS): T5YIE shows what markets expect inflation to average over 5 years, T10YIE shows 10-year expectations. These market-based measures are closely watched by the Fed. When breakevens rise sharply, it signals markets expect higher inflation ahead."
+  },
+  "is inflation bad": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "PCEPILFE",
+      "LES1252881600Q"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "To assess if inflation is 'bad', we look at: headline CPI (CPIAUCSL) - what consumers pay, core CPI (CPILFESL) - underlying trend, core PCE (PCEPILFE) - Fed's 2% target measure, and real wages (LES1252881600Q) - whether workers are keeping up. Inflation above 3-4% is generally considered problematic; if real wages are falling, inflation is definitely hurting workers."
+  },
+  "why is inflation high": {
+    "series": [
+      "CPIAUCSL",
+      "CUSR0000SAH1",
+      "CUSR0000SAF11",
+      "DCOILWTICO"
+    ],
+    "show_yoy": [true, true, true, false],
+    "combine_chart": false,
+    "explanation": "Key inflation drivers: headline CPI (CPIAUCSL) shows overall inflation, shelter (CUSR0000SAH1) is ~33% of CPI and often the stickiest component, food at home (CUSR0000SAF11) affects all households, and oil prices (DCOILWTICO) drive energy costs. High shelter inflation is typically why inflation stays elevated even when goods prices moderate."
+  },
+  "inflation trends": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Inflation trends across three key measures: headline CPI (what consumers pay), core CPI (excluding volatile food/energy), and core PCE (the Fed's target). Viewing these together shows whether inflation is trending up, down, or stable, and whether volatile components are distorting the headline number."
+  },
+  "inflation this year": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Current year inflation: headline CPI (CPIAUCSL) shows total price changes, core CPI (CPILFESL) shows underlying trend excluding food and energy. Year-over-year rates show the current inflation environment. Filter to the current year to see the most recent trajectory."
+  },
+  "car prices": {
+    "series": [
+      "CUSR0000SETA01",
+      "CUSR0000SETA02"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "New car prices (CUSR0000SETA01) and used car prices (CUSR0000SETA02). Used car prices were a major inflation driver in 2021-2022 due to chip shortages affecting new car production. When new car supply is constrained, used car prices spike as buyers shift to the secondary market."
+  },
+  "electricity prices": {
+    "series": [
+      "CUSR0000SEHF01",
+      "CUSR0000SEHE"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Electricity prices (CUSR0000SEHF01) and household utilities including electricity (CUSR0000SEHE). Electricity is a key household expense affected by fuel costs, grid infrastructure, and weather patterns. Unlike gasoline, electricity prices are more stable due to regulated pricing."
+  },
+  "what is causing inflation": {
+    "series": [
+      "CUSR0000SAH1",
+      "CUSR0000SAF11",
+      "CUSR0000SETB01",
+      "DPCERD3Q086SBEA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Major inflation drivers: Shelter (CUSR0000SAH1) is 33% of CPI and typically the stickiest component. Food (CUSR0000SAF11) affects all households and is driven by commodities and labor. Gasoline (CUSR0000SETB01) is volatile but highly visible. Services (DPCERD3Q086SBEA) reflect labor costs and are harder to bring down than goods."
+  },
+  "prices going up": {
+    "series": [
+      "CPIAUCSL",
+      "CUSR0000SAH1",
+      "CUSR0000SAF11"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Price increases: Overall CPI (CPIAUCSL), shelter/rent (CUSR0000SAH1), and groceries (CUSR0000SAF11). These three capture the main areas where consumers feel price increases - overall prices, housing costs, and food costs. Year-over-year shows how fast prices are rising."
+  },
+  "everything is expensive": {
+    "series": [
+      "CPIAUCSL",
+      "CUSR0000SAH1",
+      "CUSR0000SAF11",
+      "LES1252881600Q"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Cost pressures: Overall inflation (CPIAUCSL), shelter (CUSR0000SAH1), food (CUSR0000SAF11), and real wages (LES1252881600Q). When inflation exceeds wage growth, purchasing power declines and everything feels more expensive. Real wage growth shows whether workers are keeping up with rising prices."
   }
 }

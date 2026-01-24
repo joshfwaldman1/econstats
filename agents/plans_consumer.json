@@ -296,5 +296,46 @@
     "show_yoy": true,
     "combine_chart": false,
     "explanation": "Median household income (MEHOINUSA672N) shows the middle-class benchmark - half of households earn more, half less. Real disposable income (DSPIC96) shows purchasing power after taxes and inflation. CPI (CPIAUCSL) shows inflation eating into nominal income gains. Note: Median income is annual, updated with lag."
+  },
+  "how are consumers doing": {
+    "series": [
+      "UMCSENT",
+      "RSXFS",
+      "DSPIC96",
+      "PSAVERT"
+    ],
+    "show_yoy": [false, true, true, false],
+    "combine_chart": false,
+    "explanation": "Consumer health dashboard: Sentiment (UMCSENT) shows confidence. Retail sales (RSXFS) show actual spending. Real disposable income (DSPIC96) shows purchasing power. Savings rate (PSAVERT) indicates financial cushion. High sentiment + strong spending + rising income + healthy savings = consumers doing well."
+  },
+  "are people spending money": {
+    "series": [
+      "RSXFS",
+      "PCE",
+      "UMCSENT"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Spending indicators: Retail sales (RSXFS) shows goods purchases. Personal consumption (PCE) captures total spending including services. Consumer sentiment (UMCSENT) indicates willingness to spend. Rising retail sales + positive PCE growth + stable sentiment = yes, people are spending."
+  },
+  "can people afford things": {
+    "series": [
+      "LES1252881600Q",
+      "CPIAUCSL",
+      "TDSP"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Affordability indicators: Real wages (LES1252881600Q) show purchasing power - if rising, people can afford more. Compare to inflation (CPIAUCSL) to see if wages keep up. Debt service ratio (TDSP) shows what share of income goes to debt - high TDSP means less money for other purchases. Rising real wages + low debt burden = good affordability."
+  },
+  "consumer spending vs inflation": {
+    "series": [
+      "RSXFS",
+      "CPIAUCSL",
+      "LES1252881600Q"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Spending vs inflation: Retail sales growth (RSXFS) vs inflation (CPIAUCSL). If nominal spending rises slower than inflation, real consumption is falling. Real wages (LES1252881600Q) show whether consumers can maintain spending power. Ideally, spending and wages both grow faster than inflation."
   }
 }

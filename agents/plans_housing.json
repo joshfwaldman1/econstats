@@ -423,5 +423,56 @@
     "show_yoy": false,
     "combine_chart": true,
     "explanation": "RHVRUSQ156N is the homeowner vacancy rate (for-sale homes), RRVRUSQ156N is the rental vacancy rate. Both at historic lows indicating severe housing shortage."
+  },
+  "rent vs income": {
+    "series": [
+      "CUSR0000SEHA",
+      "CES0500000003",
+      "DSPIC96"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Rent inflation (CUSR0000SEHA) vs wage growth (CES0500000003) and real disposable income (DSPIC96). When rent rises faster than wages, housing becomes less affordable. Compare the YoY growth rates - if rent consistently outpaces income growth, renters are getting squeezed."
+  },
+  "is rent too high": {
+    "series": [
+      "CUSR0000SEHA",
+      "CES0500000003",
+      "RRVRUSQ156N"
+    ],
+    "show_yoy": [true, true, false],
+    "combine_chart": false,
+    "explanation": "Rent affordability: Rent inflation (CUSR0000SEHA) vs wage growth (CES0500000003) shows if rent is outpacing incomes. Rental vacancy rate (RRVRUSQ156N) indicates market tightness - low vacancy gives landlords pricing power. If rent inflation exceeds wage growth and vacancies are low, rent IS too high for many."
+  },
+  "housing prices vs wages": {
+    "series": [
+      "CSUSHPINSA",
+      "CES0500000003",
+      "DSPIC96"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Home price appreciation (CSUSHPINSA) vs wage growth (CES0500000003) and real disposable income (DSPIC96). When home prices rise faster than incomes, housing becomes less attainable. The gap between home price growth and income growth indicates worsening or improving affordability over time."
+  },
+  "why is housing so expensive": {
+    "series": [
+      "CSUSHPINSA",
+      "MORTGAGE30US",
+      "HOUST",
+      "RRVRUSQ156N"
+    ],
+    "show_yoy": [true, false, true, false],
+    "combine_chart": false,
+    "explanation": "Housing cost drivers: Price appreciation (CSUSHPINSA) shows value growth. Mortgage rates (MORTGAGE30US) affect monthly payments - low rates inflate prices as buyers can afford more. Housing starts (HOUST) indicate supply - low construction = shortage. Rental vacancy (RRVRUSQ156N) shows rental tightness. Combination of limited supply + strong demand + low rates drives prices up."
+  },
+  "can i afford rent": {
+    "series": [
+      "CUSR0000SEHA",
+      "CES0500000003",
+      "LES1252881600Q"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Rent affordability: Compare rent inflation (CUSR0000SEHA) to wage growth (CES0500000003). Real median weekly earnings (LES1252881600Q) shows actual purchasing power. If wages grow faster than rents, affordability improves. If rent outpaces wages, you're getting squeezed. The rule of thumb is rent should be under 30% of income."
   }
 }

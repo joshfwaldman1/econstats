@@ -519,5 +519,46 @@
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "The Fed's current expectations from the Summary of Economic Projections: their rate path (FEDTARMD), unemployment forecast (UNRATEMD), inflation forecast (PCECTPIMD), and GDP growth forecast (GDPC1MD). Together these reveal the Fed's baseline economic scenario and policy intentions."
+  },
+  "when will rates go down": {
+    "series": [
+      "FEDFUNDS",
+      "DGS2",
+      "PCEPILFE"
+    ],
+    "show_yoy": [false, false, true],
+    "combine_chart": false,
+    "explanation": "Rate cut conditions: Current fed funds rate (FEDFUNDS) is where policy stands. 2-year Treasury (DGS2) reflects market expectations - if it's below fed funds, markets expect cuts. Core PCE (PCEPILFE) must fall toward 2% for the Fed to cut. Fed typically cuts when inflation is controlled AND growth is slowing. Check if 2yr yield < fed funds = markets expect cuts."
+  },
+  "are interest rates going up or down": {
+    "series": [
+      "FEDFUNDS",
+      "DGS2",
+      "T10Y2Y"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Rate direction: Fed funds (FEDFUNDS) is current policy. 2-year Treasury (DGS2) is the best predictor of near-term Fed moves - if above fed funds, markets expect hikes; if below, expect cuts. Yield curve (T10Y2Y) shows long vs short rate expectations. Rising rates = tightening, falling = easing."
+  },
+  "how high will rates go": {
+    "series": [
+      "FEDFUNDS",
+      "DFEDTARU",
+      "DGS2",
+      "FEDTARMD"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Terminal rate expectations: Current fed funds (FEDFUNDS) and target (DFEDTARU) show where we are. 2-year Treasury (DGS2) reflects market expectations of peak rate. Fed's own projection (FEDTARMD) shows their expected rate path. Compare DGS2 to fed funds - if DGS2 is higher, markets expect more hikes; if lower, the peak is likely behind us."
+  },
+  "why are rates high": {
+    "series": [
+      "FEDFUNDS",
+      "CPIAUCSL",
+      "PCEPILFE"
+    ],
+    "show_yoy": [false, true, true],
+    "combine_chart": false,
+    "explanation": "The Fed raised rates to fight inflation. Fed funds (FEDFUNDS) shows policy rate. Headline CPI (CPIAUCSL) and core PCE (PCEPILFE) show inflation - the Fed's 2% target. When inflation is above target, the Fed keeps rates high to slow demand and reduce price pressures. Rates will stay high until inflation durably returns to 2%."
   }
 }

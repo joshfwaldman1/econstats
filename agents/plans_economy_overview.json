@@ -1005,5 +1005,129 @@
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "Stock market overview: S&P 500 (SP500) for large caps, Wilshire Small Cap (WILLSMLCAP) for smaller companies, VIX (VIXCLS) for volatility. Small caps often lead market turns. VIX above 20 signals elevated fear; above 30 indicates panic."
+  },
+  "are we in trouble": {
+    "series": [
+      "SAHMREALTIME",
+      "T10Y2Y",
+      "ICSA",
+      "A191RL1Q225SBEA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Economic trouble indicators: Sahm Rule (SAHMREALTIME) triggers above 0.5 when unemployment rises fast - highly accurate recession signal. Yield curve (T10Y2Y) inversion precedes recessions. Initial claims (ICSA) spike during downturns. GDP growth (A191RL1Q225SBEA) turns negative in recessions. If Sahm is low, yield curve positive, claims stable, and GDP positive - we're not in trouble."
+  },
+  "economy good or bad": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "A191RL1Q225SBEA",
+      "CPIAUCSL"
+    ],
+    "show_yoy": [false, false, false, true],
+    "show_mom": true,
+    "combine_chart": false,
+    "explanation": "Economy scorecard: Positive job growth (PAYEMS) = good. Low unemployment (UNRATE) under 5% = good. Positive GDP growth (A191RL1Q225SBEA) = good. Inflation (CPIAUCSL) near 2% = good. Strong on all four = healthy economy. Weakness across multiple = concerning."
+  },
+  "should i be worried about the economy": {
+    "series": [
+      "SAHMREALTIME",
+      "T10Y2Y",
+      "UNRATE",
+      "ICSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Worry indicators: Sahm Rule (SAHMREALTIME) is the most accurate recession signal - worry if it exceeds 0.5. Yield curve (T10Y2Y) inversion has preceded every recession since 1970. Rising unemployment (UNRATE) signals weakening. Spiking initial claims (ICSA) show layoffs accelerating. All stable = less to worry about."
+  },
+  "will there be a recession": {
+    "series": [
+      "SAHMREALTIME",
+      "T10Y2Y",
+      "BBKMLEIX",
+      "ICSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Recession probability indicators: Sahm Rule (SAHMREALTIME) triggers when unemployment rises 0.5pp above 12-month low - near-perfect recession identifier. Yield curve (T10Y2Y) inversion precedes recessions by 6-18 months. BBK Leading Index (BBKMLEIX) forecasts growth using 490 indicators. Initial claims (ICSA) spike signals trouble. NOTE: These show probability, not certainty - recessions are inherently hard to predict."
+  },
+  "what will the fed do": {
+    "series": [
+      "FEDFUNDS",
+      "PCEPILFE",
+      "UNRATE",
+      "DGS2"
+    ],
+    "show_yoy": [false, true, false, false],
+    "combine_chart": false,
+    "explanation": "Fed reaction function: Current fed funds rate (FEDFUNDS) shows policy stance. Core PCE (PCEPILFE) vs 2% target determines inflation pressure. Unemployment (UNRATE) affects the 'maximum employment' mandate. 2-year Treasury (DGS2) reflects market expectations of Fed moves. High inflation + low unemployment = hold/hike. Low inflation + rising unemployment = cut."
+  },
+  "how bad is the economy": {
+    "series": [
+      "A191RL1Q225SBEA",
+      "UNRATE",
+      "SAHMREALTIME",
+      "ICSA"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Economy health check: GDP growth (A191RL1Q225SBEA) - negative = recession territory. Unemployment (UNRATE) - above 6% is elevated. Sahm Rule (SAHMREALTIME) - above 0.5 signals recession. Initial claims (ICSA) - above 300K weekly indicates stress. Compare to historical recessions to gauge severity."
+  },
+  "is the economy getting worse": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "ICSA",
+      "UMCSENT"
+    ],
+    "show_yoy": [true, false, false, false],
+    "combine_chart": false,
+    "explanation": "Deterioration signals: Slowing job growth (PAYEMS YoY) indicates weakening. Rising unemployment (UNRATE) shows labor market stress. Increasing initial claims (ICSA) signal accelerating layoffs. Falling consumer sentiment (UMCSENT) shows pessimism spreading. Watch for trends in these indicators, not just levels."
+  },
+  "whats happening to the economy": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "A191RL1Q225SBEA",
+      "CPIAUCSL"
+    ],
+    "show_yoy": [false, false, false, true],
+    "show_mom": true,
+    "combine_chart": false,
+    "explanation": "Current economic conditions: Monthly job gains (PAYEMS) show hiring momentum. Unemployment rate (UNRATE) indicates labor slack. GDP growth (A191RL1Q225SBEA) measures overall expansion. Inflation (CPIAUCSL) shows price pressures. Together these paint a complete picture of what's happening now."
+  },
+  "economy 2026": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "A191RO1Q156NBEA",
+      "CPIAUCSL"
+    ],
+    "show_yoy": [false, false, false, true],
+    "show_mom": true,
+    "combine_chart": false,
+    "explanation": "2026 economic conditions: Jobs, unemployment, GDP growth, and inflation. Filter to 2026 to see the current year's performance. These four indicators capture the core economic story."
+  },
+  "things getting more expensive": {
+    "series": [
+      "CPIAUCSL",
+      "CUSR0000SAH1",
+      "CUSR0000SAF11",
+      "LES1252881600Q"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Price increases: Overall CPI (CPIAUCSL) measures broad inflation. Shelter (CUSR0000SAH1) is the biggest expense for most. Food (CUSR0000SAF11) affects everyone. Real wages (LES1252881600Q) show if incomes keep pace - falling real wages mean things are genuinely getting more expensive relative to earnings."
+  },
+  "can i afford to buy a house": {
+    "series": [
+      "FIXHAI",
+      "MORTGAGE30US",
+      "MSPUS",
+      "DSPIC96"
+    ],
+    "show_yoy": [false, false, false, true],
+    "combine_chart": false,
+    "explanation": "Housing affordability: FIXHAI (Affordability Index) directly answers this - above 100 means median family qualifies for median home. Mortgage rates (MORTGAGE30US) determine monthly payments. Median home price (MSPUS) is the target. Real disposable income (DSPIC96) shows buying power. Low rates + rising income + affordability above 100 = yes you can afford it."
   }
 }

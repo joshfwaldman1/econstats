@@ -747,5 +747,77 @@
     "show_yoy": true,
     "combine_chart": true,
     "explanation": "Inflation (CPIAUCSL) vs nominal wages (CES0500000003) and real wages (LES1252881600Q). When wage growth exceeds inflation, workers gain purchasing power. When inflation outpaces wages, living standards erode. Real median weekly earnings already adjusts for inflation."
+  },
+  "how's the job market": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "LNS12300060",
+      "ICSA"
+    ],
+    "show_yoy": false,
+    "show_payroll_changes": true,
+    "combine_chart": false,
+    "explanation": "Job market snapshot: Monthly job gains (PAYEMS) show hiring momentum, unemployment rate (UNRATE) shows joblessness, prime-age employment ratio (LNS12300060) is the gold standard for labor market health, and initial claims (ICSA) provide real-time layoff data. Strong job gains + low unemployment + high prime-age employment = healthy market."
+  },
+  "jobs last month": {
+    "series": [
+      "PAYEMS",
+      "UNRATE"
+    ],
+    "show_yoy": false,
+    "show_payroll_changes": true,
+    "combine_chart": false,
+    "explanation": "The latest jobs report: nonfarm payrolls (PAYEMS) shows how many jobs were added/lost last month - this is THE jobs number. Unemployment rate (UNRATE) shows the share of workers actively looking for jobs. The chart will show the most recent monthly data."
+  },
+  "am i going to get laid off": {
+    "series": [
+      "ICSA",
+      "CCSA",
+      "JTSLDL"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Layoff indicators: Initial claims (ICSA) show new unemployment filings weekly - rising claims signal trouble. Continuing claims (CCSA) show how many remain unemployed. JOLTS layoffs (JTSLDL) show monthly layoff activity. Low and stable claims = low layoff risk; rising claims = elevated risk. Compare to historical levels - claims under 250K are typically healthy."
+  },
+  "is it a good time to find a job": {
+    "series": [
+      "JTSJOL",
+      "UNRATE",
+      "JTSQUR"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Job-finding conditions: Job openings (JTSJOL) show how many positions are available - high openings = easier to find work. Unemployment rate (UNRATE) indicates competition for jobs. Quits rate (JTSQUR) shows worker confidence - high quits mean workers believe they can find better jobs. Many openings + low unemployment + high quits = great time to job search."
+  },
+  "can i get a raise": {
+    "series": [
+      "CES0500000003",
+      "JTSJOL",
+      "JTSQUR",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Wage bargaining power: Wage growth (CES0500000003) shows current pay increases. Job openings (JTSJOL) indicate employer desperation for workers - high openings = leverage for raises. Quits rate (JTSQUR) shows if others are leaving for better pay. Compare wage growth to inflation (CPIAUCSL) - if wages lag inflation, you have a case for a raise."
+  },
+  "job openings vs unemployed": {
+    "series": [
+      "JTSJOL",
+      "LNS13000000"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Job openings (JTSJOL) vs total unemployed (LNS13000000). When openings exceed unemployed, there are more jobs than job-seekers - a very tight labor market giving workers bargaining power. When unemployed exceeds openings, workers compete for scarce jobs. The ratio of openings to unemployed is a key labor market tightness indicator."
+  },
+  "wages vs rent": {
+    "series": [
+      "CES0500000003",
+      "CUSR0000SEHA",
+      "LES1252881600Q"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Wages (CES0500000003) vs rent inflation (CUSR0000SEHA). When rent inflation exceeds wage growth, housing becomes less affordable. Real wages (LES1252881600Q) show purchasing power after all inflation. If rent consistently outpaces wages, workers need to spend more of their income on housing."
   }
 }
