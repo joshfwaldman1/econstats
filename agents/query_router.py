@@ -17,7 +17,7 @@ from typing import Optional
 # Region mappings to data sources
 REGIONS = {
     # US - use FRED
-    "us": {"source": "fred", "name": "United States", "aliases": ["usa", "america", "american", "united states"]},
+    "us": {"source": "fred", "name": "United States", "aliases": ["usa", "america", "american", "united states", "u.s.", "u.s"]},
 
     # International - use DBnomics
     "eurozone": {"source": "dbnomics", "name": "Eurozone", "aliases": ["euro area", "euro zone", "eu", "europe", "european"]},
@@ -121,7 +121,7 @@ INDICATORS = {
 # Comparison keywords
 COMPARISON_KEYWORDS = [
     "compared to", "vs", "versus", "compare", "comparison",
-    "relative to", "against", "and", "between"
+    "relative to", "against", "and", "between", "than"
 ]
 
 

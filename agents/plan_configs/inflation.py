@@ -1,9 +1,4 @@
-#!/usr/bin/env python3
-"""Inflation & Prices Expert Agent"""
-
-import sys
-sys.path.insert(0, '/Users/josh/Desktop/econstats/agents')
-from agent_base import process_prompts
+"""Inflation & Prices domain configuration."""
 
 EXPERT_PROMPT = """You are an INFLATION ECONOMIST at the Federal Reserve. You understand price measurement deeply.
 
@@ -94,11 +89,3 @@ PROMPTS = [
     "used car prices",
     "new car prices",
 ]
-
-if __name__ == "__main__":
-    process_prompts(
-        PROMPTS,
-        EXPERT_PROMPT,
-        '/Users/josh/Desktop/econstats/agents/plans_inflation.json',
-        'Inflation & Prices'
-    )

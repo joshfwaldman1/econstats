@@ -1,9 +1,4 @@
-#!/usr/bin/env python3
-"""Demographics & Labor Force Composition Expert Agent"""
-
-import sys
-sys.path.insert(0, '/Users/josh/Desktop/econstats/agents')
-from agent_base import process_prompts
+"""Demographics & Labor Force Composition domain configuration."""
 
 EXPERT_PROMPT = """You are a LABOR DEMOGRAPHER specializing in workforce composition by gender, race, and age.
 
@@ -103,11 +98,3 @@ PROMPTS = [
     "prime age workers",
     "working age population",
 ]
-
-if __name__ == "__main__":
-    process_prompts(
-        PROMPTS,
-        EXPERT_PROMPT,
-        '/Users/josh/Desktop/econstats/agents/plans_demographics.json',
-        'Demographics'
-    )

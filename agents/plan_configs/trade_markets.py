@@ -1,9 +1,4 @@
-#!/usr/bin/env python3
-"""Trade, International & Financial Markets Expert Agent"""
-
-import sys
-sys.path.insert(0, '/Users/josh/Desktop/econstats/agents')
-from agent_base import process_prompts
+"""Trade, International & Financial Markets domain configuration."""
 
 EXPERT_PROMPT = """You are an INTERNATIONAL ECONOMIST and MARKET ANALYST.
 
@@ -91,11 +86,3 @@ PROMPTS = [
     "current account",
     "trade war",
 ]
-
-if __name__ == "__main__":
-    process_prompts(
-        PROMPTS,
-        EXPERT_PROMPT,
-        '/Users/josh/Desktop/econstats/agents/plans_trade_markets.json',
-        'Trade & Markets'
-    )

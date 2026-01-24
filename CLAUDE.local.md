@@ -1,8 +1,19 @@
 # EconStats Project Memory
 
 ## Critical Rules (User-Specified)
+- **MAKE NO MISTAKES** - Be thorough. Test edge cases. Think about how users actually type queries.
 - **DO NOT HALLUCINATE DATES** - Never make up or guess date ranges
 - **PAYROLLS = CHANGES NOT LEVELS** - When using payroll data, focus on month-over-month or year-over-year changes, not absolute employment levels
+
+## Comparison Query Detection (query_router.py)
+**Comparison keywords must be exhaustive:**
+- "vs", "versus", "compared to", "compare", "than", "against", "relative to", "between", "and"
+
+**Region aliases must cover all common spellings:**
+- US: "us", "usa", "u.s.", "u.s", "america", "american", "united states"
+- Eurozone: "eurozone", "euro area", "euro zone", "eu", "europe", "european"
+
+**When a user asks X vs Y, ALWAYS return data for BOTH X and Y.**
 
 ## Economic Comparison Fundamentals (CRITICAL)
 **NEVER compare apples to oranges. All comparisons must be equivalent:**

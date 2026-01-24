@@ -17,59 +17,54 @@ _cache_ttl = timedelta(minutes=15)
 GAMMA_API_BASE = "https://gamma-api.polymarket.com"
 
 # Curated list of economic event slugs to track
+# market_type: "binary" = Yes/No (display as "X%"), "multi" = multiple outcomes (skip or handle specially)
 ECONOMIC_EVENTS = {
-    # Recession/GDP
+    # Recession/GDP - Binary markets
     "us-recession-by-end-of-2026": {
         "category": "recession",
         "display_name": "US Recession by End of 2026",
         "keywords": ["recession", "economic downturn", "contraction"],
+        "market_type": "binary",
     },
     "negative-gdp-growth-in-2025": {
         "category": "gdp",
         "display_name": "Negative GDP Growth in 2025",
-        "keywords": ["gdp", "growth", "economy"],
+        "keywords": ["gdp", "growth", "economy", "recession"],
+        "market_type": "binary",
     },
+    # Fed/Rates - Binary markets
+    "fed-decision-in-january": {
+        "category": "fed",
+        "display_name": "Fed Rate Cut in January",
+        "keywords": ["fed", "federal reserve", "interest rate", "fomc", "rate cut"],
+        "market_type": "binary",
+    },
+    "fed-decision-in-march-885": {
+        "category": "fed",
+        "display_name": "Fed Rate Cut in March",
+        "keywords": ["fed", "federal reserve", "interest rate", "fomc", "rate cut"],
+        "market_type": "binary",
+    },
+    # Fiscal/Policy - Binary markets
+    "will-tariffs-generate-250b-in-2025": {
+        "category": "tariffs",
+        "display_name": "Tariffs >$250B in 2025",
+        "keywords": ["tariffs", "trade"],
+        "market_type": "binary",
+    },
+    # Multi-outcome markets (not displayed as simple %)
+    # Keeping these for reference but they won't show in the simple display
     "gdp-growth-in-2025": {
         "category": "gdp",
         "display_name": "GDP Growth in 2025",
         "keywords": ["gdp", "growth", "economy"],
-    },
-    "us-gdp-growth-in-q4-2025": {
-        "category": "gdp",
-        "display_name": "US GDP Growth Q4 2025",
-        "keywords": ["gdp", "growth", "quarterly"],
-    },
-    # Fed/Rates
-    "fed-decision-in-january": {
-        "category": "fed",
-        "display_name": "Fed Decision in January",
-        "keywords": ["fed", "federal reserve", "interest rate", "fomc"],
-    },
-    "fed-decision-in-march-885": {
-        "category": "fed",
-        "display_name": "Fed Decision in March",
-        "keywords": ["fed", "federal reserve", "interest rate", "fomc"],
+        "market_type": "multi",  # Multiple buckets like 0-1%, 1-2%, etc.
     },
     "how-many-fed-rate-cuts-in-2026": {
         "category": "fed",
         "display_name": "Fed Rate Cuts in 2026",
         "keywords": ["fed", "rate cut", "monetary policy", "fomc"],
-    },
-    "who-will-trump-nominate-as-fed-chair": {
-        "category": "fed",
-        "display_name": "Next Fed Chair Nominee",
-        "keywords": ["fed chair", "federal reserve", "powell"],
-    },
-    # Fiscal/Policy
-    "how-much-revenue-will-the-us-raise-from-tariffs-in-2025": {
-        "category": "tariffs",
-        "display_name": "US Tariff Revenue 2025",
-        "keywords": ["tariffs", "trade", "revenue"],
-    },
-    "will-tariffs-generate-250b-in-2025": {
-        "category": "tariffs",
-        "display_name": "Tariffs >$250B in 2025",
-        "keywords": ["tariffs", "trade"],
+        "market_type": "multi",  # 0, 1, 2, 3+ cuts
     },
 }
 
@@ -211,6 +206,7 @@ def parse_event(event: dict, meta: dict) -> Optional[dict]:
             "title": meta.get("display_name", event.get("title")),
             "category": meta.get("category"),
             "keywords": meta.get("keywords", []),
+            "market_type": meta.get("market_type", "binary"),
             "volume": event.get("volume", 0),
             "liquidity": event.get("liquidity", 0),
             "markets": parsed_markets,
@@ -310,33 +306,120 @@ def find_relevant_predictions(query: str) -> list[dict]:
     return relevant
 
 
-def format_prediction_for_display(prediction: dict) -> str:
+def synthesize_prediction_narrative(predictions: list) -> Optional[str]:
     """
-    Format a prediction market for display in the app.
+    Synthesize multiple predictions into a coherent narrative paragraph.
 
-    Returns a formatted string like:
-    "Recession by 2026: 22.5% (Polymarket, $170K volume)"
+    Instead of listing probabilities, describes what the overall picture looks like
+    with appropriate caveats about the data source.
     """
-    title = prediction.get("title", "Unknown")
+    if not predictions:
+        return None
+
+    # Extract probabilities by category
+    recession_prob = None
+    negative_gdp_prob = None
+    fed_cut_probs = {}
+    tariff_prob = None
+
+    for pred in predictions:
+        if pred.get("market_type") == "multi":
+            continue
+
+        slug = pred.get("slug", "")
+        markets = pred.get("markets", [])
+
+        # Find "Yes" probability
+        prob = None
+        for m in markets:
+            if m.get("outcome") in ("Yes", "1", "True"):
+                prob = m.get("probability", 0) * 100
+                break
+
+        if prob is None:
+            continue
+
+        if "recession" in slug:
+            recession_prob = prob
+        elif "negative-gdp" in slug:
+            negative_gdp_prob = prob
+        elif "fed-decision" in slug or "rate-cut" in slug:
+            if "january" in slug:
+                fed_cut_probs["January"] = prob
+            elif "march" in slug:
+                fed_cut_probs["March"] = prob
+        elif "tariff" in slug and "250b" in slug:
+            tariff_prob = prob
+
+    # Build narrative based on what we have
+    parts = []
+
+    # Economic outlook narrative
+    if recession_prob is not None or negative_gdp_prob is not None:
+        if recession_prob is not None and negative_gdp_prob is not None:
+            if recession_prob < 25 and negative_gdp_prob < 10:
+                parts.append(f"Traders appear relatively optimistic about growth, pricing in only a {negative_gdp_prob:.0f}% chance of GDP contraction in 2025 and {recession_prob:.0f}% odds of recession through 2026.")
+            elif recession_prob >= 40:
+                parts.append(f"Markets show meaningful concern about a downturn, with recession odds at {recession_prob:.0f}% through 2026 and a {negative_gdp_prob:.0f}% chance of negative GDP growth this year.")
+            else:
+                parts.append(f"Markets see recession as possible but not the base case ({recession_prob:.0f}% odds through 2026), with only {negative_gdp_prob:.0f}% chance of outright GDP decline in 2025.")
+        elif recession_prob is not None:
+            if recession_prob < 20:
+                parts.append(f"Traders see recession as unlikely, pricing it at just {recession_prob:.0f}% through end of 2026.")
+            elif recession_prob < 40:
+                parts.append(f"Recession odds sit at {recession_prob:.0f}% through 2026—a real but not dominant risk in traders' view.")
+            else:
+                parts.append(f"Elevated recession concern: markets put {recession_prob:.0f}% odds on a downturn by end of 2026.")
+        elif negative_gdp_prob is not None:
+            if negative_gdp_prob < 10:
+                parts.append(f"Traders see GDP contraction as very unlikely in 2025, at just {negative_gdp_prob:.0f}%.")
+            else:
+                parts.append(f"There's a {negative_gdp_prob:.0f}% chance markets assign to negative GDP growth in 2025.")
+
+    # Fed narrative
+    if fed_cut_probs:
+        months = sorted(fed_cut_probs.keys(), key=lambda x: ["January", "February", "March", "April", "May", "June"].index(x) if x in ["January", "February", "March", "April", "May", "June"] else 99)
+        if all(p < 10 for p in fed_cut_probs.values()):
+            parts.append(f"The Fed is expected to hold steady near-term, with rate cut odds below 10% for upcoming meetings.")
+        elif any(p > 50 for p in fed_cut_probs.values()):
+            high_month = [m for m, p in fed_cut_probs.items() if p > 50][0]
+            parts.append(f"Markets are pricing in a likely rate cut in {high_month} ({fed_cut_probs[high_month]:.0f}% odds).")
+        else:
+            probs_str = ", ".join([f"{m}: {p:.0f}%" for m, p in fed_cut_probs.items()])
+            parts.append(f"Rate cut odds remain modest ({probs_str}).")
+
+    # Tariff narrative
+    if tariff_prob is not None:
+        if tariff_prob < 20:
+            parts.append(f"Major tariff escalation (>$250B) seen as unlikely at {tariff_prob:.0f}%.")
+        else:
+            parts.append(f"Traders put {tariff_prob:.0f}% odds on tariffs exceeding $250B in 2025.")
+
+    if not parts:
+        return None
+
+    return " ".join(parts)
+
+
+def format_prediction_for_display(prediction: dict) -> Optional[str]:
+    """Format a single prediction - used as fallback."""
+    if prediction.get("market_type") == "multi":
+        return None
+
+    slug = prediction.get("slug", "")
     markets = prediction.get("markets", [])
-    volume = prediction.get("volume", 0)
 
-    # Find primary probability (usually "Yes" for binary markets)
     prob = None
     for m in markets:
         if m.get("outcome") in ("Yes", "1", "True"):
-            prob = m.get("probability")
+            prob = m.get("probability", 0) * 100
             break
 
-    if prob is None and markets:
-        prob = markets[0].get("probability")
+    if prob is None:
+        return None
 
-    if prob is not None:
-        prob_pct = prob * 100
-        vol_str = f"${volume/1000:.0f}K" if volume >= 1000 else f"${volume:.0f}"
-        return f"{title}: {prob_pct:.1f}% ({vol_str} volume)"
-
-    return f"{title}: No probability data"
+    title = prediction.get("title", "")
+    return f"{title}: {prob:.0f}%"
 
 
 # Quick test

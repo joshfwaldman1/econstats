@@ -1,9 +1,4 @@
-#!/usr/bin/env python3
-"""GDP & Economic Growth Expert Agent"""
-
-import sys
-sys.path.insert(0, '/Users/josh/Desktop/econstats/agents')
-from agent_base import process_prompts
+"""GDP & Economic Growth domain configuration."""
 
 EXPERT_PROMPT = """You are a MACROECONOMIST specializing in GDP measurement and economic growth.
 
@@ -96,11 +91,3 @@ PROMPTS = [
     "investment spending",
     "government spending",
 ]
-
-if __name__ == "__main__":
-    process_prompts(
-        PROMPTS,
-        EXPERT_PROMPT,
-        '/Users/josh/Desktop/econstats/agents/plans_gdp.json',
-        'GDP & Growth'
-    )

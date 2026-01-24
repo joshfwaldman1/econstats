@@ -1,9 +1,4 @@
-#!/usr/bin/env python3
-"""Employment & Labor Market Expert Agent"""
-
-import sys
-sys.path.insert(0, '/Users/josh/Desktop/econstats/agents')
-from agent_base import process_prompts
+"""Employment & Labor Market domain configuration."""
 
 EXPERT_PROMPT = """You are a LABOR ECONOMIST specializing in employment data. You know FRED series IDs by heart.
 
@@ -98,11 +93,3 @@ PROMPTS = [
     "job losses",
     "weekly hours worked",
 ]
-
-if __name__ == "__main__":
-    process_prompts(
-        PROMPTS,
-        EXPERT_PROMPT,
-        '/Users/josh/Desktop/econstats/agents/plans_employment.json',
-        'Employment & Labor'
-    )

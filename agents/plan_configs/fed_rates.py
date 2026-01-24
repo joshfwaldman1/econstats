@@ -1,9 +1,4 @@
-#!/usr/bin/env python3
-"""Federal Reserve & Interest Rates Expert Agent"""
-
-import sys
-sys.path.insert(0, '/Users/josh/Desktop/econstats/agents')
-from agent_base import process_prompts
+"""Federal Reserve & Interest Rates domain configuration."""
 
 EXPERT_PROMPT = """You are a MONETARY POLICY ECONOMIST who worked at the Federal Reserve. You understand interest rates and Fed policy deeply.
 
@@ -99,11 +94,3 @@ PROMPTS = [
     "terminal rate",
     "yield curve inversion",
 ]
-
-if __name__ == "__main__":
-    process_prompts(
-        PROMPTS,
-        EXPERT_PROMPT,
-        '/Users/josh/Desktop/econstats/agents/plans_fed_rates.json',
-        'Fed & Interest Rates'
-    )

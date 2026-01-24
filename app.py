@@ -46,7 +46,7 @@ except Exception:
 
 # Import Polymarket prediction markets (forward-looking sentiment)
 try:
-    from agents.polymarket import find_relevant_predictions, format_prediction_for_display
+    from agents.polymarket import find_relevant_predictions, format_prediction_for_display, synthesize_prediction_narrative
     POLYMARKET_AVAILABLE = True
 except Exception:
     POLYMARKET_AVAILABLE = False
@@ -5657,25 +5657,14 @@ def main():
                         </div>""", unsafe_allow_html=True)
 
                     # Polymarket predictions (forward-looking market sentiment)
-                    if msg.get("polymarket"):
+                    if msg.get("polymarket") and POLYMARKET_AVAILABLE:
                         predictions = msg["polymarket"]
-                        pm_items = []
-                        for pred in predictions[:2]:  # Show top 2
-                            markets = pred.get('markets', [])
-                            title = pred.get('title', '')
-                            url = pred.get('url', '')
-                            vol = pred.get('volume', 0)
-                            vol_str = f"${vol/1000:.0f}K" if vol >= 1000 else f"${vol:.0f}"
-                            # Find "Yes" probability
-                            for m in markets:
-                                if m.get('outcome') in ('Yes', '1', 'True'):
-                                    prob = m.get('probability', 0) * 100
-                                    pm_items.append(f"<a href='{url}' target='_blank' style='color: #3b82f6;'>{title}</a>: <strong>{prob:.0f}%</strong> ({vol_str} vol)")
-                                    break
-                        if pm_items:
-                            st.markdown(f"""<div style='background: #f8fafc; border-left: 3px solid #f59e0b; padding: 10px 14px; margin: 12px 0; font-size: 0.9rem;'>
-                                <strong style='color: #92400e;'>📈 Market Expectations (Polymarket)</strong><br>
-                                {'<br>'.join(pm_items)}
+                        narrative = synthesize_prediction_narrative(predictions)
+                        if narrative:
+                            st.markdown(f"""<div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
+                                <div style='color: #64748b; font-size: 0.8rem; margin-bottom: 6px;'>PREDICTION MARKETS</div>
+                                <div style='color: #334155;'>{narrative}</div>
+                                <div style='color: #94a3b8; font-size: 0.75rem; margin-top: 8px;'>Based on <a href='https://polymarket.com' target='_blank' style='color: #94a3b8;'>Polymarket</a> data, where prices function as a proxy for the likelihood of an event. These probabilities shift rapidly as traders react to news. As a market-based metric, they capture "wisdom of the crowd" sentiment but may differ from professional forecasts.</div>
                             </div>""", unsafe_allow_html=True)
 
                     # Render charts from stored series_data
@@ -5825,23 +5814,20 @@ def main():
                                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                                 st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
 
-        # Follow-up section at bottom - Anthropic chat style
+        # Follow-up section at bottom
         if not query and st.session_state.messages:
             st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
-            # Text input for follow-up - coral border style
+            # Text input for follow-up
             chat_query = st.text_input(
                 "Follow-up",
-                placeholder="Send a message",
+                placeholder="Ask a follow-up question...",
                 label_visibility="collapsed",
                 key="chat_followup_input"
             )
             if chat_query:
                 st.session_state.pending_query = chat_query
                 st.rerun()
-
-            # Suggested follow-ups below the input
-            st.markdown("<p style='color: #9ca3af; font-size: 0.75rem; margin: 6px 0 4px 0;'>Try asking:</p>", unsafe_allow_html=True)
 
             # Determine context from last query to suggest relevant follow-ups
             last_query_lower = st.session_state.last_query.lower() if st.session_state.last_query else ""
@@ -5868,13 +5854,24 @@ def main():
                 followup1 = ("What are mortgage rates?", "mortgage rates")
                 followup2 = ("How is inflation affecting housing?", "shelter inflation")
 
-            btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
+            # Row with suggestions and new search option
+            label_col, spacer_col = st.columns([5, 1])
+            with label_col:
+                st.markdown("<p style='color: #9ca3af; font-size: 0.75rem; margin: 6px 0 4px 0;'>Try asking:</p>", unsafe_allow_html=True)
+            with spacer_col:
+                if st.button("↩ New search", key="new_search_btn", type="tertiary"):
+                    st.session_state.messages = []
+                    st.session_state.last_query = None
+                    st.session_state.last_series = []
+                    st.rerun()
+
+            btn_col1, btn_col2 = st.columns([1, 1])
             with btn_col1:
-                if st.button(followup1[0], key="followup_1", width='stretch'):
+                if st.button(followup1[0], key="followup_1"):
                     st.session_state.pending_query = followup1[1]
                     st.rerun()
             with btn_col2:
-                if st.button(followup2[0], key="followup_2", width='stretch'):
+                if st.button(followup2[0], key="followup_2"):
                     st.session_state.pending_query = followup2[1]
                     st.rerun()
 

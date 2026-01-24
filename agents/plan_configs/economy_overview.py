@@ -1,9 +1,4 @@
-#!/usr/bin/env python3
-"""Economy Overview Expert Agent - For broad economic health questions"""
-
-import sys
-sys.path.insert(0, '/Users/josh/Desktop/econstats/agents')
-from agent_base import process_prompts
+"""Economy Overview domain configuration - For broad economic health questions."""
 
 EXPERT_PROMPT = """You are the CHAIR OF THE COUNCIL OF ECONOMIC ADVISERS. When people ask "how is the economy," you know exactly what to show them.
 
@@ -88,11 +83,3 @@ PROMPTS = [
     "economy check",
     "economic status",
 ]
-
-if __name__ == "__main__":
-    process_prompts(
-        PROMPTS,
-        EXPERT_PROMPT,
-        '/Users/josh/Desktop/econstats/agents/plans_economy_overview.json',
-        'Economy Overview'
-    )
