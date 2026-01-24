@@ -6326,27 +6326,31 @@ def main():
                 st.session_state.pending_query = chat_query
                 st.rerun()
 
-            # Determine context from last query to suggest relevant follow-ups
-            last_query_lower = st.session_state.last_query.lower() if st.session_state.last_query else ""
+            # Generate REAL follow-ups based on what's currently displayed
             last_series = st.session_state.last_series if st.session_state.last_series else []
+            last_series_str = str(last_series).upper()
 
-            # Default follow-ups
-            followup1 = ("Is a recession coming?", "recession risk")
-            followup2 = ("Are wages keeping up with inflation?", "wages vs inflation")
+            # Default: transformation follow-ups that work for any data
+            followup1 = ("Show year-over-year change", "show year-over-year")
+            followup2 = ("Compare to pre-COVID", "show pre-covid through now")
 
-            # Context-specific follow-ups
-            if 'inflation' in last_query_lower or 'CPI' in str(last_series) or 'price' in last_query_lower:
-                followup1 = ("Are wages keeping up?", "wages vs inflation")
-                followup2 = ("What's core inflation?", "core inflation")
-            elif 'wage' in last_query_lower or 'earning' in last_query_lower:
-                followup1 = ("How does this compare to inflation?", "wages vs inflation")
-                followup2 = ("What about real wages?", "real wages")
-            elif 'gdp' in last_query_lower or 'growth' in last_query_lower:
-                followup1 = ("Is a recession coming?", "recession risk")
-                followup2 = ("How is the job market?", "jobs")
-            elif 'housing' in last_query_lower or 'home' in last_query_lower:
-                followup1 = ("What are mortgage rates?", "mortgage rates")
-                followup2 = ("How is inflation affecting housing?", "shelter inflation")
+            # Context-specific follow-ups based on WHAT DATA IS SHOWN (not the query text)
+            if any(s in last_series_str for s in ['UNRATE', 'PAYEMS', 'LNS', 'EMPL']):
+                # Employment data shown - suggest related employment additions
+                followup1 = ("Add job openings", "add job openings JOLTS")
+                followup2 = ("Break down by age group", "unemployment by age")
+            elif any(s in last_series_str for s in ['CPI', 'PCE', 'INFLATION']):
+                # Inflation data shown - suggest related inflation views
+                followup1 = ("Show core vs headline", "core inflation vs headline")
+                followup2 = ("Compare to wage growth", "wages vs inflation")
+            elif any(s in last_series_str for s in ['GDP', 'A191']):
+                # GDP data shown - suggest GDP-related follow-ups
+                followup1 = ("Show quarterly growth rate", "quarterly GDP growth rate")
+                followup2 = ("Add consumer spending", "add consumer spending PCE")
+            elif any(s in last_series_str for s in ['MORTGAGE', 'HOUST', 'PERMIT', 'CSUSHPINSA']):
+                # Housing data shown
+                followup1 = ("Add housing starts", "add housing starts")
+                followup2 = ("Show affordability", "housing affordability")
 
             # Compact row: suggestions + new search
             col1, col2, col3 = st.columns([2, 2, 1])
