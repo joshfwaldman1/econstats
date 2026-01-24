@@ -59,8 +59,10 @@ DIRECT_SERIES_MAPPINGS = {
     'food prices': ['CPIUFDNS', 'CPIUFDSL'],
     'food inflation': ['CPIUFDNS', 'CPIUFDSL'],
     'grocery prices': ['CPIUFDNS'],
-    'shelter inflation': ['CUSR0000SAH1', 'CPIHOSSL'],
-    'rent inflation': ['CUSR0000SEHA', 'CPIHOSSL'],
+    'shelter inflation': ['CUSR0000SAH1'],
+    'rent inflation': ['CUSR0000SEHA'],
+    'is rent inflation coming down': ['CUSR0000SEHA'],
+    'rent prices': ['CUSR0000SEHA', 'zillow_zori_national'],
 
     # GDP - specific measures
     'gdp': ['GDPC1', 'A191RL1Q225SBEA'],

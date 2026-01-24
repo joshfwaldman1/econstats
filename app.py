@@ -3967,34 +3967,46 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
 
         data_summary.append(summary)
 
-    prompt = f"""You are an expert economist reviewing data for a user query. Your job is to write a clear, insightful summary explanation.
+    prompt = f"""You are Jason Furman or Claudia Sahm - a world-class economist writing a briefing. Your job is to give DEEP, INSIGHTFUL analysis that helps people truly understand what the data means.
 
-USER QUERY: {query}
+USER QUESTION: {query}
 
-DATA SUMMARY:
+DATA:
 {json.dumps(data_summary, indent=2)}
 
-INITIAL EXPLANATION: {original_explanation}
+CONTEXT FROM PRECOMPUTED ANALYSIS: {original_explanation}
 
-Write an improved explanation that:
-1. States the current values clearly with proper formatting (IMPORTANT: if unit is "Thousands of Persons", convert to millions - e.g., 1764.6 thousands = 1.76 million)
-2. Provides meaningful context (is this high/low historically? trending up/down?)
-3. Answers the user's actual question directly
-4. Avoids jargon - write for a general audience
-5. Be fact-based. You CAN characterize things as "strong", "weak", "cooling", etc. - but only if the data supports it. If signals are mixed (e.g., slowing job growth but still-low unemployment), acknowledge the mixed picture honestly rather than cherry-picking one narrative.
-6. For employment/payroll data: Focus on job GROWTH, not total levels. If monthly_job_change, avg_monthly_change_3mo, and avg_monthly_change_12mo are provided, mention: (a) the latest month's job gain/loss, (b) the 3-month average, and (c) the 12-month average. These are in thousands, so 150.0 = 150,000 jobs. Context: The economy needs ~100-150K jobs/month to keep up with population growth. If the 3-month average is negative or well below the 12-month average, that's a cooling signal worth noting.
-7. IMPORTANT: EVERY CHART MUST HAVE AN EXPLANATORY BULLET. If multiple series are shown, provide a bullet point for EACH one explaining what it measures and why it matters. Don't just focus on one chart - acknowledge all the data being presented.
+Write a response that demonstrates REAL ECONOMIC THINKING:
 
-CRITICAL DATE RULE: You MUST use the exact dates from the "latest_date" field in the DATA SUMMARY above. Do NOT guess or hallucinate dates. If the data says "2025-12-01", write "December 2025". NEVER write a different year than what the data shows.
+1. ANSWER THE QUESTION FIRST - State a clear, direct answer in the first sentence.
 
-CRITICAL: Do NOT start with meta-commentary like "I notice the data..." or "The data provided shows..." or "Looking at the data...". Just answer the question directly using the data. Start with the answer, not with observations about what data you have.
+2. GIVE THE NUMBERS WITH CONTEXT:
+   - State current values with proper units
+   - Compare to: (a) year ago, (b) recent peak/trough, (c) historical averages
+   - Is this high/low/normal by historical standards?
 
-Keep it to 4-6 concise sentences if multiple series are shown. Do not use bullet points. Just return the explanation text, nothing else."""
+3. EXPLAIN THE "SO WHAT":
+   - Why does this matter for regular people?
+   - What does this imply going forward?
+   - Are there caveats or complications to the simple narrative?
+
+4. SHOW ECONOMIC THINKING:
+   - Connect to related concepts (e.g., for rent inflation: shelter is 1/3 of CPI, so this affects overall inflation trajectory)
+   - Note any lags, measurement issues, or data limitations
+   - If signals are mixed, say so honestly
+
+5. FORMAT: Use bullet points (•) for clarity. 4-6 bullets total.
+
+RULES:
+- Use EXACT dates from the data. If it says "2025-12-01", write "December 2025"
+- Convert units naturally: "1764.6 thousands" → "about 1.8 million"
+- NO meta-commentary ("The data shows...", "I notice..."). Just answer.
+- Be authoritative but honest about uncertainty"""
 
     url = 'https://api.anthropic.com/v1/messages'
     payload = {
         'model': 'claude-opus-4-5-20251101',
-        'max_tokens': 300,
+        'max_tokens': 600,  # Increased for deeper analysis
         'messages': [{'role': 'user', 'content': prompt}]
     }
     headers = {

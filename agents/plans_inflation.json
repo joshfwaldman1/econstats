@@ -243,6 +243,22 @@
     "combine_chart": true,
     "explanation": "CPI Rent of Primary Residence (CUSR0000SEHA) and Owners' Equivalent Rent (CUSR0000SEHC). CRITICAL: CPI rent data LAGS actual market rents by 12+ months because BLS surveys existing leases that turn over slowly. If market rents are falling today, CPI won't show it for a year. For current rent trends, check Zillow or Apartment List indexes."
   },
+  "is rent inflation coming down": {
+    "series": [
+      "CUSR0000SEHA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Rent inflation (CUSR0000SEHA) measures the year-over-year change in what renters actually pay. Key context: (1) CPI rent LAGS actual market rents by 12+ months due to slow lease turnover. (2) Rent peaked at ~8-9% YoY in early 2023 and has been declining since. (3) Market rent indexes (Zillow ZORI, Apartment List) show even faster deceleration that hasn't yet fully filtered into CPI. Watch for the trend direction - sustained decline toward 3-4% would signal meaningful progress."
+  },
+  "is rent inflation coming down yet": {
+    "series": [
+      "CUSR0000SEHA"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Rent inflation (CUSR0000SEHA) measures the year-over-year change in what renters actually pay. Key context: (1) CPI rent LAGS actual market rents by 12+ months due to slow lease turnover. (2) Rent peaked at ~8-9% YoY in early 2023 and has been declining since. (3) Market rent indexes (Zillow ZORI, Apartment List) show even faster deceleration that hasn't yet fully filtered into CPI. Watch for the trend direction - sustained decline toward 3-4% would signal meaningful progress."
+  },
   "shelter inflation": {
     "series": [
       "CUSR0000SAH1",
