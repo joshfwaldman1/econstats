@@ -65,6 +65,13 @@ try:
 except Exception:
     REASONING_AVAILABLE = False
 
+# Import query logger for learning from searches
+try:
+    from core.query_logger import log_query as log_query_detailed
+    QUERY_LOGGING = True
+except Exception:
+    QUERY_LOGGING = False
+
 # Import DBnomics for international data (IMF, Eurostat, ECB, etc.)
 try:
     from agents.dbnomics import find_international_plan, is_international_query, get_observations_dbnomics
@@ -3823,45 +3830,34 @@ def validate_query_series_alignment(query: str, series: list) -> dict:
     }
 
 
-def log_query_resolution(query: str, source: str, series: list, validation: dict = None):
+def log_query_resolution(query: str, source: str, series: list, validation: dict = None,
+                         explanation: str = "", reasoning_indicators: list = None,
+                         is_comparison: bool = False, sources: dict = None):
     """
     Log query resolutions for analysis and improvement.
 
-    Logs to a JSON file that can be analyzed to find patterns in:
-    - Which queries use precomputed plans vs Claude API
-    - Validation failures
-    - Common query patterns that need new plans
+    Uses the detailed query logger to track:
+    - Which queries use precomputed plans vs reasoning vs API
+    - What series are returned
+    - Patterns that need improvement
     """
-    log_file = os.path.join(os.path.dirname(__file__), 'query_log.json')
+    # Use the detailed logger if available
+    if QUERY_LOGGING:
+        try:
+            log_query_detailed(
+                query=query,
+                series=series,
+                method=source,
+                explanation=explanation,
+                reasoning_indicators=reasoning_indicators,
+                is_comparison=is_comparison,
+                sources=sources,
+            )
+        except Exception as e:
+            print(f"[Logging] Error: {e}")
 
-    entry = {
-        'timestamp': datetime.now().isoformat(),
-        'query': query,
-        'source': source,  # 'precomputed', 'claude', 'local_followup'
-        'series': series,
-        'validation': validation
-    }
-
-    try:
-        # Append to log file (create if doesn't exist)
-        logs = []
-        if os.path.exists(log_file):
-            try:
-                with open(log_file, 'r') as f:
-                    logs = json.load(f)
-            except:
-                logs = []
-
-        logs.append(entry)
-
-        # Keep only last 1000 entries
-        if len(logs) > 1000:
-            logs = logs[-1000:]
-
-        with open(log_file, 'w') as f:
-            json.dump(logs, f, indent=2)
-    except:
-        pass  # Don't fail on logging errors
+    # Also log to console for debugging
+    print(f"[QUERY] {query} | Method: {source} | Series: {series}")
 
 
 def call_economist_reviewer(query: str, series_data: list, original_explanation: str) -> str:
@@ -6673,7 +6669,20 @@ def main():
                 )
             )
         )
-        log_query_resolution(query, source, series_for_validation, validation_result)
+        # Get reasoning indicators if available
+        reasoning_info = interpretation.get('reasoning', {})
+        reasoning_indicators = [i.get('concept') for i in reasoning_info.get('indicators', [])] if reasoning_info else None
+
+        log_query_resolution(
+            query=query,
+            source=source,
+            series=series_for_validation,
+            validation=validation_result,
+            explanation=interpretation.get('explanation', ''),
+            reasoning_indicators=reasoning_indicators,
+            is_comparison=interpretation.get('is_comparison', False),
+            sources=interpretation.get('hybrid_sources', {}),
+        )
 
         ai_explanation = interpretation.get('explanation', '')
         series_to_fetch = list(interpretation.get('series', []))  # Copy the list
