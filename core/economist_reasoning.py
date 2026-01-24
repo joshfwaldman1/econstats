@@ -56,6 +56,11 @@ DIRECT_SERIES_MAPPINGS = {
     'cpi': ['CPIAUCSL', 'CPILFESL'],
     'pce': ['PCEPI', 'PCEPILFE'],
     'inflation rate': ['CPIAUCSL', 'PCEPILFE'],
+    'food prices': ['CPIUFDNS', 'CPIUFDSL'],
+    'food inflation': ['CPIUFDNS', 'CPIUFDSL'],
+    'grocery prices': ['CPIUFDNS'],
+    'shelter inflation': ['CUSR0000SAH1', 'CPIHOSSL'],
+    'rent inflation': ['CUSR0000SEHA', 'CPIHOSSL'],
 
     # GDP - specific measures
     'gdp': ['GDPC1', 'A191RL1Q225SBEA'],
@@ -75,6 +80,22 @@ DIRECT_SERIES_MAPPINGS = {
     'job openings': ['JTSJOL'],
     'initial claims': ['ICSA'],
     'jobless claims': ['ICSA'],
+    'layoffs': ['ICSA', 'JTSLDL'],
+    'are there layoffs': ['ICSA', 'JTSLDL'],
+
+    # Demographic-specific employment (must be before generic "unemployment")
+    'black unemployment': ['LNS14000006', 'LNS14000003'],
+    'black workers': ['LNS14000006', 'LNS11300006', 'LNS12300006'],
+    'african american unemployment': ['LNS14000006', 'LNS14000003'],
+    'hispanic unemployment': ['LNS14000009'],
+    'hispanic workers': ['LNS14000009', 'LNS11300009', 'LNS12300009'],
+    'latino unemployment': ['LNS14000009'],
+    'women unemployment': ['LNS14000002'],
+    'women workers': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
+    'female unemployment': ['LNS14000002'],
+    'youth unemployment': ['LNS14000012', 'LNS14000036'],
+    'teen unemployment': ['LNS14000012'],
+    'young workers': ['LNS14000012', 'LNS14000036'],
 
     # Housing - specific measures
     'home prices': ['CSUSHPINSA', 'MSPUS'],
@@ -85,6 +106,9 @@ DIRECT_SERIES_MAPPINGS = {
     'housing market': ['CSUSHPINSA', 'HOUST', 'MORTGAGE30US', 'EXHOSLUSM495S'],
     'existing home sales': ['EXHOSLUSM495S'],
     'new home sales': ['HSN1F'],
+    'housing affordability': ['FIXHAI', 'MORTGAGE30US', 'MSPUS'],
+    'is housing affordable': ['FIXHAI', 'MORTGAGE30US', 'MSPUS'],
+    'can i afford a house': ['FIXHAI', 'MORTGAGE30US', 'MSPUS'],
 
     # Consumer
     'consumer sentiment': ['UMCSENT'],

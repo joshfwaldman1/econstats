@@ -792,12 +792,13 @@ QUERY_SYNONYMS = {
     'unemplyment': 'unemployment',
     'unemployement': 'unemployment',
     'infation': 'inflation',
-    'intrest': 'rates',
-    'intreset': 'rates',
-    'mortage': 'mortgage rates',
-    'morgage': 'mortgage rates',
-    'reccession': 'recession risk',
-    'recesion': 'recession risk',
+    'inflaton': 'inflation',
+    'intrest': 'interest',
+    'intreset': 'interest',
+    'mortage': 'mortgage',
+    'morgage': 'mortgage',
+    'reccession': 'recession',
+    'recesion': 'recession',
     'econimic': 'economic',
     'econmic': 'economic',
 }
@@ -4668,11 +4669,15 @@ def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
     if direct_series:
         if verbose:
             print(f"  Direct series: {direct_series}")
+        # For direct mappings, combine if showing related series (e.g., multiple rates)
+        should_combine = len(direct_series) > 1 and len(direct_series) <= 3
         return {
             'series': direct_series[:4],
             'explanation': reasoning.get('reasoning', ''),
             'used_reasoning': True,
             'used_direct_mapping': True,
+            'combine_chart': should_combine,
+            'show_yoy': False,
         }
 
     search_terms = reasoning.get('search_terms', [])
@@ -4740,12 +4745,24 @@ def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
         if indicator_names:
             explanation = f"To answer this, looking at: {', '.join(indicator_names)}. {explanation}"
 
+    # Determine if series should be combined on one chart
+    # Combine for: comparison queries, or when showing closely related series
+    query_lower = query.lower()
+    is_comparison = any(word in query_lower for word in ['vs', 'versus', 'compare', 'comparing'])
+
+    # For reasoning queries, usually show separate charts since each indicator
+    # answers a different aspect of the question. Exception: comparisons.
+    should_combine = is_comparison and len(found_series) <= 3
+
     return {
         'series': found_series,
         'explanation': explanation,
         'reasoning': reasoning,
         'series_info': series_info,
         'used_reasoning': True,
+        'combine_chart': should_combine,
+        'show_yoy': False,
+        'is_comparison': is_comparison,
     }
 
 
@@ -6708,7 +6725,7 @@ def main():
 
         # Handle case where hybrid search found no relevant data
         if interpretation.get('no_data_available'):
-            st.warning("📊 No data available for this specific query")
+            st.warning("No data available for this specific query")
             st.info(ai_explanation)  # Shows guidance about what to try instead
             log_query(query, [], "no_relevant_data")
             st.stop()
@@ -6818,7 +6835,7 @@ def main():
                     ai_explanation = f"Search results for: {query}"
 
         if not series_to_fetch:
-            st.warning("🔍 Could not find relevant economic data for this query")
+            st.warning("Could not find relevant economic data for this query")
 
             # Provide context-specific suggestions
             suggestions = []
@@ -7094,7 +7111,7 @@ def main():
 
         if not series_data:
             # Provide helpful guidance instead of generic error
-            st.error("📊 No data available for this query")
+            st.error("No data available for this query")
 
             # Build context-specific guidance
             guidance_parts = []
@@ -7328,7 +7345,7 @@ def main():
                 if ai_explanation:
                     summary_html = summary_to_bullets(ai_explanation)
                     st.markdown(f"""<div class='summary-callout'>
-                        <h3>📊 Summary</h3>
+                        <h3>Summary</h3>
                         {summary_html}
                     </div>""", unsafe_allow_html=True)
 
@@ -7895,7 +7912,7 @@ def main():
             # Settings toggles
             if RAG_AVAILABLE:
                 st.session_state.rag_mode = st.checkbox(
-                    "🔍 RAG Mode (Semantic Search + LLM) - Recommended",
+                    "RAG Mode (Semantic Search + LLM) - Recommended",
                     value=st.session_state.get('rag_mode', True),
                     help="Use semantic search to find relevant series, then LLM selects best ones"
                 )
