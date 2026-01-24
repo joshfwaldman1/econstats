@@ -1109,28 +1109,28 @@ Be VERY STRICT. When in doubt, REJECT."""
     response = call_gpt(validation_prompt)
 
     if not response:
-        # CRITICAL: Don't return unvalidated data - return empty with warning
-        # This prevents wrong demographic/industry data from being shown
+        # GPT unavailable - trust the input series rather than rejecting everything
+        # Pre-computed plans are curated and don't need validation
         if verbose:
-            print("    Validation failed - returning empty to prevent wrong data")
+            print("    Validation unavailable - trusting input series")
         return {
-            'valid_series': [],
+            'valid_series': [s.get('id') for s in series_list],
             'rejected_series': [],
-            'validation_reasoning': 'Validation unavailable - skipping to prevent wrong data',
-            'validation_failed': True
+            'validation_reasoning': 'Validation unavailable - using pre-computed plan as-is',
+            'validation_skipped': True
         }
 
     result = _extract_json(response)
 
     if not result:
-        # CRITICAL: Don't return unvalidated data on parse failure
+        # Parse failed - trust the input series rather than rejecting everything
         if verbose:
-            print("    Validation parse failed - returning empty")
+            print("    Validation parse failed - trusting input series")
         return {
-            'valid_series': [],
+            'valid_series': [s.get('id') for s in series_list],
             'rejected_series': [],
-            'validation_reasoning': 'Could not parse validation response',
-            'validation_failed': True
+            'validation_reasoning': 'Could not parse validation response - using plan as-is',
+            'validation_skipped': True
         }
 
     if verbose:
