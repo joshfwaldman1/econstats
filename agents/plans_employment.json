@@ -417,11 +417,31 @@
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "• **Real Median Weekly Earnings** (LES1252881600Q): The definitive measure of whether wages are keeping up with inflation. When this rises, workers' purchasing power is genuinely increasing.\n• **Wages vs Inflation (YoY)**: Compares nominal wage growth (Average Hourly Earnings) directly against CPI inflation. When the wage line is above inflation, workers are gaining ground.\n• **Wages vs Inflation (Indexed)**: Both series indexed to the same starting point to show cumulative gains. If wages stay above inflation, purchasing power has increased over the period.",
+    "explanation": "\u2022 **Real Median Weekly Earnings** (LES1252881600Q): The definitive measure of whether wages are keeping up with inflation. When this rises, workers' purchasing power is genuinely increasing.\n\u2022 **Wages vs Inflation (YoY)**: Compares nominal wage growth (Average Hourly Earnings) directly against CPI inflation. When the wage line is above inflation, workers are gaining ground.\n\u2022 **Wages vs Inflation (Indexed)**: Both series indexed to the same starting point to show cumulative gains. If wages stay above inflation, purchasing power has increased over the period.",
     "chart_groups": [
-      {"series": ["LES1252881600Q"], "show_yoy": true, "title": "Real Wages (Inflation-Adjusted)"},
-      {"series": ["CES0500000003", "CPIAUCSL"], "show_yoy": true, "title": "Wage Growth vs Inflation (YoY %)"},
-      {"series": ["CES0500000003", "CPIAUCSL"], "normalize": true, "title": "Wages vs Inflation (Indexed to 100)"}
+      {
+        "series": [
+          "LES1252881600Q"
+        ],
+        "show_yoy": true,
+        "title": "Real Wages (Inflation-Adjusted)"
+      },
+      {
+        "series": [
+          "CES0500000003",
+          "CPIAUCSL"
+        ],
+        "show_yoy": true,
+        "title": "Wage Growth vs Inflation (YoY %)"
+      },
+      {
+        "series": [
+          "CES0500000003",
+          "CPIAUCSL"
+        ],
+        "normalize": true,
+        "title": "Wages vs Inflation (Indexed to 100)"
+      }
     ]
   },
   "wages vs inflation": {
@@ -432,11 +452,31 @@
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "• **Real Median Weekly Earnings** (LES1252881600Q): The definitive measure of whether wages are keeping up with inflation. When this rises, workers' purchasing power is genuinely increasing.\n• **Wages vs Inflation (YoY)**: Compares nominal wage growth (Average Hourly Earnings) directly against CPI inflation. When the wage line is above inflation, workers are gaining ground.\n• **Wages vs Inflation (Indexed)**: Both series indexed to 100 at the same starting point to show cumulative gains. If wages stay above inflation, purchasing power has increased over the period.",
+    "explanation": "\u2022 **Real Median Weekly Earnings** (LES1252881600Q): The definitive measure of whether wages are keeping up with inflation. When this rises, workers' purchasing power is genuinely increasing.\n\u2022 **Wages vs Inflation (YoY)**: Compares nominal wage growth (Average Hourly Earnings) directly against CPI inflation. When the wage line is above inflation, workers are gaining ground.\n\u2022 **Wages vs Inflation (Indexed)**: Both series indexed to 100 at the same starting point to show cumulative gains. If wages stay above inflation, purchasing power has increased over the period.",
     "chart_groups": [
-      {"series": ["LES1252881600Q"], "show_yoy": true, "title": "Real Wages (Inflation-Adjusted)"},
-      {"series": ["CES0500000003", "CPIAUCSL"], "show_yoy": true, "title": "Wage Growth vs Inflation (YoY %)"},
-      {"series": ["CES0500000003", "CPIAUCSL"], "normalize": true, "title": "Wages vs Inflation (Indexed to 100)"}
+      {
+        "series": [
+          "LES1252881600Q"
+        ],
+        "show_yoy": true,
+        "title": "Real Wages (Inflation-Adjusted)"
+      },
+      {
+        "series": [
+          "CES0500000003",
+          "CPIAUCSL"
+        ],
+        "show_yoy": true,
+        "title": "Wage Growth vs Inflation (YoY %)"
+      },
+      {
+        "series": [
+          "CES0500000003",
+          "CPIAUCSL"
+        ],
+        "normalize": true,
+        "title": "Wages vs Inflation (Indexed to 100)"
+      }
     ]
   },
   "real wages": {
@@ -448,7 +488,10 @@
     "explanation": "LES1252881600Q is real (inflation-adjusted) median weekly earnings for full-time workers, in constant 1982-84 dollars. This quarterly series from the BLS directly measures purchasing power - when it rises, workers can buy more with their earnings. Year-over-year change shows the pace of real wage growth."
   },
   "real hourly earnings": {
-    "series": ["CES0500000003", "CPIAUCSL"],
+    "series": [
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
     "show_yoy": false,
     "combine_chart": false,
     "derived": {
@@ -457,10 +500,13 @@
       "unit": "2025 Dollars",
       "show_components": true
     },
-    "explanation": "**Real Hourly Earnings = Nominal Wages / CPI × 326**\n\nThis shows average hourly earnings adjusted for inflation, expressed in 2025 dollars. When real earnings rise, workers' purchasing power increases. The chart includes nominal wages (CES0500000003) and CPI (CPIAUCSL) for context.\n\nNote: The multiplier (326) is based on the 2025 CPI level to express values in current dollars."
+    "explanation": "**Real Hourly Earnings = Nominal Wages / CPI \u00d7 326**\n\nThis shows average hourly earnings adjusted for inflation, expressed in 2025 dollars. When real earnings rise, workers' purchasing power increases. The chart includes nominal wages (CES0500000003) and CPI (CPIAUCSL) for context.\n\nNote: The multiplier (326) is based on the 2025 CPI level to express values in current dollars."
   },
   "real average hourly earnings": {
-    "series": ["CES0500000003", "CPIAUCSL"],
+    "series": [
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
     "show_yoy": false,
     "combine_chart": false,
     "derived": {
@@ -469,7 +515,7 @@
       "unit": "2025 Dollars",
       "show_components": true
     },
-    "explanation": "**Real Hourly Earnings = Nominal Wages / CPI × 326**\n\nAverage hourly earnings adjusted for inflation, in 2025 dollars. Calculated by dividing nominal wages by CPI and scaling to current price levels. Rising values mean workers' purchasing power is increasing."
+    "explanation": "**Real Hourly Earnings = Nominal Wages / CPI \u00d7 326**\n\nAverage hourly earnings adjusted for inflation, in 2025 dollars. Calculated by dividing nominal wages by CPI and scaling to current price levels. Rising values mean workers' purchasing power is increasing."
   },
   "wage growth": {
     "series": [
@@ -549,7 +595,12 @@
       "PERMIT",
       "MORTGAGE30US"
     ],
-    "show_yoy": [true, true, true, false],
+    "show_yoy": [
+      true,
+      true,
+      true,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Construction employment (USCONS) with demand drivers: Housing starts (HOUST) and permits (PERMIT) show residential building activity, while mortgage rates (MORTGAGE30US) indicate affordability - the key rate sensitivity of construction hiring. When rates rise, building slows and construction jobs follow."
   },
@@ -725,25 +776,43 @@
     "explanation": "Year-over-year job growth by sector: Manufacturing (MANEMP), Healthcare (USHCS), Construction (USCONS), and Leisure/Hospitality (USLAH). Combined chart shows relative performance - healthcare typically outpaces other sectors while manufacturing is more volatile."
   },
   "unemployment rate vs job openings": {
-    "series": ["UNRATE", "JTSJOL"],
+    "series": [
+      "UNRATE",
+      "JTSJOL"
+    ],
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "The Beveridge Curve relationship: Unemployment rate (UNRATE) vs job openings (JTSJOL). In a healthy labor market, when job openings are high, unemployment should be low. The ratio of openings to unemployed workers shows labor market tightness - values above 1 indicate more jobs than job seekers. Post-COVID this relationship shifted, with high openings coexisting with elevated unemployment initially."
   },
   "unemployment vs job openings": {
-    "series": ["UNRATE", "JTSJOL"],
+    "series": [
+      "UNRATE",
+      "JTSJOL"
+    ],
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "The Beveridge Curve relationship: Unemployment rate (UNRATE) vs job openings (JTSJOL). In a healthy labor market, when job openings are high, unemployment should be low. The ratio of openings to unemployed workers shows labor market tightness - values above 1 indicate more jobs than job seekers."
   },
   "gdp vs employment": {
-    "series": ["A191RL1Q225SBEA", "PAYEMS", "UNRATE"],
-    "show_yoy": [false, true, false],
+    "series": [
+      "A191RL1Q225SBEA",
+      "PAYEMS",
+      "UNRATE"
+    ],
+    "show_yoy": [
+      false,
+      true,
+      false
+    ],
     "combine_chart": false,
     "explanation": "GDP growth (A191RL1Q225SBEA) vs employment metrics: Nonfarm payrolls (PAYEMS) and unemployment rate (UNRATE). Okun's Law suggests roughly 2% GDP growth is needed to keep unemployment stable. Payrolls shown as YoY to compare job growth with GDP growth rates."
   },
   "inflation vs wage growth": {
-    "series": ["CPIAUCSL", "CES0500000003", "LES1252881600Q"],
+    "series": [
+      "CPIAUCSL",
+      "CES0500000003",
+      "LES1252881600Q"
+    ],
     "show_yoy": true,
     "combine_chart": true,
     "explanation": "Inflation (CPIAUCSL) vs nominal wages (CES0500000003) and real wages (LES1252881600Q). When wage growth exceeds inflation, workers gain purchasing power. When inflation outpaces wages, living standards erode. Real median weekly earnings already adjusts for inflation."
@@ -819,5 +888,47 @@
     "show_yoy": true,
     "combine_chart": true,
     "explanation": "Wages (CES0500000003) vs rent inflation (CUSR0000SEHA). When rent inflation exceeds wage growth, housing becomes less affordable. Real wages (LES1252881600Q) show purchasing power after all inflation. If rent consistently outpaces wages, workers need to spend more of their income on housing."
+  },
+  "job market pre-pandemic": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "LNS12300060",
+      "JTSJOL"
+    ],
+    "show_yoy": false,
+    "show_payroll_changes": true,
+    "combine_chart": false,
+    "explanation": "Comparing current job market to pre-pandemic (Feb 2020): Payrolls, unemployment rate, prime-age employment ratio, and job openings. Feb 2020 was the pre-COVID peak before the pandemic recession.",
+    "synonyms": [
+      "compare job market to pre-pandemic",
+      "jobs vs pre-pandemic",
+      "job market compared to before covid",
+      "labor market pre-pandemic"
+    ]
+  },
+  "compare jobs pre-pandemic": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "LNS12300060",
+      "JTSJOL"
+    ],
+    "show_yoy": false,
+    "show_payroll_changes": true,
+    "combine_chart": false,
+    "explanation": "Key job market indicators to compare with pre-pandemic levels (Feb 2020)."
+  },
+  "employment vs pre-covid": {
+    "series": [
+      "PAYEMS",
+      "UNRATE",
+      "LNS12300060",
+      "CIVPART"
+    ],
+    "show_yoy": false,
+    "show_payroll_changes": true,
+    "combine_chart": false,
+    "explanation": "Employment metrics compared to pre-COVID: payrolls, unemployment, prime-age employment ratio, and labor force participation."
   }
 }
