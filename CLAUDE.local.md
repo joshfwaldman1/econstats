@@ -41,23 +41,20 @@
 - **Claude API auth issues** - May get 401 errors; Gemini works as fallback in ensemble
 
 ## Architecture
+- **Economist Reasoning (PRIMARY)**: `core/economist_reasoning.py` - AI reasons about what indicators an economist would need, then searches FRED
 - **RAG Catalog**: 115+ curated FRED series in `agents/series_rag.py` with semantic search
-- **Pre-computed Plans**: 350+ query-to-series mappings across `agents/plans_*.json` files
-- **Hybrid Approach**: Combine RAG + FRED API search for best coverage
-- **Ensemble LLMs**: Claude + Gemini + GPT for improved query understanding
+- **Pre-computed Plans**: 460+ query-to-series mappings across `agents/plans_*.json` files (fast-path backstop)
+- **Hybrid Fallback**: Combine RAG + FRED API search when reasoning fails
 
-## Query Processing Flow
-1. **Temporal extraction** - Extract date references ("in 2022", "pre-covid", "last year") from query
-2. **Demographic extraction** - Extract demographic group (Black, Hispanic, women, etc.) BEFORE fuzzy matching
-3. Check for holistic queries ("how is X doing?") needing multi-dimensional answers
-4. Check pre-computed plans first (demographic-aware: only match within same demographic)
-5. **Geographic detection** - Search FRED for state-specific series (TXUR, CAUR, etc.)
-6. For holistic queries, augment with hybrid search (RAG + FRED)
-7. Apply recency filter (reject series with no data after 2020)
-8. Apply relevance filter (title must relate to query)
-9. **STRICT LLM validation** - Always validate, including pre-computed plans
-10. **Presentation validation** - AI determines stock/flow/rate for proper display
-11. **Graceful no-data** - If validation rejects all series, show helpful guidance instead of wrong data
+## Query Processing Flow (NEW - AI-First)
+1. **Pre-computed plan check** - Exact match only (fast path for known queries)
+2. **Economist Reasoning** (PRIMARY) - AI thinks: "To answer this, an economist would need X, Y, Z..."
+3. **FRED Search** - Search for each concept the AI identified
+4. **Relevance Filter** - Skip series that don't match the intended concept
+5. **Fallback** - If reasoning fails, use hybrid RAG + FRED search
+
+The key insight: We ask the AI to REASON about what's needed, not to recall series IDs from memory.
+This keeps the system "on its toes" rather than just string-matching against pre-computed patterns.
 
 ## Demographic Routing (CRITICAL)
 The `extract_demographic_group()` function prevents cross-demographic confusion:
