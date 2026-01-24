@@ -58,6 +58,13 @@ try:
 except Exception:
     STOCKS_AVAILABLE = False
 
+# Import economist reasoning (AI-first approach)
+try:
+    from core.economist_reasoning import reason_about_query
+    REASONING_AVAILABLE = True
+except Exception:
+    REASONING_AVAILABLE = False
+
 # Import DBnomics for international data (IMF, Eurostat, ECB, etc.)
 try:
     from agents.dbnomics import find_international_plan, is_international_query, get_observations_dbnomics
@@ -4642,6 +4649,97 @@ def search_series(query: str, limit: int = 5, require_recent: bool = True) -> li
     return results
 
 
+def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
+    """
+    AI-first approach: Reason about what an economist needs, then search.
+
+    This is the PRIMARY query path. It asks AI to think like an economist
+    about what indicators are needed, then searches FRED for those indicators.
+
+    Pre-computed plans are used as a fast-path backstop, not the main approach.
+    """
+    if not REASONING_AVAILABLE:
+        return {'series': [], 'explanation': '', 'reasoning_failed': True}
+
+    if verbose:
+        print(f"  Using economist reasoning for: {query}")
+
+    # Step 1: AI reasons about what's needed
+    reasoning = reason_about_query(query, verbose=verbose)
+    search_terms = reasoning.get('search_terms', [])
+    indicators = reasoning.get('indicators', [])
+
+    if not search_terms:
+        return {'series': [], 'explanation': reasoning.get('reasoning', ''), 'reasoning_failed': True}
+
+    # Step 2: Search FRED for each indicator concept
+    found_series = []
+    series_info = []
+
+    # Extract concept keywords for relevance checking
+    def is_relevant_series(title: str, concept: str, search_term: str) -> bool:
+        """Check if series title is relevant to the concept we're looking for."""
+        title_lower = title.lower()
+        concept_lower = concept.lower()
+        term_lower = search_term.lower()
+
+        # Title should contain at least one word from concept or search term
+        concept_words = [w for w in concept_lower.split() if len(w) > 3]
+        term_words = [w for w in term_lower.split() if len(w) > 3]
+
+        return any(w in title_lower for w in concept_words + term_words)
+
+    for indicator in indicators[:4]:  # Max 4 indicators
+        terms = indicator.get('search_terms', [])
+        concept = indicator.get('concept', '')
+
+        for term in terms[:2]:  # Try up to 2 search terms per indicator
+            results = search_series(term, limit=5, require_recent=True)  # Get more to filter
+            for r in results:
+                sid = r['id']
+                title = r.get('title', sid)
+
+                # Skip if already found or not relevant to the concept
+                if sid in found_series:
+                    continue
+                if not is_relevant_series(title, concept, term):
+                    if verbose:
+                        print(f"    Skipping {sid} - not relevant to '{concept}'")
+                    continue
+
+                found_series.append(sid)
+                series_info.append({
+                    'id': sid,
+                    'title': title,
+                    'concept': concept,
+                    'why': indicator.get('why', '')
+                })
+                if verbose:
+                    print(f"    Found {sid}: {title} for '{concept}'")
+                break  # Found one for this indicator, move on
+
+            if any(s.get('concept') == concept for s in series_info):
+                break  # Already found series for this concept
+
+    # Limit to 4 series
+    found_series = found_series[:4]
+
+    # Build explanation from reasoning
+    explanation = reasoning.get('reasoning', '')
+    if indicators:
+        indicator_names = [i.get('concept', '') for i in indicators if i.get('concept')]
+        if indicator_names:
+            explanation = f"To answer this, looking at: {', '.join(indicator_names)}. {explanation}"
+
+    return {
+        'series': found_series,
+        'explanation': explanation,
+        'reasoning': reasoning,
+        'series_info': series_info,
+        'used_reasoning': True,
+    }
+
+
 def hybrid_query_plan(query: str, verbose: bool = False) -> dict:
     """
     Hybrid approach: Combine RAG catalog search + FRED API search.
@@ -6514,33 +6612,39 @@ def main():
                 'filter_start_date': local_parsed.get('filter_start_date'),
             }
         else:
-            # Fall back to AI for unknown queries or follow-ups
-            # Priority: RAG > Ensemble > Single Claude
-            if RAG_AVAILABLE and st.session_state.get('rag_mode', False):
-                # Hybrid mode: RAG catalog + FRED search combined
-                with st.spinner("Finding relevant data (hybrid search)..."):
-                    interpretation = hybrid_query_plan(query, verbose=False)
-                interpretation['used_rag'] = True
-                interpretation['used_hybrid'] = True
-                interpretation['used_ensemble'] = False
-            elif ENSEMBLE_AVAILABLE and st.session_state.get('ensemble_mode', False):
-                # Ensemble mode: Claude + Gemini + GPT judge
-                with st.spinner("Analyzing with AI ensemble (Claude + Gemini + GPT)..."):
-                    interpretation = call_ensemble_for_app(
-                        query,
-                        ECONOMIST_PROMPT_BASE,
-                        previous_context=previous_context,
-                        use_few_shot=True,
-                        verbose=False
-                    )
-                interpretation['used_rag'] = False
-                interpretation['used_ensemble'] = True
-            else:
-                with st.spinner("Analyzing your question with AI economist..."):
-                    interpretation = call_claude(query, previous_context)
-                interpretation['used_rag'] = False
-                interpretation['used_ensemble'] = False
-            interpretation['used_precomputed'] = False
+            # PRIMARY PATH: Use economist reasoning (AI thinks about what's needed)
+            # This asks AI to reason like an economist, then searches for indicators
+            if REASONING_AVAILABLE:
+                with st.spinner("Thinking like an economist..."):
+                    interpretation = reasoning_query_plan(query, verbose=False)
+
+                # If reasoning found series, use them
+                if interpretation.get('series'):
+                    interpretation['used_reasoning'] = True
+                    interpretation['used_precomputed'] = False
+                else:
+                    # Reasoning failed - fall back to hybrid search
+                    interpretation = None
+
+            # FALLBACK: Hybrid RAG + FRED search
+            if not REASONING_AVAILABLE or not interpretation or not interpretation.get('series'):
+                if RAG_AVAILABLE:
+                    with st.spinner("Searching economic data..."):
+                        interpretation = hybrid_query_plan(query, verbose=False)
+                    interpretation['used_rag'] = True
+                    interpretation['used_hybrid'] = True
+                elif ENSEMBLE_AVAILABLE:
+                    with st.spinner("Analyzing with AI..."):
+                        interpretation = call_ensemble_for_app(
+                            query, ECONOMIST_PROMPT_BASE,
+                            previous_context=previous_context,
+                            use_few_shot=True, verbose=False
+                        )
+                    interpretation['used_ensemble'] = True
+                else:
+                    with st.spinner("Analyzing..."):
+                        interpretation = call_claude(query, previous_context)
+                interpretation['used_precomputed'] = False
 
         # QA Validation Layer: Check query-series alignment
         series_for_validation = interpretation.get('series', [])
@@ -6549,8 +6653,10 @@ def main():
         # Log query resolution for analysis
         source = 'precomputed' if interpretation.get('used_precomputed') else (
             'local_followup' if interpretation.get('used_local_parser') else (
-                'rag' if interpretation.get('used_rag') else (
-                    'ensemble' if interpretation.get('used_ensemble') else 'claude'
+                'reasoning' if interpretation.get('used_reasoning') else (
+                    'rag' if interpretation.get('used_rag') else (
+                        'ensemble' if interpretation.get('used_ensemble') else 'claude'
+                    )
                 )
             )
         )
