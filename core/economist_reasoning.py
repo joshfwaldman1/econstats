@@ -122,6 +122,62 @@ DIRECT_SERIES_MAPPINGS = {
     'dollar index': ['DTWEXBGS'],
     's&p 500': ['SP500'],
     'stock market': ['SP500', 'DJIA'],
+
+    # Recession indicators
+    'are we in a recession': ['A191RL1Q225SBEA', 'T10Y2Y', 'UNRATE', 'SAHMREALTIME'],
+    'recession indicators': ['T10Y2Y', 'SAHMREALTIME', 'ICSA', 'UMCSENT'],
+    'sahm rule': ['SAHMREALTIME'],
+
+    # Economy overview
+    'economy': ['PAYEMS', 'UNRATE', 'GDPC1', 'CPIAUCSL'],
+    'how is the economy': ['PAYEMS', 'UNRATE', 'GDPC1', 'CPIAUCSL'],
+    'economic outlook': ['GDPC1', 'UNRATE', 'CPIAUCSL', 'UMCSENT'],
+    'american economy': ['PAYEMS', 'UNRATE', 'GDPC1'],
+
+    # Bond market
+    'bond yields': ['DGS2', 'DGS10', 'DGS30'],
+    'treasury spread': ['T10Y2Y', 'DGS10', 'DGS2'],
+    '10 year vs 2 year': ['DGS10', 'DGS2', 'T10Y2Y'],
+    'breakeven inflation': ['T5YIE', 'T10YIE'],
+
+    # Auto industry
+    'auto sales': ['TOTALSA', 'ALTSALES'],
+    'car sales': ['TOTALSA', 'ALTSALES'],
+    'auto industry': ['TOTALSA', 'IPG3361T3S'],
+
+    # Consumer behavior
+    'consumer spending': ['PCE', 'RSXFS'],
+    'are people spending': ['RSXFS', 'PCE', 'UMCSENT'],
+    'personal income': ['PI', 'DSPIC96'],
+    'savings rate': ['PSAVERT'],
+
+    # Labor market detail
+    'job openings vs unemployed': ['JTSJOL', 'UNEMPLOY'],
+    'labor force participation': ['CIVPART'],
+    'prime age employment': ['LNS12300060'],
+    'quits rate': ['JTSQUR'],
+    'hiring rate': ['JTSHIR'],
+
+    # More demographics
+    'asian unemployment': ['LNS14000004'],
+    'black employment': ['LNS14000006', 'LNS12300006', 'LNS11300006'],
+    'veteran unemployment': ['LNS14049526'],
+
+    # Business/credit
+    'small business': ['NFIBOPTIMISM', 'BUSLOANS'],
+    'business loans': ['BUSLOANS', 'TOTCI'],
+    'credit conditions': ['DRTSCILM', 'DRTSCLCC'],
+
+    # Wages detail
+    'real wages': ['CES0500000003', 'CPIAUCSL'],
+    'wage growth': ['CES0500000003', 'ECIWAG'],
+    'average hourly earnings': ['CES0500000003', 'AHETPI'],
+
+    # Housing detail
+    'apartment rents': ['CUSR0000SEHA', 'CUSR0000SEHC'],
+    'home sales': ['EXHOSLUSM495S', 'HSN1F'],
+    'median home price': ['MSPUS'],
+    'average home price': ['ASPUS'],
 }
 
 
@@ -162,7 +218,7 @@ REASONING_PROMPT = """You are a credible economic analyst (think Jason Furman, C
 
 A user asked: "{query}"
 
-Think through what data you would NEED to answer this question properly. Don't give me FRED series IDs - I need you to reason about what economic CONCEPTS and INDICATORS an analyst would examine.
+Think through what data you would NEED to answer this question properly. Reason about what economic CONCEPTS and INDICATORS an analyst would examine.
 
 Return JSON:
 {{
@@ -171,30 +227,57 @@ Return JSON:
         {{
             "concept": "unemployment rate",
             "why": "Direct measure of labor market slack",
-            "search_terms": ["unemployment rate", "jobless rate"]
+            "search_terms": ["unemployment rate", "civilian unemployment"]
         }},
         {{
             "concept": "job openings",
             "why": "Shows labor demand - tight market has high openings vs unemployed",
-            "search_terms": ["job openings", "JOLTS openings"]
+            "search_terms": ["job openings total nonfarm", "JOLTS job openings"]
         }}
     ],
     "time_context": "recent" | "historical" | "comparison",
     "display_suggestion": "line chart showing trends" | "compare side by side" | etc.
 }}
 
-Rules:
+## SEARCH TERM QUALITY IS CRITICAL
+
+Your search_terms will be used to search FRED. Be SPECIFIC:
+
+GOOD search terms (will find the right series):
+- "civilian unemployment rate" → finds UNRATE
+- "nonfarm payrolls total" → finds PAYEMS
+- "consumer price index all items" → finds CPIAUCSL
+- "initial claims unemployment insurance" → finds ICSA
+- "30-year fixed mortgage rate" → finds MORTGAGE30US
+- "real gross domestic product" → finds GDPC1
+- "job openings total nonfarm" → finds JTSJOL
+
+BAD search terms (too generic, will find wrong series):
+- "rate" → matches everything
+- "unemployment" alone → too broad
+- "inflation" alone → too broad
+- "jobs" alone → too many matches
+- "index" alone → matches everything
+
+## DEMOGRAPHIC QUERIES
+
+If the query mentions a specific demographic group, your search_terms MUST include that group:
+- "Black workers" → search "black unemployment rate", "black employment"
+- "Hispanic employment" → search "hispanic unemployment rate", "hispanic labor force"
+- "Women in workforce" → search "women unemployment rate", "women labor force"
+- "Youth jobs" → search "teenage unemployment", "youth employment 16-24"
+
+NEVER return general population data for demographic-specific queries!
+
+## RULES
+
 1. Think like an economist writing a briefing - what would you NEED to know?
 2. Include 2-4 indicators that tell different parts of the story
-3. Each indicator should add unique insight (no redundant measures)
-4. search_terms MUST be specific and directly describe the indicator:
-   - For wages: "average hourly earnings", "wage growth", "compensation"
-   - For inflation: "consumer price index", "CPI", "PCE price index"
-   - For employment: "nonfarm payrolls", "employment level", "jobs"
-   - DO NOT use generic terms like "rate", "index", "level" alone
+3. Each indicator should add UNIQUE insight (no redundant measures)
+4. search_terms must be specific enough to find the exact series
 5. Consider: Is this about levels, changes, or comparisons?
 
-IMPORTANT: Your job is to REASON about what's needed, not to recall series IDs from memory.
+IMPORTANT: Your job is to REASON about what's needed, then provide search terms specific enough to find it.
 """
 
 

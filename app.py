@@ -4671,9 +4671,21 @@ def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
             print(f"  Direct series: {direct_series}")
         # For direct mappings, combine if showing related series (e.g., multiple rates)
         should_combine = len(direct_series) > 1 and len(direct_series) <= 3
+
+        # Look up rich explanation from pre-computed plans if available
+        explanation = reasoning.get('reasoning', '')
+        query_lower = query.lower().strip().rstrip('?')
+        # Try to find a matching pre-computed plan for better explanation
+        for plan_key in [query_lower, query_lower.replace('what is the ', '').replace('what are the ', '')]:
+            if plan_key in QUERY_PLANS:
+                plan_explanation = QUERY_PLANS[plan_key].get('explanation', '')
+                if plan_explanation and len(plan_explanation) > len(explanation):
+                    explanation = plan_explanation
+                break
+
         return {
             'series': direct_series[:4],
-            'explanation': reasoning.get('reasoning', ''),
+            'explanation': explanation,
             'used_reasoning': True,
             'used_direct_mapping': True,
             'combine_chart': should_combine,
