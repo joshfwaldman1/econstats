@@ -8,7 +8,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "FEDFUNDS is the Fed's policy rate. DGS2 (2-year Treasury) reflects market expectations of near-term Fed policy. DGS10 (10-year) is the benchmark long-term rate affecting mortgages and corporate bonds. T10Y2Y is the yield curve spread - when negative (inverted), it has historically preceded recessions."
+    "explanation": "The interest rate landscape:\n\n• **Fed Funds (FEDFUNDS)**: The rate the Fed directly controls. This is THE policy rate - when the Fed 'raises rates,' this is what moves. Currently the Fed's primary tool to fight inflation.\n\n• **2-Year Treasury (DGS2)**: Market's best guess of Fed policy over the next 2 years. If higher than Fed Funds, markets expect more hikes. If lower, they expect cuts.\n\n• **10-Year Treasury (DGS10)**: THE benchmark long-term rate. Affects mortgages (30-year mortgage rates track this), corporate borrowing, and housing affordability. Not directly controlled by Fed - reflects inflation expectations + economic outlook.\n\n• **Yield Curve (T10Y2Y)**: 10-year minus 2-year spread. Normally positive (long rates > short rates). When negative (inverted), it has preceded every recession since 1970. The market's recession warning signal."
   },
   "rates": {
     "series": [

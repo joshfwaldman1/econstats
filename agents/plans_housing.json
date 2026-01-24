@@ -108,7 +108,18 @@
     ],
     "show_yoy": [false, false, true, true],
     "combine_chart": false,
-    "explanation": "Housing affordability comprehensively: FIXHAI (Affordability Index) directly measures if median families can qualify for mortgages - above 100 = affordable. Mortgage rates (MORTGAGE30US) determine monthly payments. Home prices (CSUSHPINSA) determine purchase costs. Disposable income (DSPIC96) shows whether incomes are keeping pace. All four factors drive whether families can buy homes."
+    "explanation": "Four dimensions of housing affordability:\n\n• **Affordability Index (FIXHAI)**: Measures whether a median-income family qualifies for a median-priced home. Above 100 = affordable (family income exceeds qualifying income). Below 100 = median family can't afford median home. Historical average is around 150-160.\n\n• **Mortgage Rates (MORTGAGE30US)**: Each 1% rate increase reduces buying power by ~10%. Rates at 7% vs 3% means monthly payments are roughly 40% higher for the same house. This is the lever the Fed pulls.\n\n• **Home Prices (CSUSHPINSA)**: Case-Shiller index shows price trends. Prices can rise even when rates are high if inventory is tight. The 2020-2022 surge was historic.\n\n• **Incomes (DSPIC96)**: Disposable income growth matters for affordability. If incomes grow faster than home prices + rate increases, affordability improves. In recent years, the opposite happened."
+  },
+  "can i afford a house": {
+    "series": [
+      "FIXHAI",
+      "MORTGAGE30US",
+      "CSUSHPINSA",
+      "DSPIC96"
+    ],
+    "show_yoy": [false, false, true, true],
+    "combine_chart": false,
+    "explanation": "Four dimensions of housing affordability:\n\n• **Affordability Index (FIXHAI)**: Measures whether a median-income family qualifies for a median-priced home. Above 100 = affordable (family income exceeds qualifying income). Below 100 = median family can't afford median home. Historical average is around 150-160.\n\n• **Mortgage Rates (MORTGAGE30US)**: Each 1% rate increase reduces buying power by ~10%. Rates at 7% vs 3% means monthly payments are roughly 40% higher for the same house. This is the lever the Fed pulls.\n\n• **Home Prices (CSUSHPINSA)**: Case-Shiller index shows price trends. Prices can rise even when rates are high if inventory is tight. The 2020-2022 surge was historic.\n\n• **Incomes (DSPIC96)**: Disposable income growth matters for affordability. If incomes grow faster than home prices + rate increases, affordability improves. In recent years, the opposite happened."
   },
   "rent prices": {
     "series": [

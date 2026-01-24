@@ -8,7 +8,7 @@
     ],
     "show_yoy": [true, true, true, true],
     "combine_chart": false,
-    "explanation": "• CPI All Items: Headline inflation - what consumers actually pay. The most widely cited measure.\n• Core CPI: Strips out volatile food and energy to show underlying price trends.\n• Core PCE: The Federal Reserve's official 2% inflation target - this is what drives monetary policy.\n• Real Median Weekly Earnings: Shows whether wages are keeping up with inflation. Rising = workers gaining purchasing power; falling = inflation outpacing wages."
+    "explanation": "Four ways to understand inflation:\n\n• **Headline CPI (CPIAUCSL)**: What consumers actually experience at the grocery store and gas pump. Most cited in news. Volatile due to energy/food swings.\n\n• **Core CPI (CPILFESL)**: Strips out volatile food and energy. Better indicator of underlying inflation trends. Fed watches this alongside PCE.\n\n• **Core PCE (PCEPILFE)**: The Fed's OFFICIAL 2% target. Differs from CPI: captures substitution effects (when beef gets expensive, people buy chicken), includes employer-paid healthcare. Typically runs 0.3-0.5% below CPI.\n\n• **Real Wages (LES1252881600Q)**: The punchline - are workers keeping up? Rising real wages = inflation is being offset by wage gains. Falling = purchasing power squeeze. This is what actually matters for household budgets."
   },
   "cpi": {
     "series": [

@@ -14,7 +14,7 @@
     ],
     "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates labor market slack, GDP growth shows the economy's expansion pace, and CPI inflation (year-over-year) reveals price stability."
+    "explanation": "Four pillars of economic health:\n\n• **Jobs (PAYEMS)**: Monthly job gains are the heartbeat of the economy. The economy needs ~100-150K jobs/month to absorb population growth. Above 200K = strong expansion; below 100K = cooling; negative = contraction.\n\n• **Unemployment (UNRATE)**: The headline jobless rate. Below 4% is historically tight; 4-5% is healthy; above 6% signals distress. Watch the direction - rising unemployment often precedes recession.\n\n• **GDP Growth (A191RO1Q156NBEA)**: Quarterly real GDP growth, annualized. Healthy range is 1.5-3%. Below 0% for two consecutive quarters is the informal definition of recession.\n\n• **Inflation (CPIAUCSL)**: Year-over-year price changes. Fed targets 2%. Above 3% = elevated; above 5% = problematic."
   },
   "how is the economy doing": {
     "series": [
@@ -31,7 +31,7 @@
     ],
     "show_mom": true,
     "combine_chart": false,
-    "explanation": "Jobs come first: Monthly job gains show hiring momentum, unemployment rate indicates how many Americans are looking for work, GDP growth shows economic expansion, and CPI inflation reveals price pressures."
+    "explanation": "Four pillars of economic health:\n\n• **Jobs (PAYEMS)**: Monthly job gains are the heartbeat of the economy. The economy needs ~100-150K jobs/month to absorb population growth. Above 200K = strong expansion; below 100K = cooling; negative = contraction.\n\n• **Unemployment (UNRATE)**: The headline jobless rate. Below 4% is historically tight; 4-5% is healthy; above 6% signals distress. Watch the direction - rising unemployment often precedes recession.\n\n• **GDP Growth (A191RO1Q156NBEA)**: Quarterly real GDP growth, annualized. Healthy range is 1.5-3%. Below 0% for two consecutive quarters is the informal definition of recession.\n\n• **Inflation (CPIAUCSL)**: Year-over-year price changes. Fed targets 2%. Above 3% = elevated; above 5% = problematic."
   },
   "economy": {
     "series": [
@@ -286,7 +286,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "To assess recession risk, I'm showing the three key indicators: Real GDP growth rate (negative growth = recession), the yield curve spread (inversion warns of recession ahead), and unemployment rate (rises sharply during recessions). These give us the clearest picture of current economic conditions and recession probability."
+    "explanation": "Three signals to watch for recession:\n\n• **GDP Growth (A191RL1Q225SBEA)**: Quarterly real GDP growth, annualized. Two consecutive negative quarters is the informal definition of recession. But NBER (the official arbiter) looks at broader indicators and often calls recessions with only one negative quarter if employment is falling.\n\n• **Yield Curve (T10Y2Y)**: When 10-year yields fall below 2-year yields (negative spread), it signals investors expect future Fed rate cuts due to weakness. Has preceded every recession since 1970, but with variable lag (6-18 months).\n\n• **Unemployment (UNRATE)**: Recessions always feature rising unemployment. The Sahm Rule: if unemployment rises 0.5+ percentage points from its recent low, recession has likely already begun."
   },
   "are we in a recession": {
     "series": [
@@ -296,7 +296,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "To determine if we're in a recession, I'm showing you the three key indicators: Real GDP growth rate (negative growth over consecutive quarters indicates recession), the yield curve spread (inversions historically precede recessions), and unemployment rate (recessions typically involve rising unemployment). These three together provide the clearest picture of whether the economy is currently in recession."
+    "explanation": "Three signals to watch for recession:\n\n• **GDP Growth (A191RL1Q225SBEA)**: Quarterly real GDP growth, annualized. Two consecutive negative quarters is the informal definition of recession. But NBER (the official arbiter) looks at broader indicators and often calls recessions with only one negative quarter if employment is falling.\n\n• **Yield Curve (T10Y2Y)**: When 10-year yields fall below 2-year yields (negative spread), it signals investors expect future Fed rate cuts due to weakness. Has preceded every recession since 1970, but with variable lag (6-18 months).\n\n• **Unemployment (UNRATE)**: Recessions always feature rising unemployment. The Sahm Rule: if unemployment rises 0.5+ percentage points from its recent low, recession has likely already begun."
   },
   "recession risk": {
     "series": [
@@ -307,7 +307,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "BBK Leading Index (BBKMLEIX) forecasts economic direction - persistent negative readings signal recession risk. Yield curve (T10Y2Y) inversion has preceded every recession since 1970. Initial claims (ICSA) show real-time layoffs - spikes signal trouble. Sahm Rule (SAHMREALTIME) triggers when unemployment rises enough to indicate recession has likely begun."
+    "explanation": "Four recession early warning indicators:\n\n• **BBK Leading Index (BBKMLEIX)**: Combines 490 economic indicators into one forecast. Persistently negative = trouble ahead. One of the most comprehensive leading indicators available.\n\n• **Yield Curve (T10Y2Y)**: Inverted (negative) yield curve has preceded every recession since 1970. Currently watched obsessively by markets.\n\n• **Initial Claims (ICSA)**: Weekly jobless claims are the highest-frequency economic data. Spikes above 300K signal layoffs accelerating. Sustained above 400K indicates serious trouble.\n\n• **Sahm Rule (SAHMREALTIME)**: Triggers when 3-month average unemployment rises 0.5+ percentage points above its 12-month low. Has 100% accuracy identifying recessions since 1970. If this triggers, recession has likely already begun."
   },
   "recession indicators": {
     "series": [
