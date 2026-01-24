@@ -431,17 +431,20 @@ def _parse_time_series(data: dict, data_key: str = None) -> tuple:
     # Handle different data formats
     if isinstance(time_series, list):
         # Economic indicator format: list of {date, value} dicts
-        dates = []
-        values = []
+        # API returns descending order (newest first), we need ascending (oldest first)
+        pairs = []
         for entry in time_series:
             date = entry.get('date')
             value = entry.get('value')
             if date and value:
                 try:
-                    dates.append(date)
-                    values.append(float(value))
+                    pairs.append((date, float(value)))
                 except (ValueError, TypeError):
                     continue
+        # Sort by date ascending
+        pairs.sort(key=lambda x: x[0])
+        dates = [p[0] for p in pairs]
+        values = [p[1] for p in pairs]
         return dates, values
 
     elif isinstance(time_series, dict):
@@ -489,7 +492,7 @@ def get_alphavantage_series(series_key: str) -> tuple:
 
     if function == 'TIME_SERIES_DAILY':
         params['symbol'] = series_info['symbol']
-        params['outputsize'] = 'full'  # Get all available data
+        params['outputsize'] = 'compact'  # 'full' requires premium
     elif function in ['TIME_SERIES_WEEKLY', 'TIME_SERIES_MONTHLY']:
         params['symbol'] = series_info['symbol']
     elif function == 'FX_DAILY':
@@ -562,7 +565,7 @@ def get_stock_price(symbol: str) -> tuple:
     params = {
         'function': 'TIME_SERIES_DAILY',
         'symbol': symbol.upper(),
-        'outputsize': 'full',
+        'outputsize': 'compact',  # 'full' requires premium
     }
 
     data = _fetch_alphavantage(params)

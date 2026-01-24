@@ -72,6 +72,13 @@ try:
 except Exception:
     QUERY_LOGGING = False
 
+# Import news context for dynamic explanations
+try:
+    from core.news_context import get_economic_context
+    NEWS_CONTEXT_AVAILABLE = True
+except Exception:
+    NEWS_CONTEXT_AVAILABLE = False
+
 # Import DBnomics for international data (IMF, Eurostat, ECB, etc.)
 try:
     from agents.dbnomics import find_international_plan, is_international_query, get_observations_dbnomics
@@ -106,6 +113,13 @@ try:
     ALPHAVANTAGE_AVAILABLE = True
 except Exception:
     ALPHAVANTAGE_AVAILABLE = False
+
+# Import Fed SEP (Summary of Economic Projections) for FOMC forecasts
+try:
+    from agents.fed_sep import is_sep_query, get_sep_for_query, format_sep_for_display, get_sep_series_data, SEP_SERIES
+    SEP_AVAILABLE = True
+except Exception:
+    SEP_AVAILABLE = False
 
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
@@ -3885,7 +3899,8 @@ def log_query_resolution(query: str, source: str, series: list, validation: dict
 def call_economist_reviewer(query: str, series_data: list, original_explanation: str) -> str:
     """Call a second Claude agent to review and improve the explanation.
 
-    This agent sees the actual data values and can write smarter, more contextual narratives.
+    This agent sees the actual data values AND recent news context to explain
+    not just WHAT is happening but WHY.
 
     Args:
         query: The user's original question
@@ -3897,6 +3912,15 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
     """
     if not ANTHROPIC_API_KEY or not series_data:
         return original_explanation
+
+    # Fetch recent news context for dynamic explanations
+    news_context = ""
+    if NEWS_CONTEXT_AVAILABLE:
+        try:
+            news_context = get_economic_context(query)
+        except Exception as e:
+            print(f"[NewsContext] Error: {e}")
+            news_context = ""
 
     # Build a summary of the data for the reviewer
     data_summary = []
@@ -3967,46 +3991,54 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
 
         data_summary.append(summary)
 
-    prompt = f"""You are Jason Furman or Claudia Sahm - a world-class economist writing a briefing. Your job is to give DEEP, INSIGHTFUL analysis that helps people truly understand what the data means.
+    # Build the prompt with optional news context
+    news_section = ""
+    if news_context:
+        news_section = f"""
+RECENT NEWS & CONTEXT:
+{news_context}
+"""
+
+    prompt = f"""You are Jason Furman or Claudia Sahm - a world-class economist writing a briefing. Your job is to explain not just WHAT the data shows, but WHY things are happening.
 
 USER QUESTION: {query}
 
 DATA:
 {json.dumps(data_summary, indent=2)}
+{news_section}
+BACKGROUND: {original_explanation}
 
-CONTEXT FROM PRECOMPUTED ANALYSIS: {original_explanation}
+Write a response that EXPLAINS CAUSATION, not just correlation:
 
-Write a response that demonstrates REAL ECONOMIC THINKING:
+1. ANSWER FIRST - One clear sentence answering the question.
 
-1. ANSWER THE QUESTION FIRST - State a clear, direct answer in the first sentence.
+2. EXPLAIN WHY - This is the most important part:
+   - What's CAUSING the current trend? (Fed policy? Consumer behavior? Supply issues? Labor market dynamics?)
+   - Reference specific recent events if relevant (Fed decisions, policy changes, economic reports)
+   - Connect cause → effect clearly
 
-2. GIVE THE NUMBERS WITH CONTEXT:
-   - State current values with proper units
-   - Compare to: (a) year ago, (b) recent peak/trough, (c) historical averages
-   - Is this high/low/normal by historical standards?
+3. CONTEXT & COMPARISON:
+   - Current value vs year ago, vs recent peak/trough
+   - Is this high/low/normal historically?
 
-3. EXPLAIN THE "SO WHAT":
-   - Why does this matter for regular people?
-   - What does this imply going forward?
-   - Are there caveats or complications to the simple narrative?
+4. WHAT'S NEXT:
+   - Based on current drivers, what's the likely trajectory?
+   - What would change this outlook?
+   - What are markets/Fed expecting?
 
-4. SHOW ECONOMIC THINKING:
-   - Connect to related concepts (e.g., for rent inflation: shelter is 1/3 of CPI, so this affects overall inflation trajectory)
-   - Note any lags, measurement issues, or data limitations
-   - If signals are mixed, say so honestly
-
-5. FORMAT: Use bullet points (•) for clarity. 4-6 bullets total.
+5. FORMAT: 4-5 bullet points (•). Be specific with dates and numbers.
 
 RULES:
-- Use EXACT dates from the data. If it says "2025-12-01", write "December 2025"
+- Use EXACT dates from data. "2025-12-01" → "December 2025"
 - Convert units naturally: "1764.6 thousands" → "about 1.8 million"
-- NO meta-commentary ("The data shows...", "I notice..."). Just answer.
-- Be authoritative but honest about uncertainty"""
+- NO meta-commentary ("The data shows..."). Just answer directly.
+- If news context is provided, USE IT to explain causation
+- Be specific: "driven by strong consumer spending" not "due to various factors\""""
 
     url = 'https://api.anthropic.com/v1/messages'
     payload = {
-        'model': 'claude-opus-4-5-20251101',
-        'max_tokens': 600,  # Increased for deeper analysis
+        'model': 'claude-sonnet-4-20250514',  # Sonnet is faster for this task
+        'max_tokens': 800,  # More room for causal explanations
         'messages': [{'role': 'user', 'content': prompt}]
     }
     headers = {
@@ -6375,6 +6407,17 @@ def main():
                                 <div style='color: #94a3b8; font-size: 0.75rem; margin-top: 8px;'>Based on <a href='https://polymarket.com' target='_blank' style='color: #94a3b8;'>Polymarket</a> data, where prices function as a proxy for the likelihood of an event. These probabilities shift rapidly as traders react to news. As a market-based metric, they capture "wisdom of the crowd" sentiment but may differ from professional forecasts.</div>
                             </div>""", unsafe_allow_html=True)
 
+                    # Fed SEP projections (FOMC forecasts)
+                    if msg.get("sep") and SEP_AVAILABLE:
+                        sep_data = msg["sep"]
+                        sep_narrative = format_sep_for_display(sep_data)
+                        if sep_narrative:
+                            source_url = sep_data.get('source_url', 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm')
+                            st.markdown(f"""<div style='background: #f8fafc; border-left: 3px solid #3b82f6; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
+                                <div style='color: #1e40af; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'><em><u>Fed Projections</u></em></div>
+                                <div style='color: #334155;'>{sep_narrative}</div>
+                            </div>""", unsafe_allow_html=True)
+
                     # Render charts from stored series_data
                     if msg.get("series_data"):
                         chart_type = msg.get("chart_type", "line")
@@ -7397,6 +7440,14 @@ def main():
             except Exception as e:
                 print(f"[Polymarket] Error fetching predictions: {e}")
 
+        # Fetch Fed SEP projections if query is about forecasts/outlook
+        sep_data = None
+        if SEP_AVAILABLE:
+            try:
+                sep_data = get_sep_for_query(query)
+            except Exception as e:
+                print(f"[SEP] Error fetching projections: {e}")
+
         # Store ALL context atomically for follow-up queries (prevents race conditions)
         st.session_state.last_query = query
         st.session_state.last_series = series_to_fetch[:4]
@@ -7418,6 +7469,7 @@ def main():
             "chart_groups": chart_groups,  # Store chart groups for proper re-rendering
             "series_names": series_names_fetched,
             "polymarket": polymarket_predictions,  # Prediction market data
+            "sep": sep_data,  # Fed SEP projections
         })
 
         # Activate chat mode and rerun to show chat interface

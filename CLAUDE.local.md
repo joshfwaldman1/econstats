@@ -34,6 +34,30 @@
 - CPIAUCSL (CPI): Index → must calculate YoY % change
 - UNRATE, FEDFUNDS: Already rates, display as-is
 
+## GDP Display Rules
+**Show both YoY and quarterly - YoY is primary (smoother), quarterly is secondary (timely):**
+
+| Series | Name | Use |
+|--------|------|-----|
+| **A191RO1Q156NBEA** | GDP YoY growth | Primary - smoother trend, less noise |
+| **A191RL1Q225SBEA** | GDP quarterly annualized | Secondary - the "2.8% in Q3" headline number |
+
+Both should be shown on GDP charts. YoY gives the trend; quarterly gives the latest reading.
+
+## GDP Nowcasts (SUPPLEMENTARY ONLY)
+**Nowcasts are less valuable than established forecasts. Use sparingly.**
+
+| Series | Source | Description | Issues |
+|--------|--------|-------------|--------|
+| **GDPNOW** | Atlanta Fed | Real-time GDP nowcast | Volatile (1-2pp swings common). Often misleading early in quarter. |
+| **STLENI** | St. Louis Fed | Alternative nowcast | Often diverges wildly from GDPNow. |
+
+**Rules for nowcasts:**
+- **DO NOT include in main series lists** - Official GDP (A191RL1Q225SBEA) is the primary measure
+- **Cite at bottom only** - If mentioned, add as supplementary note: "*For real-time estimates, see GDPNow/STLENI - but note these are volatile and often diverge.*"
+- **Only show for explicit nowcast queries** - "gdpnow", "nowcast" queries can return these series directly
+- **NY Fed Nowcast** - Also available at newyorkfed.org/research/policy/nowcast (not in FRED)
+
 ## LLM Integration Patterns
 - **LLMs hallucinate series IDs** - Never have LLMs generate FRED series IDs directly
 - **Use topic discovery instead** - Have LLMs suggest dimensions/topics, then use FRED API to find valid series
@@ -108,6 +132,20 @@ Added series and plans for:
 - **Keywords matched**: recession, fed, gdp, growth, economy, tariff, inflation, interest rate
 - **Caching**: 15-minute TTL to avoid API spam
 - **API**: Uses Polymarket Gamma API (https://gamma-api.polymarket.com)
+
+## Fed SEP Integration (FOMC Projections)
+- `agents/fed_sep.py` - Fetches Summary of Economic Projections from Federal Reserve
+- **No API key required** - Scrapes Fed's public HTML tables
+- **Variables tracked**:
+  - `sep_gdp` - Real GDP growth projections
+  - `sep_unemployment` - Unemployment rate projections
+  - `sep_pce_inflation` - PCE inflation projections
+  - `sep_core_pce` - Core PCE inflation projections
+  - `sep_fed_funds` - Federal funds rate projections (dot plot)
+- **Queries handled**: "dot plot", "fed projections", "rate path", "terminal rate", "economic outlook"
+- **Display**: Yellow callout box below summary showing median FOMC projections
+- **Update frequency**: Quarterly (March, June, September, December FOMC meetings)
+- **Fallback**: Hardcoded December 2024 data if scraping fails
 
 ## Stock Market Integration
 - `agents/stocks.py` - Query plans for stock market data (uses FRED, not external APIs)

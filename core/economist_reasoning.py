@@ -64,14 +64,17 @@ DIRECT_SERIES_MAPPINGS = {
     'is rent inflation coming down': ['CUSR0000SEHA'],
     'rent prices': ['CUSR0000SEHA', 'zillow_zori_national'],
 
-    # GDP - specific measures
-    'gdp': ['GDPC1', 'A191RL1Q225SBEA'],
+    # GDP - specific measures (YoY primary, quarterly secondary)
+    'gdp': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'],
     'real gdp': ['GDPC1'],
-    'gdp growth': ['A191RL1Q225SBEA', 'GDPC1'],
-    'economic growth': ['GDPC1', 'A191RL1Q225SBEA'],
-    'recession': ['GDPC1', 'T10Y2Y', 'UNRATE', 'UMCSENT'],
-    'is a recession coming': ['T10Y2Y', 'GDPC1', 'UMCSENT', 'ICSA'],
-    'recession risk': ['T10Y2Y', 'GDPC1', 'UMCSENT', 'ICSA'],
+    'gdp growth': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'],
+    'gdp now': ['GDPNOW', 'STLENI'],  # Only for explicit nowcast queries
+    'gdpnow': ['GDPNOW', 'STLENI'],
+    'nowcast': ['GDPNOW', 'STLENI'],
+    'economic growth': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'],
+    'recession': ['A191RL1Q225SBEA', 'T10Y2Y', 'UNRATE', 'UMCSENT'],
+    'is a recession coming': ['T10Y2Y', 'A191RL1Q225SBEA', 'UMCSENT', 'ICSA'],
+    'recession risk': ['T10Y2Y', 'A191RL1Q225SBEA', 'UMCSENT', 'ICSA'],
 
     # Employment - specific measures
     'unemployment rate': ['UNRATE', 'U6RATE'],
@@ -130,11 +133,11 @@ DIRECT_SERIES_MAPPINGS = {
     'recession indicators': ['T10Y2Y', 'SAHMREALTIME', 'ICSA', 'UMCSENT'],
     'sahm rule': ['SAHMREALTIME'],
 
-    # Economy overview
-    'economy': ['PAYEMS', 'UNRATE', 'GDPC1', 'CPIAUCSL'],
-    'how is the economy': ['PAYEMS', 'UNRATE', 'GDPC1', 'CPIAUCSL'],
-    'economic outlook': ['GDPC1', 'UNRATE', 'CPIAUCSL', 'UMCSENT'],
-    'american economy': ['PAYEMS', 'UNRATE', 'GDPC1'],
+    # Economy overview (YoY GDP primary, quarterly secondary)
+    'economy': ['PAYEMS', 'UNRATE', 'A191RO1Q156NBEA', 'A191RL1Q225SBEA', 'CPIAUCSL'],
+    'how is the economy': ['PAYEMS', 'UNRATE', 'A191RO1Q156NBEA', 'A191RL1Q225SBEA', 'CPIAUCSL'],
+    'economic outlook': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA', 'UNRATE', 'CPIAUCSL', 'UMCSENT'],
+    'american economy': ['PAYEMS', 'UNRATE', 'A191RO1Q156NBEA', 'A191RL1Q225SBEA'],
 
     # Bond market
     'bond yields': ['DGS2', 'DGS10', 'DGS30'],
