@@ -5156,12 +5156,133 @@ def main():
     .summary-callout li { color: #44403c; font-size: 0.9rem; line-height: 1.45; margin-bottom: 3px; padding-left: 2px; }
     .summary-callout li::marker { color: #D4A574; }
 
-    /* Chat mode - Anthropic-inspired styling */
-    .stChatMessage {
-        background: transparent !important;
-        border: none !important;
-        padding: 16px 0 !important;
+    /* Chat mode - Modern conversational UI styling */
+
+    /* Style Streamlit's built-in chat message for assistant */
+    [data-testid="stChatMessage"] {
+        background: #FFFDFB !important;
+        border: 1px solid #e7e5e4 !important;
+        border-radius: 4px 20px 20px 20px !important;
+        padding: 20px 24px !important;
+        margin: 12px 0 24px 0 !important;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+        position: relative !important;
     }
+
+    /* Hide the default avatar icon */
+    [data-testid="stChatMessage"] [data-testid="chatAvatarIcon-assistant"] {
+        display: none !important;
+    }
+
+    /* Add label via CSS pseudo-element */
+    [data-testid="stChatMessage"]::before {
+        content: "EconStats";
+        position: absolute;
+        top: -10px;
+        left: 16px;
+        background: #FAF9F6;
+        padding: 2px 10px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-radius: 8px;
+        z-index: 1;
+    }
+
+    /* Style horizontal rules within chat message */
+    [data-testid="stChatMessage"] hr {
+        border: none !important;
+        border-top: 1px solid #f1f0ef !important;
+        margin: 16px 0 !important;
+    }
+
+    /* Metrics within chat message - subtle styling */
+    [data-testid="stChatMessage"] [data-testid="stMetric"] {
+        background: #f8f7f6 !important;
+        border: 1px solid #f1f0ef !important;
+    }
+
+    /* User query display in chat history - styled bubble, right-aligned */
+    .chat-user-query {
+        display: inline-block;
+        background: linear-gradient(135deg, #D4A574 0%, #c4956a 100%);
+        color: #FFFDFB;
+        padding: 12px 18px;
+        border-radius: 20px 20px 4px 20px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin: 20px 0 12px 0;
+        max-width: 85%;
+        box-shadow: 0 2px 8px rgba(212, 165, 116, 0.15);
+        float: right;
+        clear: both;
+    }
+
+    /* Assistant response container - clean card style */
+    .chat-assistant-response {
+        background: #FFFDFB;
+        border: 1px solid #e7e5e4;
+        border-radius: 4px 20px 20px 20px;
+        padding: 24px 24px 20px 24px;
+        margin: 12px 0 24px 0;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        clear: both;
+        position: relative;
+    }
+
+    /* Subtle label for assistant responses */
+    .chat-assistant-response::before {
+        content: "EconStats";
+        position: absolute;
+        top: -10px;
+        left: 16px;
+        background: #FAF9F6;
+        padding: 2px 10px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-radius: 8px;
+    }
+
+    /* Style horizontal rules within chat response */
+    .chat-assistant-response hr {
+        border: none;
+        border-top: 1px solid #f1f0ef;
+        margin: 16px 0;
+    }
+
+    /* Metrics within response - subtle styling */
+    .chat-assistant-response [data-testid="stMetric"] {
+        background: #f8f7f6 !important;
+        border: 1px solid #f1f0ef !important;
+    }
+
+    /* Smooth transition for chat mode entry */
+    .chat-container {
+        animation: fadeInUp 0.3s ease-out;
+    }
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Clearfix for float-based layout */
+    .chat-clearfix::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
     /* Chat follow-up input - coral/terracotta border */
     [data-testid="stTextInput"][data-baseweb] input[aria-label="Follow-up"],
     div:has(> [data-testid="stTextInput"]) + div [data-testid="stTextInput"] input {
@@ -5585,11 +5706,14 @@ def main():
         with col_title:
             st.markdown("<span style='font-size: 1.3rem; font-weight: 600; color: #292524;'>EconStats</span>", unsafe_allow_html=True)
 
+        # Wrap conversation in animated container for smooth transition
+        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+
         # Render conversation history with full charts
         for msg_idx, msg in enumerate(st.session_state.messages):
             if msg["role"] == "user":
-                # Simple query display - just the text
-                st.markdown(f"<p style='color: #78716c; font-size: 0.9rem; margin: 16px 0 8px 0;'>Searched: <strong style='color: #292524;'>{msg['content']}</strong></p>", unsafe_allow_html=True)
+                # User query bubble - styled and right-aligned
+                st.markdown(f'<div class="chat-clearfix"><div class="chat-user-query">{msg["content"]}</div></div>', unsafe_allow_html=True)
             else:
                 # Assistant message with summary and charts - Dashboard layout
                 with st.chat_message("assistant"):
@@ -5814,10 +5938,11 @@ def main():
                                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                                 st.plotly_chart(fig, width='stretch', key=f"hist_chart_{msg_idx}_{series_id}")
 
-        # Follow-up section at bottom
-        if not query and st.session_state.messages:
-            st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+        # Close chat container
+        st.markdown('</div>', unsafe_allow_html=True)
 
+        # Follow-up section at bottom (compact)
+        if not query and st.session_state.messages:
             # Text input for follow-up
             chat_query = st.text_input(
                 "Follow-up",
@@ -5835,13 +5960,10 @@ def main():
 
             # Default follow-ups
             followup1 = ("Is a recession coming?", "recession risk")
-            followup2 = ("How are wages doing?", "wages")
+            followup2 = ("Are wages keeping up with inflation?", "wages vs inflation")
 
             # Context-specific follow-ups
-            if any(s in last_series for s in ['PAYEMS', 'UNRATE']) or 'job' in last_query_lower or 'employ' in last_query_lower or 'economy' in last_query_lower:
-                followup1 = ("Is a recession coming?", "recession risk")
-                followup2 = ("Are wages keeping up with inflation?", "wages vs inflation")
-            elif 'inflation' in last_query_lower or 'CPI' in str(last_series) or 'price' in last_query_lower:
+            if 'inflation' in last_query_lower or 'CPI' in str(last_series) or 'price' in last_query_lower:
                 followup1 = ("Are wages keeping up?", "wages vs inflation")
                 followup2 = ("What's core inflation?", "core inflation")
             elif 'wage' in last_query_lower or 'earning' in last_query_lower:
@@ -5854,35 +5976,30 @@ def main():
                 followup1 = ("What are mortgage rates?", "mortgage rates")
                 followup2 = ("How is inflation affecting housing?", "shelter inflation")
 
-            # Row with suggestions and new search option
-            label_col, spacer_col = st.columns([5, 1])
-            with label_col:
-                st.markdown("<p style='color: #9ca3af; font-size: 0.75rem; margin: 6px 0 4px 0;'>Try asking:</p>", unsafe_allow_html=True)
-            with spacer_col:
-                if st.button("↩ New search", key="new_search_btn", type="tertiary"):
+            # Compact row: suggestions + new search
+            col1, col2, col3 = st.columns([2, 2, 1])
+            with col1:
+                if st.button(followup1[0], key="followup_1", use_container_width=True):
+                    st.session_state.pending_query = followup1[1]
+                    st.rerun()
+            with col2:
+                if st.button(followup2[0], key="followup_2", use_container_width=True):
+                    st.session_state.pending_query = followup2[1]
+                    st.rerun()
+            with col3:
+                if st.button("New search", key="new_search_btn", type="tertiary", use_container_width=True):
                     st.session_state.messages = []
                     st.session_state.last_query = None
                     st.session_state.last_series = []
-                    st.rerun()
-
-            btn_col1, btn_col2 = st.columns([1, 1])
-            with btn_col1:
-                if st.button(followup1[0], key="followup_1"):
-                    st.session_state.pending_query = followup1[1]
-                    st.rerun()
-            with btn_col2:
-                if st.button(followup2[0], key="followup_2"):
-                    st.session_state.pending_query = followup2[1]
                     st.rerun()
 
     if query:
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": query})
 
-        # Only show chat bubble in chat mode
+        # Only show chat bubble in chat mode - use styled bubble
         if st.session_state.chat_mode:
-            with st.chat_message("user"):
-                st.write(query)
+            st.markdown(f'<div class="chat-clearfix"><div class="chat-user-query">{query}</div></div>', unsafe_allow_html=True)
 
         # Build context from previous query for follow-up detection
         previous_context = None
