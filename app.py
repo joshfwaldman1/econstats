@@ -7282,23 +7282,6 @@ def main():
                     series_data = transformed_data
 
         # Check data freshness - warn if data is more than 45 days old
-        if series_data:
-            stale_series = []
-            today = datetime.now()
-            for sid, dates_v, values_v, info_v in series_data:
-                if dates_v:
-                    try:
-                        latest_date = datetime.strptime(dates_v[-1], '%Y-%m-%d')
-                        days_old = (today - latest_date).days
-                        if days_old > 45:
-                            series_name = info_v.get('name', info_v.get('title', sid))
-                            stale_series.append((series_name, days_old, latest_date.strftime('%B %Y')))
-                    except (ValueError, IndexError):
-                        pass
-            if stale_series:
-                stale_msg = ", ".join([f"{name} ({days}d old, last: {date})" for name, days, date in stale_series[:3]])
-                st.info(f"📅 Note: Some data may be outdated: {stale_msg}")
-
         # Call economist reviewer agent for ALL queries to ensure quality explanations
         if series_data:
             # Use ensemble for descriptions if enabled
