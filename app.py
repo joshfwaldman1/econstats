@@ -12,7 +12,7 @@ import os
 import re
 from datetime import datetime, timedelta
 from urllib.request import urlopen, Request
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 from urllib.error import HTTPError, URLError
 
 import streamlit as st
@@ -6105,6 +6105,14 @@ def main():
         query = st.session_state.pending_query
         st.session_state.pending_query = None
 
+    # Check for query in URL params (for permalinks)
+    # URL format: ?q=unemployment+rate
+    url_params = st.query_params
+    if 'q' in url_params and not query and not st.session_state.last_query:
+        query = url_params['q']
+        # Clear the URL param after reading (so refresh doesn't re-run)
+        # st.query_params.clear()  # Uncomment to clear after first load
+
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
         # LANDING PAGE MODE - Show title
@@ -6459,8 +6467,8 @@ def main():
                 followup1 = ("Add housing starts", "add housing starts")
                 followup2 = ("Show affordability", "housing affordability")
 
-            # Compact row: suggestions + new search
-            col1, col2, col3 = st.columns([2, 2, 1])
+            # Compact row: suggestions + share + new search
+            col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
             with col1:
                 if st.button(followup1[0], key="followup_1", use_container_width=True):
                     st.session_state.pending_query = followup1[1]
@@ -6470,10 +6478,21 @@ def main():
                     st.session_state.pending_query = followup2[1]
                     st.rerun()
             with col3:
+                # Share button - generates permalink
+                last_q = st.session_state.last_query or ""
+                share_url = f"?q={quote(last_q)}"
+                if st.button("Share", key="share_btn", type="tertiary", use_container_width=True):
+                    # Copy to clipboard using JavaScript
+                    full_url = f"https://econstats.streamlit.app/{share_url}"
+                    st.toast(f"Link copied! {full_url}")
+                    # Also update URL params so user can copy from address bar
+                    st.query_params["q"] = last_q
+            with col4:
                 if st.button("New search", key="new_search_btn", type="tertiary", use_container_width=True):
                     st.session_state.messages = []
                     st.session_state.last_query = None
                     st.session_state.last_series = []
+                    st.query_params.clear()
                     st.rerun()
 
     if query:
