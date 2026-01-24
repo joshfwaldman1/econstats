@@ -115,6 +115,42 @@ Added series and plans for:
 - **Queries handled**: "stock market", "s&p 500", "dow jones", "nasdaq", "vix", "yield curve", "gold price", "oil price"
 - **Integration**: Falls back to stock plans if no precomputed economic plan matches
 
+## Zillow Integration (Market Rents & Home Values)
+- `agents/zillow.py` - Fetches actual market rents and home values from Zillow Research
+- **No API key required** - Uses free public CSV downloads
+- **Series**:
+  - `zillow_zori_national` - Zillow Observed Rent Index (actual market rents)
+  - `zillow_zhvi_national` - Zillow Home Value Index
+  - `zillow_rent_yoy` - Rent growth year-over-year
+  - `zillow_home_value_yoy` - Home value growth year-over-year
+- **Queries handled**: "zillow rent", "market rent", "actual rents", "zhvi", "zori"
+- **Better than FRED for**: Real-time rent data (CPI rent lags by months)
+
+## EIA Integration (Energy Data)
+- `agents/eia.py` - Detailed energy data from US Energy Information Administration
+- **Requires**: `EIA_API_KEY` env var (free at https://www.eia.gov/opendata/register.php)
+- **Series**:
+  - `eia_wti_crude` - WTI crude oil spot price
+  - `eia_brent_crude` - Brent crude oil price
+  - `eia_gasoline_retail` - Retail gasoline prices
+  - `eia_diesel_retail` - Diesel fuel prices
+  - `eia_natural_gas_henry_hub` - Henry Hub natural gas
+  - `eia_crude_stocks` - US crude oil inventories
+  - `eia_crude_production` - US oil production
+  - `eia_electricity_residential` - Residential electricity prices
+- **Better than FRED for**: More granular energy data, weekly updates
+
+## Alpha Vantage Integration (Real-Time Markets)
+- `agents/alphavantage.py` - Daily market data for stocks, forex, commodities
+- **Requires**: `ALPHAVANTAGE_API_KEY` env var (free at https://www.alphavantage.co/support/#api-key)
+- **Series**:
+  - Stocks: `av_spy`, `av_qqq`, `av_dia`, `av_iwm` (ETFs tracking indices)
+  - Treasuries: `av_treasury_10y`, `av_treasury_2y`, `av_treasury_30y`, `av_treasury_3m`
+  - Forex: `av_eurusd`, `av_usdjpy`, `av_gbpusd`, `av_dollar_index`
+  - Commodities: `av_crude_oil`, `av_brent`, `av_natural_gas`
+  - Economic: `av_real_gdp`, `av_cpi`, `av_unemployment`, `av_fed_funds`
+- **Better than FRED for**: Daily data (FRED indices are delayed), forex rates
+
 ## DBnomics Integration (International Data)
 - `agents/dbnomics.py` - International economic data from IMF, Eurostat, ECB, BOE
 - **API**: https://api.db.nomics.world/v22/
@@ -145,6 +181,9 @@ Added series and plans for:
 - `agents/agent_ensemble.py` - LLM ensemble for dimension discovery and validation
 - `agents/series_rag.py` - RAG system with 115+ curated series
 - `agents/polymarket.py` - Polymarket prediction market integration
+- `agents/zillow.py` - Zillow housing data (no API key needed)
+- `agents/eia.py` - EIA energy data (requires EIA_API_KEY)
+- `agents/alphavantage.py` - Alpha Vantage market data (requires ALPHAVANTAGE_API_KEY)
 - `agents/plans_*.json` - Pre-computed query plans by category:
   - `plans_employment.json` - Jobs, sectors, demographics
   - `plans_economy_overview.json` - Economy, small business, supply chain
