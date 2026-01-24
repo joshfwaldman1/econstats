@@ -68,35 +68,27 @@ INTERNATIONAL_SERIES = {
     },
     # === UK ===
     "uk_gdp": {
-        "id": "BOE/GDP/IHYR.Q",
+        "id": "IMF/WEO:2024-10/GBR.NGDP_RPCH.pcent_change",
         "name": "UK GDP Growth (YoY)",
-        "description": "UK real GDP growth, year-over-year",
+        "description": "UK real GDP growth, year-over-year (IMF)",
         "keywords": ["uk", "britain", "british", "gdp", "england"],
-        "provider": "Bank of England",
+        "provider": "IMF",
         "measure_type": "real",
-        "change_type": "yoy",  # IHYR = YoY growth rate
-        "frequency": "quarterly",
+        "change_type": "yoy",  # RPCH = Real Percent Change
+        "frequency": "annual",
     },
     "uk_inflation": {
-        "id": "BOE/CPI/D7G7.M",
+        "id": "IMF/WEO:2024-10/GBR.PCPIPCH.pcent_change",
         "name": "UK Inflation (CPI)",
-        "description": "UK CPI inflation, year-over-year",
+        "description": "UK CPI inflation, year-over-year (IMF)",
         "keywords": ["uk", "britain", "inflation", "cpi"],
-        "provider": "Bank of England",
+        "provider": "IMF",
         "measure_type": "rate",
         "change_type": "yoy",
-        "frequency": "monthly",
+        "frequency": "annual",
     },
-    "uk_bank_rate": {
-        "id": "BOE/BANKRATE/IUMABEDR.D",
-        "name": "Bank of England Rate",
-        "description": "Bank of England official bank rate",
-        "keywords": ["uk", "boe", "bank rate", "interest rate", "britain"],
-        "provider": "Bank of England",
-        "measure_type": "rate",
-        "change_type": "level",
-        "frequency": "daily",
-    },
+    # Note: Bank of England rate data not reliably available via DBnomics
+    # The BOE provider has limited series; users should check FRED for BOEUKLTIR (UK long-term rate) instead
     # === JAPAN ===
     "japan_gdp": {
         "id": "IMF/WEO:2024-10/JPN.NGDP_RPCH.pcent_change",
@@ -252,12 +244,12 @@ INTERNATIONAL_QUERY_PLANS = {
         "explanation": "Eurozone quarterly GDP growth.",
     },
     "uk economy": {
-        "series": ["uk_gdp", "uk_inflation", "uk_bank_rate"],
-        "explanation": "UK economic indicators.",
+        "series": ["uk_gdp", "uk_inflation"],
+        "explanation": "UK economic indicators from IMF.",
     },
     "how is the uk doing": {
-        "series": ["uk_gdp", "uk_inflation", "uk_bank_rate"],
-        "explanation": "UK economic indicators.",
+        "series": ["uk_gdp", "uk_inflation"],
+        "explanation": "UK economic indicators from IMF.",
     },
     "japan economy": {
         "series": ["japan_gdp", "japan_inflation"],

@@ -112,7 +112,7 @@ INDICATORS = {
         },
         "dbnomics_series": {
             "eurozone": "ecb_rate",
-            "uk": "uk_bank_rate",
+            # Note: UK Bank rate not reliably available via DBnomics
         },
         "comparison_type": "level_rate",
     },

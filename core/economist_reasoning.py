@@ -7,20 +7,132 @@ query-to-series mappings.
 
 Flow:
 1. Query comes in
-2. AI reasons: "To answer this, an economist would want X, Y, Z indicators because..."
-3. We search FRED for those indicators
-4. Return the series
+2. Check for direct data requests (e.g., "What is the Fed funds rate?") - return the actual data
+3. For analytical questions, AI reasons about what indicators are needed
+4. Search FRED for those indicators
+5. Return the series
 
 This is the PRIMARY approach. Pre-computed plans are a fast-path cache/backstop.
 """
 
 import json
 import os
+import re
 from typing import Optional
 from urllib.request import urlopen, Request
 
 # API Keys
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+
+# =============================================================================
+# DIRECT DATA MAPPINGS
+# For unambiguous questions asking for specific data, return the data directly.
+# This prevents over-interpretation (e.g., "What is the Fed rate?" should return
+# FEDFUNDS, not inflation metrics that influence rates).
+# =============================================================================
+
+DIRECT_SERIES_MAPPINGS = {
+    # Federal Reserve / Interest Rates
+    'fed funds rate': ['FEDFUNDS', 'DFEDTARU'],
+    'fed rate': ['FEDFUNDS', 'DFEDTARU'],
+    'federal funds': ['FEDFUNDS'],
+    'interest rate': ['FEDFUNDS', 'DGS10', 'DGS2'],
+    'interest rates': ['FEDFUNDS', 'DGS10', 'DGS2'],
+    'treasury yield': ['DGS10', 'DGS2', 'DGS30'],
+    'treasury yields': ['DGS10', 'DGS2', 'DGS30'],
+    '10 year treasury': ['DGS10'],
+    '10-year treasury': ['DGS10'],
+    '2 year treasury': ['DGS2'],
+    'yield curve': ['T10Y2Y', 'DGS10', 'DGS2'],
+    'mortgage rate': ['MORTGAGE30US', 'MORTGAGE15US'],
+    'mortgage rates': ['MORTGAGE30US', 'MORTGAGE15US'],
+    '30 year mortgage': ['MORTGAGE30US'],
+    '30-year mortgage': ['MORTGAGE30US'],
+
+    # Inflation - specific measures
+    'core inflation': ['CPILFESL', 'PCEPILFE'],
+    'core cpi': ['CPILFESL'],
+    'core pce': ['PCEPILFE'],
+    'cpi': ['CPIAUCSL', 'CPILFESL'],
+    'pce': ['PCEPI', 'PCEPILFE'],
+    'inflation rate': ['CPIAUCSL', 'PCEPILFE'],
+
+    # GDP - specific measures
+    'gdp': ['GDPC1', 'A191RL1Q225SBEA'],
+    'real gdp': ['GDPC1'],
+    'gdp growth': ['A191RL1Q225SBEA', 'GDPC1'],
+    'economic growth': ['GDPC1', 'A191RL1Q225SBEA'],
+    'recession': ['GDPC1', 'T10Y2Y', 'UNRATE', 'UMCSENT'],
+    'is a recession coming': ['T10Y2Y', 'GDPC1', 'UMCSENT', 'ICSA'],
+    'recession risk': ['T10Y2Y', 'GDPC1', 'UMCSENT', 'ICSA'],
+
+    # Employment - specific measures
+    'unemployment rate': ['UNRATE', 'U6RATE'],
+    'unemployment': ['UNRATE', 'U6RATE'],
+    'payrolls': ['PAYEMS'],
+    'nonfarm payrolls': ['PAYEMS'],
+    'jobs report': ['PAYEMS', 'UNRATE'],
+    'job openings': ['JTSJOL'],
+    'initial claims': ['ICSA'],
+    'jobless claims': ['ICSA'],
+
+    # Housing - specific measures
+    'home prices': ['CSUSHPINSA', 'MSPUS'],
+    'house prices': ['CSUSHPINSA', 'MSPUS'],
+    'housing prices': ['CSUSHPINSA', 'MSPUS'],
+    'housing starts': ['HOUST', 'HOUST1F'],
+    'building permits': ['PERMIT'],
+    'housing market': ['CSUSHPINSA', 'HOUST', 'MORTGAGE30US', 'EXHOSLUSM495S'],
+    'existing home sales': ['EXHOSLUSM495S'],
+    'new home sales': ['HSN1F'],
+
+    # Consumer
+    'consumer sentiment': ['UMCSENT'],
+    'consumer confidence': ['UMCSENT'],
+    'retail sales': ['RSXFS'],
+
+    # Other common
+    'oil price': ['DCOILWTICO'],
+    'oil prices': ['DCOILWTICO'],
+    'gas prices': ['GASREGW'],
+    'dollar index': ['DTWEXBGS'],
+    's&p 500': ['SP500'],
+    'stock market': ['SP500', 'DJIA'],
+}
+
+
+def check_direct_mapping(query: str) -> Optional[list]:
+    """
+    Check if query is asking for specific data that has a direct answer.
+
+    Returns list of series IDs if matched, None otherwise.
+    """
+    query_lower = query.lower().strip()
+
+    # Remove common question words
+    for prefix in ['what is the', 'what is', 'what are the', 'what are',
+                   'show me the', 'show me', 'current', 'latest', 'today\'s']:
+        if query_lower.startswith(prefix):
+            query_lower = query_lower[len(prefix):].strip()
+
+    # Remove trailing question mark and common suffixes
+    query_lower = query_lower.rstrip('?').strip()
+    for suffix in ['right now', 'today', 'currently', 'now']:
+        if query_lower.endswith(suffix):
+            query_lower = query_lower[:-len(suffix)].strip()
+
+    # Direct match
+    if query_lower in DIRECT_SERIES_MAPPINGS:
+        return DIRECT_SERIES_MAPPINGS[query_lower]
+
+    # Check if query contains any direct mapping key
+    for key, series in DIRECT_SERIES_MAPPINGS.items():
+        # Use word boundary matching to avoid partial matches
+        pattern = r'\b' + re.escape(key) + r'\b'
+        if re.search(pattern, query_lower):
+            return series
+
+    return None
 
 REASONING_PROMPT = """You are a credible economic analyst (think Jason Furman, Claudia Sahm, or a Fed economist).
 
@@ -130,6 +242,7 @@ def reason_about_query(query: str, verbose: bool = False) -> dict:
                 {"concept": "...", "why": "...", "search_terms": [...]}
             ],
             "search_terms": ["term1", "term2", ...],  # Flattened for easy use
+            "direct_series": ["FEDFUNDS", ...],  # If direct mapping found
             "time_context": "recent",
             "display_suggestion": "..."
         }
@@ -137,6 +250,23 @@ def reason_about_query(query: str, verbose: bool = False) -> dict:
     if verbose:
         print(f"  Reasoning about: {query}")
 
+    # FIRST: Check for direct data requests
+    # Questions like "What is the Fed funds rate?" should return the actual rate,
+    # not factors that influence rates.
+    direct_series = check_direct_mapping(query)
+    if direct_series:
+        if verbose:
+            print(f"  Direct mapping found: {direct_series}")
+        return {
+            "reasoning": f"Showing the requested data directly.",
+            "indicators": [],
+            "search_terms": [],
+            "direct_series": direct_series,
+            "time_context": "recent",
+            "display_suggestion": "line chart"
+        }
+
+    # For analytical questions, use AI reasoning
     result = call_gemini_reasoning(query)
 
     if not result:

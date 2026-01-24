@@ -4664,12 +4664,25 @@ def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
     if verbose:
         print(f"  Using economist reasoning for: {query}")
 
-    # Step 1: AI reasons about what's needed
+    # Step 1: AI reasons about what's needed (or finds direct mapping)
     reasoning = reason_about_query(query, verbose=verbose)
+
+    # Check if direct series mapping was found (e.g., "What is the Fed funds rate?")
+    direct_series = reasoning.get('direct_series', [])
+    if direct_series:
+        if verbose:
+            print(f"  Direct series: {direct_series}")
+        return {
+            'series': direct_series[:4],
+            'explanation': reasoning.get('reasoning', ''),
+            'used_reasoning': True,
+            'used_direct_mapping': True,
+        }
+
     search_terms = reasoning.get('search_terms', [])
     indicators = reasoning.get('indicators', [])
 
-    if not search_terms:
+    if not search_terms and not indicators:
         return {'series': [], 'explanation': reasoning.get('reasoning', ''), 'reasoning_failed': True}
 
     # Step 2: Search FRED for each indicator concept
