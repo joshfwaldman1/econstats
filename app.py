@@ -95,21 +95,21 @@ except Exception:
 
 # Import Zillow for housing/rent market data
 try:
-    from agents.zillow import get_zillow_series, search_zillow_series, ZILLOW_SERIES
+    from agents.zillow import get_zillow_series, search_zillow_series, ZILLOW_SERIES, synthesize_housing_narrative
     ZILLOW_AVAILABLE = True
 except Exception:
     ZILLOW_AVAILABLE = False
 
 # Import EIA for energy data
 try:
-    from agents.eia import get_eia_series, search_eia_series, EIA_SERIES
+    from agents.eia import get_eia_series, search_eia_series, EIA_SERIES, synthesize_energy_narrative
     EIA_AVAILABLE = True
 except Exception:
     EIA_AVAILABLE = False
 
 # Import Alpha Vantage for stocks and economic data
 try:
-    from agents.alphavantage import get_alphavantage_series, search_alphavantage_series, ALPHAVANTAGE_SERIES
+    from agents.alphavantage import get_alphavantage_series, search_alphavantage_series, ALPHAVANTAGE_SERIES, synthesize_market_narrative
     ALPHAVANTAGE_AVAILABLE = True
 except Exception:
     ALPHAVANTAGE_AVAILABLE = False
@@ -120,6 +120,38 @@ try:
     SEP_AVAILABLE = True
 except Exception:
     SEP_AVAILABLE = False
+
+# Import historical analogues for context (1994 soft landing, 2008 crisis, etc.)
+try:
+    from core.historical_analogues import get_analogue_summary, find_analogues
+    ANALOGUES_AVAILABLE = True
+except Exception:
+    ANALOGUES_AVAILABLE = False
+
+# Import temporal intent detection for COMPARE vs FILTER vs CURRENT handling
+try:
+    from core.temporal_intent import (
+        detect_temporal_intent,
+        TemporalIntent,
+        NAMED_PERIODS,
+    )
+    from core.multi_period_fetcher import (
+        fetch_multi_period_data,
+        compute_comparison_metrics,
+        MultiPeriodData,
+    )
+    from core.comparison_narrative import (
+        generate_comparison_narrative,
+        format_comparison_insight,
+    )
+    from core.intent_validator import (
+        validate_data_matches_intent,
+        self_correct_if_needed,
+    )
+    TEMPORAL_INTENT_AVAILABLE = True
+except Exception as e:
+    TEMPORAL_INTENT_AVAILABLE = False
+
 
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
@@ -3279,6 +3311,191 @@ SERIES_DB = {
     },
 }
 
+
+# =============================================================================
+# AUTO-DETECTION: Can these series be combined on one chart?
+# =============================================================================
+
+def can_combine_series(series_ids: list) -> tuple[bool, str]:
+    """
+    Determine if series can be meaningfully combined on one chart based on unit compatibility.
+
+    Args:
+        series_ids: List of FRED series IDs to check
+
+    Returns:
+        Tuple of (can_combine: bool, reason: str)
+
+    Logic:
+        - All percentage rates (unemployment, inflation, yields) → COMBINE
+        - All indexes (CPI, PCE, Case-Shiller) → COMBINE (can normalize)
+        - All dollar amounts → COMBINE
+        - Mixed units (thousands vs percent) → SEPARATE
+    """
+    if len(series_ids) < 2:
+        return False, "Need at least 2 series to combine"
+
+    if len(series_ids) > 4:
+        return False, "Too many series (>4) for readable chart"
+
+    # Get metadata for each series
+    units = []
+    data_types = []
+
+    for sid in series_ids:
+        info = SERIES_DB.get(sid, {})
+        unit = info.get('unit', '').lower()
+        dtype = info.get('data_type', 'unknown')
+        units.append(unit)
+        data_types.append(dtype)
+
+    # Rule 1: All rates (unemployment, participation, etc.) → COMBINE
+    if all(dt == 'rate' for dt in data_types):
+        return True, "All series are rates (percentages) - compatible for comparison"
+
+    # Rule 2: All units contain "percent" → COMBINE
+    if all('percent' in u for u in units):
+        return True, "All series are percentages - compatible for comparison"
+
+    # Rule 3: All units contain "index" → COMBINE (can be normalized)
+    if all('index' in u for u in units):
+        return True, "All series are indexes - can be normalized for comparison"
+
+    # Rule 4: All units contain "dollars" or currency → COMBINE
+    if all('dollar' in u or '$' in u for u in units):
+        return True, "All series are dollar amounts - compatible for comparison"
+
+    # Rule 5: All levels that are conceptually similar (e.g., both employment counts)
+    # Check if all are "Thousands of Persons" - employment data
+    if all('thousands of persons' in u for u in units):
+        return True, "All series are employment counts - compatible for comparison"
+
+    # Rule 6: Mixed but related - rates and levels that could work with dual axis
+    # e.g., job openings (thousands) vs unemployment rate (percent)
+    # These are commonly compared but need care
+    has_rate = any(dt == 'rate' for dt in data_types)
+    has_level = any(dt == 'level' for dt in data_types)
+
+    if has_rate and has_level and len(series_ids) == 2:
+        # Two series, one rate one level - could use dual Y-axis
+        return True, "Rate vs level comparison - will use appropriate scaling"
+
+    # Default: Don't combine if units are too different
+    unique_unit_types = set()
+    for u in units:
+        if 'percent' in u:
+            unique_unit_types.add('percent')
+        elif 'index' in u:
+            unique_unit_types.add('index')
+        elif 'dollar' in u:
+            unique_unit_types.add('dollar')
+        elif 'thousands' in u:
+            unique_unit_types.add('thousands')
+        elif 'millions' in u:
+            unique_unit_types.add('millions')
+        elif 'billions' in u:
+            unique_unit_types.add('billions')
+        else:
+            unique_unit_types.add('other')
+
+    if len(unique_unit_types) == 1:
+        return True, f"All series share compatible units"
+
+    return False, f"Mixed units ({', '.join(unique_unit_types)}) - separate charts recommended"
+
+
+def suggest_chart_groups(series_ids: list) -> list:
+    """
+    For queries with 3+ series, suggest logical groupings for separate charts.
+
+    Groups series by:
+    1. Unit compatibility (rates together, levels together)
+    2. Conceptual relationship (inflation measures, employment measures)
+
+    Returns:
+        List of chart group dicts: [{"series": [...], "title": "..."}, ...]
+    """
+    if len(series_ids) <= 2:
+        return []  # No grouping needed
+
+    # Categorize series by type
+    rates = []
+    levels_employment = []
+    levels_other = []
+    indexes = []
+
+    for sid in series_ids:
+        info = SERIES_DB.get(sid, {})
+        unit = info.get('unit', '').lower()
+        dtype = info.get('data_type', 'unknown')
+        name = info.get('name', sid)
+
+        if dtype == 'rate' or 'percent' in unit:
+            rates.append((sid, name))
+        elif 'index' in unit:
+            indexes.append((sid, name))
+        elif 'thousands of persons' in unit or 'employment' in name.lower():
+            levels_employment.append((sid, name))
+        else:
+            levels_other.append((sid, name))
+
+    groups = []
+
+    # Group rates together
+    if len(rates) >= 2:
+        groups.append({
+            "series": [s[0] for s in rates],
+            "title": "Rates (%)",
+            "combine": True
+        })
+    elif len(rates) == 1:
+        groups.append({
+            "series": [rates[0][0]],
+            "title": rates[0][1],
+            "combine": False
+        })
+
+    # Group indexes together
+    if len(indexes) >= 2:
+        groups.append({
+            "series": [s[0] for s in indexes],
+            "title": "Price Indexes",
+            "combine": True,
+            "show_yoy": True  # Indexes usually shown as YoY change
+        })
+    elif len(indexes) == 1:
+        groups.append({
+            "series": [indexes[0][0]],
+            "title": indexes[0][1],
+            "combine": False,
+            "show_yoy": True
+        })
+
+    # Group employment levels together
+    if len(levels_employment) >= 2:
+        groups.append({
+            "series": [s[0] for s in levels_employment],
+            "title": "Employment",
+            "combine": True
+        })
+    elif len(levels_employment) == 1:
+        groups.append({
+            "series": [levels_employment[0][0]],
+            "title": levels_employment[0][1],
+            "combine": False
+        })
+
+    # Other levels
+    for sid, name in levels_other:
+        groups.append({
+            "series": [sid],
+            "title": name,
+            "combine": False
+        })
+
+    return groups
+
+
 # Query mappings with economist intuitions
 QUERY_MAP = {
     # Economy overview - show the big picture (annual GDP for stability)
@@ -3527,12 +3744,31 @@ If the user asks about something not listed above (e.g., "semiconductor producti
 
 FRED's search API will find the right series.
 
-## COMBINE_CHART RULES
-Only set combine_chart=true when ALL of these are true:
-- Series share the same units (e.g., both are rates, both are indexes)
-- Scales are comparable (e.g., both 0-10%, not one 0-5% and another 0-100%)
-- Visual comparison adds insight (comparing them on one chart tells a story)
-Otherwise use separate charts (combine_chart=false).
+## COMBINE_CHART RULES - WHEN TO COMBINE SERIES
+
+**DEFAULT TO COMBINING** when series are related and have compatible units. Users find comparisons more insightful than isolated charts.
+
+**COMBINE (combine_chart=true) when:**
+- Series share units (all percentages, all rates, all indexes, all dollar amounts)
+- User asks to compare, even implicitly ("inflation and wages", "unemployment by group")
+- Series answer related aspects of the same question
+
+**CONCRETE EXAMPLES - COMBINE:**
+- "CPI vs PCE inflation" → Both YoY % rates → COMBINE
+- "Headline vs core inflation" → Both YoY % → COMBINE
+- "UNRATE vs U6RATE" → Both unemployment rates (%) → COMBINE
+- "Wages vs inflation" → Both YoY % growth → COMBINE (shows if wages keep up)
+- "Black vs White unemployment" → Both rates (%) → COMBINE (shows disparity)
+- "2-year vs 10-year Treasury" → Both yields (%) → COMBINE (shows yield curve)
+- "Job openings vs unemployment" → Comparison intent → COMBINE
+- "Manufacturing vs healthcare jobs" → Both YoY % growth → COMBINE
+
+**SEPARATE (combine_chart=false) when:**
+- "How is the economy?" → Multiple unrelated concepts (jobs, inflation, GDP) → SEPARATE
+- "Total payrolls and unemployment rate" → Thousands vs percent, no comparison intent → SEPARATE
+- More than 4 series with different scales → Too cluttered → SEPARATE
+
+**KEY PRINCIPLE:** If user mentions TWO things together, they probably want to compare them. Combine unless units are fundamentally incompatible (e.g., millions of jobs vs percentage rate).
 
 ## ***CRITICAL RULES FOR EXPLANATIONS***
 
@@ -3981,15 +4217,135 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
             'recent_5yr_max': round(recent_max, 2),
         }
 
+        # PRE-COMPUTE ALL COMPARISONS - LLMs can't do math reliably
+        # YoY direction (for ALL series)
+        if yoy_change is not None:
+            if yoy_change > 0.01:
+                summary['yoy_direction'] = 'UP from year ago'
+            elif yoy_change < -0.01:
+                summary['yoy_direction'] = 'DOWN from year ago'
+            else:
+                summary['yoy_direction'] = 'UNCHANGED from year ago'
+
+            # YoY percent change (for non-zero base)
+            if len(values) >= 12 and values[-12] != 0:
+                yoy_pct = (yoy_change / abs(values[-12])) * 100
+                summary['yoy_percent_change'] = round(yoy_pct, 1)
+                if yoy_pct > 0:
+                    summary['yoy_percent_direction'] = f'UP {abs(yoy_pct):.1f}% from year ago'
+                elif yoy_pct < 0:
+                    summary['yoy_percent_direction'] = f'DOWN {abs(yoy_pct):.1f}% from year ago'
+
+        # Position in recent range (for ALL series)
+        if recent_max > recent_min:
+            range_size = recent_max - recent_min
+            position = (latest - recent_min) / range_size
+            if position > 0.9:
+                summary['position_in_range'] = 'NEAR 5-year HIGH'
+            elif position < 0.1:
+                summary['position_in_range'] = 'NEAR 5-year LOW'
+            elif position > 0.5:
+                summary['position_in_range'] = 'ABOVE middle of 5-year range'
+            else:
+                summary['position_in_range'] = 'BELOW middle of 5-year range'
+
+        # Recent average comparison (for ALL series)
+        if len(recent_vals) >= 12:
+            recent_avg = sum(recent_vals[-12:]) / 12
+            summary['recent_12mo_avg'] = round(recent_avg, 2)
+            if latest > recent_avg * 1.02:  # 2% threshold
+                summary['vs_recent_avg'] = 'ABOVE recent 12-month average'
+            elif latest < recent_avg * 0.98:
+                summary['vs_recent_avg'] = 'BELOW recent 12-month average'
+            else:
+                summary['vs_recent_avg'] = 'NEAR recent 12-month average'
+
+        # Month-over-month change (for ALL series with enough data)
+        if len(values) >= 2:
+            mom_change = values[-1] - values[-2]
+            summary['mom_change'] = round(mom_change, 2)
+            if mom_change > 0.01:
+                summary['mom_direction'] = 'UP from previous month'
+            elif mom_change < -0.01:
+                summary['mom_direction'] = 'DOWN from previous month'
+            else:
+                summary['mom_direction'] = 'UNCHANGED from previous month'
+
+        # 3-month trend (for ALL series)
+        if len(values) >= 4:
+            three_months_ago = values[-4]
+            three_mo_change = latest - three_months_ago
+            if three_mo_change > 0.01:
+                summary['3mo_direction'] = 'UP over past 3 months'
+            elif three_mo_change < -0.01:
+                summary['3mo_direction'] = 'DOWN over past 3 months'
+            else:
+                summary['3mo_direction'] = 'FLAT over past 3 months'
+
         # Add job growth stats for payroll data
         if monthly_change is not None:
             summary['monthly_job_change'] = round(monthly_change, 1)
+            # Direction of monthly change
+            if monthly_change > 0:
+                summary['monthly_direction'] = 'GAINED jobs'
+            elif monthly_change < 0:
+                summary['monthly_direction'] = 'LOST jobs'
+            else:
+                summary['monthly_direction'] = 'NO CHANGE in jobs'
+
         if avg_3mo_change is not None:
             summary['avg_monthly_change_3mo'] = round(avg_3mo_change, 1)
+            # 3-month trend direction
+            if avg_3mo_change > 0:
+                summary['3mo_trend'] = 'GAINING jobs (3-mo avg)'
+            elif avg_3mo_change < 0:
+                summary['3mo_trend'] = 'LOSING jobs (3-mo avg)'
+            else:
+                summary['3mo_trend'] = 'FLAT (3-mo avg)'
+
+            # Monthly vs 3-month comparison
+            if monthly_change is not None:
+                if monthly_change > avg_3mo_change + 10:  # 10K threshold for "above"
+                    summary['monthly_vs_3mo_avg'] = 'ABOVE 3-month average'
+                elif monthly_change < avg_3mo_change - 10:
+                    summary['monthly_vs_3mo_avg'] = 'BELOW 3-month average'
+                else:
+                    summary['monthly_vs_3mo_avg'] = 'NEAR 3-month average'
+
         if avg_12mo_change is not None:
             summary['avg_monthly_change_12mo'] = round(avg_12mo_change, 1)
+            # 12-month trend direction
+            if avg_12mo_change > 0:
+                summary['12mo_trend'] = 'GAINING jobs (12-mo avg)'
+            elif avg_12mo_change < 0:
+                summary['12mo_trend'] = 'LOSING jobs (12-mo avg)'
+            else:
+                summary['12mo_trend'] = 'FLAT (12-mo avg)'
+
+            # Monthly vs 12-month comparison
+            if monthly_change is not None:
+                if monthly_change > avg_12mo_change + 10:
+                    summary['monthly_vs_12mo_avg'] = 'ABOVE 12-month average'
+                elif monthly_change < avg_12mo_change - 10:
+                    summary['monthly_vs_12mo_avg'] = 'BELOW 12-month average'
+                else:
+                    summary['monthly_vs_12mo_avg'] = 'NEAR 12-month average'
 
         data_summary.append(summary)
+
+    # DEBUG: Log what we're sending to the LLM
+    print(f"\n[EconomistReviewer] === DATA BEING SENT TO LLM ===")
+    print(f"[EconomistReviewer] Query: {query}")
+    print(f"[EconomistReviewer] Series count: {len(data_summary)}")
+    for s in data_summary:
+        print(f"\n[EconomistReviewer] Series: {s.get('name', s.get('series_id', 'unknown'))}")
+        print(f"[EconomistReviewer]   Raw: latest={s.get('latest_value')} | yoy_change={s.get('yoy_change')} | min={s.get('recent_5yr_min')} | max={s.get('recent_5yr_max')}")
+        print(f"[EconomistReviewer]   Pre-computed: yoy_dir={s.get('yoy_direction', 'MISSING')} | vs_avg={s.get('vs_recent_avg', 'MISSING')} | range={s.get('position_in_range', 'MISSING')}")
+        if s.get('monthly_job_change') is not None:
+            print(f"[EconomistReviewer]   Jobs: monthly={s.get('monthly_job_change')} | 12mo_avg={s.get('avg_monthly_change_12mo')} | vs_12mo={s.get('monthly_vs_12mo_avg', 'MISSING')}")
+    print(f"[EconomistReviewer] === FULL JSON ===")
+    print(json.dumps(data_summary, indent=2))
+    print(f"[EconomistReviewer] === END ===\n")
 
     # Build the prompt with optional news context
     news_section = ""
@@ -4033,7 +4389,8 @@ RULES:
 - Convert units naturally: "1764.6 thousands" → "about 1.8 million"
 - NO meta-commentary ("The data shows..."). Just answer directly.
 - If news context is provided, USE IT to explain causation
-- Be specific: "driven by strong consumer spending" not "due to various factors\""""
+- Be specific: "driven by strong consumer spending" not "due to various factors"
+- CRITICAL: VERIFY ALL COMPARISONS MATHEMATICALLY. If A > B, say "above" not "below". Double-check: 50,000 > 48,700 means ABOVE average, not below. Do not rely on narrative intuition - check the actual numbers before writing comparisons."""
 
     url = 'https://api.anthropic.com/v1/messages'
     payload = {
@@ -4734,8 +5091,12 @@ def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
     if direct_series:
         if verbose:
             print(f"  Direct series: {direct_series}")
-        # For direct mappings, combine if showing related series (e.g., multiple rates)
-        should_combine = len(direct_series) > 1 and len(direct_series) <= 3
+        # For direct mappings, use unit-based compatibility check
+        # can_combine_series checks if all series share compatible units (rates, percentages, indexes)
+        can_combine, combine_reason = can_combine_series(direct_series)
+        should_combine = can_combine and len(direct_series) <= 4
+        if verbose and can_combine:
+            print(f"    Auto-combine: {combine_reason}")
 
         # Look up rich explanation from pre-computed plans if available
         explanation = reasoning.get('reasoning', '')
@@ -4825,11 +5186,27 @@ def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
     # Determine if series should be combined on one chart
     # Combine for: comparison queries, or when showing closely related series
     query_lower = query.lower()
-    is_comparison = any(word in query_lower for word in ['vs', 'versus', 'compare', 'comparing'])
+    
+    # Expanded comparison detection - users often want to compare without explicit keywords
+    comparison_keywords = [
+        'vs', 'versus', 'compare', 'comparing', 'comparison',
+        'relative to', 'against', 'between',
+        ' and ',  # "inflation and wages" implies comparison
+    ]
+    is_comparison = any(kw in query_lower for kw in comparison_keywords)
+    
+    # Also detect implicit comparisons: queries with exactly 2 related concepts
+    # e.g., "wages inflation" or "unemployment job openings"
+    has_two_indicators = len(found_series) == 2
 
-    # For reasoning queries, usually show separate charts since each indicator
-    # answers a different aspect of the question. Exception: comparisons.
-    should_combine = is_comparison and len(found_series) <= 3
+    # Auto-detect: check if series have compatible units for combining
+    units_compatible, compatibility_reason = can_combine_series(found_series)
+    if verbose and units_compatible:
+        print(f"    Auto-combine: {compatibility_reason}")
+
+    # Combine when: explicit comparison OR two related series OR compatible units
+    # The unit compatibility check catches cases like "show me rates" that imply combining
+    should_combine = (is_comparison or has_two_indicators or units_compatible) and len(found_series) <= 4
 
     return {
         'series': found_series,
@@ -4967,6 +5344,22 @@ def hybrid_query_plan(query: str, verbose: bool = False) -> dict:
     # Limit to 4 series max
     all_series = all_series[:4]
 
+    # Check unit compatibility for auto-combining
+    # This catches cases like "treasury yields" where all series are rates
+    units_compatible, compatibility_reason = can_combine_series(all_series)
+
+    # Also check for comparison keywords in query
+    query_lower = query.lower()
+    comparison_keywords = ['vs', 'versus', 'compare', 'comparing', 'comparison',
+                           'relative to', 'against', 'between', ' and ']
+    is_comparison = any(kw in query_lower for kw in comparison_keywords)
+
+    # Combine if: units are compatible OR explicit comparison OR RAG says to combine
+    should_combine = units_compatible or is_comparison or rag_result.get('combine_chart', False)
+
+    if verbose and units_compatible:
+        print(f"  Auto-combine: {compatibility_reason}")
+
     # Build result, preferring RAG's explanation if available
     result = {
         'series': all_series,
@@ -4974,7 +5367,7 @@ def hybrid_query_plan(query: str, verbose: bool = False) -> dict:
         'show_yoy': rag_result.get('show_yoy', False),
         'show_mom': False,
         'show_avg_annual': False,
-        'combine_chart': rag_result.get('combine_chart', False),
+        'combine_chart': should_combine,
         'is_followup': False,
         'add_to_previous': False,
         'keep_previous_series': False,
@@ -5766,7 +6159,17 @@ def main():
 
     /* Chat mode - Modern conversational UI styling */
 
-    /* Style Streamlit's built-in chat message for assistant */
+    /* Hide empty chat messages until content loads - prevents janky empty card flash */
+    [data-testid="stChatMessage"]:empty,
+    [data-testid="stChatMessage"]:has(> div:empty:only-child) {
+        opacity: 0 !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+
+    /* Smooth fade-in for chat messages when content loads */
     [data-testid="stChatMessage"] {
         background: #FFFDFB !important;
         border: 1px solid #e7e5e4 !important;
@@ -5775,6 +6178,61 @@ def main():
         margin: 12px 0 24px 0 !important;
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
         position: relative !important;
+        animation: fadeInCard 0.3s ease-out !important;
+    }
+
+    @keyframes fadeInCard {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Skeleton loading shimmer for metrics during load */
+    .skeleton-loading {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 8px;
+        min-height: 80px;
+    }
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Status container - clean, professional look */
+    [data-testid="stStatusWidget"] {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        background: #FFFDFB !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+    }
+    [data-testid="stStatusWidget"] summary {
+        font-size: 0.9rem !important;
+        color: #475569 !important;
+        padding: 12px 16px !important;
+    }
+    [data-testid="stStatusWidget"] summary span {
+        font-weight: 500 !important;
+    }
+    /* Hide expanded details by default for cleaner look */
+    [data-testid="stStatusWidget"][open] > div:last-child {
+        padding: 8px 16px 12px 16px !important;
+        font-size: 0.8rem !important;
+        color: #64748b !important;
+        border-top: 1px solid #f1f5f9 !important;
+    }
+
+    /* Subtle spinner styling - less jarring during loading */
+    [data-testid="stSpinner"] {
+        animation: fadeInSpinner 0.2s ease-out;
+    }
+    [data-testid="stSpinner"] > div {
+        font-size: 0.85rem !important;
+        color: #64748b !important;
+    }
+    @keyframes fadeInSpinner {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     /* Hide the default avatar icon */
@@ -6418,6 +6876,47 @@ def main():
                                 <div style='color: #334155;'>{sep_narrative}</div>
                             </div>""", unsafe_allow_html=True)
 
+                    # Housing market narrative (Zillow data)
+                    if msg.get("housing_narrative") and ZILLOW_AVAILABLE:
+                        narrative = msg["housing_narrative"]
+                        st.markdown(f"""<div style='background: #fef3c7; border-left: 3px solid #f59e0b; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
+                            <div style='color: #92400e; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'>HOUSING MARKET</div>
+                            <div style='color: #78350f;'>{narrative}</div>
+                            <div style='color: #a16207; font-size: 0.75rem; margin-top: 8px;'>Based on <a href='https://www.zillow.com/research/data/' target='_blank' style='color: #a16207;'>Zillow Research</a> data. Market rents from ZORI lead official CPI shelter by 12-18 months.</div>
+                        </div>""", unsafe_allow_html=True)
+
+                    # Energy market narrative (EIA data)
+                    if msg.get("energy_narrative") and EIA_AVAILABLE:
+                        narrative = msg["energy_narrative"]
+                        st.markdown(f"""<div style='background: #ecfdf5; border-left: 3px solid #10b981; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
+                            <div style='color: #047857; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'>ENERGY PRICES</div>
+                            <div style='color: #065f46;'>{narrative}</div>
+                            <div style='color: #059669; font-size: 0.75rem; margin-top: 8px;'>Based on <a href='https://www.eia.gov/' target='_blank' style='color: #059669;'>EIA</a> data. Energy prices are volatile and affect headline inflation directly.</div>
+                        </div>""", unsafe_allow_html=True)
+
+                    # Financial markets narrative (Alpha Vantage data)
+                    if msg.get("market_narrative") and ALPHAVANTAGE_AVAILABLE:
+                        narrative = msg["market_narrative"]
+                        st.markdown(f"""<div style='background: #eff6ff; border-left: 3px solid #3b82f6; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
+                            <div style='color: #1d4ed8; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'>FINANCIAL MARKETS</div>
+                            <div style='color: #1e40af;'>{narrative}</div>
+                            <div style='color: #2563eb; font-size: 0.75rem; margin-top: 8px;'>Market data may be delayed. Treasury yields affect mortgage rates and business borrowing costs.</div>
+                        </div>""", unsafe_allow_html=True)
+
+                    # Historical analogues (1994 soft landing, 2008 crisis, etc.)
+                    if msg.get("historical_context") and ANALOGUES_AVAILABLE:
+                        context = msg["historical_context"]
+                        if context.get("narrative"):
+                            # Get top analogue for header
+                            top_analogue = context.get("analogues", [{}])[0] if context.get("analogues") else {}
+                            analogue_name = top_analogue.get("name", "Historical Context")
+                            similarity = top_analogue.get("similarity_pct", 0)
+
+                            st.markdown(f"""<div style='background: #faf5ff; border-left: 3px solid #9333ea; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
+                                <div style='color: #7c3aed; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'>HISTORICAL CONTEXT: {analogue_name} ({similarity:.0f}% match)</div>
+                                <div style='color: #581c87;'>{context['narrative']}</div>
+                            </div>""", unsafe_allow_html=True)
+
                     # Render charts from stored series_data
                     if msg.get("series_data"):
                         chart_type = msg.get("chart_type", "line")
@@ -6643,6 +7142,10 @@ def main():
         if st.session_state.chat_mode:
             st.markdown(f'<div class="chat-clearfix"><div class="chat-user-query">{query}</div></div>', unsafe_allow_html=True)
 
+        # Use a single status container for all processing phases
+        # This provides a cleaner, more professional loading experience
+        status_container = st.status("Analyzing your question...", expanded=False)
+
         # Build context from previous query for follow-up detection
         previous_context = None
         if st.session_state.last_query and st.session_state.last_series:
@@ -6651,6 +7154,14 @@ def main():
                 'series': st.session_state.last_series,
                 'series_names': st.session_state.last_series_names
             }
+
+        # TEMPORAL INTENT DETECTION - Detect COMPARE vs FILTER vs CURRENT
+        # This MUST happen before data selection to avoid filtering away comparison data
+        temporal_intent = None
+        if TEMPORAL_INTENT_AVAILABLE:
+            temporal_intent = detect_temporal_intent(query)
+            # Store in session for later use
+            st.session_state['current_temporal_intent'] = temporal_intent
 
         # Check for comparison queries FIRST (US vs Eurozone, etc.)
         # These need data from multiple sources
@@ -6743,22 +7254,27 @@ def main():
             hybrid_sources = {'precomputed': base_series, 'rag': [], 'fred': []}
 
             # For holistic queries, augment with hybrid search (RAG + FRED)
-            if holistic and RAG_AVAILABLE:
-                with st.spinner("Finding additional data dimensions..."):
-                    # Run hybrid search to find complementary series
-                    hybrid_result = hybrid_query_plan(query, verbose=False)
-                    hybrid_series = hybrid_result.get('series', [])
-                    hybrid_sources['rag'] = hybrid_result.get('hybrid_sources', {}).get('rag', [])
-                    hybrid_sources['fred'] = hybrid_result.get('hybrid_sources', {}).get('fred', [])
+            # BUT: If precomputed plan has 3+ series, it's comprehensive enough - don't augment
+            # This prevents irrelevant FRED search results from polluting curated plans
+            plan_is_comprehensive = len(base_series) >= 3
+            should_augment = holistic and RAG_AVAILABLE and not plan_is_comprehensive
 
-                    # Merge: precomputed first, then hybrid additions (no duplicates)
-                    all_series = base_series.copy()
-                    for sid in hybrid_series:
-                        if sid not in all_series:
-                            all_series.append(sid)
+            if should_augment:
+                status_container.update(label="Finding relevant indicators...")
+                # Run hybrid search to find complementary series
+                hybrid_result = hybrid_query_plan(query, verbose=False)
+                hybrid_series = hybrid_result.get('series', [])
+                hybrid_sources['rag'] = hybrid_result.get('hybrid_sources', {}).get('rag', [])
+                hybrid_sources['fred'] = hybrid_result.get('hybrid_sources', {}).get('fred', [])
 
-                    # Limit to 4 series
-                    all_series = all_series[:4]
+                # Merge: precomputed first, then hybrid additions (no duplicates)
+                all_series = base_series.copy()
+                for sid in hybrid_series:
+                    if sid not in all_series:
+                        all_series.append(sid)
+
+                # Limit to 4 series
+                all_series = all_series[:4]
             else:
                 all_series = base_series
 
@@ -6811,8 +7327,8 @@ def main():
             # PRIMARY PATH: Use economist reasoning (AI thinks about what's needed)
             # This asks AI to reason like an economist, then searches for indicators
             if REASONING_AVAILABLE:
-                with st.spinner("Thinking like an economist..."):
-                    interpretation = reasoning_query_plan(query, verbose=False)
+                status_container.update(label="Analyzing your question...")
+                interpretation = reasoning_query_plan(query, verbose=False)
 
                 # If reasoning found series, use them
                 if interpretation.get('series'):
@@ -6825,21 +7341,21 @@ def main():
             # FALLBACK: Hybrid RAG + FRED search
             if not REASONING_AVAILABLE or not interpretation or not interpretation.get('series'):
                 if RAG_AVAILABLE:
-                    with st.spinner("Searching economic data..."):
-                        interpretation = hybrid_query_plan(query, verbose=False)
+                    status_container.update(label="Searching economic data...")
+                    interpretation = hybrid_query_plan(query, verbose=False)
                     interpretation['used_rag'] = True
                     interpretation['used_hybrid'] = True
                 elif ENSEMBLE_AVAILABLE:
-                    with st.spinner("Analyzing with AI..."):
-                        interpretation = call_ensemble_for_app(
-                            query, ECONOMIST_PROMPT_BASE,
-                            previous_context=previous_context,
-                            use_few_shot=True, verbose=False
-                        )
+                    status_container.update(label="Analyzing with AI...")
+                    interpretation = call_ensemble_for_app(
+                        query, ECONOMIST_PROMPT_BASE,
+                        previous_context=previous_context,
+                        use_few_shot=True, verbose=False
+                    )
                     interpretation['used_ensemble'] = True
                 else:
-                    with st.spinner("Analyzing..."):
-                        interpretation = call_claude(query, previous_context)
+                    status_container.update(label="Analyzing...")
+                    interpretation = call_claude(query, previous_context)
                 interpretation['used_precomputed'] = False
 
         # QA Validation Layer: Check query-series alignment
@@ -6918,22 +7434,43 @@ def main():
         # Handle chart groups (multiple charts with different series/transformations)
         chart_groups = interpretation.get('chart_groups', None)
 
-        # Handle date filtering (e.g., pre-covid filter, specific year, etc.)
-        # Check for temporal filter from query even if it wasn't a follow-up
-        temporal_filter = extract_temporal_filter(query)
-        if temporal_filter and not interpretation.get('filter_end_date') and not interpretation.get('filter_start_date'):
-            # Apply temporal filter if query has temporal reference
-            interpretation['filter_end_date'] = temporal_filter.get('filter_end_date')
-            interpretation['filter_start_date'] = temporal_filter.get('filter_start_date')
-            interpretation['temporal_focus'] = temporal_filter.get('temporal_focus')
-            if temporal_filter.get('years_override'):
-                years = temporal_filter['years_override']
-            # Add temporal info to explanation
-            if temporal_filter.get('explanation'):
-                ai_explanation = f"{ai_explanation} {temporal_filter['explanation']}" if ai_explanation else temporal_filter['explanation']
+        # Handle date filtering - INTENT-AWARE
+        # For COMPARE intents: Keep ALL data (don't filter)
+        # For FILTER intents: Apply date filter from intent
+        # For CURRENT intents: No filter
+        is_temporal_comparison = False
 
-        filter_end_date = interpretation.get('filter_end_date')
-        filter_start_date = interpretation.get('filter_start_date')
+        if temporal_intent and TEMPORAL_INTENT_AVAILABLE:
+            if temporal_intent.is_comparison:
+                # COMPARISON QUERY: Keep all data for comparison
+                # DO NOT apply filter_end_date - we need both periods!
+                is_temporal_comparison = True
+                interpretation['is_temporal_comparison'] = True
+                interpretation['temporal_intent'] = temporal_intent
+                # Clear any filter dates that might be set
+                interpretation.pop('filter_end_date', None)
+                interpretation.pop('filter_start_date', None)
+            elif temporal_intent.intent_type == "filter":
+                # FILTER QUERY: Apply date filter
+                if temporal_intent.filter_start:
+                    interpretation['filter_start_date'] = temporal_intent.filter_start
+                if temporal_intent.filter_end:
+                    interpretation['filter_end_date'] = temporal_intent.filter_end
+                interpretation['temporal_focus'] = temporal_intent.explanation
+        else:
+            # Fallback to legacy temporal filter for non-intent queries
+            temporal_filter = extract_temporal_filter(query)
+            if temporal_filter and not interpretation.get('filter_end_date') and not interpretation.get('filter_start_date'):
+                interpretation['filter_end_date'] = temporal_filter.get('filter_end_date')
+                interpretation['filter_start_date'] = temporal_filter.get('filter_start_date')
+                interpretation['temporal_focus'] = temporal_filter.get('temporal_focus')
+                if temporal_filter.get('years_override'):
+                    years = temporal_filter['years_override']
+                if temporal_filter.get('explanation'):
+                    ai_explanation = f"{ai_explanation} {temporal_filter['explanation']}" if ai_explanation else temporal_filter['explanation']
+
+        filter_end_date = interpretation.get('filter_end_date') if not is_temporal_comparison else None
+        filter_start_date = interpretation.get('filter_start_date') if not is_temporal_comparison else None
 
         # Handle follow-up that keeps/adds to previous series
         if is_followup and (keep_previous_series or add_to_previous):
@@ -6950,23 +7487,23 @@ def main():
         # If Claude provided search_terms, ALWAYS search FRED (even if we have some series)
         search_terms = interpretation.get('search_terms', [])
         if search_terms:
-            with st.spinner(f"Searching FRED for: {', '.join(search_terms[:2])}..."):
-                for term in search_terms[:3]:
-                    results = search_series(term, limit=5)  # Get more, then filter
-                    for r in results:
-                        # Relevance check: series title should relate to search term
-                        title = r.get('title', '').lower()
-                        term_words = term.lower().split()
-                        # At least one significant word from search term should appear in title
-                        # (ignore common words like "the", "for", "and")
-                        significant_words = [w for w in term_words if len(w) > 3]
-                        is_relevant = any(word in title for word in significant_words) if significant_words else True
+            status_container.update(label="Searching for data...")
+            for term in search_terms[:3]:
+                results = search_series(term, limit=5)  # Get more, then filter
+                for r in results:
+                    # Relevance check: series title should relate to search term
+                    title = r.get('title', '').lower()
+                    term_words = term.lower().split()
+                    # At least one significant word from search term should appear in title
+                    # (ignore common words like "the", "for", "and")
+                    significant_words = [w for w in term_words if len(w) > 3]
+                    is_relevant = any(word in title for word in significant_words) if significant_words else True
 
-                        if is_relevant and r['id'] not in series_to_fetch and len(series_to_fetch) < 4:
-                            series_to_fetch.append(r['id'])
-                            # Add explanation if we found something via search
-                            if not ai_explanation:
-                                ai_explanation = f"Found relevant series for '{term}'"
+                    if is_relevant and r['id'] not in series_to_fetch and len(series_to_fetch) < 4:
+                        series_to_fetch.append(r['id'])
+                        # Add explanation if we found something via search
+                        if not ai_explanation:
+                            ai_explanation = f"Found relevant series for '{term}'"
 
         # Only use local fallback if Claude completely failed AND no search terms worked
         if not series_to_fetch:
@@ -6978,12 +7515,12 @@ def main():
 
         # Last resort: direct FRED search with the raw query
         if not series_to_fetch:
-            with st.spinner(f"Searching FRED directly for: {query}..."):
-                results = search_series(query, limit=4)
-                for r in results:
-                    series_to_fetch.append(r['id'])
-                if series_to_fetch:
-                    ai_explanation = f"Search results for: {query}"
+            status_container.update(label="Searching for data...")
+            results = search_series(query, limit=4)
+            for r in results:
+                series_to_fetch.append(r['id'])
+            if series_to_fetch:
+                ai_explanation = f"Search results for: {query}"
 
         if not series_to_fetch:
             st.warning("Could not find relevant economic data for this query")
@@ -7019,35 +7556,35 @@ def main():
         geo_scope = detect_geographic_scope(query)
         if geo_scope['type'] == 'state':
             state_name = geo_scope['name']
-            with st.spinner(f"Searching for {state_name.title()} data..."):
-                # Search FRED for state-specific series
-                state_search_terms = [
-                    f"{state_name} unemployment",
-                    f"{state_name} employment",
-                    f"{state_name} GDP",
-                ]
-                state_series = []
-                for term in state_search_terms:
-                    try:
-                        results = search_series(term, limit=2, require_recent=True)
-                        for r in results:
-                            sid = r['id']
-                            title = r.get('title', '').lower()
-                            # Verify it's actually state-specific (contains state name)
-                            if state_name in title and sid not in state_series:
-                                state_series.append(sid)
-                    except:
-                        pass
+            status_container.update(label=f"Searching for {state_name.title()} data...")
+            # Search FRED for state-specific series
+            state_search_terms = [
+                f"{state_name} unemployment",
+                f"{state_name} employment",
+                f"{state_name} GDP",
+            ]
+            state_series = []
+            for term in state_search_terms:
+                try:
+                    results = search_series(term, limit=2, require_recent=True)
+                    for r in results:
+                        sid = r['id']
+                        title = r.get('title', '').lower()
+                        # Verify it's actually state-specific (contains state name)
+                        if state_name in title and sid not in state_series:
+                            state_series.append(sid)
+                except:
+                    pass
 
-                if state_series:
-                    # Found state-specific data - use it instead
-                    series_to_fetch = state_series[:4]
-                    st.success(f"📍 Found {state_name.title()}-specific data from FRED!")
-                    interpretation['geographic_override'] = True
-                    interpretation['state'] = state_name
-                else:
-                    # No state data found - fall back to national with warning
-                    st.info(f"📍 No {state_name.title()}-specific series found. Showing national indicators as context.")
+            if state_series:
+                # Found state-specific data - use it instead
+                series_to_fetch = state_series[:4]
+                st.success(f"📍 Found {state_name.title()}-specific data from FRED!")
+                interpretation['geographic_override'] = True
+                interpretation['state'] = state_name
+            else:
+                # No state data found - fall back to national with warning
+                st.info(f"📍 No {state_name.title()}-specific series found. Showing national indicators as context.")
 
         # Validate series relevance - filter out irrelevant/overly broad series
         # ALWAYS validate, including pre-computed plans, to catch:
@@ -7059,27 +7596,27 @@ def main():
             len(series_to_fetch) > 1
         )
         if needs_validation:
-            with st.spinner("Validating data relevance..."):
-                # Get series info for validation
-                series_info_list = []
-                for sid in series_to_fetch[:6]:  # Check up to 6 series
-                    try:
-                        info = get_series_info(sid)
-                        series_info_list.append({
-                            'id': sid,
-                            'title': info.get('title', sid)
-                        })
-                    except:
-                        series_info_list.append({'id': sid, 'title': sid})
+            status_container.update(label="Validating data relevance...")
+            # Get series info for validation
+            series_info_list = []
+            for sid in series_to_fetch[:6]:  # Check up to 6 series
+                try:
+                    info = get_series_info(sid)
+                    series_info_list.append({
+                        'id': sid,
+                        'title': info.get('title', sid)
+                    })
+                except:
+                    series_info_list.append({'id': sid, 'title': sid})
 
-                validation = validate_series_relevance(query, series_info_list, verbose=False)
-                valid_ids = validation.get('valid_series', series_to_fetch)
+            validation = validate_series_relevance(query, series_info_list, verbose=False)
+            valid_ids = validation.get('valid_series', series_to_fetch)
 
-                # Only use validation if it kept at least one series
-                if valid_ids:
-                    # Preserve order, only keep validated series
-                    series_to_fetch = [s for s in series_to_fetch if s in valid_ids]
-                    interpretation['validation_result'] = validation
+            # Only use validation if it kept at least one series
+            if valid_ids:
+                # Preserve order, only keep validated series
+                series_to_fetch = [s for s in series_to_fetch if s in valid_ids]
+                interpretation['validation_result'] = validation
 
         # Log the query for analytics
         source = "precomputed" if interpretation.get('used_precomputed') else "claude"
@@ -7097,9 +7634,10 @@ def main():
         # For comparison queries, also fetch DBnomics series
         dbnomics_series_to_fetch = interpretation.get('dbnomics_series', []) if is_comparison else []
 
-        spinner_msg = "Fetching data..." if is_comparison else (
-            "Fetching data from DBnomics..." if data_source == 'dbnomics' else "Fetching data from FRED..."
+        status_msg = "Fetching data..." if is_comparison else (
+            "Fetching data from DBnomics..." if data_source == 'dbnomics' else "Fetching data..."
         )
+        status_container.update(label=status_msg)
 
         # Combine all series to fetch (FRED + DBnomics for comparisons)
         all_series_to_fetch = []
@@ -7114,128 +7652,128 @@ def main():
                 all_series_to_fetch.append(sid)
                 series_source_map[sid] = 'dbnomics'
 
-        with st.spinner(spinner_msg):
-            for series_id in all_series_to_fetch[:4]:
-                # Use unified fetch function that routes based on series ID prefix
-                # (zillow_*, eia_*, av_* -> respective APIs, DBnomics series -> DBnomics, else FRED)
-                dates, values, info = fetch_series_data(series_id, years)
-                if dates and values:
-                    # Recency check: silently skip series if latest observation is more than 1 year old
-                    try:
-                        latest_date = datetime.strptime(dates[-1], '%Y-%m-%d')
-                        days_stale = (datetime.now() - latest_date).days
-                        if days_stale > 365:
-                            continue  # Skip stale data silently
-                    except (ValueError, IndexError):
-                        pass  # If we can't parse the date, proceed anyway
+        # Fetch all series data
+        for series_id in all_series_to_fetch[:4]:
+            # Use unified fetch function that routes based on series ID prefix
+            # (zillow_*, eia_*, av_* -> respective APIs, DBnomics series -> DBnomics, else FRED)
+            dates, values, info = fetch_series_data(series_id, years)
+            if dates and values:
+                # Recency check: silently skip series if latest observation is more than 1 year old
+                try:
+                    latest_date = datetime.strptime(dates[-1], '%Y-%m-%d')
+                    days_stale = (datetime.now() - latest_date).days
+                    if days_stale > 365:
+                        continue  # Skip stale data silently
+                except (ValueError, IndexError):
+                    pass  # If we can't parse the date, proceed anyway
 
-                    # Apply date filter if specified (e.g., pre-covid filter, specific year)
-                    if filter_end_date or filter_start_date:
-                        filtered_dates, filtered_values = [], []
-                        for d, v in zip(dates, values):
-                            if filter_start_date and d < filter_start_date:
-                                continue
-                            if filter_end_date and d > filter_end_date:
-                                continue
-                            filtered_dates.append(d)
-                            filtered_values.append(v)
-                        dates, values = filtered_dates, filtered_values
-                        if not dates:
-                            continue  # Skip series if no data in range
+                # Apply date filter if specified (e.g., pre-covid filter, specific year)
+                if filter_end_date or filter_start_date:
+                    filtered_dates, filtered_values = [], []
+                    for d, v in zip(dates, values):
+                        if filter_start_date and d < filter_start_date:
+                            continue
+                        if filter_end_date and d > filter_end_date:
+                            continue
+                        filtered_dates.append(d)
+                        filtered_values.append(v)
+                    dates, values = filtered_dates, filtered_values
+                    if not dates:
+                        continue  # Skip series if no data in range
 
-                    db_info = SERIES_DB.get(series_id, {})
-                    series_name = info.get('name', info.get('title', series_id))
-                    series_names_fetched.append(series_name)
+                db_info = SERIES_DB.get(series_id, {})
+                series_name = info.get('name', info.get('title', series_id))
+                series_names_fetched.append(series_name)
 
-                    # Store raw data for chart_groups (4-tuple) and derived calculations (2-tuple)
-                    raw_series_data[series_id] = (series_id, list(dates), list(values), dict(info))
-                    derived_raw_data[series_id] = (dates, values)
+                # Store raw data for chart_groups (4-tuple) and derived calculations (2-tuple)
+                raw_series_data[series_id] = (series_id, list(dates), list(values), dict(info))
+                derived_raw_data[series_id] = (dates, values)
 
-                    # Apply transformations based on user request or series config
-                    if show_payroll_changes and series_id == 'PAYEMS' and len(dates) > 1:
-                        # Special handling for payrolls: show monthly job changes (not percent)
-                        change_dates = dates[1:]  # Skip first date
-                        change_values = [values[i] - values[i-1] for i in range(1, len(values))]
-                        info_copy = dict(info)
-                        info_copy['name'] = 'Monthly Job Change'
-                        info_copy['unit'] = 'Thousands of Jobs'
-                        info_copy['is_payroll_change'] = True
-                        # Store original data for side-by-side display
-                        info_copy['original_dates'] = dates
-                        info_copy['original_values'] = values
-                        info_copy['original_name'] = 'Total Nonfarm Payrolls'
-                        series_data.append((series_id, change_dates, change_values, info_copy))
-                    elif show_mom and len(dates) > 1:
-                        # User requested month-over-month - but NEVER for rates or employment counts!
-                        data_type = db_info.get('data_type', 'level')
-                        if data_type in ['rate', 'spread', 'growth_rate']:
-                            # Rates are already percentages - showing MoM % is nonsense
-                            # Just show the raw rate instead
-                            series_data.append((series_id, dates, values, info))
-                        elif db_info.get('show_absolute_change', False):
-                            # Employment counts like PAYEMS - NEVER show as %, show raw data
-                            series_data.append((series_id, dates, values, info))
-                        else:
-                            mom_dates, mom_values = calculate_mom(dates, values)
-                            if mom_dates:
-                                info_copy = dict(info)
-                                info_copy['name'] = series_name + ' (MoM %)'
-                                info_copy['unit'] = '% Change MoM'
-                                info_copy['is_mom'] = True
-                                series_data.append((series_id, mom_dates, mom_values, info_copy))
-                            else:
-                                series_data.append((series_id, dates, values, info))
-                    elif show_avg_annual:
-                        # User requested average annual
-                        avg_dates, avg_values = calculate_avg_annual(dates, values)
-                        if avg_dates:
+                # Apply transformations based on user request or series config
+                if show_payroll_changes and series_id == 'PAYEMS' and len(dates) > 1:
+                    # Special handling for payrolls: show monthly job changes (not percent)
+                    change_dates = dates[1:]  # Skip first date
+                    change_values = [values[i] - values[i-1] for i in range(1, len(values))]
+                    info_copy = dict(info)
+                    info_copy['name'] = 'Monthly Job Change'
+                    info_copy['unit'] = 'Thousands of Jobs'
+                    info_copy['is_payroll_change'] = True
+                    # Store original data for side-by-side display
+                    info_copy['original_dates'] = dates
+                    info_copy['original_values'] = values
+                    info_copy['original_name'] = 'Total Nonfarm Payrolls'
+                    series_data.append((series_id, change_dates, change_values, info_copy))
+                elif show_mom and len(dates) > 1:
+                    # User requested month-over-month - but NEVER for rates or employment counts!
+                    data_type = db_info.get('data_type', 'level')
+                    if data_type in ['rate', 'spread', 'growth_rate']:
+                        # Rates are already percentages - showing MoM % is nonsense
+                        # Just show the raw rate instead
+                        series_data.append((series_id, dates, values, info))
+                    elif db_info.get('show_absolute_change', False):
+                        # Employment counts like PAYEMS - NEVER show as %, show raw data
+                        series_data.append((series_id, dates, values, info))
+                    else:
+                        mom_dates, mom_values = calculate_mom(dates, values)
+                        if mom_dates:
                             info_copy = dict(info)
-                            info_copy['name'] = series_name + ' (Annual Avg)'
-                            info_copy['unit'] = info.get('unit', info.get('units', '')) + ' (Annual Average)'
-                            info_copy['is_avg_annual'] = True
-                            series_data.append((series_id, avg_dates, avg_values, info_copy))
+                            info_copy['name'] = series_name + ' (MoM %)'
+                            info_copy['unit'] = '% Change MoM'
+                            info_copy['is_mom'] = True
+                            series_data.append((series_id, mom_dates, mom_values, info_copy))
                         else:
                             series_data.append((series_id, dates, values, info))
-                    elif (show_yoy or series_id in show_yoy_series) and len(dates) > 12:
-                        # User explicitly requested YoY (all or specific series) - but skip for certain types
-                        data_type = db_info.get('data_type', 'level')
-                        if data_type in ['rate', 'spread', 'growth_rate']:
-                            # Don't apply YoY to rates - show raw data instead
-                            series_data.append((series_id, dates, values, info))
-                        elif db_info.get('show_absolute_change', False):
-                            # Employment counts like PAYEMS - NEVER show as %, show raw data
-                            series_data.append((series_id, dates, values, info))
-                        else:
-                            yoy_dates, yoy_values = calculate_yoy(dates, values)
-                            if yoy_dates:
-                                info_copy = dict(info)
-                                info_copy['name'] = series_name + ' (YoY %)'
-                                info_copy['unit'] = '% Change YoY'
-                                info_copy['is_yoy'] = True
-                                series_data.append((series_id, yoy_dates, yoy_values, info_copy))
-                            else:
-                                series_data.append((series_id, dates, values, info))
-                    elif db_info.get('show_yoy') and len(dates) > 12:
-                        # Series default is to show YoY (like CPI) - but skip for certain types
-                        data_type = db_info.get('data_type', 'level')
-                        if data_type in ['rate', 'spread', 'growth_rate']:
-                            # Don't apply YoY to rates - show raw data instead
-                            series_data.append((series_id, dates, values, info))
-                        elif db_info.get('show_absolute_change', False):
-                            # Employment counts like PAYEMS - NEVER show as %, show raw data
-                            series_data.append((series_id, dates, values, info))
-                        else:
-                            yoy_dates, yoy_values = calculate_yoy(dates, values)
-                            if yoy_dates:
-                                info_copy = dict(info)
-                                info_copy['name'] = db_info.get('yoy_name', series_name + ' (YoY %)')
-                                info_copy['unit'] = db_info.get('yoy_unit', '% Change YoY')
-                                info_copy['is_yoy'] = True
-                                series_data.append((series_id, yoy_dates, yoy_values, info_copy))
-                            else:
-                                series_data.append((series_id, dates, values, info))
+                elif show_avg_annual:
+                    # User requested average annual
+                    avg_dates, avg_values = calculate_avg_annual(dates, values)
+                    if avg_dates:
+                        info_copy = dict(info)
+                        info_copy['name'] = series_name + ' (Annual Avg)'
+                        info_copy['unit'] = info.get('unit', info.get('units', '')) + ' (Annual Average)'
+                        info_copy['is_avg_annual'] = True
+                        series_data.append((series_id, avg_dates, avg_values, info_copy))
                     else:
                         series_data.append((series_id, dates, values, info))
+                elif (show_yoy or series_id in show_yoy_series) and len(dates) > 12:
+                    # User explicitly requested YoY (all or specific series) - but skip for certain types
+                    data_type = db_info.get('data_type', 'level')
+                    if data_type in ['rate', 'spread', 'growth_rate']:
+                        # Don't apply YoY to rates - show raw data instead
+                        series_data.append((series_id, dates, values, info))
+                    elif db_info.get('show_absolute_change', False):
+                        # Employment counts like PAYEMS - NEVER show as %, show raw data
+                        series_data.append((series_id, dates, values, info))
+                    else:
+                        yoy_dates, yoy_values = calculate_yoy(dates, values)
+                        if yoy_dates:
+                            info_copy = dict(info)
+                            info_copy['name'] = series_name + ' (YoY %)'
+                            info_copy['unit'] = '% Change YoY'
+                            info_copy['is_yoy'] = True
+                            series_data.append((series_id, yoy_dates, yoy_values, info_copy))
+                        else:
+                            series_data.append((series_id, dates, values, info))
+                elif db_info.get('show_yoy') and len(dates) > 12:
+                    # Series default is to show YoY (like CPI) - but skip for certain types
+                    data_type = db_info.get('data_type', 'level')
+                    if data_type in ['rate', 'spread', 'growth_rate']:
+                        # Don't apply YoY to rates - show raw data instead
+                        series_data.append((series_id, dates, values, info))
+                    elif db_info.get('show_absolute_change', False):
+                        # Employment counts like PAYEMS - NEVER show as %, show raw data
+                        series_data.append((series_id, dates, values, info))
+                    else:
+                        yoy_dates, yoy_values = calculate_yoy(dates, values)
+                        if yoy_dates:
+                            info_copy = dict(info)
+                            info_copy['name'] = db_info.get('yoy_name', series_name + ' (YoY %)')
+                            info_copy['unit'] = db_info.get('yoy_unit', '% Change YoY')
+                            info_copy['is_yoy'] = True
+                            series_data.append((series_id, yoy_dates, yoy_values, info_copy))
+                        else:
+                            series_data.append((series_id, dates, values, info))
+                else:
+                    series_data.append((series_id, dates, values, info))
 
         # Calculate derived series if formula specified (e.g., effective tariff rate = customs/imports*100)
         if derived_config and derived_raw_data:
@@ -7336,100 +7874,143 @@ def main():
         # and if we have ensemble capability
         user_requested_transform = show_yoy or show_mom or normalize or pct_change_from_start or show_avg_annual
         if ENSEMBLE_AVAILABLE and series_data and not user_requested_transform:
-            with st.spinner("Validating presentation format..."):
-                # Build series info for the validator
-                series_info_for_validation = []
+            status_container.update(label="Formatting data...")
+            # Build series info for the validator
+            series_info_for_validation = []
+            for sid, dates_v, values_v, info_v in series_data:
+                # Skip if already transformed (payroll changes, etc.)
+                if info_v.get('is_payroll_change') or info_v.get('is_yoy') or info_v.get('is_mom'):
+                    continue
+                series_info_for_validation.append({
+                    'id': sid,
+                    'title': info_v.get('name', info_v.get('title', sid)),
+                    'units': info_v.get('unit', info_v.get('units', 'unknown'))
+                })
+
+            if series_info_for_validation:
+                presentation_config = validate_presentation(query, series_info_for_validation, verbose=False)
+
+                # Apply transformations based on AI recommendations
+                transformed_data = []
                 for sid, dates_v, values_v, info_v in series_data:
-                    # Skip if already transformed (payroll changes, etc.)
-                    if info_v.get('is_payroll_change') or info_v.get('is_yoy') or info_v.get('is_mom'):
-                        continue
-                    series_info_for_validation.append({
-                        'id': sid,
-                        'title': info_v.get('name', info_v.get('title', sid)),
-                        'units': info_v.get('unit', info_v.get('units', 'unknown'))
-                    })
+                    config = presentation_config.get(sid, {})
+                    display_as = config.get('display_as', 'level')
+                    category = config.get('category', 'unknown')
 
-                if series_info_for_validation:
-                    presentation_config = validate_presentation(query, series_info_for_validation, verbose=False)
+                    # Store the presentation metadata
+                    info_copy = dict(info_v)
+                    info_copy['presentation_category'] = category
+                    info_copy['presentation_display_as'] = display_as
 
-                    # Apply transformations based on AI recommendations
-                    transformed_data = []
-                    for sid, dates_v, values_v, info_v in series_data:
-                        config = presentation_config.get(sid, {})
-                        display_as = config.get('display_as', 'level')
-                        category = config.get('category', 'unknown')
+                    # Check if this series should NEVER be shown as percentage change
+                    series_db_info = SERIES_DB.get(sid, {})
+                    force_absolute = series_db_info.get('show_absolute_change', False)
 
-                        # Store the presentation metadata
-                        info_copy = dict(info_v)
-                        info_copy['presentation_category'] = category
-                        info_copy['presentation_display_as'] = display_as
-
-                        # Check if this series should NEVER be shown as percentage change
-                        series_db_info = SERIES_DB.get(sid, {})
-                        force_absolute = series_db_info.get('show_absolute_change', False)
-
-                        # Apply transformation if AI determined this is a STOCK that should show changes
-                        if display_as == 'mom_change' and len(values_v) > 1 and not info_v.get('is_payroll_change'):
-                            if force_absolute:
-                                # PAYEMS etc - show absolute monthly change, not percent
-                                change_dates = dates_v[1:]
-                                change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
-                                info_copy['name'] = 'Monthly Job Change'
-                                info_copy['unit'] = 'Thousands of Jobs'
-                                info_copy['is_payroll_change'] = True
-                                info_copy['original_values'] = values_v
-                                info_copy['original_dates'] = dates_v
-                                transformed_data.append((sid, change_dates, change_values, info_copy))
-                            else:
-                                # Convert stock to month-over-month change
-                                change_dates = dates_v[1:]
-                                change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
-                                info_copy['name'] = info_v.get('name', sid) + ' (Monthly Change)'
-                                info_copy['unit'] = 'Change from Prior Month'
-                                info_copy['is_stock_to_change'] = True
-                                info_copy['original_values'] = values_v
-                                info_copy['original_dates'] = dates_v
-                                transformed_data.append((sid, change_dates, change_values, info_copy))
-                        elif display_as == 'yoy_change' and len(values_v) > 12:
-                            if force_absolute:
-                                # PAYEMS etc - NEVER show as YoY %, show monthly job change instead
-                                change_dates = dates_v[1:]
-                                change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
-                                info_copy['name'] = 'Monthly Job Change'
-                                info_copy['unit'] = 'Thousands of Jobs'
-                                info_copy['is_payroll_change'] = True
-                                info_copy['original_values'] = values_v
-                                info_copy['original_dates'] = dates_v
-                                transformed_data.append((sid, change_dates, change_values, info_copy))
-                            else:
-                                # Convert stock to year-over-year change
-                                yoy_dates, yoy_values = calculate_yoy(dates_v, values_v)
-                                if yoy_dates:
-                                    info_copy['name'] = info_v.get('name', sid) + ' (YoY %)'
-                                    info_copy['unit'] = '% Change YoY'
-                                    info_copy['is_yoy'] = True
-                                    transformed_data.append((sid, yoy_dates, yoy_values, info_copy))
-                                else:
-                                    transformed_data.append((sid, dates_v, values_v, info_copy))
+                    # Apply transformation if AI determined this is a STOCK that should show changes
+                    if display_as == 'mom_change' and len(values_v) > 1 and not info_v.get('is_payroll_change'):
+                        if force_absolute:
+                            # PAYEMS etc - show absolute monthly change, not percent
+                            change_dates = dates_v[1:]
+                            change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
+                            info_copy['name'] = 'Monthly Job Change'
+                            info_copy['unit'] = 'Thousands of Jobs'
+                            info_copy['is_payroll_change'] = True
+                            info_copy['original_values'] = values_v
+                            info_copy['original_dates'] = dates_v
+                            transformed_data.append((sid, change_dates, change_values, info_copy))
                         else:
-                            # Level display is appropriate (flows, rates)
-                            transformed_data.append((sid, dates_v, values_v, info_copy))
+                            # Convert stock to month-over-month change
+                            change_dates = dates_v[1:]
+                            change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
+                            info_copy['name'] = info_v.get('name', sid) + ' (Monthly Change)'
+                            info_copy['unit'] = 'Change from Prior Month'
+                            info_copy['is_stock_to_change'] = True
+                            info_copy['original_values'] = values_v
+                            info_copy['original_dates'] = dates_v
+                            transformed_data.append((sid, change_dates, change_values, info_copy))
+                    elif display_as == 'yoy_change' and len(values_v) > 12:
+                        if force_absolute:
+                            # PAYEMS etc - NEVER show as YoY %, show monthly job change instead
+                            change_dates = dates_v[1:]
+                            change_values = [values_v[i] - values_v[i-1] for i in range(1, len(values_v))]
+                            info_copy['name'] = 'Monthly Job Change'
+                            info_copy['unit'] = 'Thousands of Jobs'
+                            info_copy['is_payroll_change'] = True
+                            info_copy['original_values'] = values_v
+                            info_copy['original_dates'] = dates_v
+                            transformed_data.append((sid, change_dates, change_values, info_copy))
+                        else:
+                            # Convert stock to year-over-year change
+                            yoy_dates, yoy_values = calculate_yoy(dates_v, values_v)
+                            if yoy_dates:
+                                info_copy['name'] = info_v.get('name', sid) + ' (YoY %)'
+                                info_copy['unit'] = '% Change YoY'
+                                info_copy['is_yoy'] = True
+                                transformed_data.append((sid, yoy_dates, yoy_values, info_copy))
+                            else:
+                                transformed_data.append((sid, dates_v, values_v, info_copy))
+                    else:
+                        # Level display is appropriate (flows, rates)
+                        transformed_data.append((sid, dates_v, values_v, info_copy))
 
-                    series_data = transformed_data
+                series_data = transformed_data
 
         # Check data freshness - warn if data is more than 45 days old
         # Call economist reviewer agent for ALL queries to ensure quality explanations
         if series_data:
-            # Use ensemble for descriptions if enabled
-            if ENSEMBLE_AVAILABLE and st.session_state.get('ensemble_mode', False):
-                with st.spinner("Ensemble reviewing analysis (Claude + Gemini + GPT)..."):
+            status_container.update(label="Generating insights...")
+
+            # TEMPORAL COMPARISON: Generate comparison-specific narrative
+            comparison_metrics = None
+            if is_temporal_comparison and TEMPORAL_INTENT_AVAILABLE and temporal_intent:
+                try:
+                    # Convert series_data to SeriesData format for comparison
+                    from core.data_fetcher import SeriesData
+                    series_data_dict = {}
+                    for sid, dates_v, values_v, info_v in series_data:
+                        series_data_dict[sid] = SeriesData(
+                            id=sid,
+                            name=info_v.get('name', info_v.get('title', sid)),
+                            dates=list(dates_v),
+                            values=list(values_v),
+                            source=info_v.get('source', 'fred'),
+                            units=info_v.get('units', info_v.get('unit', '')),
+                        )
+
+                    # Compute comparison metrics
+                    comparison_metrics = compute_comparison_metrics(series_data_dict, temporal_intent)
+
+                    if comparison_metrics:
+                        # Build MultiPeriodData for narrative generation
+                        multi_period_data = MultiPeriodData(
+                            full_data=series_data_dict,
+                            comparison_metrics=comparison_metrics,
+                            reference_label=temporal_intent.reference_label,
+                            intent=temporal_intent
+                        )
+
+                        # Generate comparison-focused narrative
+                        comparison_narrative = generate_comparison_narrative(
+                            temporal_intent, multi_period_data, query
+                        )
+
+                        # Prepend comparison narrative to AI explanation
+                        if comparison_narrative:
+                            ai_explanation = comparison_narrative
+                except Exception as e:
+                    print(f"[TemporalIntent] Error generating comparison narrative: {e}")
+                    # Fall back to standard narrative generation
+
+            # Standard narrative generation (or if comparison failed)
+            if not (is_temporal_comparison and comparison_metrics):
+                # Use ensemble for descriptions if enabled
+                if ENSEMBLE_AVAILABLE and st.session_state.get('ensemble_mode', False):
                     # Build data summary for ensemble
                     data_summary = _build_data_summary_for_ensemble(series_data)
                     ai_explanation = generate_ensemble_description(
                         query, data_summary, ai_explanation, verbose=False
                     )
-            else:
-                with st.spinner("Economist reviewing analysis..."):
+                else:
                     ai_explanation = call_economist_reviewer(query, series_data, ai_explanation)
 
         # Fetch relevant Polymarket predictions for forward-looking context
@@ -7447,6 +8028,115 @@ def main():
                 sep_data = get_sep_for_query(query)
             except Exception as e:
                 print(f"[SEP] Error fetching projections: {e}")
+
+        # Generate contextual narratives based on query topic
+        housing_narrative = None
+        energy_narrative = None
+        market_narrative = None
+        query_lower = query.lower()
+
+        # Housing narrative for rent/home/mortgage queries
+        if ZILLOW_AVAILABLE and any(kw in query_lower for kw in ['rent', 'housing', 'home', 'mortgage', 'real estate', 'shelter', 'zhvi', 'zori']):
+            try:
+                # Get latest Zillow data for narrative
+                _, rent_yoy_values, _ = get_zillow_series('zillow_rent_yoy')
+                _, home_yoy_values, _ = get_zillow_series('zillow_home_value_yoy')
+                _, rent_values, _ = get_zillow_series('zillow_zori_national')
+                _, home_values, _ = get_zillow_series('zillow_zhvi_national')
+
+                rent_yoy = rent_yoy_values[-1] if rent_yoy_values else None
+                home_value_yoy = home_yoy_values[-1] if home_yoy_values else None
+                rent_value = rent_values[-1] if rent_values else None
+                home_value = home_values[-1] if home_values else None
+
+                housing_narrative = synthesize_housing_narrative(
+                    rent_value=rent_value,
+                    rent_yoy=rent_yoy,
+                    home_value=home_value,
+                    home_value_yoy=home_value_yoy,
+                )
+            except Exception as e:
+                print(f"[Zillow] Error generating narrative: {e}")
+
+        # Energy narrative for oil/gas/energy queries
+        if EIA_AVAILABLE and any(kw in query_lower for kw in ['oil', 'gas', 'gasoline', 'energy', 'crude', 'petroleum', 'fuel', 'natural gas']):
+            try:
+                # Get latest EIA data for narrative
+                _, wti_values, _ = get_eia_series('eia_wti_crude')
+                _, gas_values, _ = get_eia_series('eia_gasoline_retail')
+                _, natgas_values, _ = get_eia_series('eia_natural_gas_henry_hub')
+
+                wti_price = wti_values[-1] if wti_values else None
+                gasoline_price = gas_values[-1] if gas_values else None
+                natgas_price = natgas_values[-1] if natgas_values else None
+
+                energy_narrative = synthesize_energy_narrative(
+                    wti_price=wti_price,
+                    gasoline_price=gasoline_price,
+                    natgas_price=natgas_price,
+                )
+            except Exception as e:
+                print(f"[EIA] Error generating narrative: {e}")
+
+        # Market narrative for stock/bond/treasury/market queries
+        if ALPHAVANTAGE_AVAILABLE and any(kw in query_lower for kw in ['stock', 'market', 'treasury', 'yield', 'bond', 's&p', 'nasdaq', 'dow', 'vix', 'equity']):
+            try:
+                # Get latest market data for narrative
+                _, spy_values, _ = get_alphavantage_series('av_spy')
+                _, treasury_10y_values, _ = get_alphavantage_series('av_treasury_10y')
+                _, treasury_2y_values, _ = get_alphavantage_series('av_treasury_2y')
+
+                # Calculate YTD change for S&P
+                spy_change_pct = None
+                if spy_values and len(spy_values) > 20:
+                    start_idx = max(0, len(spy_values) - 252)
+                    spy_change_pct = ((spy_values[-1] / spy_values[start_idx]) - 1) * 100
+
+                treasury_10y = treasury_10y_values[-1] if treasury_10y_values else None
+                treasury_2y = treasury_2y_values[-1] if treasury_2y_values else None
+
+                market_narrative = synthesize_market_narrative(
+                    spy_change_pct=spy_change_pct,
+                    treasury_10y=treasury_10y,
+                    treasury_2y=treasury_2y,
+                )
+            except Exception as e:
+                print(f"[AlphaVantage] Error generating narrative: {e}")
+
+        # Historical analogues for recession/Fed/macro queries
+        historical_context = None
+        if ANALOGUES_AVAILABLE and any(kw in query_lower for kw in ['recession', 'soft landing', 'hard landing', 'fed policy', 'monetary policy', 'downturn', 'economic outlook', 'where are we headed', 'what happens next']):
+            try:
+                # Build current conditions fingerprint from available data
+                # These would ideally come from the data we just fetched
+                current_conditions = {
+                    "inflation": 2.7,  # Default to recent values
+                    "unemployment": 4.2,
+                    "fed_stance": "easing",  # Fed started cutting Sept 2024
+                    "gdp_growth": 2.5,
+                    "yield_spread": 20,  # 10Y-2Y spread
+                }
+
+                # Try to extract actual values from series_data if available
+                for sid, dates, values, info in series_data:
+                    if values:
+                        if 'CPI' in sid.upper() or 'CPIAUCSL' in sid:
+                            current_conditions["inflation"] = values[-1]
+                        elif 'UNRATE' in sid.upper() or 'unemployment' in info.get('name', '').lower():
+                            current_conditions["unemployment"] = values[-1]
+                        elif 'FEDFUNDS' in sid.upper():
+                            # If Fed funds rising, tightening; if falling, easing
+                            if len(values) >= 2:
+                                if values[-1] > values[-2]:
+                                    current_conditions["fed_stance"] = "tightening"
+                                elif values[-1] < values[-2]:
+                                    current_conditions["fed_stance"] = "easing"
+                        elif 'T10Y2Y' in sid.upper():
+                            current_conditions["yield_spread"] = values[-1] * 100  # Convert to bp
+
+                historical_context = get_analogue_summary(current_conditions, top_n=2)
+            except Exception as e:
+                print(f"[Analogues] Error generating historical context: {e}")
 
         # Store ALL context atomically for follow-up queries (prevents race conditions)
         st.session_state.last_query = query
@@ -7470,9 +8160,14 @@ def main():
             "series_names": series_names_fetched,
             "polymarket": polymarket_predictions,  # Prediction market data
             "sep": sep_data,  # Fed SEP projections
+            "housing_narrative": housing_narrative,  # Zillow housing context
+            "energy_narrative": energy_narrative,  # EIA energy context
+            "market_narrative": market_narrative,  # Alpha Vantage market context
+            "historical_context": historical_context,  # Historical analogues (1994, 2008, etc.)
         })
 
-        # Activate chat mode and rerun to show chat interface
+        # Mark processing as complete and activate chat mode
+        status_container.update(label="Done!", state="complete", expanded=False)
         st.session_state.chat_mode = True
         st.rerun()
 

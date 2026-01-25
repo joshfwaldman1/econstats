@@ -35,3 +35,32 @@ from .summary_generator import (
     ECONOMIC_FRAMEWORKS,
     TOPIC_PROMPTS,
 )
+
+from .temporal_intent import (
+    TemporalIntent,
+    detect_temporal_intent,
+    get_reference_period_bounds,
+    get_comparison_baseline_date,
+    NAMED_PERIODS,
+    COMPARISON_PATTERNS,
+)
+
+from .multi_period_fetcher import (
+    MultiPeriodData,
+    ComparisonMetric,
+    fetch_multi_period_data,
+    compute_comparison_metrics,
+)
+
+from .comparison_narrative import (
+    generate_comparison_narrative,
+    format_metric_narrative,
+    format_comparison_insight,
+)
+
+from .intent_validator import (
+    ValidationResult,
+    ValidationIssue,
+    validate_data_matches_intent,
+    self_correct_if_needed,
+)
