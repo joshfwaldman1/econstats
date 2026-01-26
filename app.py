@@ -4583,13 +4583,16 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
                     current_change = orig_values[-1] - orig_values[-2]
                     # Same month last year's job change (13 months back)
                     year_ago_change = orig_values[-13] - orig_values[-14]
+                    # CRITICAL: Include actual year-ago value so LLM doesn't hallucinate
+                    summary['year_ago_job_change'] = round(year_ago_change, 1)
+                    summary['current_job_change'] = round(current_change, 1)
                     if year_ago_change != 0:
                         yoy_pct = ((current_change - year_ago_change) / abs(year_ago_change)) * 100
                         summary['yoy_percent_change'] = round(yoy_pct, 1)
                         if yoy_pct > 0:
-                            summary['yoy_percent_direction'] = f'UP {abs(yoy_pct):.1f}% from year ago'
+                            summary['yoy_percent_direction'] = f'UP {abs(yoy_pct):.1f}% from year ago (was {year_ago_change:.0f}K)'
                         elif yoy_pct < 0:
-                            summary['yoy_percent_direction'] = f'DOWN {abs(yoy_pct):.1f}% from year ago'
+                            summary['yoy_percent_direction'] = f'DOWN {abs(yoy_pct):.1f}% from year ago (was {year_ago_change:.0f}K)'
             elif len(values) >= 12 and values[-12] != 0:
                 yoy_pct = (yoy_change / abs(values[-12])) * 100
                 summary['yoy_percent_change'] = round(yoy_pct, 1)
