@@ -115,21 +115,23 @@
     "series": [
       "TOTALSL",
       "REVOLSL",
-      "TDSP"
+      "TDSP",
+      "BOGZ1FL073164003Q"
     ],
-    "show_yoy": [true, true, false],
+    "show_yoy": [true, true, false, false],
     "combine_chart": false,
-    "explanation": "TOTALSL and REVOLSL (credit cards) show debt levels, but TDSP (debt service ratio) is what really matters - it shows what percentage of income goes to debt payments. High debt with low TDSP means households can handle it; rising TDSP signals financial stress. Debt levels alone don't tell you if households are struggling."
+    "explanation": "Debt levels and stress indicators: TOTALSL and REVOLSL (credit cards) show debt amounts. TDSP (total debt service ratio) shows what percentage of income goes to ALL debt payments (mortgage + consumer). BOGZ1FL073164003Q (household debt service ratio from Flow of Funds) is a complementary measure from the Fed's Financial Accounts. Rising debt service ratios signal financial stress even if debt levels look manageable; falling ratios mean households have room to borrow or spend."
   },
   "household debt": {
     "series": [
       "TOTALSL",
       "REVOLSL",
-      "TDSP"
+      "TDSP",
+      "BOGZ1FL073164003Q"
     ],
-    "show_yoy": [true, true, false],
+    "show_yoy": [true, true, false, false],
     "combine_chart": false,
-    "explanation": "TOTALSL and REVOLSL (credit cards) show debt levels, but TDSP (debt service ratio) is the key stress indicator - it shows what percentage of disposable income goes to debt payments. Rising TDSP means households are increasingly strained; low TDSP means debt is manageable even if levels are high."
+    "explanation": "Debt levels and sustainability: TOTALSL and REVOLSL (credit cards) show debt amounts. TDSP (total debt service ratio) and BOGZ1FL073164003Q (household debt service ratio from Fed Flow of Funds) show debt burden as share of income - this is what matters for financial stress. Rising debt service ratios signal households are strained; low ratios mean debt is sustainable even if absolute levels are high."
   },
   "credit card debt": {
     "series": [
@@ -207,20 +209,44 @@
       "UMCSENT",
       "PSAVERT",
       "TDSP",
+      "BOGZ1FL073164003Q",
       "DSPIC96"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Consumer financial health requires a multi-dimensional view: UMCSENT (consumer sentiment) shows how consumers perceive their financial situation, PSAVERT (personal saving rate) indicates financial cushion and spending discipline, TDSP (debt service ratio) measures debt burden relative to income, and DSPIC96 (real disposable income) shows actual purchasing power after inflation and taxes. Together these capture the key pillars of consumer financial health: confidence, savings capacity, debt sustainability, and real income growth."
+    "explanation": "Consumer financial health requires a multi-dimensional view: UMCSENT (consumer sentiment) shows how consumers perceive their financial situation. PSAVERT (personal saving rate) indicates financial cushion and spending discipline. TDSP and BOGZ1FL073164003Q (debt service ratios) measure debt burden relative to income - critical for spotting financial stress. DSPIC96 (real disposable income) shows actual purchasing power after inflation and taxes. Together these capture confidence, savings capacity, debt sustainability, and real income growth."
   },
   "household balance sheet": {
     "series": [
       "BOGZ1FL192090005Q",
-      "TDSP"
+      "TDSP",
+      "BOGZ1FL073164003Q"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Household net worth (BOGZ1FL192090005Q) shows the asset side and overall financial position, while the household debt service ratio (TDSP) shows the liability burden as a percentage of disposable income. Together, these provide a comprehensive view of household balance sheet health - both what families own and what they owe relative to their ability to service that debt."
+    "explanation": "Household net worth (BOGZ1FL192090005Q) shows the asset side and overall financial position. TDSP (total debt service ratio) and BOGZ1FL073164003Q (household debt service ratio from Flow of Funds) show liability burden as share of income. Together these provide comprehensive balance sheet health - what families own, what they owe, and whether they can service their debt."
+  },
+  "debt service ratio": {
+    "series": [
+      "TDSP",
+      "BOGZ1FL073164003Q",
+      "MDSP"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Debt service ratios measure what percentage of household income goes to debt payments. TDSP (total household debt service ratio) includes both mortgage and consumer debt. BOGZ1FL073164003Q is the household debt service ratio from the Fed's Flow of Funds data. MDSP (mortgage debt service ratio) isolates just housing debt. Rising ratios signal financial stress; falling ratios mean households have room to spend or borrow. Pre-2008 crisis levels peaked around 13%; post-crisis ratios fell to historic lows around 9-10%."
+  },
+  "consumer health": {
+    "series": [
+      "UMCSENT",
+      "RSXFS",
+      "TDSP",
+      "BOGZ1FL073164003Q",
+      "PSAVERT"
+    ],
+    "show_yoy": [false, true, false, false, false],
+    "combine_chart": false,
+    "explanation": "Consumer health dashboard: Sentiment (UMCSENT) shows confidence. Spending (RSXFS) shows actual behavior. Debt service ratios (TDSP, BOGZ1FL073164003Q) show financial stress - rising ratios = trouble, falling = healthy. Savings rate (PSAVERT) shows financial cushion. High sentiment + strong spending + low debt burden + healthy savings = consumers doing well."
   },
   "net worth": {
     "series": [

@@ -347,6 +347,17 @@
     "combine_chart": true,
     "explanation": "Sticky inflation refers to price categories that are slow to adjust and tend to persist. Core PCE (PCEPILFE) is the Fed's key measure for underlying persistent inflation trends. Shelter (CUSR0000SAH1) is the largest CPI component and notoriously sticky due to lease structures. Medical care services (CPIMEDSL) and Education (CUSR0000SAE) are classic sticky categories - services with infrequent price changes, regulatory constraints, and long-term contracts. These sectors help explain why inflation can be persistent even when volatile food/energy prices moderate."
   },
+  "wage inflation": {
+    "series": [
+      "ECIWAG",
+      "CES0500000003",
+      "ULCNFB",
+      "PCEPILFE"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Wage inflation indicators: ECIWAG (Employment Cost Index: Wages) is the gold standard - it tracks the same jobs over time, avoiding compositional distortions. CES0500000003 (average hourly earnings) is the monthly headline but less reliable. ULCNFB (unit labor costs) shows whether wage growth exceeds productivity - this is what actually creates inflation pressure. Core PCE (PCEPILFE) shows if wage gains are feeding through to consumer prices. The Fed watches ECI and unit labor costs closely for wage-price spiral risks."
+  },
   "transitory inflation": {
     "series": [
       "CPIAUCSL",

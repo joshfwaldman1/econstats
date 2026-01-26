@@ -159,19 +159,68 @@ Added series and plans for:
 - **Caching**: 15-minute TTL to avoid API spam
 - **API**: Uses Polymarket Gamma API (https://gamma-api.polymarket.com)
 
-## Fed SEP Integration (FOMC Projections)
-- `agents/fed_sep.py` - Fetches Summary of Economic Projections from Federal Reserve
+## Recession Scorecard (Recession Dashboard)
+- `agents/recession_scorecard.py` - Comprehensive recession risk dashboard
+- **Purpose**: Go-to tool for "is a recession coming?" questions
+- **Indicators tracked**:
+  - `SAHMREALTIME` - Sahm Rule (triggered at 0.5 when 3-mo unemployment rises above 12-mo low)
+  - `T10Y2Y` - Yield curve spread (inverted = warning, has preceded every recession since 1970)
+  - `UMCSENT` - Consumer sentiment (sharp drops precede recessions)
+  - `ICSA` - Initial jobless claims 4-week average (rising = warning)
+  - Polymarket recession odds (forward-looking market sentiment)
+- **Status colors**: Green (normal), Yellow (caution), Red (warning)
+- **Overall risk levels**: LOW, MODERATE, ELEVATED, HIGH
+- **Display**: Prominent dashboard box at top of response for recession queries
+- **Queries handled**: "recession", "is a recession coming", "recession odds", "sahm rule", "yield curve inversion", "hard landing", "soft landing"
+
+## Fed SEP Integration (FOMC Projections & Guidance) - ENHANCED
+- `agents/fed_sep.py` - Fetches Summary of Economic Projections and provides Fed guidance
 - **No API key required** - Scrapes Fed's public HTML tables
-- **Variables tracked**:
+
+### What Fed Guidance Shows:
+1. **Current Fed funds rate** - Target range and last change info
+2. **FOMC's projected path** - From the dot plot (rate path through 2027)
+3. **Key quotes from FOMC statements** - Recent statement highlights
+4. **Tone indicator** - Hawkish/dovish relative to expectations
+
+### Variables Tracked:
   - `sep_gdp` - Real GDP growth projections
   - `sep_unemployment` - Unemployment rate projections
   - `sep_pce_inflation` - PCE inflation projections
   - `sep_core_pce` - Core PCE inflation projections
   - `sep_fed_funds` - Federal funds rate projections (dot plot)
-- **Queries handled**: "dot plot", "fed projections", "rate path", "terminal rate", "economic outlook"
-- **Display**: Yellow callout box below summary showing median FOMC projections
-- **Update frequency**: Quarterly (March, June, September, December FOMC meetings)
-- **Fallback**: Hardcoded December 2024 data if scraping fails
+
+### Keywords That Trigger Fed Guidance (EXPANDED):
+**Core Fed terms**: "fed", "fomc", "federal reserve", "powell"
+**Rate actions**: "rate cut", "rate hike", "cutting rates", "raising rates"
+**Policy terms**: "monetary policy", "tightening", "easing", "hawkish", "dovish", "pivot"
+**Forward guidance**: "dot plot", "rate path", "terminal rate", "neutral rate"
+
+### Key Functions:
+- `is_fed_related_query(query)` - Broad check for any Fed-related query
+- `is_sep_query(query)` - Specific check for SEP/projection queries
+- `get_fed_guidance_for_query(query)` - Returns full Fed guidance (rate + projections + FOMC summary)
+- `get_current_fed_funds_rate()` - Current target range and last change
+- `get_recent_fomc_summary()` - Key quotes and highlights from recent meetings
+
+### FOMC Statement Summaries:
+Hardcoded summaries for recent FOMC meetings (December 2024, November 2024, September 2024) including:
+- Rate decision (e.g., "Cut 25 bps to 4.25-4.50%")
+- Key quote from statement
+- Highlights (3-4 bullet points)
+- Tone (hawkish/dovish/neutral)
+
+### Display:
+- Blue callout box below summary with Fed guidance
+- Shows current rate, dot plot path, and key takeaways
+- Includes source URL to Fed website
+
+### Update Frequency:
+- Quarterly (March, June, September, December FOMC meetings)
+- **Maintainer Note**: Update `CURRENT_FED_FUNDS_RATE` and `FOMC_STATEMENT_SUMMARIES` after each FOMC meeting
+
+### Fallback:
+- Hardcoded December 2024 data if scraping fails
 
 ## Stock Market Integration
 - `agents/stocks.py` - Query plans for stock market data (uses FRED, not external APIs)
@@ -229,12 +278,62 @@ Added series and plans for:
 - **Queries handled**: "eurozone economy", "how is china doing", "uk inflation", "ecb rate"
 - **Data format**: Converted to FRED-compatible (dates, values, info) for seamless integration
 
+## Premium Economist Analysis (Deep Insights)
+- `core/economist_analysis.py` - Generates economist-quality analysis connecting multiple indicators
+- **Purpose**: This is what differentiates EconStats from raw data tools - we explain what data means
+
+### What It Does:
+1. **Connects indicators**: Links unemployment, inflation, GDP into coherent narrative
+2. **Applies economic reasoning**: Uses encoded rules about economic relationships
+3. **Highlights risks/opportunities**: Forward-looking assessment
+4. **Confidence scoring**: Rates analysis as high/medium/low confidence
+
+### Output Structure:
+- **Headline**: One-sentence answer to the user's question
+- **Narrative**: 3-5 bullets connecting the dots between indicators
+- **Key Insight**: The single most important takeaway
+- **Risks**: What could go wrong (2-3 items)
+- **Opportunities**: What could go right (2-3 items)
+- **Watch Items**: What to monitor going forward
+
+### Example Output:
+For "How is the economy doing?" with unemployment 4.1%, payrolls +200K, GDP 2.5%, inflation 3.2%:
+> "The labor market remains solid with unemployment at 4.1% and strong job gains of 200K. However, inflation at 3.2% remains above the Fed's 2% target, suggesting monetary policy will stay restrictive. GDP growth of 2.5% indicates resilient expansion despite higher rates. Key watch: whether labor market strength can persist as restrictive policy continues."
+
+### Economic Reasoning Rules:
+Encodes relationships like:
+- `labor_tight`: unemployment < 4.5% AND job_openings_per_unemployed > 1.0 → "wage pressures likely to persist"
+- `inflation_progress`: 2.5 < core_inflation <= 3.5 AND falling → "rate cuts becoming more likely"
+- `goldilocks`: low unemployment + low inflation + positive growth → "conditions support continued expansion"
+- `stagflation_risk`: rising unemployment + elevated inflation → "Fed faces difficult tradeoffs"
+
+### Display:
+- Yellow gradient callout box with gold border
+- Confidence badge (green/yellow/red)
+- Two-column layout for risks/opportunities
+- Shown after historical context, before charts
+
 ## Smart Query Router (Comparison Queries)
 - `agents/query_router.py` - Handles multi-source queries
 - **Comparison detection**: "vs", "compared to", "compare", multiple regions mentioned
+- **Two types of comparisons**:
+
+### 1. Domestic Comparisons (FRED-only)
+Compares two US indicators on the same chart. All data from FRED.
+- **Example queries**:
+  - "Black unemployment vs overall" → LNS14000006 + UNRATE
+  - "inflation vs wage growth" → CPIAUCSL + CES0500000003
+  - "Job openings vs unemployed" → JTSJOL + LNS13000000
+  - "Core vs headline inflation" → CPILFESL + CPIAUCSL
+  - "2 year vs 10 year treasury" → DGS2 + DGS10
+  - "housing starts vs permits" → HOUST + PERMIT
+- **Automatic combine_chart=True** for all domestic comparisons
+- **Pattern matching**: ~25 curated comparison patterns in DOMESTIC_COMPARISONS dict
+
+### 2. International Comparisons (FRED + DBnomics)
+Compares US to other countries. Data from FRED (US) + DBnomics (international).
 - **Region extraction**: US, Eurozone, UK, Japan, China, Germany, Canada, Mexico, India, Brazil
 - **Indicator extraction**: GDP/growth, inflation/CPI, unemployment, rates
-- **Multi-source fetch**: Combines FRED (US) + DBnomics (international) for comparisons
 - **Example queries**:
   - "US vs Eurozone GDP" → FRED:GDPC1 + DBnomics:eurozone_gdp
   - "Compare US and China growth" → FRED:GDPC1 + DBnomics:china_gdp
@@ -249,6 +348,7 @@ Added series and plans for:
 - `agents/zillow.py` - Zillow housing data (no API key needed)
 - `agents/eia.py` - EIA energy data (requires EIA_API_KEY)
 - `agents/alphavantage.py` - Alpha Vantage market data (requires ALPHAVANTAGE_API_KEY)
+- `core/economist_analysis.py` - Premium economist analysis with deep insights, risks, and opportunities
 - `agents/plans_*.json` - Pre-computed query plans by category:
   - `plans_employment.json` - Jobs, sectors, demographics
   - `plans_economy_overview.json` - Economy, small business, supply chain
@@ -279,3 +379,5 @@ Added series and plans for:
 8. **Eurozone GDP YoY fix** - Changed from QoQ (CLV_PCH_PRE) to YoY (CLV_PCH_SM) for proper US comparison
 9. **Comparison metadata** - Added measure_type/change_type to all DBnomics and FRED comparison series
 10. **Query Understanding layer** - NEW "Thinking First" approach using Gemini to deeply analyze query intent before routing. Prevents wrong demographic data (e.g., women's data for Black workers queries). See `agents/query_understanding.py`.
+11. **Recession Scorecard** - NEW comprehensive "Recession Dashboard" for recession-related queries. Shows Sahm Rule, yield curve, consumer sentiment, initial claims, and Polymarket odds with color-coded status indicators. See `agents/recession_scorecard.py`.
+12. **Premium Economist Analysis** - NEW deep analysis feature that connects multiple indicators into coherent narratives, applies economic reasoning, and highlights risks/opportunities. Displays as a yellow callout box with headline, narrative bullets, key insight, risks, and opportunities. See `core/economist_analysis.py`.

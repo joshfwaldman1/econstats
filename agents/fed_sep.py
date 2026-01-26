@@ -41,6 +41,93 @@ SEP_CACHE_TTL = timedelta(hours=24)
 
 
 # =============================================================================
+# FOMC STATEMENT SUMMARIES (hardcoded for recent meetings)
+# =============================================================================
+
+# Key quotes and summaries from recent FOMC statements
+# Updated after each FOMC meeting - these provide context beyond just projections
+FOMC_STATEMENT_SUMMARIES = {
+    'December 2024': {
+        'date': 'December 18, 2024',
+        'rate_decision': 'Cut 25 bps to 4.25-4.50%',
+        'key_quote': 'The Committee judges that the risks to achieving its employment and inflation goals are roughly in balance.',
+        'highlights': [
+            'Third consecutive rate cut (total 100 bps since September)',
+            'Signaled slower pace of cuts in 2025 due to sticky inflation',
+            'Revised inflation projections higher; fewer cuts expected in 2025',
+            'Labor market conditions have "generally eased"',
+        ],
+        'tone': 'hawkish',  # Relative to expectations
+    },
+    'November 2024': {
+        'date': 'November 7, 2024',
+        'rate_decision': 'Cut 25 bps to 4.50-4.75%',
+        'key_quote': 'Inflation has made progress toward the Committee\'s 2 percent objective but remains somewhat elevated.',
+        'highlights': [
+            'Second rate cut following September\'s 50 bps move',
+            'Removed reference to "further progress" on inflation',
+            'Labor market remains solid despite slower payroll gains',
+        ],
+        'tone': 'neutral',
+    },
+    'September 2024': {
+        'date': 'September 18, 2024',
+        'rate_decision': 'Cut 50 bps to 4.75-5.00%',
+        'key_quote': 'The Committee has gained greater confidence that inflation is moving sustainably toward 2 percent.',
+        'highlights': [
+            'First rate cut since March 2020 - began easing cycle',
+            'Larger-than-usual 50 bps cut to "recalibrate" policy',
+            'Shift in focus from inflation to dual mandate balance',
+            'Powell emphasized this is not about recession fears',
+        ],
+        'tone': 'dovish',
+    },
+}
+
+# Current Fed funds rate target (update after each FOMC meeting)
+CURRENT_FED_FUNDS_RATE = {
+    'target_low': 4.25,
+    'target_high': 4.50,
+    'effective_rate': 4.33,  # Typically near midpoint
+    'last_change': 'December 18, 2024',
+    'last_change_direction': 'cut',
+    'last_change_size': 25,  # basis points
+}
+
+
+def get_current_fed_funds_rate() -> Dict:
+    """
+    Get the current Fed funds rate target.
+
+    Returns:
+        Dict with target_low, target_high, effective_rate, and last change info
+    """
+    return CURRENT_FED_FUNDS_RATE.copy()
+
+
+def get_recent_fomc_summary(meeting_date: Optional[str] = None) -> Optional[Dict]:
+    """
+    Get summary of a recent FOMC statement.
+
+    Args:
+        meeting_date: Specific meeting (e.g., 'December 2024'). If None, returns most recent.
+
+    Returns:
+        Dict with rate_decision, key_quote, highlights, tone
+    """
+    if meeting_date and meeting_date in FOMC_STATEMENT_SUMMARIES:
+        return FOMC_STATEMENT_SUMMARIES[meeting_date].copy()
+
+    # Return most recent if no specific meeting requested
+    if FOMC_STATEMENT_SUMMARIES:
+        # Keys are in chronological order, last one is most recent
+        recent_key = list(FOMC_STATEMENT_SUMMARIES.keys())[0]
+        return FOMC_STATEMENT_SUMMARIES[recent_key].copy()
+
+    return None
+
+
+# =============================================================================
 # HTML PARSER FOR SEP TABLES
 # =============================================================================
 
@@ -328,12 +415,127 @@ def is_sep_query(query: str) -> bool:
     return any(kw in query_lower for kw in sep_keywords)
 
 
+def is_fed_related_query(query: str) -> bool:
+    """
+    Check if query is related to the Fed, interest rates, or monetary policy.
+
+    This is a BROADER check than is_sep_query - it catches any Fed-related
+    query where we should show Fed guidance prominently.
+
+    Keywords that trigger Fed guidance:
+    - "fed", "fomc", "federal reserve", "powell"
+    - "rate cut", "rate hike", "monetary policy"
+    - "dot plot", "rate path", "terminal rate"
+
+    Returns:
+        True if the query is Fed-related and should display Fed guidance
+    """
+    query_lower = query.lower()
+
+    # Core Fed-related terms
+    fed_core_keywords = [
+        'fed', 'fomc', 'federal reserve', 'powell', 'jerome powell',
+    ]
+
+    # Rate-related terms
+    rate_keywords = [
+        'rate cut', 'rate hike', 'rate increase', 'rate decrease',
+        'cutting rates', 'raising rates', 'hiking rates',
+        'rate decision', 'rate announcement',
+        'fed funds', 'federal funds rate', 'policy rate',
+        'interest rate', 'benchmark rate',
+    ]
+
+    # Monetary policy terms
+    policy_keywords = [
+        'monetary policy', 'policy stance', 'tightening', 'easing',
+        'hawkish', 'dovish', 'pivot',
+        'quantitative tightening', 'qt', 'balance sheet',
+    ]
+
+    # Forward guidance terms (also triggers SEP)
+    guidance_keywords = [
+        'dot plot', 'rate path', 'terminal rate', 'neutral rate',
+        'rate outlook', 'where rates are going', 'future rates',
+        'how many cuts', 'how many hikes',
+    ]
+
+    all_keywords = fed_core_keywords + rate_keywords + policy_keywords + guidance_keywords
+
+    return any(kw in query_lower for kw in all_keywords)
+
+
+def get_fed_guidance_for_query(query: str) -> Optional[Dict]:
+    """
+    Get Fed guidance (SEP projections + FOMC statement summary) for Fed-related queries.
+
+    This is the MAIN function to call for Fed-related queries. It provides:
+    1. Current Fed funds rate
+    2. FOMC's projected path (from the dot plot)
+    3. Key quotes/highlights from recent FOMC statements
+
+    Args:
+        query: User's query string
+
+    Returns:
+        Dict with current_rate, projections, and fomc_summary, or None if not Fed-related
+    """
+    # Use the broader check - show Fed guidance for any Fed-related query
+    if not is_fed_related_query(query):
+        return None
+
+    query_lower = query.lower()
+
+    # Get current rate info
+    current_rate = get_current_fed_funds_rate()
+
+    # Get SEP projections (always include for Fed queries - the dot plot is key)
+    sep_data = get_sep_data()
+
+    # Determine which projections are relevant based on query
+    relevant_vars = []
+
+    if any(w in query_lower for w in ['gdp', 'growth', 'economy', 'output']):
+        relevant_vars.append('gdp')
+    if any(w in query_lower for w in ['unemployment', 'jobs', 'labor']):
+        relevant_vars.append('unemployment')
+    if any(w in query_lower for w in ['inflation', 'pce', 'prices', 'cpi']):
+        relevant_vars.extend(['pce_inflation', 'core_pce'])
+
+    # Always include fed_funds for any Fed-related query (the key metric)
+    relevant_vars.append('fed_funds')
+
+    # Remove duplicates while preserving order
+    relevant_vars = list(dict.fromkeys(relevant_vars))
+
+    # Get recent FOMC statement summary
+    fomc_summary = get_recent_fomc_summary()
+
+    return {
+        'current_rate': current_rate,
+        'meeting_date': sep_data['meeting_date'],
+        'source_url': sep_data.get('source_url', ''),
+        'projections': {k: sep_data['projections'].get(k, {}) for k in relevant_vars},
+        'is_fallback': sep_data.get('is_fallback', False),
+        'fomc_summary': fomc_summary,
+    }
+
+
 def get_sep_for_query(query: str) -> Optional[Dict]:
     """
     Get relevant SEP data based on query.
 
+    NOTE: For broader Fed-related queries, use get_fed_guidance_for_query() instead.
+    This function is kept for backward compatibility and SEP-specific queries.
+
     Returns formatted data for display.
     """
+    # First try the broader Fed check - this ensures Fed guidance shows for more queries
+    fed_guidance = get_fed_guidance_for_query(query)
+    if fed_guidance:
+        return fed_guidance
+
+    # Fallback to original SEP-only check (for backward compatibility)
     if not is_sep_query(query):
         return None
 
@@ -371,17 +573,54 @@ def format_sep_for_display(sep_data: Dict) -> str:
     """
     Format SEP data for display in the UI.
 
-    Returns a narrative explanation of Fed projections.
+    Returns a narrative explanation of Fed projections including:
+    - Current Fed funds rate
+    - FOMC's projected rate path (dot plot)
+    - Key quotes from recent FOMC statements
+
+    Args:
+        sep_data: Dict from get_sep_for_query() or get_fed_guidance_for_query()
+
+    Returns:
+        Formatted narrative string for display
     """
     if not sep_data:
         return ""
 
     projections = sep_data.get('projections', {})
     meeting = sep_data.get('meeting_date', 'recent')
+    current_rate = sep_data.get('current_rate', {})
+    fomc_summary = sep_data.get('fomc_summary', {})
 
     sentences = []
 
-    # GDP narrative
+    # ==========================================================================
+    # CURRENT FED FUNDS RATE (always show first for Fed queries)
+    # ==========================================================================
+    if current_rate:
+        target_low = current_rate.get('target_low')
+        target_high = current_rate.get('target_high')
+        last_change = current_rate.get('last_change')
+        direction = current_rate.get('last_change_direction', '')
+        size = current_rate.get('last_change_size', 0)
+
+        if target_low and target_high:
+            rate_str = f"**Current Fed Funds Rate: {target_low:.2f}%-{target_high:.2f}%**"
+            if last_change and direction and size:
+                rate_str += f" (last {direction}: {size} bps on {last_change})"
+            sentences.append(rate_str)
+
+    # ==========================================================================
+    # FOMC STATEMENT KEY QUOTE (if available)
+    # ==========================================================================
+    if fomc_summary:
+        key_quote = fomc_summary.get('key_quote')
+        if key_quote:
+            sentences.append(f'*"{key_quote}"*')
+
+    # ==========================================================================
+    # GDP PROJECTION
+    # ==========================================================================
     if 'gdp' in projections:
         gdp = projections['gdp']
         gdp_2025 = gdp.get('2025', {}).get('median')
@@ -392,7 +631,9 @@ def format_sep_for_display(sep_data: Dict) -> str:
             else:
                 sentences.append(f"FOMC participants expect GDP growth of {gdp_2025}% in 2025.")
 
-    # Unemployment narrative
+    # ==========================================================================
+    # UNEMPLOYMENT PROJECTION
+    # ==========================================================================
     if 'unemployment' in projections:
         unemp = projections['unemployment']
         unemp_2025 = unemp.get('2025', {}).get('median')
@@ -407,7 +648,9 @@ def format_sep_for_display(sep_data: Dict) -> str:
                 else:
                     sentences.append(f"Unemployment is projected at {unemp_2025}% in 2025.")
 
-    # Inflation narrative
+    # ==========================================================================
+    # INFLATION PROJECTION
+    # ==========================================================================
     if 'pce_inflation' in projections or 'core_pce' in projections:
         pce = projections.get('pce_inflation', {})
         core = projections.get('core_pce', {})
@@ -425,25 +668,51 @@ def format_sep_for_display(sep_data: Dict) -> str:
         elif core_2025:
             sentences.append(f"Core PCE inflation is projected at {core_2025}% in 2025.")
 
-    # Fed funds narrative (most important for "dot plot" queries)
+    # ==========================================================================
+    # FED FUNDS RATE PATH (DOT PLOT) - most important for Fed queries
+    # ==========================================================================
     if 'fed_funds' in projections:
         ff = projections['fed_funds']
         ff_2025 = ff.get('2025', {}).get('median')
         ff_2026 = ff.get('2026', {}).get('median')
         ff_lr = ff.get('longer_run', {}).get('median')
 
+        # Use current rate if available, otherwise fallback to 4.4%
+        current_midpoint = 4.4
+        if current_rate:
+            target_low = current_rate.get('target_low', 4.25)
+            target_high = current_rate.get('target_high', 4.50)
+            current_midpoint = (target_low + target_high) / 2
+
         if ff_2025 and ff_2026:
-            cuts_2025 = round((4.4 - ff_2025) / 0.25)  # Assuming 4.4% current
+            cuts_2025 = round((current_midpoint - ff_2025) / 0.25)
             cuts_2026 = round((ff_2025 - ff_2026) / 0.25)
 
             if cuts_2025 > 0 and cuts_2026 > 0:
-                sentences.append(f"The median dot plot shows the fed funds rate falling to {ff_2025}% by end of 2025 and {ff_2026}% by end of 2026—implying roughly {int(cuts_2025 + cuts_2026)} quarter-point cuts over two years.")
+                sentences.append(f"**Dot Plot Path:** The median projection shows the fed funds rate falling to {ff_2025}% by end of 2025 and {ff_2026}% by end of 2026, implying roughly {int(cuts_2025 + cuts_2026)} quarter-point cuts over two years.")
+            elif cuts_2025 > 0:
+                sentences.append(f"**Dot Plot Path:** The median projection shows the fed funds rate at {ff_2025}% by end of 2025 ({int(cuts_2025)} cuts from current levels).")
             elif ff_lr:
-                sentences.append(f"The median fed funds rate projection is {ff_2025}% for 2025, with a long-run neutral rate of {ff_lr}%.")
+                sentences.append(f"**Dot Plot Path:** The median fed funds rate projection is {ff_2025}% for 2025, with a long-run neutral rate of {ff_lr}%.")
             else:
-                sentences.append(f"The median fed funds rate projection is {ff_2025}% for 2025.")
+                sentences.append(f"**Dot Plot Path:** The median fed funds rate projection is {ff_2025}% for 2025.")
         elif ff_lr:
-            sentences.append(f"The long-run neutral rate estimate is {ff_lr}%.")
+            sentences.append(f"**Long-Run Neutral Rate:** {ff_lr}% (FOMC median estimate).")
+
+    # ==========================================================================
+    # FOMC STATEMENT HIGHLIGHTS (key takeaways)
+    # ==========================================================================
+    if fomc_summary:
+        highlights = fomc_summary.get('highlights', [])
+        tone = fomc_summary.get('tone', '')
+        if highlights and len(highlights) > 0:
+            # Add tone indicator
+            tone_str = ""
+            if tone == 'hawkish':
+                tone_str = " (hawkish)"
+            elif tone == 'dovish':
+                tone_str = " (dovish)"
+            sentences.append(f"**Key Takeaways{tone_str}:** {highlights[0]}")
 
     if not sentences:
         return ""
@@ -580,7 +849,7 @@ def search_sep_series(query: str) -> List[str]:
 # =============================================================================
 
 if __name__ == '__main__':
-    print("Testing SEP integration...\n")
+    print("Testing Fed SEP integration...\n")
 
     # Test fetching data
     sep = get_sep_data()
@@ -598,8 +867,28 @@ if __name__ == '__main__':
                 print(f"  {year}: {median}%")
             print()
 
-    # Test query matching
-    test_queries = [
+    # Test current rate
+    print("Current Fed Funds Rate:")
+    rate = get_current_fed_funds_rate()
+    print(f"  Target: {rate['target_low']:.2f}%-{rate['target_high']:.2f}%")
+    print(f"  Last change: {rate['last_change']} ({rate['last_change_direction']} {rate['last_change_size']} bps)")
+    print()
+
+    # Test FOMC summary
+    print("Recent FOMC Statement Summary:")
+    summary = get_recent_fomc_summary()
+    if summary:
+        print(f"  Date: {summary['date']}")
+        print(f"  Decision: {summary['rate_decision']}")
+        print(f"  Tone: {summary['tone']}")
+        print(f"  Key quote: \"{summary['key_quote']}\"")
+        print(f"  Highlights:")
+        for h in summary.get('highlights', []):
+            print(f"    - {h}")
+    print()
+
+    # Test SEP-specific query matching
+    sep_test_queries = [
         "what does the fed expect for gdp",
         "dot plot",
         "fed rate projections",
@@ -607,12 +896,60 @@ if __name__ == '__main__':
         "inflation outlook",
     ]
 
-    print("Query matching:")
-    for q in test_queries:
-        is_sep = is_sep_query(q)
-        print(f"  '{q}' -> {is_sep}")
+    print("SEP-specific query matching (is_sep_query):")
+    for q in sep_test_queries:
+        result = is_sep_query(q)
+        print(f"  '{q}' -> {result}")
+    print()
 
-    # Test formatted output
-    print("\nFormatted output:")
-    result = get_sep_for_query("what does the fed expect")
+    # Test BROADER Fed-related query matching (NEW)
+    fed_test_queries = [
+        "fed",  # Core keyword
+        "fomc",  # Core keyword
+        "federal reserve",  # Core keyword
+        "powell",  # Powell
+        "rate cut",  # Rate action
+        "rate hike",  # Rate action
+        "monetary policy",  # Policy
+        "what is the fed doing",  # Natural question
+        "when will the fed cut rates",  # Natural question
+        "hawkish or dovish",  # Tone
+        "interest rates",  # General rates
+        "fed funds rate",  # Specific rate
+        "terminal rate",  # Forward guidance
+        "neutral rate",  # Forward guidance
+        "dot plot",  # Projections
+        "rate path",  # Projections
+        "quantitative tightening",  # Policy detail
+        "balance sheet",  # Policy detail
+        "unemployment rate",  # Should NOT match (not Fed-specific)
+        "GDP growth",  # Should NOT match (not Fed-specific)
+    ]
+
+    print("Broader Fed-related query matching (is_fed_related_query):")
+    for q in fed_test_queries:
+        result = is_fed_related_query(q)
+        status = "MATCH" if result else "no match"
+        print(f"  '{q}' -> {status}")
+    print()
+
+    # Test formatted output with full Fed guidance
+    print("=" * 60)
+    print("Formatted output for 'what is the fed doing':")
+    print("=" * 60)
+    result = get_fed_guidance_for_query("what is the fed doing")
+    print(format_sep_for_display(result))
+    print()
+
+    print("=" * 60)
+    print("Formatted output for 'dot plot':")
+    print("=" * 60)
+    result = get_fed_guidance_for_query("dot plot")
+    print(format_sep_for_display(result))
+    print()
+
+    print("=" * 60)
+    print("Formatted output for 'when will the fed cut rates':")
+    print("=" * 60)
+    result = get_fed_guidance_for_query("when will the fed cut rates")
     print(format_sep_for_display(result))

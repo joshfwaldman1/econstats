@@ -79,6 +79,18 @@ try:
 except Exception:
     NEWS_CONTEXT_AVAILABLE = False
 
+# Import indicator context for rich economic interpretation
+try:
+    from core.indicator_context import (
+        get_indicator_context,
+        interpret_indicator,
+        get_related_indicators,
+        INDICATOR_CONTEXT,
+    )
+    INDICATOR_CONTEXT_AVAILABLE = True
+except Exception:
+    INDICATOR_CONTEXT_AVAILABLE = False
+
 # Import DBnomics for international data (IMF, Eurostat, ECB, etc.)
 try:
     from agents.dbnomics import find_international_plan, is_international_query, get_observations_dbnomics
@@ -114,9 +126,20 @@ try:
 except Exception:
     ALPHAVANTAGE_AVAILABLE = False
 
-# Import Fed SEP (Summary of Economic Projections) for FOMC forecasts
+# Import Fed SEP (Summary of Economic Projections) for FOMC forecasts and guidance
 try:
-    from agents.fed_sep import is_sep_query, get_sep_for_query, format_sep_for_display, get_sep_series_data, SEP_SERIES
+    from agents.fed_sep import (
+        is_sep_query,
+        is_fed_related_query,
+        get_sep_for_query,
+        get_fed_guidance_for_query,
+        format_sep_for_display,
+        get_sep_series_data,
+        get_current_fed_funds_rate,
+        get_recent_fomc_summary,
+        SEP_SERIES,
+        FOMC_STATEMENT_SUMMARIES,
+    )
     SEP_AVAILABLE = True
 except Exception:
     SEP_AVAILABLE = False
@@ -127,6 +150,28 @@ try:
     ANALOGUES_AVAILABLE = True
 except Exception:
     ANALOGUES_AVAILABLE = False
+
+# Import premium economist analysis for deeper insights
+try:
+    from core.economist_analysis import (
+        get_premium_analysis,
+        EconomistAnalysis,
+        format_analysis_as_html,
+    )
+    PREMIUM_ANALYSIS_AVAILABLE = True
+except Exception:
+    PREMIUM_ANALYSIS_AVAILABLE = False
+
+# Import recession scorecard for recession-related queries
+try:
+    from agents.recession_scorecard import (
+        is_recession_query,
+        build_recession_scorecard,
+        format_scorecard_for_display,
+    )
+    RECESSION_SCORECARD_AVAILABLE = True
+except Exception:
+    RECESSION_SCORECARD_AVAILABLE = False
 
 # Import temporal intent detection for COMPARE vs FILTER vs CURRENT handling
 try:
@@ -4355,6 +4400,28 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
     print(json.dumps(data_summary, indent=2))
     print(f"[EconomistReviewer] === END ===\n")
 
+    # Build indicator context section using the indicator_context module
+    indicator_context_section = ""
+    if INDICATOR_CONTEXT_AVAILABLE:
+        context_parts = []
+        for s in data_summary:
+            series_id = s.get('series_id', '')
+            ctx = get_indicator_context(series_id)
+            if ctx:
+                # Add rich interpretation context for this indicator
+                context_parts.append(
+                    f"  {series_id} ({ctx.name}): {ctx.why_it_matters}"
+                )
+                # Add threshold information if available
+                if ctx.thresholds:
+                    threshold_str = ", ".join([
+                        f"{t['value']}={name}"
+                        for name, t in list(ctx.thresholds.items())[:3]
+                    ])
+                    context_parts.append(f"    Key levels: {threshold_str}")
+        if context_parts:
+            indicator_context_section = "\nINDICATOR CONTEXT (why these metrics matter):\n" + "\n".join(context_parts) + "\n"
+
     # Build the prompt with optional news context
     news_section = ""
     if news_context:
@@ -4363,47 +4430,62 @@ RECENT NEWS & CONTEXT:
 {news_context}
 """
 
-    prompt = f"""You are Jason Furman or Claudia Sahm - a world-class economist writing a briefing. Your job is to explain not just WHAT the data shows, but WHY things are happening.
+    prompt = f"""You are a top economist like Jason Furman (former CEA Chair) or Claudia Sahm (Sahm Rule creator) writing an economic briefing. Your explanations should be substantive, insightful, and connect the dots - not just describe the data.
 
 USER QUESTION: {query}
 
-DATA:
+DATA (with pre-computed comparisons - trust these, don't recalculate):
 {json.dumps(data_summary, indent=2)}
-{news_section}
+{indicator_context_section}{news_section}
 BACKGROUND: {original_explanation}
 
-Write a response that EXPLAINS CAUSATION, not just correlation:
+KEY INTERPRETATION RULES (apply these automatically):
+- Yield curve (T10Y2Y): If NEGATIVE, it's INVERTED - this has preceded every recession since 1970 (12-18 month lead)
+- Sahm Rule (SAHMREALTIME): If > 0.5, recession signal with 100% historical accuracy
+- Core PCE (PCEPILFE): Fed's explicit 2% target - above 2.5% = Fed stays hawkish; below 2% = Fed may ease
+- Initial claims (ICSA): Rising above 300K is concerning; above 400K signals recession
+- Unemployment (UNRATE): <4% = tight labor market; >5% = slack; >7% = recession territory
+- Job gains (PAYEMS change): >200K/month = strong; 100-200K = moderate; <100K = concerning
+- Prime-age employment (LNS12300060): 80%+ = strong; <77% = weak - cleanest labor market measure
 
-1. ANSWER FIRST - One clear sentence answering the question.
+HOW TO CONNECT MULTIPLE INDICATORS:
+- Labor market tightness: Low unemployment + High job openings + High quits = tight → wage pressure → inflation concern
+- Fed reaction function: High inflation → Fed raises rates → Higher mortgage rates → Housing cools
+- Consumer health: Jobs + Wages - Inflation = Real wage growth → Supports (or constrains) spending
+- Recession signals: Yield curve inverts → Claims rise → Sahm Rule triggers → GDP contracts
 
-2. EXPLAIN WHY - This is the most important part:
-   - What's CAUSING the current trend? (Fed policy? Consumer behavior? Supply issues? Labor market dynamics?)
-   - Reference specific recent events if relevant (Fed decisions, policy changes, economic reports)
-   - Connect cause → effect clearly
+Write a Furman/Sahm-quality briefing:
 
-3. CONTEXT & COMPARISON:
-   - Current value vs year ago, vs recent peak/trough
-   - Is this high/low/normal historically?
+1. LEAD WITH THE ANSWER (one clear sentence)
+   - Answer the question directly. No "looking at the data..." preamble.
 
-4. WHAT'S NEXT:
-   - Based on current drivers, what's the likely trajectory?
-   - What would change this outlook?
-   - What are markets/Fed expecting?
+2. EXPLAIN THE CAUSAL MECHANISM (most important)
+   - WHY is this happening? Not just what.
+   - Connect to specific drivers: Fed policy? Consumer behavior? Labor dynamics? Supply constraints?
+   - If multiple indicators, weave them into ONE coherent narrative showing cause → effect
 
-5. FORMAT: 4-5 bullet points (•). Be specific with dates and numbers.
+3. HISTORICAL/THRESHOLD CONTEXT
+   - Is this unusual? Near key thresholds?
+   - Apply the interpretation rules above if relevant
 
-RULES:
-- Use EXACT dates from data. "2025-12-01" → "December 2025"
-- Convert units naturally: "1764.6 thousands" → "about 1.8 million"
-- NO meta-commentary ("The data shows..."). Just answer directly.
-- If news context is provided, USE IT to explain causation
-- Be specific: "driven by strong consumer spending" not "due to various factors"
-- CRITICAL: VERIFY ALL COMPARISONS MATHEMATICALLY. If A > B, say "above" not "below". Double-check: 50,000 > 48,700 means ABOVE average, not below. Do not rely on narrative intuition - check the actual numbers before writing comparisons."""
+4. FORWARD-LOOKING IMPLICATIONS
+   - What does this mean for the path ahead?
+   - What would need to change to alter that trajectory?
+
+FORMAT: 4-5 bullet points (•). Be specific with numbers and dates.
+
+CRITICAL RULES:
+- USE the pre-computed comparisons in the data (yoy_direction, position_in_range, etc.) - these are mathematically verified
+- Convert dates: "2025-12-01" → "December 2025"
+- Convert units: "1764.6 thousands" → "about 1.8 million"
+- NO generic phrases: "driven by strong consumer spending" not "due to various factors"
+- NO meta-commentary: "The data shows..." - just answer directly
+- CONNECT THE DOTS: If showing multiple indicators, explain how they relate to each other"""
 
     url = 'https://api.anthropic.com/v1/messages'
     payload = {
         'model': 'claude-sonnet-4-20250514',  # Sonnet is faster for this task
-        'max_tokens': 800,  # More room for causal explanations
+        'max_tokens': 1000,  # More room for substantive Furman/Sahm-style explanations
         'messages': [{'role': 'user', 'content': prompt}]
     }
     headers = {
@@ -5752,6 +5834,73 @@ def add_recession_shapes(fig, min_date: str, max_date: str):
             )
 
 
+def add_comparison_period_shapes(fig, temporal_intent, min_date: str, max_date: str):
+    """
+    Add visual highlighting for temporal comparison periods.
+
+    For comparison queries like "How does current inflation compare to the 1970s?",
+    this highlights both the reference period (1970s) and the current/primary period.
+
+    Args:
+        fig: Plotly figure to add shapes to
+        temporal_intent: TemporalIntent object with period information
+        min_date: Start of chart data range
+        max_date: End of chart data range
+    """
+    if not temporal_intent or not temporal_intent.is_comparison:
+        return
+
+    # Reference period highlighting (historical period being compared to)
+    reference_period = temporal_intent.reference_period
+    if reference_period:
+        ref_start = reference_period.get('start')
+        ref_end = reference_period.get('end')
+        ref_label = reference_period.get('label', 'Reference')
+
+        if ref_start or ref_end:
+            # Use chart date range bounds if period extends beyond
+            x0 = ref_start if ref_start and ref_start >= min_date else min_date
+            x1 = ref_end if ref_end and ref_end <= max_date else (ref_end or max_date)
+
+            # Only draw if period overlaps with chart range
+            if x0 <= max_date and (not ref_end or ref_end >= min_date):
+                # Light blue shading for reference period
+                fig.add_vrect(
+                    x0=x0, x1=x1,
+                    fillcolor="rgba(66, 133, 244, 0.15)",  # Google Blue, light
+                    layer="below",
+                    line_width=1,
+                    line_color="rgba(66, 133, 244, 0.5)",
+                    annotation_text=ref_label,
+                    annotation_position="top left",
+                    annotation_font=dict(size=9, color="rgba(66, 133, 244, 0.8)"),
+                )
+
+    # Primary (current) period highlighting - only if explicitly defined
+    # Usually we just compare to current/recent so no need to highlight
+    primary_period = temporal_intent.primary_period
+    if primary_period and primary_period.get('start'):
+        prim_start = primary_period.get('start')
+        prim_end = primary_period.get('end') or max_date
+        prim_label = primary_period.get('label', 'Current')
+
+        # Light green shading for primary/current period
+        if prim_start and prim_start <= max_date:
+            x0 = prim_start if prim_start >= min_date else min_date
+            x1 = prim_end if prim_end <= max_date else max_date
+
+            fig.add_vrect(
+                x0=x0, x1=x1,
+                fillcolor="rgba(52, 168, 83, 0.1)",  # Google Green, very light
+                layer="below",
+                line_width=1,
+                line_color="rgba(52, 168, 83, 0.4)",
+                annotation_text=prim_label,
+                annotation_position="top right",
+                annotation_font=dict(size=9, color="rgba(52, 168, 83, 0.8)"),
+            )
+
+
 def add_direct_labels(fig, series_data: list, colors: list):
     """Add direct labels at end of lines (NYT style) instead of legend."""
     for i, (series_id, dates, values, info) in enumerate(series_data):
@@ -5848,13 +5997,14 @@ def add_event_annotations(fig, min_date: str, max_date: str, event_types: list =
         )
 
 
-def create_chart(series_data: list, combine: bool = False, chart_type: str = 'line') -> go.Figure:
-    """Create a Plotly chart with recession shading.
+def create_chart(series_data: list, combine: bool = False, chart_type: str = 'line', temporal_intent=None) -> go.Figure:
+    """Create a Plotly chart with recession shading and optional comparison period highlighting.
 
     Args:
         series_data: List of (series_id, dates, values, info) tuples
         combine: Whether to combine all series on one chart
         chart_type: 'line', 'bar', or 'area'
+        temporal_intent: Optional TemporalIntent for comparison period highlighting
     """
     # Okabe-Ito colorblind-safe palette
     colors = ['#0072B2', '#E69F00', '#009E73', '#CC79A7', '#56B4E9', '#D55E00']
@@ -5902,6 +6052,10 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                 ))
 
         add_recession_shapes(fig, min_date, max_date)
+
+        # Add comparison period highlighting if this is a temporal comparison query
+        if temporal_intent:
+            add_comparison_period_shapes(fig, temporal_intent, min_date, max_date)
 
         # Use direct labels (NYT style) for 2-4 series, legend otherwise
         use_direct_labels = 2 <= len(series_data) <= 4 and chart_type == 'line'
@@ -6003,6 +6157,25 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                         line_width=0,
                         row=i + 1, col=1
                     )
+
+            # Add comparison period highlighting for each subplot
+            if temporal_intent and temporal_intent.is_comparison:
+                reference_period = temporal_intent.reference_period
+                if reference_period:
+                    ref_start = reference_period.get('start')
+                    ref_end = reference_period.get('end')
+                    if ref_start or ref_end:
+                        x0 = ref_start if ref_start and ref_start >= min_date else min_date
+                        x1 = ref_end if ref_end and ref_end <= max_date else (ref_end or max_date)
+                        if x0 <= max_date and (not ref_end or ref_end >= min_date):
+                            fig.add_vrect(
+                                x0=x0, x1=x1,
+                                fillcolor="rgba(66, 133, 244, 0.15)",
+                                layer="below",
+                                line_width=1,
+                                line_color="rgba(66, 133, 244, 0.5)",
+                                row=i + 1, col=1
+                            )
 
         fig.update_layout(
             template='plotly_white',
@@ -6178,6 +6351,41 @@ def main():
     .summary-callout ul { margin: 0 0 4px 0; padding-left: 18px; list-style-type: disc; }
     .summary-callout li { color: #44403c; font-size: 0.9rem; line-height: 1.45; margin-bottom: 3px; padding-left: 2px; }
     .summary-callout li::marker { color: #D4A574; }
+
+    /* Premium Economist Analysis Box */
+    .economist-analysis {
+        background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+        border: 1px solid #fcd34d;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .economist-analysis .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .economist-analysis .title {
+        color: #92400e;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .economist-analysis .confidence-high { background: #dcfce7; color: #166534; }
+    .economist-analysis .confidence-medium { background: #fef3c7; color: #92400e; }
+    .economist-analysis .confidence-low { background: #fee2e2; color: #991b1b; }
+    .economist-analysis .key-insight {
+        background: #FEF3C7;
+        border-left: 4px solid #F59E0B;
+        padding: 12px;
+        margin: 12px 0;
+        border-radius: 4px;
+    }
+    .economist-analysis .risks { color: #DC2626; }
+    .economist-analysis .opportunities { color: #059669; }
 
     /* Chat mode - Modern conversational UI styling */
 
@@ -6876,6 +7084,12 @@ def main():
                             {summary_html}
                         </div>""", unsafe_allow_html=True)
 
+                    # Recession Dashboard (displayed prominently for recession queries)
+                    if msg.get("recession_scorecard") and RECESSION_SCORECARD_AVAILABLE:
+                        scorecard = msg["recession_scorecard"]
+                        scorecard_html = format_scorecard_for_display(scorecard)
+                        st.markdown(scorecard_html, unsafe_allow_html=True)
+
                     # Polymarket predictions (forward-looking market sentiment)
                     if msg.get("polymarket") and POLYMARKET_AVAILABLE:
                         predictions = msg["polymarket"]
@@ -6938,6 +7152,25 @@ def main():
                                 <div style='color: #7c3aed; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'>HISTORICAL CONTEXT: {analogue_name} ({similarity:.0f}% match)</div>
                                 <div style='color: #581c87;'>{context['narrative']}</div>
                             </div>""", unsafe_allow_html=True)
+
+                    # Premium Economist Analysis (deeper insights with risks/opportunities)
+                    if msg.get("premium_analysis_html") and PREMIUM_ANALYSIS_AVAILABLE:
+                        analysis_html = msg["premium_analysis_html"]
+                        analysis_obj = msg.get("premium_analysis")
+                        confidence = analysis_obj.confidence if analysis_obj else "medium"
+                        confidence_badge = {
+                            'high': '<span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">HIGH CONFIDENCE</span>',
+                            'medium': '<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">MEDIUM CONFIDENCE</span>',
+                            'low': '<span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">LOW CONFIDENCE</span>',
+                        }.get(confidence, '')
+
+                        st.markdown(f"""<div style='background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); border: 1px solid #fcd34d; border-radius: 8px; padding: 16px; margin: 16px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);'>
+                            <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;'>
+                                <div style='color: #92400e; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;'>Economist Analysis</div>
+                                {confidence_badge}
+                            </div>
+                            {analysis_html}
+                        </div>""", unsafe_allow_html=True)
 
                     # Render charts from stored series_data
                     if msg.get("series_data"):
@@ -7217,8 +7450,12 @@ def main():
                 # Use understanding to enhance subsequent routing
                 # (e.g., if demographic-specific, we'll filter results later)
 
-        # Check for comparison queries FIRST (US vs Eurozone, etc.)
-        # These need data from multiple sources
+        # Check for comparison queries FIRST
+        # Two types of comparisons:
+        # 1. DOMESTIC comparisons (Black unemployment vs overall, inflation vs wages)
+        #    - All data from FRED, no DBnomics needed
+        # 2. INTERNATIONAL comparisons (US vs Eurozone, etc.)
+        #    - Data from FRED + DBnomics
         # ENHANCED by query understanding - use its is_comparison flag
         comparison_route = None
 
@@ -7230,22 +7467,36 @@ def main():
             routing_recommendation and routing_recommendation.get('use_international_data', False)
         )
 
-        if QUERY_ROUTER_AVAILABLE and DBNOMICS_AVAILABLE:
-            # If understanding says it's a comparison, definitely check
-            # Otherwise, still run the rule-based router as fallback
+        # Check for comparisons - domestic comparisons don't need DBnomics
+        if QUERY_ROUTER_AVAILABLE:
+            # Always run the smart router to detect both domestic and international comparisons
             comparison_route = smart_route_query(query)
+
             if comparison_route.get('is_comparison') or understanding_says_comparison:
-                # Build a combined plan from multiple sources
+                # Build a combined plan from the routing result
                 fred_series = comparison_route.get('series_to_fetch', {}).get('fred', [])
                 dbnomics_series = comparison_route.get('series_to_fetch', {}).get('dbnomics', [])
 
-                precomputed_plan = {
-                    'series': fred_series,  # FRED series fetched normally
-                    'dbnomics_series': dbnomics_series,  # DBnomics series fetched separately
-                    'explanation': comparison_route.get('explanation', ''),
-                    'source': 'comparison',
-                    'is_comparison': True,
-                }
+                # For domestic comparisons, we only have FRED series
+                is_domestic = comparison_route.get('is_domestic_comparison', False)
+
+                # Only proceed if we have series to fetch
+                # For international comparisons, we need DBnomics available
+                if is_domestic or (dbnomics_series and DBNOMICS_AVAILABLE) or (fred_series and not dbnomics_series):
+                    precomputed_plan = {
+                        'series': fred_series,  # FRED series fetched normally
+                        'dbnomics_series': dbnomics_series,  # DBnomics series fetched separately
+                        'explanation': comparison_route.get('explanation', ''),
+                        'source': 'comparison',
+                        'is_comparison': True,
+                        'is_domestic_comparison': is_domestic,
+                        # Pass through combine_chart and show_yoy from domestic comparisons
+                        'combine_chart': comparison_route.get('combine_chart', True),
+                        'show_yoy': comparison_route.get('show_yoy', False),
+                        'units_compatible': comparison_route.get('units_compatible', True),
+                    }
+                else:
+                    comparison_route = None  # International comparison but DBnomics not available
             else:
                 comparison_route = None  # Not a comparison, continue normal flow
 
@@ -8262,6 +8513,87 @@ def main():
             except Exception as e:
                 print(f"[Analogues] Error generating historical context: {e}")
 
+        # Recession scorecard for recession-related queries
+        recession_scorecard = None
+        if RECESSION_SCORECARD_AVAILABLE and is_recession_query(query):
+            try:
+                # Fetch recession indicator data from FRED
+                # SAHMREALTIME - Sahm Rule
+                sahm_dates, sahm_values, _ = get_observations('SAHMREALTIME', years=2)
+                sahm_value = sahm_values[-1] if sahm_values else None
+                sahm_prev = sahm_values[-2] if len(sahm_values) >= 2 else None
+
+                # T10Y2Y - Yield curve spread
+                yc_dates, yc_values, _ = get_observations('T10Y2Y', years=2)
+                yield_curve_value = yc_values[-1] if yc_values else None
+                yield_curve_prev = yc_values[-2] if len(yc_values) >= 2 else None
+
+                # UMCSENT - Consumer sentiment
+                sent_dates, sent_values, _ = get_observations('UMCSENT', years=2)
+                sentiment_value = sent_values[-1] if sent_values else None
+                sentiment_prev = sent_values[-2] if len(sent_values) >= 2 else None
+
+                # ICSA - Initial jobless claims (use 4-week moving average)
+                claims_dates, claims_values, _ = get_observations('ICSA', years=2)
+                # Calculate 4-week moving average for claims
+                if claims_values and len(claims_values) >= 4:
+                    claims_value = sum(claims_values[-4:]) / 4
+                    claims_prev = sum(claims_values[-8:-4]) / 4 if len(claims_values) >= 8 else None
+                else:
+                    claims_value = claims_values[-1] if claims_values else None
+                    claims_prev = None
+
+                # Get Polymarket recession odds
+                polymarket_odds = None
+                if POLYMARKET_AVAILABLE:
+                    try:
+                        from agents.polymarket import get_recession_odds
+                        recession_data = get_recession_odds()
+                        if recession_data:
+                            polymarket_odds = recession_data.get('probability', 0) * 100
+                    except Exception as e:
+                        print(f"[Recession Scorecard] Error fetching Polymarket odds: {e}")
+
+                # Build the scorecard
+                recession_scorecard = build_recession_scorecard(
+                    sahm_value=sahm_value,
+                    yield_curve_value=yield_curve_value,
+                    sentiment_value=sentiment_value,
+                    claims_value=claims_value,
+                    polymarket_odds=polymarket_odds,
+                    sahm_prev=sahm_prev,
+                    yield_curve_prev=yield_curve_prev,
+                    sentiment_prev=sentiment_prev,
+                    claims_prev=claims_prev,
+                )
+            except Exception as e:
+                print(f"[Recession Scorecard] Error building scorecard: {e}")
+
+        # Generate premium economist analysis for deeper insights
+        premium_analysis = None
+        premium_analysis_html = None
+        if PREMIUM_ANALYSIS_AVAILABLE and series_data:
+            try:
+                # Get news context if available
+                news_ctx = ""
+                if NEWS_CONTEXT_AVAILABLE:
+                    try:
+                        news_ctx = get_economic_context(query)
+                    except Exception:
+                        pass
+
+                # Generate premium analysis
+                analysis_obj, _, analysis_html = get_premium_analysis(
+                    query=query,
+                    series_data=series_data,
+                    news_context=news_ctx,
+                )
+                premium_analysis = analysis_obj
+                premium_analysis_html = analysis_html
+                print(f"[PremiumAnalysis] Generated analysis with confidence: {analysis_obj.confidence}")
+            except Exception as e:
+                print(f"[PremiumAnalysis] Error generating analysis: {e}")
+
         # Store ALL context atomically for follow-up queries (prevents race conditions)
         st.session_state.last_query = query
         st.session_state.last_series = series_to_fetch[:4]
@@ -8288,6 +8620,9 @@ def main():
             "energy_narrative": energy_narrative,  # EIA energy context
             "market_narrative": market_narrative,  # Alpha Vantage market context
             "historical_context": historical_context,  # Historical analogues (1994, 2008, etc.)
+            "recession_scorecard": recession_scorecard,  # Recession dashboard for recession queries
+            "premium_analysis": premium_analysis,  # Premium economist analysis
+            "premium_analysis_html": premium_analysis_html,  # Pre-formatted HTML for display
         })
 
         # Mark processing as complete and activate chat mode
@@ -8734,9 +9069,9 @@ def main():
                         if bullet and bullet.strip():
                             st.markdown(f"- {bullet}")
 
-                # Chart
+                # Chart - pass temporal_intent for comparison period highlighting
                 combine_group = len(group_data) > 1
-                fig = create_chart(group_data, combine=combine_group, chart_type=chart_type)
+                fig = create_chart(group_data, combine=combine_group, chart_type=chart_type, temporal_intent=temporal_intent)
                 st.plotly_chart(fig, width='stretch')
                 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -8762,7 +9097,8 @@ def main():
                         st.markdown(f"- {bullet}")
 
             # Chart (source is built into the chart)
-            fig = create_chart(series_data, combine=True, chart_type=chart_type)
+            # Pass temporal_intent for comparison period highlighting
+            fig = create_chart(series_data, combine=True, chart_type=chart_type, temporal_intent=temporal_intent)
             st.plotly_chart(fig, width='stretch')
             st.markdown("</div>", unsafe_allow_html=True)
         else:
@@ -8844,7 +9180,8 @@ def main():
                             st.markdown(f"- {bullet}")
 
                     # Chart (source is built into the chart)
-                    fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
+                    # Pass temporal_intent for comparison period highlighting
+                    fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type, temporal_intent=temporal_intent)
                     st.plotly_chart(fig, width='stretch')
 
                 st.markdown("</div>", unsafe_allow_html=True)

@@ -313,6 +313,7 @@
   },
   "is there a recession": {
     "series": [
+      "SAHMREALTIME",
       "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "T10Y2Y",
@@ -320,10 +321,11 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Three signals to watch for recession:\n\n\u2022 **GDP Growth (A191RL1Q225SBEA)**: Quarterly real GDP growth, annualized. Two consecutive negative quarters is the informal definition of recession. But NBER (the official arbiter) looks at broader indicators and often calls recessions with only one negative quarter if employment is falling.\n\n\u2022 **Yield Curve (T10Y2Y)**: When 10-year yields fall below 2-year yields (negative spread), it signals investors expect future Fed rate cuts due to weakness. Has preceded every recession since 1970, but with variable lag (6-18 months).\n\n\u2022 **Unemployment (UNRATE)**: Recessions always feature rising unemployment. The Sahm Rule: if unemployment rises 0.5+ percentage points from its recent low, recession has likely already begun."
+    "explanation": "Four key recession signals:\n\n\u2022 **Sahm Rule (SAHMREALTIME)**: The most reliable real-time recession indicator. Triggers when 3-month average unemployment rises 0.5+ percentage points above its 12-month low. Above 0.5 = recession has likely begun. 100% accuracy since 1970 with no false positives.\n\n\u2022 **GDP Growth (A191RL1Q225SBEA)**: Quarterly real GDP growth, annualized. Two consecutive negative quarters is the informal definition. NBER (the official arbiter) uses broader criteria.\n\n\u2022 **Yield Curve (T10Y2Y)**: Inverted curve (negative spread) has preceded every recession since 1970, but with 6-18 month lag.\n\n\u2022 **Unemployment (UNRATE)**: Recessions always feature rising unemployment."
   },
   "are we in a recession": {
     "series": [
+      "SAHMREALTIME",
       "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "T10Y2Y",
@@ -331,7 +333,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Three signals to watch for recession:\n\n\u2022 **GDP Growth (A191RL1Q225SBEA)**: Quarterly real GDP growth, annualized. Two consecutive negative quarters is the informal definition of recession. But NBER (the official arbiter) looks at broader indicators and often calls recessions with only one negative quarter if employment is falling.\n\n\u2022 **Yield Curve (T10Y2Y)**: When 10-year yields fall below 2-year yields (negative spread), it signals investors expect future Fed rate cuts due to weakness. Has preceded every recession since 1970, but with variable lag (6-18 months).\n\n\u2022 **Unemployment (UNRATE)**: Recessions always feature rising unemployment. The Sahm Rule: if unemployment rises 0.5+ percentage points from its recent low, recession has likely already begun."
+    "explanation": "Four key recession signals:\n\n\u2022 **Sahm Rule (SAHMREALTIME)**: The most reliable real-time recession indicator. Triggers when 3-month average unemployment rises 0.5+ percentage points above its 12-month low. Above 0.5 = recession has likely begun. 100% accuracy since 1970 with no false positives.\n\n\u2022 **GDP Growth (A191RL1Q225SBEA)**: Quarterly real GDP growth, annualized. Two consecutive negative quarters is the informal definition. NBER (the official arbiter) uses broader criteria.\n\n\u2022 **Yield Curve (T10Y2Y)**: Inverted curve (negative spread) has preceded every recession since 1970, but with 6-18 month lag.\n\n\u2022 **Unemployment (UNRATE)**: Recessions always feature rising unemployment."
   },
   "recession risk": {
     "series": [

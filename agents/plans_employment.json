@@ -519,19 +519,22 @@
   },
   "wage growth": {
     "series": [
-      "CES0500000003"
+      "CES0500000003",
+      "ECIWAG"
     ],
     "show_yoy": true,
-    "combine_chart": false,
-    "explanation": "CES0500000003 (Average Hourly Earnings of All Employees, Total Private) is the primary measure of wage growth from the establishment survey. Year-over-year growth shows the pace of wage increases across the private sector."
+    "combine_chart": true,
+    "explanation": "Two complementary wage growth measures: CES0500000003 (Average Hourly Earnings) is the monthly headline number but can be distorted by compositional shifts (e.g., if low-wage workers lose jobs, average wages rise even if no one got a raise). ECIWAG (Employment Cost Index: Wages) is the gold standard - it tracks the same jobs over time to measure true wage increases, released quarterly. When they diverge, ECI is more reliable for underlying wage trends."
   },
   "real wage growth": {
     "series": [
-      "LES1252881600Q"
+      "LES1252881600Q",
+      "ECIWAG",
+      "CPIAUCSL"
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "LES1252881600Q is real (inflation-adjusted) median weekly earnings for full-time workers. This directly measures real wage growth - no need to compare nominal wages to inflation separately. When this rises, workers' purchasing power is increasing. YoY % change shows the pace of real wage gains or losses."
+    "explanation": "Real wage growth from multiple angles: LES1252881600Q is real (inflation-adjusted) median weekly earnings - the direct measure of purchasing power. ECIWAG (Employment Cost Index: Wages) compared to CPIAUCSL shows whether wage growth is outpacing inflation. ECI is superior to average hourly earnings because it controls for job composition changes. When real earnings rise OR when ECI exceeds CPI, workers are gaining ground."
   },
   "sahm rule": {
     "series": [
@@ -810,12 +813,70 @@
   "inflation vs wage growth": {
     "series": [
       "CPIAUCSL",
+      "ECIWAG",
       "CES0500000003",
       "LES1252881600Q"
     ],
     "show_yoy": true,
     "combine_chart": true,
-    "explanation": "Inflation (CPIAUCSL) vs nominal wages (CES0500000003) and real wages (LES1252881600Q). When wage growth exceeds inflation, workers gain purchasing power. When inflation outpaces wages, living standards erode. Real median weekly earnings already adjusts for inflation."
+    "explanation": "Inflation (CPIAUCSL) vs wages: ECIWAG (Employment Cost Index: Wages) is the gold standard for wage trends - it tracks the same jobs over time, unlike average hourly earnings (CES0500000003) which can be distorted by composition shifts. Real median weekly earnings (LES1252881600Q) shows the bottom line - actual purchasing power. When ECI and AHE exceed CPI, workers are gaining; when they lag, living standards erode."
+  },
+  "employment cost index": {
+    "series": [
+      "ECIWAG",
+      "ECIALLCIV"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "The Employment Cost Index (ECI) is the gold standard for measuring labor cost trends. ECIWAG tracks wages and salaries only - the cleaner measure of what workers are paid. ECIALLCIV includes total compensation (wages + benefits). ECI is superior to average hourly earnings because it tracks the SAME jobs over time, controlling for compositional shifts. If low-wage workers are laid off, AHE rises artificially but ECI doesn't. Released quarterly by BLS."
+  },
+  "eci": {
+    "series": [
+      "ECIWAG",
+      "ECIALLCIV"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "The Employment Cost Index (ECI) is the gold standard for measuring labor cost trends. ECIWAG tracks wages and salaries only. ECIALLCIV includes total compensation (wages + benefits like healthcare). ECI controls for job composition changes that can distort average hourly earnings - it's what the Fed watches most closely for wage inflation pressures."
+  },
+  "labor costs": {
+    "series": [
+      "ECIWAG",
+      "ECIALLCIV",
+      "OPHNFB",
+      "ULCNFB"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Labor costs from multiple angles: ECIWAG (wage ECI) and ECIALLCIV (total compensation ECI) show what employers pay for labor - ECI controls for job mix changes. OPHNFB (output per hour, nonfarm business) shows productivity. ULCNFB (unit labor costs) is the key inflation indicator - it shows labor cost per unit of output. When productivity growth matches wage growth, unit labor costs stay flat and don't push inflation. Rising unit labor costs = inflationary wage pressure."
+  },
+  "unit labor costs": {
+    "series": [
+      "ULCNFB",
+      "OPHNFB",
+      "ECIWAG"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Unit labor costs (ULCNFB) = compensation / productivity. This is THE key measure of labor cost inflation pressure. When productivity (OPHNFB) grows as fast as wages (ECIWAG), unit labor costs stay flat and aren't inflationary. Rising unit labor costs signal wage gains exceeding productivity, which businesses must pass through as higher prices or absorb as lower margins."
+  },
+  "total compensation": {
+    "series": [
+      "ECIALLCIV",
+      "ECIWAG"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Total compensation includes both wages and benefits (healthcare, retirement, etc.). ECIALLCIV is the ECI for total compensation; ECIWAG is wages only. The gap between them shows how much of compensation growth comes from benefits vs wages. When healthcare costs rise, benefits cost growth outpaces wage growth, squeezing take-home pay even as total compensation rises."
+  },
+  "employee benefits": {
+    "series": [
+      "ECIALLCIV",
+      "ECIWAG"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Comparing total compensation (ECIALLCIV) to wages only (ECIWAG) reveals benefit cost trends. When total comp grows faster than wages, employers are spending more on benefits like healthcare and retirement contributions. When they grow at similar rates, benefit costs are stable. Benefits are ~30% of total compensation on average."
   },
   "how's the job market": {
     "series": [
@@ -861,6 +922,7 @@
   },
   "can i get a raise": {
     "series": [
+      "ECIWAG",
       "CES0500000003",
       "JTSJOL",
       "JTSQUR",
@@ -868,7 +930,7 @@
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "Wage bargaining power: Wage growth (CES0500000003) shows current pay increases. Job openings (JTSJOL) indicate employer desperation for workers - high openings = leverage for raises. Quits rate (JTSQUR) shows if others are leaving for better pay. Compare wage growth to inflation (CPIAUCSL) - if wages lag inflation, you have a case for a raise."
+    "explanation": "Wage bargaining power: ECIWAG (Employment Cost Index: Wages) is the best measure of what employers are actually paying for the same jobs - use this to benchmark your raise request. CES0500000003 (average hourly earnings) is the monthly headline. Job openings (JTSJOL) indicate employer desperation - high openings = leverage. Quits rate (JTSQUR) shows if others are leaving for better pay. Compare wage growth to inflation (CPIAUCSL) - if wages lag inflation, you have a case for a raise."
   },
   "job openings vs unemployed": {
     "series": [
