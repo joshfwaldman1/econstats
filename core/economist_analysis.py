@@ -292,130 +292,130 @@ def categorize_indicator(series_id: str, name: str = "") -> str:
 # is missing, incorrectly triggering "inflation at target" when no data exists.
 # Pattern: 'key' in data and data['key'] <comparison>
 ECONOMIC_RELATIONSHIPS = {
-    # Labor market interpretation
+    # Labor market - describe the data pattern
     'labor_tight': {
         'conditions': lambda data: (
             'unemployment' in data and data['unemployment'] < 4.5 and
             'job_openings_per_unemployed' in data and data['job_openings_per_unemployed'] > 1.0
         ),
-        'interpretation': "labor market remains tight with more jobs than job seekers",
-        'implication': "wage pressures likely to persist",
+        'interpretation': lambda data: f"unemployment at {data['unemployment']:.1f}% with {data['job_openings_per_unemployed']:.1f} job openings per unemployed worker",
+        'implication': "more openings than job seekers",
     },
     'labor_cooling': {
         'conditions': lambda data: (
             'unemployment' in data and data['unemployment'] > 4.0 and
             'unemployment_trend' in data and data['unemployment_trend'] == 'rising'
         ),
-        'interpretation': "labor market is cooling as unemployment edges higher",
-        'implication': "Fed gaining confidence inflation will ease",
+        'interpretation': lambda data: f"unemployment at {data['unemployment']:.1f}% and rising",
+        'implication': "up from recent lows",
     },
     'labor_soft': {
         'conditions': lambda data: (
             'unemployment' in data and data['unemployment'] > 5.0
         ),
-        'interpretation': "labor market shows meaningful slack",
-        'implication': "Fed likely shifting focus to employment mandate",
+        'interpretation': lambda data: f"unemployment at {data['unemployment']:.1f}% - above the 4-5% range of recent years",
+        'implication': "elevated relative to pre-pandemic levels",
     },
 
-    # Inflation interpretation
+    # Inflation - describe the data pattern
     'inflation_hot': {
         'conditions': lambda data: (
             'core_inflation' in data and data['core_inflation'] > 3.5
         ),
-        'interpretation': "inflation remains stubbornly elevated",
-        'implication': "monetary policy will stay restrictive longer",
+        'interpretation': lambda data: f"core inflation at {data['core_inflation']:.1f}% - {data['core_inflation'] - 2:.1f}pp above the Fed's 2% target",
+        'implication': "more than 1.5x the target rate",
     },
     'inflation_progress': {
         'conditions': lambda data: (
             'core_inflation' in data and 2.5 < data['core_inflation'] <= 3.5 and
             'inflation_trend' in data and data['inflation_trend'] == 'falling'
         ),
-        'interpretation': "inflation is making progress toward the Fed's 2% target",
-        'implication': "rate cuts becoming more likely, but patience required",
+        'interpretation': lambda data: f"core inflation at {data['core_inflation']:.1f}% and falling - down from higher levels",
+        'implication': f"still above the 2% target but trending down",
     },
     'inflation_target': {
         'conditions': lambda data: (
             'core_inflation' in data and data['core_inflation'] <= 2.5
         ),
-        'interpretation': "inflation is near the Fed's 2% target",
-        'implication': "Fed has flexibility to focus on growth and employment",
+        'interpretation': lambda data: f"core inflation at {data['core_inflation']:.1f}% - within 0.5pp of the Fed's 2% target",
+        'implication': "near the Fed's goal",
     },
 
-    # Growth interpretation
+    # Growth - describe the data pattern
     'growth_strong': {
         'conditions': lambda data: (
             'gdp_growth' in data and data['gdp_growth'] > 2.5
         ),
-        'interpretation': "economy is expanding at a healthy pace",
-        'implication': "no imminent recession risk, but inflation vigilance needed",
+        'interpretation': lambda data: f"GDP growth at {data['gdp_growth']:.1f}% - above the ~2% long-run trend",
+        'implication': "faster than typical",
     },
     'growth_moderate': {
         'conditions': lambda data: (
             'gdp_growth' in data and 1.0 < data['gdp_growth'] <= 2.5
         ),
-        'interpretation': "growth is moderate but positive",
-        'implication': "soft landing scenario remains plausible",
+        'interpretation': lambda data: f"GDP growth at {data['gdp_growth']:.1f}% - near the ~2% long-run trend",
+        'implication': "around typical growth rates",
     },
     'growth_weak': {
         'conditions': lambda data: (
             'gdp_growth' in data and data['gdp_growth'] <= 1.0
         ),
-        'interpretation': "economic growth is slowing significantly",
-        'implication': "recession risk rising, Fed may need to pivot",
+        'interpretation': lambda data: f"GDP growth at {data['gdp_growth']:.1f}% - below the ~2% long-run trend",
+        'implication': "slower than typical",
     },
 
-    # Combined narratives
+    # Combined patterns - describe what the data shows together
     'goldilocks': {
         'conditions': lambda data: (
             'unemployment' in data and data['unemployment'] < 4.5 and
             'core_inflation' in data and data['core_inflation'] < 3.0 and
             'gdp_growth' in data and data['gdp_growth'] > 1.5
         ),
-        'interpretation': "economy is in a 'Goldilocks' zone with solid growth, low unemployment, and moderating inflation",
-        'implication': "conditions support continued expansion without aggressive Fed action",
+        'interpretation': lambda data: f"unemployment {data['unemployment']:.1f}%, inflation {data['core_inflation']:.1f}%, GDP {data['gdp_growth']:.1f}%",
+        'implication': "low unemployment + moderating inflation + positive growth",
     },
     'stagflation_risk': {
         'conditions': lambda data: (
             'unemployment' in data and data['unemployment'] > 4.5 and
             'core_inflation' in data and data['core_inflation'] > 3.5
         ),
-        'interpretation': "concerning mix of rising unemployment and elevated inflation",
-        'implication': "Fed faces difficult tradeoffs - classic stagflation dilemma",
+        'interpretation': lambda data: f"unemployment at {data['unemployment']:.1f}% while inflation at {data['core_inflation']:.1f}%",
+        'implication': "both elevated simultaneously",
     },
 
-    # Yield curve inversion - historically reliable recession signal
+    # Yield curve inversion - state the fact
     'yield_curve_inverted': {
         'conditions': lambda data: 't10y2y' in data and data['t10y2y'] < 0,
-        'interpretation': "yield curve is inverted, a historically reliable recession signal",
-        'implication': "recession risk elevated 12-18 months out",
+        'interpretation': lambda data: f"yield curve spread at {data['t10y2y']:.2f}% (10Y minus 2Y Treasury)",
+        'implication': "inverted - short rates above long rates",
     },
 
-    # Sahm Rule trigger - real-time recession indicator
+    # Sahm Rule trigger - state the indicator value
     'sahm_rule_triggered': {
         'conditions': lambda data: 'sahm_indicator' in data and data['sahm_indicator'] >= 0.5,
-        'interpretation': "Sahm Rule has triggered, indicating recession may have begun",
-        'implication': "high probability recession is underway or imminent",
+        'interpretation': lambda data: f"Sahm Rule indicator at {data['sahm_indicator']:.2f} (threshold: 0.50)",
+        'implication': "triggered - has preceded past recessions",
     },
 
-    # Fed policy stance - restrictive monetary policy with positive real rates
+    # Fed policy stance - state the numbers
     'fed_restrictive': {
         'conditions': lambda data: (
             'fed_rate' in data and
             'core_inflation' in data and
             data['fed_rate'] > data['core_inflation'] + 0.5
         ),
-        'interpretation': "monetary policy is restrictive with positive real rates",
-        'implication': "economic cooling expected as policy remains tight",
+        'interpretation': lambda data: f"Fed funds at {data['fed_rate']:.2f}% vs {data['core_inflation']:.1f}% inflation = {data['fed_rate'] - data['core_inflation']:.1f}% real rate",
+        'implication': "positive real rate (Fed rate above inflation)",
     },
 
-    # Consumer sentiment collapse - depressed consumer confidence
+    # Consumer sentiment - state the reading
     'consumer_pessimism': {
         'conditions': lambda data: 'consumer_sentiment' in data and data['consumer_sentiment'] < 70,
-        'interpretation': "consumer sentiment is depressed",
-        'implication': "spending likely to weaken, dragging on growth",
+        'interpretation': lambda data: f"consumer sentiment at {data['consumer_sentiment']:.1f} (below 70 is historically low)",
+        'implication': "below historical average",
     },
 
-    # Soft landing scenario - economy cooling without recession
+    # Economic pattern - describe what data shows
     'soft_landing': {
         'conditions': lambda data: (
             'unemployment' in data and data['unemployment'] < 4.5 and
@@ -423,8 +423,8 @@ ECONOMIC_RELATIONSHIPS = {
             'core_inflation' in data and data['core_inflation'] < 3.0 and
             'gdp_growth' in data and data['gdp_growth'] > 1.0
         ),
-        'interpretation': "economy is cooling while avoiding recession - a soft landing scenario",
-        'implication': "Fed achieving its goal; rate cuts may follow as inflation normalizes",
+        'interpretation': lambda data: f"unemployment {data['unemployment']:.1f}% (rising), inflation {data['core_inflation']:.1f}%, GDP {data['gdp_growth']:.1f}%",
+        'implication': "cooling labor market + falling inflation + positive growth",
     },
 
     # =========================================================================
@@ -438,8 +438,8 @@ ECONOMIC_RELATIONSHIPS = {
             'unemployment' in data and
             data['black_unemployment'] > data['unemployment'] * 1.3
         ),
-        'interpretation': "Black unemployment significantly exceeds overall rate",
-        'implication': "structural labor market disparities persist despite overall strength",
+        'interpretation': lambda data: f"Black unemployment at {data['black_unemployment']:.1f}% vs overall at {data['unemployment']:.1f}%",
+        'implication': lambda data: f"a gap of {data['black_unemployment'] - data['unemployment']:.1f} percentage points ({data['black_unemployment']/data['unemployment']:.1f}x ratio)",
     },
 
     # Hispanic unemployment disparity
@@ -449,8 +449,8 @@ ECONOMIC_RELATIONSHIPS = {
             'unemployment' in data and
             data['hispanic_unemployment'] > data['unemployment'] * 1.2
         ),
-        'interpretation': "Hispanic unemployment exceeds overall rate",
-        'implication': "labor market gains not evenly distributed across demographics",
+        'interpretation': lambda data: f"Hispanic unemployment at {data['hispanic_unemployment']:.1f}% vs overall at {data['unemployment']:.1f}%",
+        'implication': lambda data: f"a gap of {data['hispanic_unemployment'] - data['unemployment']:.1f} percentage points",
     },
 
     # Real wage erosion - wages not keeping pace with inflation
@@ -460,8 +460,8 @@ ECONOMIC_RELATIONSHIPS = {
             'headline_inflation' in data and
             data['wage_growth'] < data['headline_inflation']
         ),
-        'interpretation': "wages are not keeping pace with inflation",
-        'implication': "workers' purchasing power is declining in real terms",
+        'interpretation': lambda data: f"wage growth at {data['wage_growth']:.1f}% vs inflation at {data['headline_inflation']:.1f}%",
+        'implication': lambda data: f"real wages down {data['headline_inflation'] - data['wage_growth']:.1f}% year-over-year",
     },
 
     # Real wage gains - wages outpacing inflation
@@ -471,8 +471,8 @@ ECONOMIC_RELATIONSHIPS = {
             'headline_inflation' in data and
             data['wage_growth'] > data['headline_inflation'] + 0.5
         ),
-        'interpretation': "wages are outpacing inflation",
-        'implication': "workers experiencing real purchasing power gains",
+        'interpretation': lambda data: f"wage growth at {data['wage_growth']:.1f}% vs inflation at {data['headline_inflation']:.1f}%",
+        'implication': lambda data: f"real wages up {data['wage_growth'] - data['headline_inflation']:.1f}% year-over-year",
     },
 
     # Core vs headline inflation divergence
@@ -482,8 +482,8 @@ ECONOMIC_RELATIONSHIPS = {
             'headline_inflation' in data and
             abs(data['headline_inflation'] - data['core_inflation']) > 1.0
         ),
-        'interpretation': "significant divergence between headline and core inflation",
-        'implication': "food and energy prices driving wedge; core trend more indicative of underlying inflation",
+        'interpretation': lambda data: f"headline inflation at {data['headline_inflation']:.1f}% vs core at {data['core_inflation']:.1f}%",
+        'implication': lambda data: f"a {abs(data['headline_inflation'] - data['core_inflation']):.1f}pp gap driven by food and energy",
     },
 }
 
@@ -503,10 +503,19 @@ def apply_economic_reasoning(indicators: Dict[str, float]) -> List[Dict[str, str
     for rule_name, rule_def in ECONOMIC_RELATIONSHIPS.items():
         try:
             if rule_def['conditions'](indicators):
+                # Handle both lambda and string interpretations/implications
+                interpretation = rule_def['interpretation']
+                if callable(interpretation):
+                    interpretation = interpretation(indicators)
+
+                implication = rule_def['implication']
+                if callable(implication):
+                    implication = implication(indicators)
+
                 applicable_rules.append({
                     'rule': rule_name,
-                    'interpretation': rule_def['interpretation'],
-                    'implication': rule_def['implication'],
+                    'interpretation': interpretation,
+                    'implication': implication,
                 })
         except (KeyError, TypeError):
             # Rule conditions not met due to missing data
@@ -879,7 +888,7 @@ def _call_llm_for_analysis(
     if news_context:
         news_section = f"\n\nRECENT NEWS CONTEXT:\n{news_context}"
 
-    prompt = f"""You are a senior economist at the Federal Reserve or a top investment bank writing a briefing for policymakers. Your job is to synthesize economic data into actionable intelligence.
+    prompt = f"""You are a data analyst writing a clear summary of economic data. Your job is to DESCRIBE THE DATA clearly and specifically - that's what makes this valuable. Avoid vague interpretive claims.
 
 USER QUESTION: {query}
 
@@ -891,45 +900,45 @@ KEY METRICS EXTRACTED:
 {rules_text}
 {news_section}
 
-Write a premium economist analysis in this exact JSON format:
+Write a clear data summary in this exact JSON format:
 {{
-    "headline": "One clear sentence that answers the user's question directly",
+    "headline": "One sentence summarizing the overall picture with key numbers",
     "narrative": [
-        "First bullet connecting labor market data to the bigger picture",
-        "Second bullet on inflation trajectory and Fed implications",
-        "Third bullet on growth/momentum",
-        "Fourth bullet synthesizing what this means going forward"
+        "Bullet 1: State the first indicator's value, date, and YoY change clearly",
+        "Bullet 2: State the second indicator's value and how it compares to history",
+        "Bullet 3: State another key data point with its trend direction",
+        "Bullet 4: One sentence connecting what these numbers together suggest"
     ],
-    "key_insight": "The single most important takeaway - the insight a CEO or Fed Chair would want",
-    "risks": [
-        "Key risk #1 to the outlook",
-        "Key risk #2 to the outlook"
-    ],
-    "opportunities": [
-        "Potential opportunity #1",
-        "Potential opportunity #2"
-    ],
-    "watch_items": [
-        "What to monitor going forward #1",
-        "What to monitor going forward #2"
-    ],
+    "key_insight": "The single most important pattern in the data",
     "confidence": "high" | "medium" | "low"
 }}
 
-CRITICAL RULES:
-1. ANSWER THE QUESTION DIRECTLY - The headline must answer what the user asked
-2. CONNECT THE DOTS - Each narrative bullet should show how indicators relate to each other
-3. BE SPECIFIC - Use actual numbers and dates from the data (e.g., "4.1% unemployment" not "low unemployment")
-4. EXPLAIN CAUSATION - Don't just describe, explain WHY things are happening
-5. LOOK FORWARD - What does this mean for the next 3-6 months?
-6. NO JARGON without explanation - If you use terms like "restrictive policy", explain what that means
+CRITICAL RULES - READ CAREFULLY:
+1. DESCRIBE THE DATA - Each bullet should state a specific number, date, and context
+2. NO VAGUE ASSERTIONS - Never write "labor market remains tight" - instead write "unemployment at 4.4% is up 0.2pp from last year"
+3. NO PUNDITRY - Avoid phrases like "threading the needle", "soft landing", "normalizing", "suggesting employers are becoming more selective"
+4. LEAD WITH NUMBERS - Every bullet should start with or prominently feature a specific data value
+5. YEAR-OVER-YEAR IS GOLD - Always state the YoY change when available (e.g., "down 85% from December 2024")
+6. BE CONCRETE - "50K jobs added" not "job creation slowed"
 7. FORMAT DATES NATURALLY - "2025-12-01" becomes "December 2025"
 8. CONVERT UNITS NATURALLY - "1764.6 thousands" becomes "about 1.8 million"
 
+GOOD BULLET EXAMPLES:
+- "Unemployment: 4.4% in December 2025, up 0.2 percentage points from a year ago"
+- "Job creation: 50K jobs added in December, down 85% from December 2024's 325K pace"
+- "GDP: Growing 2.3% year-over-year as of Q3 2025, unchanged from last year"
+- "Together these show: growth continuing while hiring has cooled significantly"
+
+BAD BULLET EXAMPLES (DO NOT WRITE LIKE THIS):
+- "Labor markets remain tight but are normalizing"
+- "Growth momentum is strong with broad-based economic strength"
+- "The economy appears to be threading the needle toward a soft landing"
+- "suggesting employers are becoming more selective in hiring"
+
 The confidence level should be:
-- "high" if data is recent, consistent, and supports clear conclusions
-- "medium" if data is mixed or conclusions require some interpretation
-- "low" if data is stale, conflicting, or highly uncertain
+- "high" if data is recent and clear
+- "medium" if data is mixed
+- "low" if data is stale or conflicting
 
 Return ONLY valid JSON, no markdown or explanation."""
 
@@ -1240,73 +1249,91 @@ def _generate_key_insight(
     """
     Generate the key insight based on query type and data.
 
-    The key insight is the single most important takeaway - what a CEO
-    or policymaker would want to know from this data.
+    Focus on describing the data pattern clearly, not making predictions.
     """
-    # Labor market insights
+    # Build data-focused insights that state what the numbers show
+
+    # Labor market insights - describe the data
     if query_type == 'labor_market' or 'unemployment' in data_context:
         unemp = data_context.get('unemployment', 0)
+        trend = data_context.get('unemployment_trend', '')
         if unemp < 4.0:
-            return "Labor market remains historically tight, supporting wage growth but adding to inflation pressures."
+            return f"Unemployment at {unemp:.1f}% is below the 4% level typically considered full employment."
         elif unemp < 4.5:
-            return "Labor market cooling gradually - consistent with the Fed's desired soft landing scenario."
+            trend_text = f" and {trend}" if trend else ""
+            return f"Unemployment at {unemp:.1f}%{trend_text} - near the Fed's estimate of full employment (~4.2%)."
         elif unemp < 5.5:
-            return "Labor market showing meaningful slack, which should help ease inflation but raises recession concerns."
+            return f"Unemployment at {unemp:.1f}% is above full employment levels, indicating labor market slack."
         else:
-            return "Labor market weakness signals potential recession - Fed may need to pivot toward easing."
+            return f"Unemployment at {unemp:.1f}% is elevated - well above the 4-5% range seen in healthy economies."
 
-    # Inflation insights
+    # Inflation insights - describe the data
     if query_type == 'inflation' or 'core_inflation' in data_context:
         inflation = data_context.get('core_inflation', 0)
+        trend = data_context.get('inflation_trend', '')
+        target = 2.0
         if inflation < 2.3:
-            return "Inflation near target gives the Fed flexibility to focus on growth and employment."
+            return f"Core inflation at {inflation:.1f}% is near the Fed's 2% target."
         elif inflation < 3.0:
-            return "Inflation making progress but not yet at target - Fed likely to remain patient before cutting."
+            trend_text = f" and {trend}" if trend else ""
+            return f"Core inflation at {inflation:.1f}%{trend_text} - still {inflation - target:.1f}pp above the Fed's 2% target."
         elif inflation < 4.0:
-            return "Inflation remains elevated, suggesting restrictive policy will persist longer."
+            return f"Core inflation at {inflation:.1f}% remains {inflation - target:.1f} percentage points above the Fed's 2% target."
         else:
-            return "Sticky inflation remains the primary economic concern - policy will stay tight."
+            return f"Core inflation at {inflation:.1f}% is {inflation - target:.1f}pp above target - more than double the Fed's goal."
 
-    # GDP/growth insights
+    # GDP/growth insights - describe the data
     if query_type == 'gdp' or 'gdp_growth' in data_context:
         gdp = data_context.get('gdp_growth', 0)
+        # Long-run trend growth is about 2%
         if gdp > 3.0:
-            return "Strong growth reduces recession risk but may complicate the inflation fight."
+            return f"GDP growth at {gdp:.1f}% is above the ~2% long-run trend."
         elif gdp > 2.0:
-            return "Economy expanding at a healthy pace - soft landing remains achievable."
+            return f"GDP growth at {gdp:.1f}% is near the ~2% long-run trend."
         elif gdp > 0:
-            return "Growth slowing but positive - watch for signs of further deceleration."
+            return f"GDP growth at {gdp:.1f}% is below the ~2% long-run trend."
         else:
-            return "Economic contraction signals recession - policy response may be needed."
+            return f"GDP at {gdp:.1f}% indicates the economy is contracting."
 
-    # Fed policy insights
+    # Fed policy insights - describe the data
     if query_type == 'fed_policy' or 'fed_rate' in data_context:
         fed_rate = data_context.get('fed_rate', 0)
-        inflation = data_context.get('core_inflation', 2.5)
-        real_rate = fed_rate - inflation if fed_rate and inflation else 0
-        if real_rate > 2.0:
-            return f"With real rates at {real_rate:.1f}%, policy is significantly restrictive - economic cooling expected."
-        elif real_rate > 0.5:
-            return f"Moderately restrictive policy at {real_rate:.1f}% real rates should gradually cool the economy."
-        else:
-            return "Despite higher nominal rates, real rates suggest policy is not very restrictive."
+        inflation = data_context.get('core_inflation')
+        if fed_rate and inflation:
+            real_rate = fed_rate - inflation
+            return f"Fed funds at {fed_rate:.2f}% minus {inflation:.1f}% inflation = {real_rate:.1f}% real rate."
+        elif fed_rate:
+            return f"Fed funds rate at {fed_rate:.2f}%."
+        return "Fed funds rate data unavailable."
 
-    # Recession insights
+    # Recession insights - describe the indicators
     if query_type == 'recession':
-        sahm = data_context.get('sahm_indicator', 0)
-        yield_curve = data_context.get('t10y2y', 0)
-        if sahm >= 0.5:
-            return "Sahm Rule triggered - historically a reliable real-time recession indicator."
-        elif yield_curve < -0.5:
-            return "Deep yield curve inversion signals elevated recession risk 12-18 months ahead."
-        else:
-            return "Classic recession indicators are mixed - soft landing still possible but risks remain."
+        sahm = data_context.get('sahm_indicator')
+        yield_curve = data_context.get('t10y2y')
+        parts = []
+        if sahm is not None:
+            status = "triggered (≥0.5)" if sahm >= 0.5 else "not triggered (<0.5)"
+            parts.append(f"Sahm Rule at {sahm:.2f} is {status}")
+        if yield_curve is not None:
+            status = "inverted" if yield_curve < 0 else "positive"
+            parts.append(f"yield curve spread at {yield_curve:.2f}% is {status}")
+        if parts:
+            return "; ".join(parts) + "."
+        return "Recession indicator data unavailable."
 
-    # Default insight based on rules
-    if applicable_rules:
-        return applicable_rules[0]['implication'].capitalize() + "."
+    # Default insight - summarize what we have
+    summaries = []
+    if 'unemployment' in data_context:
+        summaries.append(f"unemployment {data_context['unemployment']:.1f}%")
+    if 'gdp_growth' in data_context:
+        summaries.append(f"GDP growth {data_context['gdp_growth']:.1f}%")
+    if 'core_inflation' in data_context:
+        summaries.append(f"core inflation {data_context['core_inflation']:.1f}%")
 
-    return "Monitor incoming data closely as economic conditions evolve."
+    if summaries:
+        return f"Current readings: {', '.join(summaries)}."
+
+    return "See charts below for detailed data."
 
 
 def _generate_risks(
