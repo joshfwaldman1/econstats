@@ -7406,28 +7406,28 @@ def main():
                 st.rerun()
 
         # Featured Dashboards section
-        st.markdown("<p style='text-align: center; color: #64748b; font-size: 0.85rem; margin: 20px 0 10px 0; font-weight: 500;'>📊 Featured Dashboards</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #64748b; font-size: 0.85rem; margin: 20px 0 10px 0; font-weight: 500;'>Featured Dashboards</p>", unsafe_allow_html=True)
 
         dash_col1, dash_col2, dash_col3 = st.columns(3)
         with dash_col1:
-            if st.button("🚦 Leading Indicators", key="dash_leading", use_container_width=True):
+            if st.button("Leading Indicators", key="dash_leading", use_container_width=True):
                 st.session_state.pending_query = "leading indicators dashboard"
                 st.rerun()
-            if st.button("🏭 Reindustrializing America?", key="dash_mfg", use_container_width=True):
+            if st.button("Reindustrializing America?", key="dash_mfg", use_container_width=True):
                 st.session_state.pending_query = "is America reindustrializing? manufacturing jobs and industrial production"
                 st.rerun()
         with dash_col2:
-            if st.button("💪 Health of the Economy", key="dash_health", use_container_width=True):
+            if st.button("Health of the Economy", key="dash_health", use_container_width=True):
                 st.session_state.pending_query = "how is the economy doing overall"
                 st.rerun()
-            if st.button("🤖 AI's Impact on Jobs", key="dash_ai", use_container_width=True):
+            if st.button("AI's Impact on Jobs", key="dash_ai", use_container_width=True):
                 st.session_state.pending_query = "AI impact on jobs and labor market"
                 st.rerun()
         with dash_col3:
-            if st.button("💵 America's Finances", key="dash_debt", use_container_width=True):
+            if st.button("America's Finances", key="dash_debt", use_container_width=True):
                 st.session_state.pending_query = "federal debt deficit and interest payments"
                 st.rerun()
-            if st.button("🌐 Tariffs & Trade", key="dash_tariffs", use_container_width=True):
+            if st.button("Tariffs & Trade", key="dash_tariffs", use_container_width=True):
                 st.session_state.pending_query = "tariffs and trade balance"
                 st.rerun()
 
