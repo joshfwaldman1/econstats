@@ -7379,8 +7379,8 @@ def main():
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
         # LANDING PAGE MODE - Text only
-        st.markdown("<h1 style='text-align: center; margin-bottom: 0; margin-top: 0;'>EconStats<span style='color: #64748b; font-weight: 400;'>.org</span></h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #64748b; margin-top: 0; margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; margin-bottom: 0; margin-top: 0; color: #1d4ed8;'>EconStats<span style='color: #60a5fa; font-weight: 400;'>.org</span></h1>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #1d4ed8; margin-top: 0; margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
 
         # Quick search buttons in a single compact row
         col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
@@ -9934,11 +9934,11 @@ def main():
     # Footer - About section
     st.markdown("---")
     st.markdown("""
-    <div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 15px 0;">
-        <strong>About EconStats</strong><br>
+    <div style="text-align: center; color: #374151; font-size: 0.85rem; padding: 15px 0;">
+        <strong style="color: #1d4ed8;">About EconStats</strong><br>
         Government economic data is free—but too hard for most people to access and understand.
         EconStats uses AI to help anyone draw insights directly from the numbers.<br><br>
-        Contact <a href="mailto:waldman1@stanford.edu" style="color: #3b82f6;">waldman1@stanford.edu</a> with feedback or ideas.
+        Contact <a href="mailto:waldman1@stanford.edu" style="color: #1d4ed8;">waldman1@stanford.edu</a> with feedback or ideas.
     </div>
     """, unsafe_allow_html=True)
 
