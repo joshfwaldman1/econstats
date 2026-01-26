@@ -7463,51 +7463,29 @@ def main():
         font-style: normal !important;
     }
 
-    /* Search bar - clean centered style */
+    /* Search bar - simple clean style */
     .search-wrapper {
-        max-width: 600px;
-        margin: 24px auto 16px auto;
-        border: none;
-        background: transparent;
-    }
-    div[data-testid="stTextInput"] {
-        max-width: 600px;
-        margin: 0 auto;
+        max-width: 540px;
+        margin: 28px auto 20px auto;
     }
     div[data-testid="stTextInput"] > div {
-        background: #FFFFFF !important;
         border: 2px solid #D4A574 !important;
-        border-radius: 50px !important;
-        box-shadow: 0 2px 12px rgba(212, 165, 116, 0.12) !important;
-        transition: all 0.2s ease !important;
-    }
-    div[data-testid="stTextInput"] > div:hover {
-        box-shadow: 0 4px 20px rgba(212, 165, 116, 0.2) !important;
-    }
-    div[data-testid="stTextInput"] > div:focus-within {
-        border-color: #C4956A !important;
-        box-shadow: 0 4px 24px rgba(212, 165, 116, 0.25) !important;
+        border-radius: 16px !important;
+        background: white !important;
     }
     div[data-testid="stTextInput"] input {
         background: transparent !important;
         border: none !important;
-        border-radius: 50px !important;
-        font-size: 1.1rem !important;
-        padding: 1rem 1.75rem !important;
-        min-height: 52px !important;
-        box-shadow: none !important;
-        text-align: center !important;
+        font-size: 1.05rem !important;
+        padding: 18px 24px !important;
         color: #292524 !important;
+        text-align: center !important;
     }
     div[data-testid="stTextInput"] input:focus {
-        border: none !important;
-        box-shadow: none !important;
-        outline: none !important;
         text-align: left !important;
     }
     div[data-testid="stTextInput"] input::placeholder {
-        color: #a8a29e !important;
-        text-align: center !important;
+        color: #9CA3AF !important;
     }
     div[data-testid="stTextInput"] label {
         display: none !important;
@@ -7525,14 +7503,10 @@ def main():
         /* Prevent horizontal scroll */
         .stApp { overflow-x: hidden; }
         /* Search bar on mobile */
-        .search-wrapper { max-width: 100%; margin: 16px auto 12px auto; }
-        div[data-testid="stTextInput"] { max-width: 100%; }
-        div[data-testid="stTextInput"] > div { border-radius: 40px !important; }
+        .search-wrapper { max-width: 100%; margin: 20px auto 16px auto; }
         div[data-testid="stTextInput"] input {
-            font-size: 16px !important;  /* Prevents iOS zoom */
-            padding: 0.9rem 1.25rem !important;
-            border-radius: 40px !important;
-            min-height: 48px !important;
+            font-size: 16px !important;
+            padding: 16px 20px !important;
         }
         /* Category pill buttons on mobile */
         .stButton button {
