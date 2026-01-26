@@ -6252,7 +6252,7 @@ def summary_to_bullets(text):
 
 
 def main():
-    st.set_page_config(page_title="EconStats", page_icon="", layout="centered")
+    st.set_page_config(page_title="EconStats", page_icon="", layout="wide")
 
     st.markdown("""
     <style>
@@ -6293,6 +6293,19 @@ def main():
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         font-weight: 600 !important;
     }
+
+    /* Wide layout content control - use more of the page */
+    .stApp .main .block-container {
+        max-width: 1100px !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+    @media (min-width: 1400px) {
+        .stApp .main .block-container {
+            max-width: 1200px !important;
+        }
+    }
+
     /* Tight spacing for chat mode */
     .stApp [data-testid="stVerticalBlock"] > div { gap: 0 !important; margin: 0 !important; padding: 0 !important; }
     .stApp [data-testid="stVerticalBlockBorderWrapper"] { padding: 0 !important; margin: 0 !important; }
