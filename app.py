@@ -7016,7 +7016,7 @@ def main():
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
         # LANDING PAGE MODE - Text only
-        st.markdown("<h1 style='text-align: center; margin-bottom: 0; margin-top: 0;'>EconStats</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; margin-bottom: 0; margin-top: 0;'>EconStats<span style='color: #64748b; font-weight: 400;'>.org</span></h1>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #64748b; margin-top: 0; margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
 
         # Quick search buttons in a single compact row
