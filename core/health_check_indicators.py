@@ -102,12 +102,14 @@ HEALTH_CHECK_ENTITIES: Dict[str, HealthCheckConfig] = {
     "black_workers": HealthCheckConfig(
         name="Black Workers",
         description="Labor market outcomes for Black Americans",
-        primary_series=["LNS14000006", "LNS11300006", "LNS12300006", "UNRATE"],
-        secondary_series=["LNS14000003"],
-        show_yoy=[False, False, False, False],
+        primary_series=["LNS14000006", "LNS11300006", "LNS12300006"],
+        secondary_series=["UNRATE", "LNS14000003"],
+        show_yoy=[False, False, False],
         keywords=[
             "black workers", "black employment", "black unemployment",
             "african american workers", "african american employment",
+            "black in the labor", "black labor market", "black doing",
+            "african american in the labor", "black americans",
         ],
         explanation="Black unemployment, participation, and employment-population ratio compared to overall rate for context."
     ),
@@ -115,12 +117,15 @@ HEALTH_CHECK_ENTITIES: Dict[str, HealthCheckConfig] = {
     "hispanic_workers": HealthCheckConfig(
         name="Hispanic Workers",
         description="Labor market outcomes for Hispanic/Latino Americans",
-        primary_series=["LNS14000009", "LNS11300009", "LNS12300009", "UNRATE"],
-        secondary_series=[],
-        show_yoy=[False, False, False, False],
+        primary_series=["LNS14000009", "LNS11300009", "LNS12300009"],
+        secondary_series=["UNRATE"],
+        show_yoy=[False, False, False],
         keywords=[
             "hispanic workers", "latino workers", "hispanic employment",
             "latino employment", "hispanic unemployment",
+            "hispanic in the labor", "hispanic labor market", "hispanic doing",
+            "latino in the labor", "latino labor market", "latino doing",
+            "hispanic americans", "latino americans",
         ],
         explanation="Hispanic unemployment, participation, and employment-population ratio compared to overall rate."
     ),
@@ -128,14 +133,16 @@ HEALTH_CHECK_ENTITIES: Dict[str, HealthCheckConfig] = {
     "women_workers": HealthCheckConfig(
         name="Women in the Workforce",
         description="Labor market outcomes for women",
-        primary_series=["LNS14000002", "LNS11300002", "LNS12300002", "PAYEMS"],
-        secondary_series=["LNS14000001"],
-        show_yoy=[False, False, False, False],
+        primary_series=["LNS14000002", "LNS11300002", "LNS12300002"],
+        secondary_series=["LNS14000001", "UNRATE"],
+        show_yoy=[False, False, False],
         keywords=[
             "women workers", "female workers", "women employment",
             "women in workforce", "working women", "gender gap",
+            "women in the labor", "women labor market", "women doing",
+            "women in the job", "women jobs",
         ],
-        explanation="Women's unemployment, participation, and employment ratio with overall payrolls for context."
+        explanation="Women's unemployment, participation, and employment-population ratio vs men and overall."
     ),
 
     # =========================================================================

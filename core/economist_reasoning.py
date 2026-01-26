@@ -108,16 +108,32 @@ DIRECT_SERIES_MAPPINGS = {
     'are there layoffs': ['ICSA', 'JTSLDL'],
 
     # Demographic-specific employment (must be before generic "unemployment")
+    # Women
+    'women unemployment': ['LNS14000002'],
+    'women workers': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
+    'womens employment': ['LNS14000002', 'LNS12300002'],
+    'female unemployment': ['LNS14000002'],
+    'women in the labor market': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
+    'women labor market': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
+    'how are women doing': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
+    'women in the job market': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
+    # Black workers
     'black unemployment': ['LNS14000006', 'LNS14000003'],
     'black workers': ['LNS14000006', 'LNS11300006', 'LNS12300006'],
     'african american unemployment': ['LNS14000006', 'LNS14000003'],
+    'black in the labor market': ['LNS14000006', 'LNS11300006', 'LNS12300006'],
+    'black labor market': ['LNS14000006', 'LNS11300006', 'LNS12300006'],
+    'how are black workers doing': ['LNS14000006', 'LNS11300006', 'LNS12300006'],
+    'african american workers': ['LNS14000006', 'LNS11300006', 'LNS12300006'],
+    # Hispanic/Latino workers
     'hispanic unemployment': ['LNS14000009'],
     'hispanic workers': ['LNS14000009', 'LNS11300009', 'LNS12300009'],
     'latino unemployment': ['LNS14000009'],
-    'women unemployment': ['LNS14000002'],
-    'women workers': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
-    'womens employment': ['LNS14000002', 'LNS12300002'],  # P0 FIX: Normalized from "women's"
-    'female unemployment': ['LNS14000002'],
+    'hispanic in the labor market': ['LNS14000009', 'LNS11300009', 'LNS12300009'],
+    'hispanic labor market': ['LNS14000009', 'LNS11300009', 'LNS12300009'],
+    'latino workers': ['LNS14000009', 'LNS11300009', 'LNS12300009'],
+    'latino in the labor market': ['LNS14000009', 'LNS11300009', 'LNS12300009'],
+    # Youth
     'youth unemployment': ['LNS14000012', 'LNS14000036'],
     'teen unemployment': ['LNS14000012'],
     'young workers': ['LNS14000012', 'LNS14000036'],
