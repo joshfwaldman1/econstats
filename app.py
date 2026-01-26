@@ -7125,17 +7125,55 @@ def main():
         border-top: 1px solid #f1f5f9 !important;
     }
 
+    /* Smooth loading indicator */
+    .loading-indicator {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 0;
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+    .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #e5e7eb;
+        border-top-color: #D4A574;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    /* Skeleton loading placeholders */
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 8px;
+    }
+    .skeleton-text { height: 16px; margin: 8px 0; }
+    .skeleton-title { height: 24px; width: 60%; margin: 12px 0; }
+    .skeleton-chart { height: 200px; margin: 16px 0; }
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    /* Fade in results */
+    .fade-in {
+        animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
     /* Subtle spinner styling - less jarring during loading */
     [data-testid="stSpinner"] {
-        animation: fadeInSpinner 0.2s ease-out;
+        animation: fadeIn 0.2s ease-out;
     }
     [data-testid="stSpinner"] > div {
         font-size: 0.85rem !important;
         color: #64748b !important;
-    }
-    @keyframes fadeInSpinner {
-        from { opacity: 0; }
-        to { opacity: 1; }
     }
 
     /* Hide the default avatar icon */
@@ -7989,12 +8027,22 @@ def main():
         class SimpleStatus:
             def __init__(self, label):
                 self.placeholder = st.empty()
-                self.placeholder.markdown(f"<div style='color: #6b7280; font-size: 0.9rem; padding: 8px 0;'>⏳ {label}</div>", unsafe_allow_html=True)
+                self.placeholder.markdown(f"""
+                    <div class="loading-indicator">
+                        <div class="loading-spinner"></div>
+                        <span>{label}</span>
+                    </div>
+                """, unsafe_allow_html=True)
             def update(self, label=None, state=None, expanded=None):
                 if state == "complete":
                     self.placeholder.empty()
                 elif label:
-                    self.placeholder.markdown(f"<div style='color: #6b7280; font-size: 0.9rem; padding: 8px 0;'>⏳ {label}</div>", unsafe_allow_html=True)
+                    self.placeholder.markdown(f"""
+                        <div class="loading-indicator">
+                            <div class="loading-spinner"></div>
+                            <span>{label}</span>
+                        </div>
+                    """, unsafe_allow_html=True)
         status_container = SimpleStatus("Analyzing your question...")
 
         # Build context from previous query for follow-up detection
