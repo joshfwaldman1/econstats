@@ -18,53 +18,162 @@ GAMMA_API_BASE = "https://gamma-api.polymarket.com"
 
 # Curated list of economic event slugs to track
 # market_type: "binary" = Yes/No (display as "X%"), "multi" = multiple outcomes (skip or handle specially)
+# NOTE: Slugs change frequently on Polymarket - update these when markets expire/new ones launch
+# Last updated: January 2026
 ECONOMIC_EVENTS = {
-    # Recession/GDP - Binary markets
+    # ==========================================================================
+    # RECESSION / GDP (ACTIVE)
+    # ==========================================================================
     "us-recession-by-end-of-2026": {
         "category": "recession",
         "display_name": "US Recession by End of 2026",
-        "keywords": ["recession", "economic downturn", "contraction"],
+        # Broad keywords to match many economy-related queries
+        "keywords": ["recession", "economic downturn", "contraction", "hard landing", "soft landing",
+                     "economy", "economic outlook", "how is the economy", "economic conditions"],
         "market_type": "binary",
     },
     "negative-gdp-growth-in-2025": {
         "category": "gdp",
         "display_name": "Negative GDP Growth in 2025",
-        "keywords": ["gdp", "growth", "economy", "recession"],
+        "keywords": ["gdp", "growth", "economy", "recession", "contraction", "economic growth"],
         "market_type": "binary",
     },
-    # Fed/Rates - Binary markets
+    "negative-gdp-growth-in-q4-2025-295": {
+        "category": "gdp",
+        "display_name": "Negative GDP Growth in Q4 2025",
+        "keywords": ["gdp", "growth", "q4", "fourth quarter", "economy"],
+        "market_type": "binary",
+    },
+    "gdp-growth-in-2025": {
+        "category": "gdp",
+        "display_name": "GDP Growth in 2025",
+        "keywords": ["gdp", "growth", "economy", "expansion"],
+        "market_type": "multi",  # Multiple buckets like 0-1%, 1-2%, etc.
+    },
+    "us-gdp-growth-in-q4-2025": {
+        "category": "gdp",
+        "display_name": "US GDP Growth in Q4 2025",
+        "keywords": ["gdp", "growth", "q4", "fourth quarter"],
+        "market_type": "multi",
+    },
+
+    # ==========================================================================
+    # FEDERAL RESERVE / INTEREST RATES (ACTIVE)
+    # ==========================================================================
     "fed-decision-in-january": {
         "category": "fed",
         "display_name": "Fed Rate Cut in January",
-        "keywords": ["fed", "federal reserve", "interest rate", "fomc", "rate cut"],
+        "keywords": ["fed", "federal reserve", "interest rate", "fomc", "rate cut", "powell",
+                     "monetary policy", "rates", "rate decision"],
         "market_type": "binary",
     },
     "fed-decision-in-march-885": {
         "category": "fed",
         "display_name": "Fed Rate Cut in March",
-        "keywords": ["fed", "federal reserve", "interest rate", "fomc", "rate cut"],
+        "keywords": ["fed", "federal reserve", "interest rate", "fomc", "rate cut", "powell", "rates"],
         "market_type": "binary",
-    },
-    # Fiscal/Policy - Binary markets
-    "will-tariffs-generate-250b-in-2025": {
-        "category": "tariffs",
-        "display_name": "Tariffs >$250B in 2025",
-        "keywords": ["tariffs", "trade"],
-        "market_type": "binary",
-    },
-    # Multi-outcome markets (not displayed as simple %)
-    # Keeping these for reference but they won't show in the simple display
-    "gdp-growth-in-2025": {
-        "category": "gdp",
-        "display_name": "GDP Growth in 2025",
-        "keywords": ["gdp", "growth", "economy"],
-        "market_type": "multi",  # Multiple buckets like 0-1%, 1-2%, etc.
     },
     "how-many-fed-rate-cuts-in-2026": {
         "category": "fed",
         "display_name": "Fed Rate Cuts in 2026",
-        "keywords": ["fed", "rate cut", "monetary policy", "fomc"],
-        "market_type": "multi",  # 0, 1, 2, 3+ cuts
+        "keywords": ["fed", "rate cut", "monetary policy", "fomc", "easing", "rates"],
+        "market_type": "multi",
+    },
+    "next-three-fed-decisions": {
+        "category": "fed",
+        "display_name": "Fed Decisions (Oct-Jan)",
+        "keywords": ["fed", "fomc", "rate decision", "federal reserve"],
+        "market_type": "multi",
+    },
+    "next-three-fed-decisions-847": {
+        "category": "fed",
+        "display_name": "Fed Decisions (Dec-Mar)",
+        "keywords": ["fed", "fomc", "rate decision", "federal reserve"],
+        "market_type": "multi",
+    },
+    "who-will-trump-nominate-as-fed-chair": {
+        "category": "fed",
+        "display_name": "Trump Fed Chair Nominee",
+        "keywords": ["fed", "fed chair", "powell", "federal reserve", "trump"],
+        "market_type": "multi",
+    },
+    "lisa-cook-out-as-fed-governor-by-september-30": {
+        "category": "fed",
+        "display_name": "Lisa Cook Out as Fed Governor",
+        "keywords": ["fed", "fed governor", "federal reserve"],
+        "market_type": "binary",
+    },
+
+    # ==========================================================================
+    # TRADE / TARIFFS (ACTIVE)
+    # ==========================================================================
+    "will-tariffs-generate-250b-in-2025": {
+        "category": "tariffs",
+        "display_name": "Tariffs >$250B in 2025",
+        "keywords": ["tariffs", "trade", "trade war", "china", "imports", "protectionism", "trump tariffs"],
+        "market_type": "binary",
+    },
+    "how-much-revenue-will-the-us-raise-from-tariffs-in-2025": {
+        "category": "tariffs",
+        "display_name": "US Tariff Revenue in 2025",
+        "keywords": ["tariffs", "trade", "revenue", "imports"],
+        "market_type": "multi",
+    },
+    "will-the-supreme-court-rule-in-favor-of-trumps-tariffs": {
+        "category": "tariffs",
+        "display_name": "Supreme Court Rules for Trump Tariffs",
+        "keywords": ["tariffs", "supreme court", "trade", "trump"],
+        "market_type": "binary",
+    },
+
+    # ==========================================================================
+    # LABOR MARKET / UNEMPLOYMENT (ACTIVE)
+    # ==========================================================================
+    "brazil-unemployment-below-6pt3-for-q4-2025": {
+        "category": "unemployment",
+        "display_name": "Brazil Unemployment Below 6.3% Q4 2025",
+        "keywords": ["unemployment", "brazil", "jobs", "labor market", "employment"],
+        "market_type": "binary",
+    },
+
+    # ==========================================================================
+    # CRYPTO (ACTIVE - often market sentiment indicator)
+    # ==========================================================================
+    "will-bitcoin-hit-80k-or-150k-first": {
+        "category": "crypto",
+        "display_name": "Bitcoin: $80K or $150K First?",
+        "keywords": ["bitcoin", "crypto", "cryptocurrency", "btc"],
+        "market_type": "binary",
+    },
+    "when-will-bitcoin-hit-150k": {
+        "category": "crypto",
+        "display_name": "When Will Bitcoin Hit $150K",
+        "keywords": ["bitcoin", "crypto", "cryptocurrency", "btc"],
+        "market_type": "multi",
+    },
+    "another-sp-500-company-buys-bitcoin-by-november-30": {
+        "category": "crypto",
+        "display_name": "S&P 500 Company Buys Bitcoin",
+        "keywords": ["bitcoin", "crypto", "s&p 500", "corporate", "btc"],
+        "market_type": "binary",
+    },
+    "microstrategy-sell-any-bitcoin-in-2025": {
+        "category": "crypto",
+        "display_name": "MicroStrategy Sells Bitcoin in 2025",
+        "keywords": ["bitcoin", "microstrategy", "crypto", "btc"],
+        "market_type": "binary",
+    },
+    "trump-eliminates-capital-gains-tax-on-crypto-in-2025": {
+        "category": "crypto",
+        "display_name": "Trump Eliminates Crypto Capital Gains Tax",
+        "keywords": ["crypto", "bitcoin", "tax", "capital gains", "trump"],
+        "market_type": "binary",
+    },
+    "another-crypto-hack-over-100m-in-2025": {
+        "category": "crypto",
+        "display_name": "Another >$100M Crypto Hack in 2025",
+        "keywords": ["crypto", "hack", "security", "bitcoin"],
+        "market_type": "binary",
     },
 }
 
@@ -420,6 +529,105 @@ def format_prediction_for_display(prediction: dict) -> Optional[str]:
 
     title = prediction.get("title", "")
     return f"{title}: {prob:.0f}%"
+
+
+def format_predictions_box(predictions: list, query: str = "") -> Optional[str]:
+    """
+    Format prediction market data as a styled HTML box for display.
+
+    Args:
+        predictions: List of prediction dicts from find_relevant_predictions()
+        query: Original user query (for context)
+
+    Returns:
+        HTML string for display, or None if no relevant predictions
+    """
+    if not predictions:
+        return None
+
+    # Filter to only binary markets with valid probabilities
+    display_items = []
+    for pred in predictions[:4]:  # Max 4 predictions
+        if pred.get("market_type") == "multi":
+            continue
+
+        markets = pred.get("markets", [])
+        prob = None
+        for m in markets:
+            if m.get("outcome") in ("Yes", "1", "True"):
+                prob = m.get("probability", 0) * 100
+                break
+
+        if prob is not None:
+            title = pred.get("title", "")
+            url = pred.get("url", "")
+            category = pred.get("category", "")
+
+            # Color code by probability
+            if prob >= 70:
+                color = "#059669"  # Green - likely
+            elif prob >= 40:
+                color = "#d97706"  # Amber - uncertain
+            else:
+                color = "#6b7280"  # Gray - unlikely
+
+            display_items.append({
+                "title": title,
+                "prob": prob,
+                "url": url,
+                "color": color,
+                "category": category,
+            })
+
+    if not display_items:
+        return None
+
+    # Build HTML
+    items_html = ""
+    for item in display_items:
+        items_html += f"""
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #e5e7eb;">
+            <a href="{item['url']}" target="_blank" style="color: #374151; text-decoration: none; font-size: 0.85rem; flex: 1;">
+                {item['title']}
+            </a>
+            <span style="color: {item['color']}; font-weight: 600; font-size: 0.9rem; min-width: 50px; text-align: right;">
+                {item['prob']:.0f}%
+            </span>
+        </div>
+        """
+
+    html = f"""
+    <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #0ea5e9; border-radius: 8px; padding: 12px 16px; margin: 12px 0 16px 0;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 1.1rem; margin-right: 8px;">📊</span>
+            <span style="font-weight: 600; color: #0369a1; font-size: 0.9rem;">What Markets Expect</span>
+            <span style="margin-left: auto; font-size: 0.7rem; color: #64748b;">via Polymarket</span>
+        </div>
+        <div style="background: white; border-radius: 6px; padding: 8px 12px;">
+            {items_html}
+        </div>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 8px; font-style: italic;">
+            Prediction markets reflect trader expectations, not forecasts. Odds can change rapidly.
+        </div>
+    </div>
+    """
+
+    return html
+
+
+def get_predictions_for_query(query: str) -> tuple[list, Optional[str]]:
+    """
+    Get relevant predictions and formatted HTML for a query.
+
+    Returns:
+        (predictions_list, html_box) - both may be empty/None if no matches
+    """
+    predictions = find_relevant_predictions(query)
+    if not predictions:
+        return [], None
+
+    html = format_predictions_box(predictions, query)
+    return predictions, html
 
 
 # Quick test

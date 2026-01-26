@@ -46,7 +46,13 @@ except Exception:
 
 # Import Polymarket prediction markets (forward-looking sentiment)
 try:
-    from agents.polymarket import find_relevant_predictions, format_prediction_for_display, synthesize_prediction_narrative
+    from agents.polymarket import (
+        find_relevant_predictions,
+        format_prediction_for_display,
+        synthesize_prediction_narrative,
+        format_predictions_box,
+        get_predictions_for_query,
+    )
     POLYMARKET_AVAILABLE = True
 except Exception:
     POLYMARKET_AVAILABLE = False
@@ -7185,6 +7191,10 @@ def main():
                         scorecard_html = format_scorecard_for_display(scorecard)
                         st.markdown(scorecard_html, unsafe_allow_html=True)
 
+                    # Prediction Markets Box (forward-looking market expectations)
+                    if msg.get("polymarket_html"):
+                        st.markdown(msg["polymarket_html"], unsafe_allow_html=True)
+
                     # Render charts from stored series_data
                     if msg.get("series_data"):
                         chart_type = msg.get("chart_type", "line")
@@ -8426,9 +8436,12 @@ def main():
 
         # Fetch relevant Polymarket predictions for forward-looking context
         polymarket_predictions = []
+        polymarket_html = None
         if POLYMARKET_AVAILABLE:
             try:
-                polymarket_predictions = find_relevant_predictions(query)[:3]  # Top 3 relevant
+                polymarket_predictions = find_relevant_predictions(query)[:4]  # Top 4 relevant
+                if polymarket_predictions:
+                    polymarket_html = format_predictions_box(polymarket_predictions, query)
             except Exception as e:
                 print(f"[Polymarket] Error fetching predictions: {e}")
 
@@ -8651,6 +8664,7 @@ def main():
             "chart_groups": chart_groups,  # Store chart groups for proper re-rendering
             "series_names": series_names_fetched,
             "polymarket": polymarket_predictions,  # Prediction market data
+            "polymarket_html": polymarket_html,  # Pre-formatted HTML box for display
             "sep": sep_data,  # Fed SEP projections
             "housing_narrative": housing_narrative,  # Zillow housing context
             "energy_narrative": energy_narrative,  # EIA energy context
