@@ -36,7 +36,12 @@
       "MORTGAGE30US",
       "DSPIC96"
     ],
-    "show_yoy": [true, false, false, true],
+    "show_yoy": [
+      true,
+      false,
+      false,
+      true
+    ],
     "combine_chart": false,
     "explanation": "Home prices comprehensively: Case-Shiller index (CSUSHPINSA) shows price appreciation trends. Median sale price (MSPUS) shows actual dollar prices. Mortgage rates (MORTGAGE30US) affect affordability and buying power. Disposable income (DSPIC96) shows whether incomes are keeping pace with prices. When prices outpace income growth, affordability deteriorates."
   },
@@ -106,9 +111,14 @@
       "CSUSHPINSA",
       "DSPIC96"
     ],
-    "show_yoy": [false, false, true, true],
+    "show_yoy": [
+      false,
+      false,
+      true,
+      true
+    ],
     "combine_chart": false,
-    "explanation": "Four dimensions of housing affordability:\n\n• **Affordability Index (FIXHAI)**: Measures whether a median-income family qualifies for a median-priced home. Above 100 = affordable (family income exceeds qualifying income). Below 100 = median family can't afford median home. Historical average is around 150-160.\n\n• **Mortgage Rates (MORTGAGE30US)**: Each 1% rate increase reduces buying power by ~10%. Rates at 7% vs 3% means monthly payments are roughly 40% higher for the same house. This is the lever the Fed pulls.\n\n• **Home Prices (CSUSHPINSA)**: Case-Shiller index shows price trends. Prices can rise even when rates are high if inventory is tight. The 2020-2022 surge was historic.\n\n• **Incomes (DSPIC96)**: Disposable income growth matters for affordability. If incomes grow faster than home prices + rate increases, affordability improves. In recent years, the opposite happened."
+    "explanation": "Four dimensions of housing affordability:\n\n\u2022 **Affordability Index (FIXHAI)**: Measures whether a median-income family qualifies for a median-priced home. Above 100 = affordable (family income exceeds qualifying income). Below 100 = median family can't afford median home. Historical average is around 150-160.\n\n\u2022 **Mortgage Rates (MORTGAGE30US)**: Each 1% rate increase reduces buying power by ~10%. Rates at 7% vs 3% means monthly payments are roughly 40% higher for the same house. This is the lever the Fed pulls.\n\n\u2022 **Home Prices (CSUSHPINSA)**: Case-Shiller index shows price trends. Prices can rise even when rates are high if inventory is tight. The 2020-2022 surge was historic.\n\n\u2022 **Incomes (DSPIC96)**: Disposable income growth matters for affordability. If incomes grow faster than home prices + rate increases, affordability improves. In recent years, the opposite happened."
   },
   "can i afford a house": {
     "series": [
@@ -117,18 +127,69 @@
       "CSUSHPINSA",
       "DSPIC96"
     ],
-    "show_yoy": [false, false, true, true],
+    "show_yoy": [
+      false,
+      false,
+      true,
+      true
+    ],
     "combine_chart": false,
-    "explanation": "Four dimensions of housing affordability:\n\n• **Affordability Index (FIXHAI)**: Measures whether a median-income family qualifies for a median-priced home. Above 100 = affordable (family income exceeds qualifying income). Below 100 = median family can't afford median home. Historical average is around 150-160.\n\n• **Mortgage Rates (MORTGAGE30US)**: Each 1% rate increase reduces buying power by ~10%. Rates at 7% vs 3% means monthly payments are roughly 40% higher for the same house. This is the lever the Fed pulls.\n\n• **Home Prices (CSUSHPINSA)**: Case-Shiller index shows price trends. Prices can rise even when rates are high if inventory is tight. The 2020-2022 surge was historic.\n\n• **Incomes (DSPIC96)**: Disposable income growth matters for affordability. If incomes grow faster than home prices + rate increases, affordability improves. In recent years, the opposite happened."
+    "explanation": "Four dimensions of housing affordability:\n\n\u2022 **Affordability Index (FIXHAI)**: Measures whether a median-income family qualifies for a median-priced home. Above 100 = affordable (family income exceeds qualifying income). Below 100 = median family can't afford median home. Historical average is around 150-160.\n\n\u2022 **Mortgage Rates (MORTGAGE30US)**: Each 1% rate increase reduces buying power by ~10%. Rates at 7% vs 3% means monthly payments are roughly 40% higher for the same house. This is the lever the Fed pulls.\n\n\u2022 **Home Prices (CSUSHPINSA)**: Case-Shiller index shows price trends. Prices can rise even when rates are high if inventory is tight. The 2020-2022 surge was historic.\n\n\u2022 **Incomes (DSPIC96)**: Disposable income growth matters for affordability. If incomes grow faster than home prices + rate increases, affordability improves. In recent years, the opposite happened."
   },
   "rent prices": {
     "series": [
-      "CUSR0000SEHA",
-      "CUSR0000SEHC"
+      "zillow_rent_yoy",
+      "CUSR0000SEHA"
     ],
-    "show_yoy": true,
+    "show_yoy": [false, true],
     "combine_chart": true,
-    "explanation": "CUSR0000SEHA (CPI rent of primary residence) tracks actual rents paid by tenants, while CUSR0000SEHC (owners' equivalent rent) measures what homeowners would pay to rent their homes. Together they provide comprehensive rent price trends. Showing year-over-year change reveals rent inflation rates, which are critical for understanding rental market pressures."
+    "explanation": "Zillow rent growth (leading) vs CPI rent inflation (lagging) - both as YoY %. Zillow captures real-time asking rents; CPI rent lags by 12+ months due to slow lease turnover. The gap between them shows how much rent disinflation is 'in the pipeline' waiting to hit official statistics. When Zillow peaked and fell in 2022, CPI didn't follow until late 2023."
+  },
+  "market rents": {
+    "series": [
+      "zillow_zori_national",
+      "zillow_rent_yoy"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Zillow Observed Rent Index (ZORI) tracks actual asking rents in real-time - much more current than CPI rent data which lags by 12+ months. The YoY growth rate shows rent inflation trends before they appear in official statistics. This is what landlords are actually charging for new leases."
+  },
+  "zillow rent": {
+    "series": [
+      "zillow_zori_national",
+      "zillow_rent_yoy"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Zillow Observed Rent Index (ZORI) - the national index of asking rents from Zillow's listings data. More timely than CPI rent which lags by 12+ months. Shows what new renters are actually paying in the current market."
+  },
+  "actual rents": {
+    "series": [
+      "zillow_rent_yoy",
+      "CUSR0000SEHA"
+    ],
+    "show_yoy": [false, true],
+    "combine_chart": true,
+    "explanation": "Zillow rent growth (real-time) vs CPI rent inflation (lags 12+ months). Both shown as YoY % for direct comparison. The gap reveals how much rent disinflation is 'in the pipeline' waiting to show up in official CPI data."
+  },
+  "zillow vs cpi rent": {
+    "series": [
+      "zillow_rent_yoy",
+      "CUSR0000SEHA"
+    ],
+    "show_yoy": [false, true],
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "The crucial rent comparison: Zillow (leading indicator) vs CPI rent (lagging indicator). Zillow tracks asking rents in real-time; CPI rent reflects leases signed 12+ months ago. In 2022-2023, Zillow peaked at 17% YoY then fell to 3%, but CPI rent kept rising to 8% before finally turning. This lag is why shelter inflation stays sticky even when the rental market has cooled."
+  },
+  "rent leading indicator": {
+    "series": [
+      "zillow_rent_yoy",
+      "CUSR0000SEHA"
+    ],
+    "show_yoy": [false, true],
+    "combine_chart": true,
+    "explanation": "Zillow rent growth leads CPI rent by 12-18 months. When Zillow turns, it signals where CPI rent is heading. This is critical for Fed policy - by the time CPI rent falls, the rental market has already cooled significantly."
   },
   "case shiller": {
     "series": [
@@ -140,11 +201,40 @@
   },
   "home values": {
     "series": [
+      "zillow_zhvi_national",
+      "zillow_home_value_yoy",
       "CSUSHPINSA"
     ],
-    "show_yoy": true,
+    "show_yoy": [false, false, true],
     "combine_chart": false,
-    "explanation": "The S&P/Case-Shiller National Home Price Index (CSUSHPINSA) is the gold standard measure for home values in the US. It tracks repeat sales of the same properties to provide the most accurate picture of home value changes over time. Showing year-over-year changes will reveal the home price appreciation rate, which is crucial for understanding how home values are trending."
+    "explanation": "Zillow Home Value Index (ZHVI) shows current typical home values (~$360K nationally) updated monthly. Zillow YoY shows appreciation rate. Case-Shiller (CSUSHPINSA) is the gold standard for long-term trends but lags by 2-3 months. Zillow gives you the current snapshot; Case-Shiller confirms the trend."
+  },
+  "zillow home values": {
+    "series": [
+      "zillow_zhvi_national",
+      "zillow_home_value_yoy"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Zillow Home Value Index (ZHVI) - typical home values based on Zillow's proprietary algorithm. Updated monthly with current market conditions. More timely than Case-Shiller which has a 2-3 month lag."
+  },
+  "zhvi": {
+    "series": [
+      "zillow_zhvi_national",
+      "zillow_home_value_yoy"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Zillow Home Value Index (ZHVI) - tracks typical home values nationally. The YoY change shows home price appreciation trends in real-time."
+  },
+  "zori": {
+    "series": [
+      "zillow_zori_national",
+      "zillow_rent_yoy"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Zillow Observed Rent Index (ZORI) - tracks asking rents from Zillow's listings. More current than CPI rent data. Shows what landlords are actually charging for new leases."
   },
   "housing inventory": {
     "series": [
@@ -171,7 +261,12 @@
       "MORTGAGE30US",
       "UMCSENT"
     ],
-    "show_yoy": [true, true, false, false],
+    "show_yoy": [
+      true,
+      true,
+      false,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Housing demand from multiple angles: Existing home sales (EXHOSLUSM495S) show actual transaction volume. New home sales (HSN1F) show builder demand. Mortgage rates (MORTGAGE30US) are the key rate sensitivity - high rates crush demand even when prices stable. Consumer sentiment (UMCSENT) indicates willingness to make major purchases like homes."
   },
@@ -273,7 +368,12 @@
       "PERMIT",
       "UMCSENT"
     ],
-    "show_yoy": [true, false, true, false],
+    "show_yoy": [
+      true,
+      false,
+      true,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Rental market comprehensively: Rent CPI (CUSR0000SEHA) shows price trends. Vacancy rate (RRVRUSQ156N) measures market tightness - low vacancy = landlord pricing power. Building permits (PERMIT) indicate future supply that could ease rents. Consumer sentiment (UMCSENT) affects household formation and rental demand. Note: CPI rent lags actual market rents by 12+ months."
   },
@@ -451,7 +551,11 @@
       "CES0500000003",
       "RRVRUSQ156N"
     ],
-    "show_yoy": [true, true, false],
+    "show_yoy": [
+      true,
+      true,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Rent affordability: Rent inflation (CUSR0000SEHA) vs wage growth (CES0500000003) shows if rent is outpacing incomes. Rental vacancy rate (RRVRUSQ156N) indicates market tightness - low vacancy gives landlords pricing power. If rent inflation exceeds wage growth and vacancies are low, rent IS too high for many."
   },
@@ -472,7 +576,12 @@
       "HOUST",
       "RRVRUSQ156N"
     ],
-    "show_yoy": [true, false, true, false],
+    "show_yoy": [
+      true,
+      false,
+      true,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Housing cost drivers: Price appreciation (CSUSHPINSA) shows value growth. Mortgage rates (MORTGAGE30US) affect monthly payments - low rates inflate prices as buyers can afford more. Housing starts (HOUST) indicate supply - low construction = shortage. Rental vacancy (RRVRUSQ156N) shows rental tightness. Combination of limited supply + strong demand + low rates drives prices up."
   },
@@ -485,5 +594,48 @@
     "show_yoy": true,
     "combine_chart": true,
     "explanation": "Rent affordability: Compare rent inflation (CUSR0000SEHA) to wage growth (CES0500000003). Real median weekly earnings (LES1252881600Q) shows actual purchasing power. If wages grow faster than rents, affordability improves. If rent outpaces wages, you're getting squeezed. The rule of thumb is rent should be under 30% of income."
+  },
+  "home prices vs mortgage rates": {
+    "series": [
+      "CSUSHPINSA",
+      "MORTGAGE30US"
+    ],
+    "show_yoy": [
+      true,
+      false
+    ],
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Home prices (Case-Shiller YoY) vs mortgage rates shows the affordability squeeze. Normally, higher rates should slow price growth. But 2022-2024 showed 'rate lock-in' - homeowners with 3% mortgages won't sell, limiting supply and keeping prices high despite 7% rates. The divergence signals a frozen market."
+  },
+  "housing starts vs permits": {
+    "series": [
+      "HOUST",
+      "PERMIT"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Building permits (leading) vs housing starts (concurrent) shows the construction pipeline. Permits lead starts by 1-2 months since builders get permits before breaking ground. A widening gap (permits falling faster than starts) signals future construction slowdown."
+  },
+  "new vs existing home sales": {
+    "series": [
+      "HSN1F",
+      "EXHOSLUSM495S"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "New home sales vs existing home sales shows which market is driving activity. In 2022-2024, existing home sales cratered (owners locked into low rates won't sell) while new construction held up better. Builders can offer rate buydowns that existing sellers can't match."
+  },
+  "rent vs home price growth": {
+    "series": [
+      "CUSR0000SEHA",
+      "CSUSHPINSA"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Rent growth vs home price growth shows the housing market tension. When home prices outpace rents, buying becomes less attractive vs renting (lower yield for landlords, worse affordability for buyers). When rents outpace prices, buying becomes more attractive. The gap signals whether to rent or buy."
   }
 }

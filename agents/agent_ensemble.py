@@ -825,7 +825,11 @@ def _generate_description_claude(prompt: str) -> Optional[str]:
                      headers=headers, method='POST')
         with urlopen(req, timeout=15) as response:
             result = json.loads(response.read().decode('utf-8'))
-            return result['content'][0]['text'].strip().strip('"\'')
+            text = result['content'][0]['text'].strip().strip('"\'')
+            # Strip any HTML tags LLM might have generated
+            import re
+            text = re.sub(r'<[^>]+>', '', text)
+            return text
     except Exception as e:
         return None
 
@@ -849,7 +853,11 @@ def _generate_description_gemini(prompt: str) -> Optional[str]:
                      headers=headers, method='POST')
         with urlopen(req, timeout=15) as response:
             result = json.loads(response.read().decode('utf-8'))
-            return result['candidates'][0]['content']['parts'][0]['text'].strip().strip('"\'')
+            text = result['candidates'][0]['content']['parts'][0]['text'].strip().strip('"\'')
+            # Strip any HTML tags LLM might have generated
+            import re
+            text = re.sub(r'<[^>]+>', '', text)
+            return text
     except Exception as e:
         return None
 
@@ -891,7 +899,11 @@ Return ONLY the final improved explanation text. No commentary or meta-discussio
 
     response = call_gpt(judge_prompt)
     if response:
-        return response.strip().strip('"\'')
+        text = response.strip().strip('"\'')
+        # Strip any HTML tags LLM might have generated
+        import re
+        text = re.sub(r'<[^>]+>', '', text)
+        return text
     return None
 
 

@@ -811,3 +811,127 @@ if __name__ == "__main__":
     print("\n4. Testing search for 'rent':")
     matches = search_zillow_series("rent")
     print(f"   Matches: {matches}")
+
+
+# =============================================================================
+# NARRATIVE SYNTHESIS (Economist-style interpretation)
+# =============================================================================
+
+def synthesize_housing_narrative(
+    rent_value: Optional[float] = None,
+    rent_yoy: Optional[float] = None,
+    home_value: Optional[float] = None,
+    home_value_yoy: Optional[float] = None,
+) -> Optional[str]:
+    """
+    Synthesize housing data into a coherent narrative paragraph.
+
+    Instead of listing numbers, describes what the housing picture looks like
+    with context about why it matters for the economy.
+
+    Args:
+        rent_value: Current national rent level ($/month)
+        rent_yoy: Rent year-over-year change (%)
+        home_value: Current national home value ($)
+        home_value_yoy: Home value year-over-year change (%)
+
+    Returns:
+        Human-readable narrative about housing conditions
+    """
+    parts = []
+
+    # Rent narrative
+    if rent_yoy is not None:
+        if rent_yoy < 0:
+            parts.append(
+                f"Market rents are actually falling ({rent_yoy:.1f}% YoY), "
+                "which should pull CPI shelter inflation down over the next 12-18 months "
+                "as the official measure catches up to reality."
+            )
+        elif rent_yoy < 2:
+            parts.append(
+                f"Rent growth has cooled to just {rent_yoy:.1f}% YoY—back to pre-pandemic norms. "
+                "This is good news for inflation: shelter is the largest CPI component, "
+                "and market rents lead the official measure by about a year."
+            )
+        elif rent_yoy < 5:
+            parts.append(
+                f"Rents are rising at a moderate {rent_yoy:.1f}% YoY pace. "
+                "That's elevated but not alarming—shelter inflation in CPI "
+                "should continue its gradual descent."
+            )
+        else:
+            parts.append(
+                f"Rent growth remains hot at {rent_yoy:.1f}% YoY, "
+                "which will keep CPI shelter inflation elevated for months to come. "
+                "The Fed watches this closely."
+            )
+
+    # Home value narrative
+    if home_value_yoy is not None:
+        if home_value_yoy < 0:
+            parts.append(
+                f"Home prices are declining ({home_value_yoy:.1f}% YoY), "
+                "a rare event that typically requires either a recession or a surge in inventory. "
+                "Homeowners with 3% mortgages are still reluctant to sell into a 7% rate environment."
+            )
+        elif home_value_yoy < 3:
+            parts.append(
+                f"Home prices are essentially flat ({home_value_yoy:.1f}% YoY). "
+                "High mortgage rates have frozen the market: few can afford to buy, "
+                "and homeowners with cheap pandemic-era mortgages have no reason to sell."
+            )
+        elif home_value_yoy < 6:
+            parts.append(
+                f"Home prices continue rising ({home_value_yoy:.1f}% YoY) despite high mortgage rates, "
+                "driven by extremely low inventory. Existing homeowners won't sell their 3% mortgages, "
+                "and new construction hasn't filled the gap."
+            )
+        else:
+            parts.append(
+                f"Home values are surging {home_value_yoy:.1f}% YoY—remarkable given 7%+ mortgage rates. "
+                "The lock-in effect is acute: with so few willing to sell, "
+                "any demand pushes prices sharply higher."
+            )
+
+    # Affordability context if we have both
+    if rent_value is not None and home_value is not None:
+        # Rough monthly mortgage payment at 7% on 80% LTV
+        monthly_mortgage = (home_value * 0.8) * (0.07 / 12) / (1 - (1 + 0.07/12)**-360)
+        if monthly_mortgage > rent_value * 1.5:
+            parts.append(
+                f"With typical mortgage payments around ${monthly_mortgage:,.0f}/month vs ${rent_value:,.0f} rent, "
+                "buying is 50%+ more expensive than renting—an unusual situation that keeps many on the sidelines."
+            )
+
+    if not parts:
+        return None
+
+    return " ".join(parts)
+
+
+def get_housing_narrative() -> Optional[str]:
+    """
+    Convenience function to fetch current Zillow data and synthesize narrative.
+
+    Returns:
+        Synthesized narrative about current housing conditions, or None on error.
+    """
+    # Fetch current data
+    _, rent_values, rent_info = get_zillow_series('zillow_zori_national')
+    _, rent_yoy_values, _ = get_zillow_series('zillow_rent_yoy')
+    _, home_values, _ = get_zillow_series('zillow_zhvi_national')
+    _, home_yoy_values, _ = get_zillow_series('zillow_home_value_yoy')
+
+    # Get latest values
+    rent_value = rent_values[-1] if rent_values else None
+    rent_yoy = rent_yoy_values[-1] if rent_yoy_values else None
+    home_value = home_values[-1] if home_values else None
+    home_value_yoy = home_yoy_values[-1] if home_yoy_values else None
+
+    return synthesize_housing_narrative(
+        rent_value=rent_value,
+        rent_yoy=rent_yoy,
+        home_value=home_value,
+        home_value_yoy=home_value_yoy,
+    )

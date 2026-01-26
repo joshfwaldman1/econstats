@@ -895,3 +895,156 @@ if __name__ == "__main__":
         print("\n4. Testing search for 'crude oil':")
         matches = search_eia_series("crude oil")
         print(f"   Matches: {matches}")
+
+
+# =============================================================================
+# NARRATIVE SYNTHESIS (Economist-style interpretation)
+# =============================================================================
+
+def synthesize_energy_narrative(
+    wti_price: Optional[float] = None,
+    wti_change_pct: Optional[float] = None,
+    gasoline_price: Optional[float] = None,
+    gasoline_change_pct: Optional[float] = None,
+    natgas_price: Optional[float] = None,
+    natgas_change_pct: Optional[float] = None,
+    crude_stocks_change: Optional[float] = None,
+) -> Optional[str]:
+    """
+    Synthesize energy data into a coherent narrative paragraph.
+
+    Explains what energy prices mean for inflation, consumers, and the economy.
+
+    Args:
+        wti_price: WTI crude oil price ($/barrel)
+        wti_change_pct: WTI year-over-year or week-over-week change (%)
+        gasoline_price: Retail gasoline price ($/gallon)
+        gasoline_change_pct: Gasoline price change (%)
+        natgas_price: Natural gas price ($/MMBtu)
+        natgas_change_pct: Natural gas price change (%)
+        crude_stocks_change: Change in crude oil inventories (million barrels)
+
+    Returns:
+        Human-readable narrative about energy market conditions
+    """
+    parts = []
+
+    # Oil price context
+    if wti_price is not None:
+        if wti_price < 60:
+            parts.append(
+                f"Oil at ${wti_price:.0f}/barrel is unusually cheap by recent standards, "
+                "helping keep inflation in check. Sub-$60 oil typically signals weak global demand "
+                "or an oversupplied market."
+            )
+        elif wti_price < 75:
+            parts.append(
+                f"Oil prices around ${wti_price:.0f}/barrel are in a comfortable range for the economy—"
+                "high enough for producers to profit, low enough to avoid stoking inflation."
+            )
+        elif wti_price < 90:
+            parts.append(
+                f"At ${wti_price:.0f}/barrel, oil is elevated but manageable. "
+                "This adds about 0.1-0.2pp to headline CPI compared to the $70 level, "
+                "but won't derail the Fed's inflation fight."
+            )
+        else:
+            parts.append(
+                f"Oil at ${wti_price:.0f}/barrel is a headwind for inflation. "
+                "Prices above $90 typically add 0.3-0.5pp to CPI and act as a tax on consumers, "
+                "potentially slowing economic growth."
+            )
+
+    # Gasoline impact on consumers
+    if gasoline_price is not None:
+        # Average American drives ~12,000 miles/year, gets ~25 mpg = 480 gallons/year
+        # Every $1/gallon = $480/year or $40/month
+        if gasoline_price < 3.0:
+            parts.append(
+                f"Gasoline at ${gasoline_price:.2f}/gallon is a tailwind for consumers—"
+                "well below the $3.50+ levels that strain budgets. "
+                "This leaves more room for discretionary spending."
+            )
+        elif gasoline_price < 3.5:
+            parts.append(
+                f"Gas prices at ${gasoline_price:.2f}/gallon are moderate, "
+                "roughly in line with historical averages when adjusted for inflation."
+            )
+        elif gasoline_price < 4.0:
+            parts.append(
+                f"At ${gasoline_price:.2f}/gallon, gas is elevated and noticeable to consumers. "
+                "The typical household spends about $40/month more compared to $3.00 gas."
+            )
+        else:
+            parts.append(
+                f"Gasoline at ${gasoline_price:.2f}/gallon is a significant burden—"
+                "a typical family pays $600+/year more than when gas was $3. "
+                "High pump prices hurt consumer sentiment and can slow spending."
+            )
+
+    # Natural gas (heating/electricity costs)
+    if natgas_price is not None:
+        if natgas_price < 2.5:
+            parts.append(
+                f"Natural gas at ${natgas_price:.2f}/MMBtu is extremely cheap, "
+                "keeping electricity and heating costs low. "
+                "This is good for inflation but tough for gas producers."
+            )
+        elif natgas_price < 4.0:
+            parts.append(
+                f"Natural gas around ${natgas_price:.2f}/MMBtu is well-contained, "
+                "posing no threat to utility bills or industrial costs."
+            )
+        elif natgas_price < 6.0:
+            parts.append(
+                f"Natural gas at ${natgas_price:.2f}/MMBtu is elevated, "
+                "which flows through to electricity prices with a lag of a few months."
+            )
+        else:
+            parts.append(
+                f"At ${natgas_price:.2f}/MMBtu, natural gas is expensive enough to impact "
+                "utility bills and industrial costs. Prolonged high prices add to inflation pressures."
+            )
+
+    # Inventory signal
+    if crude_stocks_change is not None:
+        if abs(crude_stocks_change) > 5:
+            direction = "building" if crude_stocks_change > 0 else "drawing"
+            parts.append(
+                f"Crude inventories are {direction} significantly ({crude_stocks_change:+.1f}M barrels), "
+                f"{'suggesting demand is softening.' if crude_stocks_change > 0 else 'signaling tight supply.'}"
+            )
+
+    if not parts:
+        return None
+
+    return " ".join(parts)
+
+
+def get_energy_narrative() -> Optional[str]:
+    """
+    Convenience function to fetch current EIA data and synthesize narrative.
+
+    Requires EIA_API_KEY to be set.
+
+    Returns:
+        Synthesized narrative about current energy conditions, or None on error.
+    """
+    if not check_api_key():
+        return None
+
+    # Fetch current data
+    _, wti_values, _ = get_eia_series('eia_wti_crude')
+    _, gas_values, _ = get_eia_series('eia_gasoline_retail')
+    _, natgas_values, _ = get_eia_series('eia_natural_gas_henry_hub')
+
+    # Get latest values
+    wti_price = wti_values[-1] if wti_values else None
+    gasoline_price = gas_values[-1] if gas_values else None
+    natgas_price = natgas_values[-1] if natgas_values else None
+
+    return synthesize_energy_narrative(
+        wti_price=wti_price,
+        gasoline_price=gasoline_price,
+        natgas_price=natgas_price,
+    )

@@ -1174,3 +1174,177 @@ if __name__ == "__main__":
             print(f"   Latest: {dates[-1]} = ${values[-1]:.2f}")
         else:
             print(f"   Error: {info.get('error', 'Unknown error')}")
+
+
+# =============================================================================
+# NARRATIVE SYNTHESIS (Economist-style interpretation)
+# =============================================================================
+
+def synthesize_market_narrative(
+    spy_price: Optional[float] = None,
+    spy_change_pct: Optional[float] = None,
+    vix_level: Optional[float] = None,
+    treasury_10y: Optional[float] = None,
+    treasury_2y: Optional[float] = None,
+    dollar_index: Optional[float] = None,
+    dollar_change_pct: Optional[float] = None,
+) -> Optional[str]:
+    """
+    Synthesize financial market data into a coherent narrative paragraph.
+
+    Explains what market signals mean for the economy and Fed policy.
+
+    Args:
+        spy_price: S&P 500 (SPY ETF) price level
+        spy_change_pct: S&P 500 year-to-date or recent change (%)
+        vix_level: VIX volatility index level
+        treasury_10y: 10-year Treasury yield (%)
+        treasury_2y: 2-year Treasury yield (%)
+        dollar_index: Dollar index level or value
+        dollar_change_pct: Dollar change (%)
+
+    Returns:
+        Human-readable narrative about financial market conditions
+    """
+    parts = []
+
+    # Stock market sentiment
+    if spy_change_pct is not None:
+        if spy_change_pct > 15:
+            parts.append(
+                f"Stocks are up {spy_change_pct:.0f}%—a strong showing that reflects optimism about "
+                "earnings growth and a soft landing. Elevated valuations require the economy to keep delivering."
+            )
+        elif spy_change_pct > 5:
+            parts.append(
+                f"Equities are up {spy_change_pct:.0f}%, suggesting investors see a healthy economic backdrop. "
+                "Markets are pricing in continued growth without a recession."
+            )
+        elif spy_change_pct > -5:
+            parts.append(
+                f"Stocks are roughly flat ({spy_change_pct:+.1f}%), reflecting uncertainty about "
+                "the path of interest rates and economic growth."
+            )
+        else:
+            parts.append(
+                f"Equities have fallen {abs(spy_change_pct):.0f}%, signaling growing concern about "
+                "either recession risk, persistently high rates, or both."
+            )
+
+    # VIX volatility
+    if vix_level is not None:
+        if vix_level < 15:
+            parts.append(
+                f"The VIX at {vix_level:.0f} shows complacency—volatility is subdued and investors "
+                "aren't hedging against downside risk. Low VIX can precede surprises."
+            )
+        elif vix_level < 20:
+            parts.append(
+                f"The VIX around {vix_level:.0f} reflects normal market conditions—"
+                "neither excessive fear nor dangerous complacency."
+            )
+        elif vix_level < 30:
+            parts.append(
+                f"Elevated VIX at {vix_level:.0f} signals heightened uncertainty. "
+                "Investors are paying up for downside protection, suggesting nervousness about near-term risks."
+            )
+        else:
+            parts.append(
+                f"The VIX at {vix_level:.0f} indicates significant market stress. "
+                "Readings above 30 typically accompany sharp selloffs or crisis periods."
+            )
+
+    # Yield curve analysis
+    if treasury_10y is not None and treasury_2y is not None:
+        spread_bp = (treasury_10y - treasury_2y) * 100
+        if spread_bp < -50:
+            parts.append(
+                f"The yield curve is deeply inverted ({spread_bp:.0f}bp), a classic recession signal. "
+                "However, this indicator has been flashing for over a year without a downturn materializing—"
+                "the 'soft landing' scenario remains in play."
+            )
+        elif spread_bp < 0:
+            parts.append(
+                f"The yield curve is mildly inverted ({spread_bp:.0f}bp). "
+                "Markets expect the Fed to cut rates as growth slows, pushing short rates down over time."
+            )
+        elif spread_bp < 50:
+            parts.append(
+                f"The yield curve is roughly flat (+{spread_bp:.0f}bp), "
+                "suggesting the Fed is near the end of its tightening cycle."
+            )
+        else:
+            parts.append(
+                f"A positively sloped curve (+{spread_bp:.0f}bp) is normal—"
+                "investors demand more yield for locking up money longer."
+            )
+    elif treasury_10y is not None:
+        if treasury_10y > 5:
+            parts.append(
+                f"The 10-year yield at {treasury_10y:.2f}% is the highest in over 15 years, "
+                "raising borrowing costs for mortgages, corporate debt, and government spending. "
+                "This level puts pressure on valuations and housing affordability."
+            )
+        elif treasury_10y > 4:
+            parts.append(
+                f"Treasury yields at {treasury_10y:.2f}% reflect a higher-for-longer rate environment. "
+                "Bonds now offer real competition to stocks for the first time in years."
+            )
+        elif treasury_10y > 3:
+            parts.append(
+                f"The 10-year at {treasury_10y:.2f}% is normalized after years near zero. "
+                "This is a 'return to normal' rather than tight conditions by historical standards."
+            )
+
+    # Dollar strength
+    if dollar_change_pct is not None:
+        if dollar_change_pct > 5:
+            parts.append(
+                f"The dollar has strengthened {dollar_change_pct:.0f}%, making US exports less competitive "
+                "but helping contain import price inflation. A strong dollar also tightens financial conditions globally."
+            )
+        elif dollar_change_pct < -5:
+            parts.append(
+                f"The dollar has weakened {abs(dollar_change_pct):.0f}%, easing conditions for US exporters "
+                "but adding modestly to import price pressures."
+            )
+
+    if not parts:
+        return None
+
+    return " ".join(parts)
+
+
+def get_market_narrative() -> Optional[str]:
+    """
+    Convenience function to fetch current Alpha Vantage data and synthesize narrative.
+
+    Requires ALPHAVANTAGE_API_KEY to be set.
+
+    Returns:
+        Synthesized narrative about current market conditions, or None on error.
+    """
+    if not check_api_key():
+        return None
+
+    # Fetch current data
+    _, spy_values, _ = get_alphavantage_series('av_spy')
+    _, treasury_10y_values, _ = get_alphavantage_series('av_treasury_10y')
+    _, treasury_2y_values, _ = get_alphavantage_series('av_treasury_2y')
+
+    # Calculate YTD change for S&P
+    spy_change_pct = None
+    if spy_values and len(spy_values) > 20:
+        # Approximate YTD by looking at ~250 trading days ago or start of data
+        start_idx = max(0, len(spy_values) - 252)  # Roughly 1 year
+        spy_change_pct = ((spy_values[-1] / spy_values[start_idx]) - 1) * 100
+
+    # Get latest values
+    treasury_10y = treasury_10y_values[-1] if treasury_10y_values else None
+    treasury_2y = treasury_2y_values[-1] if treasury_2y_values else None
+
+    return synthesize_market_narrative(
+        spy_change_pct=spy_change_pct,
+        treasury_10y=treasury_10y,
+        treasury_2y=treasury_2y,
+    )

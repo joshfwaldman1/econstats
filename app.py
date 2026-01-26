@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from urllib.request import urlopen, Request
 from urllib.parse import urlencode, quote
 from urllib.error import HTTPError, URLError
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import streamlit as st
 import plotly.graph_objects as go
@@ -238,6 +239,111 @@ try:
     QUERY_UNDERSTANDING_AVAILABLE = True
 except Exception:
     QUERY_UNDERSTANDING_AVAILABLE = False
+
+
+# =============================================================================
+# CACHING LAYER
+# =============================================================================
+# Simple in-memory cache with TTL to avoid re-fetching the same data repeatedly.
+# Economic data doesn't change frequently, so a 15-minute TTL is reasonable.
+
+_api_cache = {}
+_cache_ttl_seconds = 900  # 15 minutes
+
+
+def _get_cache_key(func_name: str, *args, **kwargs) -> str:
+    """
+    Generate a cache key from function name and arguments.
+
+    Args:
+        func_name: Name of the function being cached
+        *args: Positional arguments
+        **kwargs: Keyword arguments
+
+    Returns:
+        String cache key
+    """
+    # Sort kwargs for consistent key generation
+    sorted_kwargs = sorted(kwargs.items())
+    key_parts = [func_name, str(args), str(sorted_kwargs)]
+    return ':'.join(key_parts)
+
+
+def _get_from_cache(cache_key: str):
+    """
+    Retrieve data from cache if it exists and hasn't expired.
+
+    Args:
+        cache_key: Cache key to look up
+
+    Returns:
+        Cached data if valid, None otherwise
+    """
+    if cache_key in _api_cache:
+        cached_data, cached_time = _api_cache[cache_key]
+        age_seconds = (datetime.now() - cached_time).total_seconds()
+        if age_seconds < _cache_ttl_seconds:
+            return cached_data
+        else:
+            # Expired - remove from cache
+            del _api_cache[cache_key]
+    return None
+
+
+def _set_cache(cache_key: str, data):
+    """
+    Store data in cache with current timestamp.
+
+    Args:
+        cache_key: Cache key to store under
+        data: Data to cache
+    """
+    _api_cache[cache_key] = (data, datetime.now())
+
+
+def _clear_expired_cache():
+    """
+    Remove expired entries from cache to prevent unbounded memory growth.
+    Called periodically to clean up old entries.
+    """
+    now = datetime.now()
+    expired_keys = [
+        key for key, (_, cached_time) in _api_cache.items()
+        if (now - cached_time).total_seconds() >= _cache_ttl_seconds
+    ]
+    for key in expired_keys:
+        del _api_cache[key]
+
+
+def get_cache_stats() -> dict:
+    """
+    Get statistics about the current cache state.
+
+    Returns:
+        Dictionary with cache statistics including total entries, expired entries, etc.
+    """
+    now = datetime.now()
+    total_entries = len(_api_cache)
+    expired_entries = sum(
+        1 for _, (_, cached_time) in _api_cache.items()
+        if (now - cached_time).total_seconds() >= _cache_ttl_seconds
+    )
+    valid_entries = total_entries - expired_entries
+
+    return {
+        'total_entries': total_entries,
+        'valid_entries': valid_entries,
+        'expired_entries': expired_entries,
+        'ttl_seconds': _cache_ttl_seconds,
+    }
+
+
+def clear_all_cache():
+    """
+    Clear all cache entries. Useful for debugging or forcing fresh data.
+    """
+    global _api_cache
+    _api_cache = {}
 
 
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
@@ -3432,6 +3538,124 @@ SERIES_DB = {
             'Despite political rhetoric, trade deficits aren\'t inherently bad. They partly reflect strong U.S. consumer demand, the dollar\'s role as the global reserve currency, and America\'s relative attractiveness for foreign investment. Economists generally focus more on whether trade is balanced over time and whether it supports productive economic activity.'
         ]
     },
+
+    # === ZILLOW HOUSING DATA (NON-FRED) ===
+    'zillow_zori_national': {
+        'name': 'Zillow Observed Rent Index (ZORI)',
+        'unit': 'Dollars per Month',
+        'source': 'Zillow Research',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+    },
+    'zillow_rent_yoy': {
+        'name': 'Zillow Rent YoY Growth',
+        'unit': 'Percent',
+        'source': 'Zillow Research',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'growth_rate',
+    },
+    'zillow_zhvi_national': {
+        'name': 'Zillow Home Value Index (ZHVI)',
+        'unit': 'Dollars',
+        'source': 'Zillow Research',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'level',
+    },
+    'zillow_home_value_yoy': {
+        'name': 'Zillow Home Value YoY Growth',
+        'unit': 'Percent',
+        'source': 'Zillow Research',
+        'sa': True,
+        'frequency': 'monthly',
+        'data_type': 'growth_rate',
+    },
+
+    # === EIA ENERGY DATA (NON-FRED) ===
+    'eia_wti_crude': {
+        'name': 'WTI Crude Oil Price',
+        'unit': 'Dollars per Barrel',
+        'source': 'U.S. Energy Information Administration',
+        'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'price',
+    },
+    'eia_brent_crude': {
+        'name': 'Brent Crude Oil Price',
+        'unit': 'Dollars per Barrel',
+        'source': 'U.S. Energy Information Administration',
+        'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'price',
+    },
+    'eia_gasoline_retail': {
+        'name': 'Retail Gasoline Price',
+        'unit': 'Dollars per Gallon',
+        'source': 'U.S. Energy Information Administration',
+        'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'price',
+    },
+    'eia_diesel_retail': {
+        'name': 'Retail Diesel Price',
+        'unit': 'Dollars per Gallon',
+        'source': 'U.S. Energy Information Administration',
+        'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'price',
+    },
+    'eia_natural_gas_henry_hub': {
+        'name': 'Natural Gas Price (Henry Hub)',
+        'unit': 'Dollars per MMBtu',
+        'source': 'U.S. Energy Information Administration',
+        'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'price',
+    },
+    'eia_crude_stocks': {
+        'name': 'US Crude Oil Inventories',
+        'unit': 'Millions of Barrels',
+        'source': 'U.S. Energy Information Administration',
+        'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'level',
+    },
+    'eia_crude_production': {
+        'name': 'US Crude Oil Production',
+        'unit': 'Thousands of Barrels per Day',
+        'source': 'U.S. Energy Information Administration',
+        'sa': False,
+        'frequency': 'weekly',
+        'data_type': 'level',
+    },
+
+    # === ALPHA VANTAGE MARKET DATA (NON-FRED) ===
+    'av_spy': {
+        'name': 'S&P 500 ETF (SPY)',
+        'unit': 'Dollars',
+        'source': 'Alpha Vantage',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'price',
+    },
+    'av_treasury_10y': {
+        'name': '10-Year Treasury Yield',
+        'unit': 'Percent',
+        'source': 'Alpha Vantage',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
+    },
+    'av_treasury_2y': {
+        'name': '2-Year Treasury Yield',
+        'unit': 'Percent',
+        'source': 'Alpha Vantage',
+        'sa': False,
+        'frequency': 'daily',
+        'data_type': 'rate',
+    },
 }
 
 
@@ -4586,6 +4810,9 @@ CRITICAL RULES:
             improved = result['content'][0]['text'].strip()
             # Clean up any markdown or quotes
             improved = improved.strip('"\'')
+            # Strip any HTML tags that LLM might have generated
+            import re
+            improved = re.sub(r'<[^>]+>', '', improved)
             return improved if improved else original_explanation
     except Exception as e:
         return original_explanation
@@ -5179,26 +5406,105 @@ def generate_chart_title(series_id: str, info: dict) -> str:
 
 
 def fred_request(endpoint: str, params: dict) -> dict:
-    """Make a request to the FRED API."""
+    """
+    Make a request to the FRED API with detailed error handling and caching.
+
+    Caches responses for 15 minutes to reduce API calls.
+
+    Returns dict with response data or {'error': message, 'error_type': type}
+    """
+    # Check cache first (exclude api_key from cache key for security)
+    cache_params = {k: v for k, v in params.items() if k != 'api_key'}
+    cache_key = _get_cache_key('fred_request', endpoint, **cache_params)
+    cached_result = _get_from_cache(cache_key)
+    if cached_result is not None:
+        return cached_result
+
+    # Make the API request
     params['api_key'] = FRED_API_KEY
     params['file_type'] = 'json'
     url = f"{FRED_BASE}/{endpoint}?{urlencode(params)}"
     try:
         req = Request(url, headers={'User-Agent': 'EconStats/1.0'})
         with urlopen(req, timeout=30) as response:
-            return json.loads(response.read().decode('utf-8'))
+            result = json.loads(response.read().decode('utf-8'))
+            # Cache successful responses
+            _set_cache(cache_key, result)
+            return result
+    except HTTPError as e:
+        # Distinguish between different HTTP errors for better user messaging
+        if e.code == 429:
+            # Don't cache rate limit errors - they're temporary
+            return {
+                'error': 'FRED API rate limit reached. Please wait a moment and try again.',
+                'error_type': 'rate_limit',
+                'retry_after': e.headers.get('Retry-After', '60')
+            }
+        elif e.code == 400:
+            # Bad request - usually invalid series ID. Cache this to avoid repeated failed requests.
+            series_id = params.get('series_id', '')
+            result = {
+                'error': f'Series {series_id} not found or invalid',
+                'error_type': 'invalid_series'
+            }
+            _set_cache(cache_key, result)
+            return result
+        elif e.code == 403:
+            # Auth error - cache it since it won't change without config changes
+            result = {
+                'error': 'FRED API access denied. API key may be invalid.',
+                'error_type': 'auth_error'
+            }
+            _set_cache(cache_key, result)
+            return result
+        elif e.code >= 500:
+            # Server errors are temporary - don't cache
+            return {
+                'error': 'FRED API is temporarily unavailable. Please try again in a moment.',
+                'error_type': 'server_error'
+            }
+        else:
+            # Cache other HTTP errors
+            result = {
+                'error': f'FRED API error: {e.code} - {e.reason}',
+                'error_type': 'http_error'
+            }
+            _set_cache(cache_key, result)
+            return result
+    except URLError as e:
+        # Network errors are temporary - don't cache
+        return {
+            'error': 'Network error. Please check your internet connection.',
+            'error_type': 'network_error'
+        }
     except Exception as e:
-        return {'error': str(e)}
+        # Unknown errors - don't cache as they might be transient
+        return {
+            'error': f'Unexpected error: {str(e)}',
+            'error_type': 'unknown'
+        }
 
 
 def search_series(query: str, limit: int = 5, require_recent: bool = True) -> list:
-    """Search FRED for series matching the query.
+    """
+    Search FRED for series matching the query with caching.
+
+    Caches search results for 15 minutes to reduce API calls.
 
     Args:
         query: Search terms
         limit: Max results to return
         require_recent: If True, filter out series with no data after 2020
+
+    Returns:
+        List of series metadata dictionaries
     """
+    # Check cache first
+    cache_key = _get_cache_key('search_series', query, limit=limit, require_recent=require_recent)
+    cached_result = _get_from_cache(cache_key)
+    if cached_result is not None:
+        return cached_result
+
     # Request more results than needed so we can filter
     fetch_limit = limit * 3 if require_recent else limit
 
@@ -5240,6 +5546,8 @@ def search_series(query: str, limit: int = 5, require_recent: bool = True) -> li
     else:
         results = results[:limit]
 
+    # Cache the processed results
+    _set_cache(cache_key, results)
     return results
 
 
@@ -5376,14 +5684,14 @@ def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
     # Combine for: comparison queries, or when showing closely related series
     query_lower = query.lower()
     
-    # Expanded comparison detection - users often want to compare without explicit keywords
-    comparison_keywords = [
+    # Comparison detection - explicit keywords like "vs", "compare"
+    # Note: " and " is NOT included here - it doesn't force combining with mixed units
+    explicit_comparison_keywords = [
         'vs', 'versus', 'compare', 'comparing', 'comparison',
         'relative to', 'against', 'between',
-        ' and ',  # "inflation and wages" implies comparison
     ]
-    is_comparison = any(kw in query_lower for kw in comparison_keywords)
-    
+    is_explicit_comparison = any(kw in query_lower for kw in explicit_comparison_keywords)
+
     # Also detect implicit comparisons: queries with exactly 2 related concepts
     # e.g., "wages inflation" or "unemployment job openings"
     has_two_indicators = len(found_series) == 2
@@ -5393,9 +5701,15 @@ def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
     if verbose and units_compatible:
         print(f"    Auto-combine: {compatibility_reason}")
 
-    # Combine when: explicit comparison OR two related series OR compatible units
-    # The unit compatibility check catches cases like "show me rates" that imply combining
-    should_combine = (is_comparison or has_two_indicators or units_compatible) and len(found_series) <= 4
+    # Combine when:
+    # - Explicit comparison (vs, compare) - even with mixed units
+    # - Units are compatible (all rates, all %, all indexes)
+    # - Two related indicators with compatible units
+    should_combine = (
+        is_explicit_comparison or
+        units_compatible or
+        (has_two_indicators and units_compatible)
+    ) and len(found_series) <= 4
 
     return {
         'series': found_series,
@@ -5537,14 +5851,25 @@ def hybrid_query_plan(query: str, verbose: bool = False) -> dict:
     # This catches cases like "treasury yields" where all series are rates
     units_compatible, compatibility_reason = can_combine_series(all_series)
 
-    # Also check for comparison keywords in query
+    # Check for comparison keywords in query
+    # Explicit comparisons (vs, compare) should combine even with mixed units
+    # Implicit " and " should only combine if units are compatible
     query_lower = query.lower()
-    comparison_keywords = ['vs', 'versus', 'compare', 'comparing', 'comparison',
-                           'relative to', 'against', 'between', ' and ']
-    is_comparison = any(kw in query_lower for kw in comparison_keywords)
+    explicit_comparison_keywords = ['vs', 'versus', 'compare', 'comparing', 'comparison',
+                                    'relative to', 'against', 'between']
+    is_explicit_comparison = any(kw in query_lower for kw in explicit_comparison_keywords)
+    has_and = ' and ' in query_lower
 
-    # Combine if: units are compatible OR explicit comparison OR RAG says to combine
-    should_combine = units_compatible or is_comparison or rag_result.get('combine_chart', False)
+    # Combine if:
+    # - Units are compatible (safe to combine), OR
+    # - Explicit comparison requested (user wants them together even with mixed units), OR
+    # - RAG recommends it
+    # Note: " and " alone doesn't force combining - only combines if units are compatible
+    should_combine = (
+        units_compatible or
+        is_explicit_comparison or
+        rag_result.get('combine_chart', False)
+    )
 
     if verbose and units_compatible:
         print(f"  Auto-combine: {compatibility_reason}")
@@ -5777,6 +6102,38 @@ def fetch_series_data(series_id: str, years: int = None) -> tuple:
 
     # Default to FRED
     return get_observations(series_id, years)
+
+
+def fetch_single_series(series_id: str, years: int) -> dict:
+    """
+    Fetch a single series and return structured result for parallel processing.
+
+    Returns dict with:
+    - series_id: The series identifier
+    - dates: List of date strings
+    - values: List of numeric values
+    - info: Metadata dict
+    - success: Boolean indicating if fetch succeeded
+    """
+    try:
+        dates, values, info = fetch_series_data(series_id, years)
+        return {
+            'series_id': series_id,
+            'dates': dates,
+            'values': values,
+            'info': info,
+            'success': bool(dates and values)
+        }
+    except Exception as e:
+        # Return empty result on failure
+        return {
+            'series_id': series_id,
+            'dates': [],
+            'values': [],
+            'info': {},
+            'success': False,
+            'error': str(e)
+        }
 
 
 def calculate_yoy(dates: list, values: list) -> tuple:
@@ -6337,6 +6694,9 @@ def summary_to_bullets(text):
 
 
 def main():
+    # Clean up expired cache entries to prevent memory bloat
+    _clear_expired_cache()
+
     st.set_page_config(page_title="EconStats", page_icon="", layout="wide")
 
     st.markdown("""
@@ -7668,12 +8028,23 @@ def main():
             else:
                 all_series = base_series
 
+            # Determine combine_chart: use plan value, or check unit compatibility as fallback
+            plan_combine = precomputed_plan.get('combine_chart')
+            if plan_combine is None:
+                # Plan doesn't specify - use smart defaults
+                if precomputed_plan.get('is_comparison'):
+                    plan_combine = True
+                else:
+                    # Check if series have compatible units (all rates, all %, etc.)
+                    units_ok, _ = can_combine_series(all_series)
+                    plan_combine = units_ok
+
             interpretation = {
                 'series': all_series,
                 'explanation': precomputed_plan.get('explanation', f'Showing data for: {query}'),
                 'show_yoy': precomputed_plan.get('show_yoy', False),
                 'show_yoy_series': precomputed_plan.get('show_yoy_series', []),
-                'combine_chart': precomputed_plan.get('combine_chart', True) if precomputed_plan.get('is_comparison') else precomputed_plan.get('combine_chart', False),
+                'combine_chart': plan_combine,
                 'show_mom': False,
                 'show_avg_annual': False,
                 'is_followup': False,
@@ -7696,13 +8067,23 @@ def main():
             }
         elif local_parsed:
             # Try local parser for common follow-up commands (no API call needed)
+            # For follow-ups, inherit combine setting or check unit compatibility
+            local_combine = local_parsed.get('combine_chart')
+            if local_combine is None:
+                local_series = local_parsed.get('series', [])
+                if local_series:
+                    units_ok, _ = can_combine_series(local_series)
+                    local_combine = units_ok
+                else:
+                    local_combine = False
+
             interpretation = {
                 'series': local_parsed.get('series', []),
                 'explanation': local_parsed.get('explanation', ''),
                 'show_yoy': local_parsed.get('show_yoy', False),
                 'show_mom': local_parsed.get('show_mom', False),
                 'show_avg_annual': local_parsed.get('show_avg_annual', False),
-                'combine_chart': local_parsed.get('combine_chart', False),
+                'combine_chart': local_combine,
                 'is_followup': local_parsed.get('is_followup', True),
                 'add_to_previous': local_parsed.get('add_to_previous', False),
                 'keep_previous_series': local_parsed.get('keep_previous_series', False),
@@ -8073,11 +8454,64 @@ def main():
                 all_series_to_fetch.append(sid)
                 series_source_map[sid] = 'dbnomics'
 
-        # Fetch all series data
-        for series_id in all_series_to_fetch[:4]:
-            # Use unified fetch function that routes based on series ID prefix
-            # (zillow_*, eia_*, av_* -> respective APIs, DBnomics series -> DBnomics, else FRED)
-            dates, values, info = fetch_series_data(series_id, years)
+        # Fetch all series data in parallel using ThreadPoolExecutor
+        # This significantly speeds up queries that return multiple series
+        fetch_results = []
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            # Submit all fetch tasks
+            future_to_series = {
+                executor.submit(fetch_single_series, series_id, years): series_id
+                for series_id in all_series_to_fetch[:4]
+            }
+
+            # Collect results as they complete
+            for future in as_completed(future_to_series):
+                try:
+                    result = future.result()
+                    fetch_results.append(result)
+                except Exception as e:
+                    series_id = future_to_series[future]
+                    # Log error but continue with other series
+                    fetch_results.append({
+                        'series_id': series_id,
+                        'dates': [],
+                        'values': [],
+                        'info': {},
+                        'success': False,
+                        'error': str(e)
+                    })
+
+        # Track failed series for better user messaging
+        failed_series = []
+        for result in fetch_results:
+            if not result['success']:
+                failed_series.append({
+                    'series_id': result['series_id'],
+                    'error': result.get('error', 'Unknown error')
+                })
+
+        # Report failed series to user if some failed but others succeeded
+        if failed_series and len(failed_series) < len(fetch_results):
+            failed_ids = [f['series_id'] for f in failed_series]
+            # Check if errors are due to rate limiting
+            rate_limit_errors = [f for f in failed_series if 'rate limit' in f['error'].lower()]
+            if rate_limit_errors:
+                st.warning(f"FRED API rate limit reached. Showing partial results. Please wait a moment before making another query.")
+            else:
+                # Show which series failed (but only if it's a small number)
+                if len(failed_series) <= 2:
+                    st.warning(f"Could not fetch: {', '.join(failed_ids)}. These series may be discontinued or temporarily unavailable. Showing other requested data.")
+
+        # Process fetched results sequentially (transformations depend on series-specific logic)
+        for result in fetch_results:
+            if not result['success']:
+                continue
+
+            series_id = result['series_id']
+            dates = result['dates']
+            values = result['values']
+            info = result['info']
+
             if dates and values:
                 # Recency check: silently skip series if latest observation is more than 1 year old
                 try:
@@ -8218,20 +8652,57 @@ def main():
 
         if not series_data:
             # Provide helpful guidance instead of generic error
-            st.error("No data available for this query")
-
-            # Build context-specific guidance
+            # Build context-specific guidance first to determine the error message
             guidance_parts = []
+            error_reason = None
 
-            # Check if date filtering removed all data
-            if filter_start_date or filter_end_date:
-                date_range = ""
-                if filter_start_date and filter_end_date:
-                    date_range = f"between {filter_start_date} and {filter_end_date}"
-                elif filter_start_date:
-                    date_range = f"after {filter_start_date}"
-                elif filter_end_date:
-                    date_range = f"before {filter_end_date}"
+            # Check if ALL series failed to fetch
+            if failed_series and len(failed_series) == len(all_series_to_fetch):
+                # All series failed - show which ones and why
+                rate_limit_errors = [f for f in failed_series if 'rate limit' in f['error'].lower()]
+                invalid_series_errors = [f for f in failed_series if 'not found' in f['error'].lower() or 'invalid' in f['error'].lower()]
+
+                if rate_limit_errors:
+                    error_reason = "FRED API rate limit reached"
+                    st.error(f"Unable to fetch data: {error_reason}")
+                    guidance_parts.append("• The FRED API has temporarily rate-limited requests.")
+                    guidance_parts.append("• Please wait 60 seconds and try again.")
+                    guidance_parts.append("• Tip: Rate limits reset every minute, so you can retry shortly.")
+                elif invalid_series_errors:
+                    error_reason = "Requested series not found"
+                    st.error(f"Unable to fetch data: {error_reason}")
+                    failed_ids = [f['series_id'] for f in invalid_series_errors]
+                    guidance_parts.append(f"• Series not found in FRED: {', '.join(failed_ids[:3])}")
+                    guidance_parts.append("• These series may have been discontinued or renamed.")
+                    # Suggest alternatives based on query
+                    query_lower = query.lower()
+                    if 'unemployment' in query_lower:
+                        guidance_parts.append("• Try: 'unemployment rate' or 'jobless claims'")
+                    elif 'inflation' in query_lower or 'price' in query_lower:
+                        guidance_parts.append("• Try: 'inflation rate' or 'CPI'")
+                    elif 'gdp' in query_lower or 'growth' in query_lower:
+                        guidance_parts.append("• Try: 'GDP growth' or 'economic growth'")
+                    else:
+                        guidance_parts.append("• Try a broader query like 'unemployment', 'inflation', or 'GDP growth'")
+                else:
+                    error_reason = "Data fetch failed"
+                    st.error(f"Unable to fetch data: {error_reason}")
+                    guidance_parts.append("• All requested series failed to load.")
+                    guidance_parts.append("• This may be a temporary FRED API issue.")
+                    guidance_parts.append("• Please try again in a moment.")
+            else:
+                # Some data was fetched but filtered out
+                st.error("No data available for this query")
+
+                # Check if date filtering removed all data
+                if filter_start_date or filter_end_date:
+                    date_range = ""
+                    if filter_start_date and filter_end_date:
+                        date_range = f"between {filter_start_date} and {filter_end_date}"
+                    elif filter_start_date:
+                        date_range = f"after {filter_start_date}"
+                    elif filter_end_date:
+                        date_range = f"before {filter_end_date}"
                 guidance_parts.append(f"• The date filter ({date_range}) may have excluded all data. Try a broader time range.")
 
             # Check if it was a niche query
@@ -8241,12 +8712,12 @@ def main():
                 guidance_parts.append("• FRED focuses on broad macroeconomic indicators and may not have data for niche industries.")
                 guidance_parts.append("• Try broader queries like 'restaurant employment', 'energy sector', or 'technology industry'.")
 
-            # Check if series IDs were valid
-            if series_to_fetch:
-                guidance_parts.append(f"• Attempted to fetch: {', '.join(series_to_fetch[:4])}")
-                guidance_parts.append("• These series may be discontinued, have delayed releases, or be temporarily unavailable.")
+                # Check if series IDs were valid
+                if series_to_fetch:
+                    guidance_parts.append(f"• Attempted to fetch: {', '.join(series_to_fetch[:4])}")
+                    guidance_parts.append("• These series may be discontinued, have delayed releases, or be temporarily unavailable.")
 
-            # General suggestions
+            # General suggestions if nothing else was added
             if not guidance_parts:
                 guidance_parts.append("• FRED may be temporarily unavailable. Try again in a moment.")
                 guidance_parts.append("• Try a broader economic query like 'unemployment', 'inflation', or 'GDP growth'.")

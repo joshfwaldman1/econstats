@@ -6,9 +6,14 @@
       "PCEPILFE",
       "LES1252881600Q"
     ],
-    "show_yoy": [true, true, true, true],
+    "show_yoy": [
+      true,
+      true,
+      true,
+      true
+    ],
     "combine_chart": false,
-    "explanation": "Four ways to understand inflation:\n\n• **Headline CPI (CPIAUCSL)**: What consumers actually experience at the grocery store and gas pump. Most cited in news. Volatile due to energy/food swings.\n\n• **Core CPI (CPILFESL)**: Strips out volatile food and energy. Better indicator of underlying inflation trends. Fed watches this alongside PCE.\n\n• **Core PCE (PCEPILFE)**: The Fed's OFFICIAL 2% target. Differs from CPI: captures substitution effects (when beef gets expensive, people buy chicken), includes employer-paid healthcare. Typically runs 0.3-0.5% below CPI.\n\n• **Real Wages (LES1252881600Q)**: The punchline - are workers keeping up? Rising real wages = inflation is being offset by wage gains. Falling = purchasing power squeeze. This is what actually matters for household budgets."
+    "explanation": "Four ways to understand inflation:\n\n\u2022 **Headline CPI (CPIAUCSL)**: What consumers actually experience at the grocery store and gas pump. Most cited in news. Volatile due to energy/food swings.\n\n\u2022 **Core CPI (CPILFESL)**: Strips out volatile food and energy. Better indicator of underlying inflation trends. Fed watches this alongside PCE.\n\n\u2022 **Core PCE (PCEPILFE)**: The Fed's OFFICIAL 2% target. Differs from CPI: captures substitution effects (when beef gets expensive, people buy chicken), includes employer-paid healthcare. Typically runs 0.3-0.5% below CPI.\n\n\u2022 **Real Wages (LES1252881600Q)**: The punchline - are workers keeping up? Rising real wages = inflation is being offset by wage gains. Falling = purchasing power squeeze. This is what actually matters for household budgets."
   },
   "cpi": {
     "series": [
@@ -72,27 +77,51 @@
     "explanation": "Core PCE (Personal Consumption Expenditures Price Index excluding food and energy) is the Federal Reserve's preferred inflation measure and primary target for monetary policy. It strips out volatile food and energy prices to show underlying inflation trends. The Fed targets 2% annual core PCE inflation over the longer run."
   },
   "cpi vs pce": {
-    "series": ["CPIAUCSL", "PCEPI", "CPILFESL", "PCEPILFE"],
+    "series": [
+      "CPIAUCSL",
+      "PCEPI"
+    ],
     "show_yoy": true,
-    "combine_chart": false,
-    "explanation": "CPI vs PCE comparison:\n\n**Headline:** CPIAUCSL (CPI) vs PCEPI (PCE). CPI is widely reported in news; PCE is what the Fed targets.\n\n**Core:** CPILFESL (Core CPI) vs PCEPILFE (Core PCE). The Fed targets 2% Core PCE specifically.\n\nKey difference: PCE captures substitution effects (if beef prices rise, people buy chicken) and includes employer-paid healthcare. PCE inflation typically runs 0.3-0.5 percentage points below CPI.",
-    "chart_groups": [
-      {"series": ["CPIAUCSL", "PCEPI"], "show_yoy": true, "title": "Headline CPI vs Headline PCE (YoY %)"},
-      {"series": ["CPILFESL", "PCEPILFE"], "show_yoy": true, "title": "Core CPI vs Core PCE (YoY %)"}
-    ]
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "CPI and PCE are the two main inflation measures. CPI (Consumer Price Index) measures a fixed basket of goods - what you'd see in news headlines. PCE (Personal Consumption Expenditures) is the Fed's preferred measure because it captures substitution effects (when beef gets expensive, people buy chicken). PCE typically runs 0.3-0.5% below CPI. Comparing them shows if the gap is widening or narrowing."
   },
   "pce vs cpi": {
-    "series": ["CPIAUCSL", "PCEPI", "CPILFESL", "PCEPILFE"],
+    "series": [
+      "CPIAUCSL",
+      "PCEPI",
+      "CPILFESL",
+      "PCEPILFE"
+    ],
     "show_yoy": true,
     "combine_chart": false,
     "explanation": "CPI vs PCE comparison:\n\n**Headline:** CPIAUCSL (CPI) vs PCEPI (PCE). CPI is widely reported in news; PCE is what the Fed targets.\n\n**Core:** CPILFESL (Core CPI) vs PCEPILFE (Core PCE). The Fed targets 2% Core PCE specifically.\n\nKey difference: PCE captures substitution effects (if beef prices rise, people buy chicken) and includes employer-paid healthcare. PCE inflation typically runs 0.3-0.5 percentage points below CPI.",
     "chart_groups": [
-      {"series": ["CPIAUCSL", "PCEPI"], "show_yoy": true, "title": "Headline CPI vs Headline PCE (YoY %)"},
-      {"series": ["CPILFESL", "PCEPILFE"], "show_yoy": true, "title": "Core CPI vs Core PCE (YoY %)"}
+      {
+        "series": [
+          "CPIAUCSL",
+          "PCEPI"
+        ],
+        "show_yoy": true,
+        "title": "Headline CPI vs Headline PCE (YoY %)"
+      },
+      {
+        "series": [
+          "CPILFESL",
+          "PCEPILFE"
+        ],
+        "show_yoy": true,
+        "title": "Core CPI vs Core PCE (YoY %)"
+      }
     ]
   },
   "compare cpi and pce": {
-    "series": ["CPIAUCSL", "PCEPI", "CPILFESL", "PCEPILFE"],
+    "series": [
+      "CPIAUCSL",
+      "PCEPI",
+      "CPILFESL",
+      "PCEPILFE"
+    ],
     "show_yoy": true,
     "combine_chart": false,
     "explanation": "CPI vs PCE comparison:\n\n**Headline:** CPIAUCSL (CPI) vs PCEPI (PCE). CPI is widely reported in news; PCE is what the Fed targets.\n\n**Core:** CPILFESL (Core CPI) vs PCEPILFE (Core PCE). The Fed targets 2% Core PCE specifically.\n\nKey difference: PCE captures substitution effects (if beef prices rise, people buy chicken) and includes employer-paid healthcare. PCE inflation typically runs 0.3-0.5 percentage points below CPI."
@@ -183,7 +212,12 @@
       "CPIAUCSL",
       "DCOILWTICO"
     ],
-    "show_yoy": [true, true, true, false],
+    "show_yoy": [
+      true,
+      true,
+      true,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Food prices through multiple lenses: Food at home (CUSR0000SAF11) covers groceries, Food away from home (CUSR0000SEFV) covers restaurants. Compared to headline CPI (CPIAUCSL) to show if food inflation is running hot vs overall prices. Oil prices (DCOILWTICO) provide supply-side context since fuel affects agricultural production and food transportation costs. Grocery prices are commodity-driven; restaurant prices reflect wage pressures."
   },
@@ -199,49 +233,87 @@
   },
   "gas prices": {
     "series": [
-      "GASREGW",
-      "CUSR0000SETB01"
+      "eia_gasoline_retail",
+      "eia_wti_crude"
     ],
     "show_yoy": false,
-    "combine_chart": true,
-    "explanation": "GASREGW shows actual retail gasoline prices in dollars per gallon (what consumers pay at the pump), while CUSR0000SETB01 shows the CPI gasoline component which reflects how gas price changes contribute to overall inflation. Together they provide both the absolute price level and the inflation impact of gasoline."
+    "combine_chart": false,
+    "explanation": "Retail gasoline prices from EIA (what you pay at the pump) and WTI crude oil (the upstream driver). Gas prices typically follow oil with a 2-3 week lag. EIA provides weekly updates - more timely than FRED."
   },
   "gasoline prices": {
     "series": [
-      "GASREGW",
-      "CUSR0000SETB01"
+      "eia_gasoline_retail",
+      "eia_diesel_retail"
     ],
     "show_yoy": false,
     "combine_chart": true,
-    "explanation": "GASREGW shows actual retail gasoline prices in dollars per gallon (what consumers pay at the pump), while CUSR0000SETB01 shows the CPI gasoline component which measures price changes relative to the base period. Together they provide both the absolute price level and the inflationary impact of gasoline. Using actual prices rather than YoY changes since people typically want to know current gas price levels."
+    "explanation": "Retail fuel prices from EIA: regular gasoline and diesel. Weekly national averages of what consumers and truckers pay at the pump."
   },
   "energy prices": {
     "series": [
-      "CUSR0000SETB01",
-      "DCOILWTICO",
-      "GASREGW",
+      "eia_wti_crude",
+      "eia_gasoline_retail",
+      "eia_natural_gas_henry_hub",
       "CUSR0000SEHE"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Energy prices comprehensively: CPI Gasoline (CUSR0000SETB01) measures pump price inflation, WTI Crude (DCOILWTICO) is the upstream commodity driver, regular gas prices (GASREGW) show actual retail prices, and electricity/utilities (CUSR0000SEHE) captures household energy costs beyond transportation. Oil drives gas prices with ~2-week lag; electricity has separate regulatory and supply dynamics."
+    "explanation": "Energy prices from EIA (weekly data): WTI crude oil, retail gasoline (what you pay at the pump), and Henry Hub natural gas. CPI electricity (CUSR0000SEHE) for household utility costs. EIA data is more timely than FRED for energy commodities."
   },
-  "oil prices": {
+  "eia oil": {
     "series": [
-      "DCOILWTICO"
+      "eia_wti_crude",
+      "eia_brent_crude"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "EIA crude oil prices: WTI (US benchmark) and Brent (global benchmark). Weekly data from the US Energy Information Administration."
+  },
+  "eia gas": {
+    "series": [
+      "eia_gasoline_retail",
+      "eia_diesel_retail"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "EIA retail fuel prices: regular gasoline and diesel. Weekly national averages from the US Energy Information Administration."
+  },
+  "natural gas prices": {
+    "series": [
+      "eia_natural_gas_henry_hub"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "WTI crude oil price (DCOILWTICO) is the benchmark for US oil prices. Oil prices are typically analyzed in dollar terms rather than year-over-year changes, as traders and economists focus on the absolute price level for supply/demand dynamics, geopolitical impacts, and effects on gasoline/energy costs."
+    "explanation": "Henry Hub natural gas spot price from EIA. This is the US benchmark for natural gas pricing, used in futures contracts and as reference for consumer utility rates."
+  },
+  "oil prices": {
+    "series": [
+      "eia_wti_crude",
+      "eia_brent_crude"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "WTI and Brent crude oil prices from EIA (weekly data). WTI is the US benchmark, Brent is the global benchmark. EIA provides more timely energy data than FRED."
   },
   "rent inflation": {
     "series": [
+      "zillow_rent_yoy",
       "CUSR0000SEHA",
       "CUSR0000SEHC"
     ],
-    "show_yoy": true,
+    "show_yoy": [false, true, true],
     "combine_chart": true,
-    "explanation": "CPI Rent of Primary Residence (CUSR0000SEHA) and Owners' Equivalent Rent (CUSR0000SEHC). CRITICAL: CPI rent data LAGS actual market rents by 12+ months because BLS surveys existing leases that turn over slowly. If market rents are falling today, CPI won't show it for a year. For current rent trends, check Zillow or Apartment List indexes."
+    "explanation": "Rent inflation with leading and lagging indicators: Zillow rent YoY (real-time market rents), CPI rent of primary residence (official measure, lags 12+ months), and Owners' Equivalent Rent (imputed homeowner cost). Zillow shows where rent inflation is NOW; CPI shows where it was a year ago. The gap between them predicts CPI's future path."
+  },
+  "zillow vs cpi": {
+    "series": [
+      "zillow_rent_yoy",
+      "CUSR0000SEHA"
+    ],
+    "show_yoy": [false, true],
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Zillow rent growth (leading) vs CPI rent (lagging). Zillow captures real-time asking rents; CPI lags by 12-18 months due to slow lease turnover. When Zillow peaked at 17% in early 2022, CPI rent was still rising and didn't peak until mid-2023. This lag is why shelter inflation stays 'sticky' long after the market has cooled."
   },
   "is rent inflation coming down": {
     "series": [
@@ -266,7 +338,12 @@
       "CUSR0000SEHC",
       "MORTGAGE30US"
     ],
-    "show_yoy": [true, true, true, false],
+    "show_yoy": [
+      true,
+      true,
+      true,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Shelter inflation breakdown: Overall shelter (CUSR0000SAH1) is 33% of CPI. Rent of primary residence (CUSR0000SEHA) shows actual renter costs. Owners' equivalent rent (CUSR0000SEHC) imputes homeowner housing costs. Mortgage rates (MORTGAGE30US) provide affordability context - high rates can dampen housing demand but take time to flow through to CPI shelter measures due to lagged lease renewals."
   },
@@ -332,7 +409,12 @@
       "DTWEXBGS",
       "NAPMPMD"
     ],
-    "show_yoy": [true, true, false, false],
+    "show_yoy": [
+      true,
+      true,
+      false,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Goods vs services inflation with supply context: PCE goods (DGDSRD3Q086SBEA) vs PCE services (DPCERD3Q086SBEA) shows the divergence. Dollar strength (DTWEXBGS) affects import prices - strong dollar = cheaper imported goods. ISM supplier deliveries (NAPMPMD) indicates supply chain conditions - high readings mean delays that can push goods prices up. Goods inflation was transitory during COVID; services inflation has been stickier."
   },
@@ -490,7 +572,12 @@
       "CUSR0000SAF11",
       "DCOILWTICO"
     ],
-    "show_yoy": [true, true, true, false],
+    "show_yoy": [
+      true,
+      true,
+      true,
+      false
+    ],
     "combine_chart": false,
     "explanation": "Key inflation drivers: headline CPI (CPIAUCSL) shows overall inflation, shelter (CUSR0000SAH1) is ~33% of CPI and often the stickiest component, food at home (CUSR0000SAF11) affects all households, and oil prices (DCOILWTICO) drive energy costs. High shelter inflation is typically why inflation stays elevated even when goods prices moderate."
   },
@@ -562,5 +649,110 @@
     "show_yoy": true,
     "combine_chart": false,
     "explanation": "Cost pressures: Overall inflation (CPIAUCSL), shelter (CUSR0000SAH1), food (CUSR0000SAF11), and real wages (LES1252881600Q). When inflation exceeds wage growth, purchasing power declines and everything feels more expensive. Real wage growth shows whether workers are keeping up with rising prices."
-  }
-}
+  },
+  "wages vs inflation": {
+    "series": [
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Comparing nominal wage growth (average hourly earnings) to inflation shows whether workers are gaining or losing purchasing power. When the wage line is above the inflation line, real wages are rising - workers are getting ahead. When inflation exceeds wage growth, workers are falling behind despite nominal raises."
+  },
+  "are wages keeping up with inflation": {
+    "series": [
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Comparing nominal wage growth (average hourly earnings) to inflation shows whether workers are gaining or losing purchasing power. When the wage line is above the inflation line, real wages are rising - workers are getting ahead. When inflation exceeds wage growth, workers are falling behind despite nominal raises."
+  },
+  "wage growth vs inflation": {
+    "series": [
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Comparing nominal wage growth (average hourly earnings) to inflation shows whether workers are gaining or losing purchasing power. When the wage line is above the inflation line, real wages are rising - workers are getting ahead. When inflation exceeds wage growth, workers are falling behind despite nominal raises."
+  },
+  "headline vs core inflation": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Headline CPI includes everything consumers buy, while Core CPI strips out volatile food and energy. When headline is above core, energy/food are driving inflation. When they converge, inflation is becoming 'sticky' in the broader economy. The gap between them shows how much of inflation is driven by volatile vs persistent factors."
+  },
+  "shelter vs overall inflation": {
+    "series": [
+      "CUSR0000SAH1",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Shelter (housing costs) is the largest component of CPI at about 1/3 of the index. When shelter inflation exceeds overall inflation, it's dragging the headline number up. The lag between market rents and CPI shelter is 12-18 months, so today's shelter inflation reflects leases signed a year ago."
+  },
+  "food vs energy inflation": {
+    "series": [
+      "CPIUFDSL",
+      "CPIENGSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Food and energy are the 'volatile' components stripped out of core inflation. Energy swings wildly with oil prices. Food inflation is stickier but affected by weather, supply chains, and commodity prices. Comparing them shows which volatile factor is driving headline inflation away from core."
+  },
+  "real wages": {
+    "series": [
+      "LES1252881600Q",
+      "CES0500000003",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Real wages show purchasing power: Real median weekly earnings (LES1252881600Q) directly measures inflation-adjusted wages - rising means workers can buy more. Nominal wage growth (CES0500000003) vs inflation (CPIAUCSL) shows the race between pay raises and price increases. When wage growth exceeds inflation, real wages rise. When inflation exceeds wages, purchasing power falls. 2021-2022 saw negative real wage growth as inflation outpaced wages; 2023-2024 saw recovery as wage growth caught up.",
+    "chart_groups": [
+      {
+        "series": [
+          "LES1252881600Q"
+        ],
+        "show_yoy": true,
+        "title": "Real Wages (Inflation-Adjusted)"
+      },
+      {
+        "series": [
+          "CES0500000003",
+          "CPIAUCSL"
+        ],
+        "show_yoy": true,
+        "title": "Wage Growth vs Inflation (YoY %)"
+      }
+    ]
+  },
+  "purchasing power": {
+    "series": [
+      "DSPIC96",
+      "LES1252881600Q",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Purchasing power = how much you can actually buy with your income. Real disposable personal income (DSPIC96) shows aggregate purchasing power after taxes and inflation. Real median wages (LES1252881600Q) show purchasing power for typical workers. CPI inflation (CPIAUCSL) shows the price pressures eroding purchasing power. When real income/wages are rising, purchasing power increases; when falling, households can afford less despite nominal income gains."
+  },
+  "shrinkflation": {
+    "series": [
+      "CUSR0000SAF11",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "explanation": "Shrinkflation - reducing package sizes while maintaining prices - is hard to capture in official statistics. CPI methodology adjusts for quality/quantity changes, but 'shrinkflation' is consumers' term for feeling cheated by smaller portions. Food at home inflation (CUSR0000SAF11) vs overall CPI (CPIAUCSL) shows if grocery prices are rising faster than other goods. High food inflation often correlates with consumer complaints about shrinkflation, though CPI theoretically adjusts for it. Note: BLS doesn't have a 'shrinkflation index' - this shows food price pressures that motivate the practice."
+  }}

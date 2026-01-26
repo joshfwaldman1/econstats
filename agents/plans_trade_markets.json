@@ -256,12 +256,38 @@
   },
   "oil prices": {
     "series": [
-      "DCOILWTICO",
-      "DCOILBRENTEU"
+      "eia_wti_crude",
+      "eia_brent_crude"
     ],
     "show_yoy": false,
     "combine_chart": true,
-    "explanation": "WTI (West Texas Intermediate) is the US oil benchmark, Brent is the global benchmark used for ~2/3 of world oil pricing. Showing both reveals whether US prices are tracking global markets. The WTI-Brent spread can signal US supply conditions - when WTI trades below Brent, US production is abundant."
+    "explanation": "WTI and Brent crude oil prices from EIA (weekly data). WTI is the US benchmark, Brent is the global benchmark used for ~2/3 of world oil pricing. EIA provides more timely updates than FRED's daily data."
+  },
+  "crude oil prices": {
+    "series": [
+      "eia_wti_crude",
+      "eia_brent_crude",
+      "eia_crude_stocks"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Crude oil prices (WTI and Brent) plus US crude inventories from EIA. Inventory levels affect price direction - rising stocks tend to push prices down, falling stocks push them up."
+  },
+  "wti crude": {
+    "series": [
+      "eia_wti_crude"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "West Texas Intermediate (WTI) crude oil spot price from EIA. The US benchmark for oil pricing."
+  },
+  "brent crude": {
+    "series": [
+      "eia_brent_crude"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Brent crude oil price from EIA. The global benchmark used for pricing ~2/3 of world oil."
   },
   "crude oil": {
     "series": [
@@ -274,19 +300,47 @@
   },
   "gas prices": {
     "series": [
-      "GASREGW"
+      "eia_gasoline_retail",
+      "eia_wti_crude"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "GASREGW tracks U.S. regular gasoline prices, which is the most direct measure of what consumers pay at the pump. This series provides the clearest view of gas price trends that affect household budgets and inflation expectations."
+    "explanation": "Retail gasoline prices from EIA (what you pay at the pump) and WTI crude oil (the upstream driver). Gas prices typically follow oil with a 2-3 week lag. EIA provides weekly updates."
   },
   "gasoline": {
     "series": [
-      "GASREGW"
+      "eia_gasoline_retail"
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "GASREGW tracks U.S. regular gasoline prices, which is the most relevant metric for consumer gasoline costs. This series shows retail gasoline prices that directly affect consumers and businesses."
+    "explanation": "US retail gasoline prices from EIA. Weekly national average of what consumers pay at the pump."
+  },
+  "gasoline prices": {
+    "series": [
+      "eia_gasoline_retail",
+      "eia_diesel_retail"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "explanation": "Retail fuel prices from EIA: regular gasoline and diesel. Both affect consumer costs and inflation - gas for commuters, diesel for trucking and shipping."
+  },
+  "diesel prices": {
+    "series": [
+      "eia_diesel_retail"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US retail diesel prices from EIA. Diesel is critical for trucking and shipping - higher diesel raises costs throughout the supply chain."
+  },
+  "fuel prices": {
+    "series": [
+      "eia_gasoline_retail",
+      "eia_diesel_retail",
+      "eia_natural_gas_henry_hub"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Major fuel prices from EIA: gasoline (consumer), diesel (commercial), and natural gas (heating/industrial). Together they show energy cost pressures across the economy."
   },
   "gold price": {
     "series": [

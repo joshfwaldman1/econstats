@@ -348,14 +348,40 @@
   },
   "recession indicators": {
     "series": [
-      "A191RO1Q156NBEA",
-      "A191RL1Q225SBEA",
       "T10Y2Y",
-      "SAHMREALTIME"
+      "SAHMREALTIME",
+      "ICSA"
     ],
-    "show_yoy": false,
+    "show_yoy": [
+      false,
+      false,
+      false
+    ],
     "combine_chart": false,
-    "explanation": "The three most reliable recession indicators: Real GDP growth shows if the economy is contracting, the yield curve spread (10Y-2Y) warns of future recessions when inverted (negative), and the Sahm Rule provides real-time recession detection based on unemployment patterns. Together they give you current conditions, forward warning signals, and systematic recession identification."
+    "chart_groups": [
+      {
+        "series": [
+          "T10Y2Y"
+        ],
+        "title": "Yield Curve (2Y-10Y Spread)",
+        "show_yoy": false
+      },
+      {
+        "series": [
+          "SAHMREALTIME"
+        ],
+        "title": "Sahm Rule Recession Indicator",
+        "show_yoy": false
+      },
+      {
+        "series": [
+          "ICSA"
+        ],
+        "title": "Initial Jobless Claims (Weekly)",
+        "show_yoy": false
+      }
+    ],
+    "explanation": "Three key recession indicators: (1) Yield curve - when inverted (negative), recession typically follows in 12-18 months; (2) Sahm Rule - when it exceeds 0.5, we're likely already in recession; (3) Initial claims - weekly leading indicator of labor market stress. When all three flash warning signs together, recession probability is high."
   },
   "recession probability": {
     "series": [
@@ -1185,6 +1211,24 @@
     "combine_chart": false,
     "explanation": "Worry indicators: Sahm Rule (SAHMREALTIME) is the most accurate recession signal - worry if it exceeds 0.5. Yield curve (T10Y2Y) inversion has preceded every recession since 1970. Rising unemployment (UNRATE) signals weakening. Spiking initial claims (ICSA) show layoffs accelerating. All stable = less to worry about."
   },
+  "economic outlook": {
+    "series": [
+      "BBKMLEIX",
+      "A191RO1Q156NBEA",
+      "A191RL1Q225SBEA",
+      "UNRATE",
+      "PCEPILFE"
+    ],
+    "show_yoy": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    "combine_chart": false,
+    "explanation": "Economic outlook combines leading indicators with current conditions: BBK Leading Index (BBKMLEIX) forecasts economic growth using 490 monthly indicators - positive readings indicate above-trend growth ahead. Real GDP growth (both YoY and quarterly) shows current trajectory. Unemployment rate reveals labor market health. Core PCE inflation shows if price pressures are easing. Together these provide both forward-looking and current context for the economic outlook."
+  },
   "will there be a recession": {
     "series": [
       "SAHMREALTIME",
@@ -1304,5 +1348,15 @@
     ],
     "combine_chart": false,
     "explanation": "Housing affordability: FIXHAI (Affordability Index) directly answers this - above 100 means median family qualifies for median home. Mortgage rates (MORTGAGE30US) determine monthly payments. Median home price (MSPUS) is the target. Real disposable income (DSPIC96) shows buying power. Low rates + rising income + affordability above 100 = yes you can afford it."
+  },
+  "consumer vs business sentiment": {
+    "series": [
+      "UMCSENT",
+      "BSCICP03USM665S"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Consumer sentiment (Michigan) vs business confidence shows whether households and companies see the economy the same way. Divergences are interesting: businesses confident while consumers pessimistic suggests a 'vibecession' - economy OK but people feel bad. The reverse suggests businesses are more worried than headlines show."
   }
 }

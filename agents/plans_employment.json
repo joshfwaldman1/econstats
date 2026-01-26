@@ -992,5 +992,124 @@
     "show_payroll_changes": true,
     "combine_chart": false,
     "explanation": "Employment metrics compared to pre-COVID: payrolls, unemployment, prime-age employment ratio, and labor force participation."
-  }
-}
+  },
+  "unemployment vs underemployment": {
+    "series": [
+      "UNRATE",
+      "U6RATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "U3 (UNRATE) is the official unemployment rate - people without jobs who are actively looking. U6 (U6RATE) is broader - includes part-timers who want full-time work and discouraged workers. When U6 is much higher than U3, there's hidden slack in the labor market. The gap narrowing signals genuine tightness."
+  },
+  "u3 vs u6": {
+    "series": [
+      "UNRATE",
+      "U6RATE"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "U3 (UNRATE) is the official unemployment rate - people without jobs who are actively looking. U6 (U6RATE) is broader - includes part-timers who want full-time work and discouraged workers. When U6 is much higher than U3, there's hidden slack in the labor market. The gap narrowing signals genuine tightness."
+  },
+  "black vs white unemployment": {
+    "series": [
+      "LNS14000006",
+      "LNS14000003"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Black unemployment has historically run about 2x White unemployment - a persistent disparity reflecting structural barriers in the labor market. The ratio narrowing during tight labor markets shows that strong demand helps reduce inequality. Watch the gap as an indicator of labor market inclusiveness."
+  },
+  "unemployment by race": {
+    "series": [
+      "UNRATE",
+      "LNS14000003",
+      "LNS14000006",
+      "LNS14000009"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Unemployment rates by race show persistent disparities. White unemployment is typically lowest, with Hispanic somewhat higher, and Black unemployment highest (often 2x White). During recessions, minority unemployment spikes more. During tight labor markets like 2023, the gaps narrowed to historic lows."
+  },
+  "job openings vs unemployment": {
+    "series": [
+      "JTSJOL",
+      "UNEMPLOY"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Job openings vs unemployed workers shows labor market tightness. When openings exceed unemployed (as in 2022-2023), employers compete for workers and wages rise. When unemployed exceeds openings, workers compete for jobs. The ratio of openings to unemployed is a key indicator of labor market conditions."
+  },
+  "quits vs layoffs": {
+    "series": [
+      "JTSQUR",
+      "JTSLDL"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Quits rate vs layoffs rate shows worker vs employer power. High quits = workers confident they can find better jobs (hot market). High layoffs = employers cutting staff (cooling market). When quits fall and layoffs rise, the balance shifts from workers to employers."
+  },
+  "manufacturing vs services employment": {
+    "series": [
+      "MANEMP",
+      "SRVPRD"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Manufacturing vs services employment shows the structural shift in the US economy. Manufacturing has been flat-to-declining for decades while services grow steadily. Recessions hit manufacturing harder (goods demand drops first), while services are more stable. The divergence shows the 'servicification' of the economy."
+  },
+  "prime age vs overall employment": {
+    "series": [
+      "LNS12300060",
+      "EMRATIO"
+    ],
+    "show_yoy": false,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Prime-age (25-54) employment ratio vs overall employment ratio shows whether demographic shifts (aging population) are distorting the aggregate picture. When prime-age is rising faster than overall, the labor market is genuinely strengthening but aging is dragging down the headline number."
+  },
+  "labor shortage": {
+    "series": [
+      "JTSJOL",
+      "UNRATE",
+      "LNS13000000"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Labor shortage indicators: Job openings (JTSJOL) show unfilled positions - high levels signal shortage. When job openings vastly exceed unemployed workers (LNS13000000), employers struggle to find workers. Low unemployment (UNRATE) means fewer available workers. The ratio of openings to unemployed is the key metric: above 1.5 indicates severe shortage; below 1.0 indicates slack. Wage growth (not shown) typically accelerates during shortages."
+  },
+  "great resignation": {
+    "series": [
+      "JTSQUR",
+      "JTSJOL",
+      "CES0500000003"
+    ],
+    "show_yoy": [
+      false,
+      false,
+      true
+    ],
+    "combine_chart": false,
+    "explanation": "The 'Great Resignation' refers to the record-high quits rate in 2021-2022 when workers voluntarily left jobs en masse. Quits rate (JTSQUR) peaked at 3.0% in late 2021 - the highest on record since 2000. Job openings (JTSJOL) show abundant opportunities that gave workers leverage. Wage growth (CES0500000003 YoY) accelerated as employers competed for workers. High quits + high openings + rising wages = peak worker power. The resignation wave has since normalized as labor market cooled."
+  },
+  "gig economy": {
+    "series": [
+      "LNS12032194",
+      "LNS12026620",
+      "PAYEMS"
+    ],
+    "show_yoy": [
+      false,
+      false,
+      true
+    ],
+    "combine_chart": false,
+    "explanation": "Gig economy proxies (FRED lacks direct gig worker data): Unincorporated self-employed workers (LNS12032194) captures independent contractors and freelancers. Multiple jobholders (LNS12026620) includes those with gig work as second jobs. Comparing to total payrolls (PAYEMS) shows traditional employment context. Note: These are imperfect proxies - true gig workers (Uber, DoorDash, etc.) are undercounted in official stats. For comprehensive gig data, see BLS Contingent Worker Survey (every few years)."
+  }}

@@ -231,15 +231,14 @@
   },
   "gdp components": {
     "series": [
-      "PCECC96",
+      "PCEC96",
       "GPDIC1",
       "GCEC1",
-      "EXPGSC1",
-      "IMPGSC1"
+      "NETEXP"
     ],
-    "show_yoy": false,
+    "show_yoy": true,
     "combine_chart": true,
-    "explanation": "These are the five main components of real GDP: personal consumption expenditures (PCECC96), gross private domestic investment (GPDIC1), government consumption (GCEC1), exports (EXPGSC1), and imports (IMPGSC1). Note: GDP = C + I + G + (X - M), meaning imports are SUBTRACTED from GDP as they represent spending on foreign production. All are in real terms (chained 2017 dollars)."
+    "explanation": "The four components of GDP: Consumption (PCEC96), Investment (GPDIC1), Government (GCEC1), and Net Exports (NETEXP). Shown together to see which component is driving growth. Consumer spending dominates at ~70% of GDP, but investment and net exports are more volatile and often explain quarterly swings."
   },
   "consumer spending share of gdp": {
     "series": [
@@ -281,7 +280,11 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "synonyms": ["private demand", "final sales to private domestic purchasers", "final sales"],
+    "synonyms": [
+      "private demand",
+      "final sales to private domestic purchasers",
+      "final sales"
+    ],
     "explanation": "Real Final Sales to Private Domestic Purchasers (also called 'core GDP' or 'private demand') strips out volatile components (government spending, exports, inventories) to focus on consumer spending plus business fixed investment. The CEA considers it a better predictor of future growth than headline GDP."
   },
   "yearly gdp": {
@@ -302,8 +305,22 @@
     "combine_chart": false,
     "explanation": "Real GDP (GDPC1) removes inflation effects using chained 2017 dollars - this measures actual economic output growth. Nominal GDP (GDP) includes inflation - it grows faster when prices rise. The difference between nominal and real GDP growth is essentially inflation. Real GDP is what economists use to measure true economic growth.",
     "chart_groups": [
-      {"series": ["GDPC1", "GDP"], "show_yoy": true, "title": "Real vs Nominal GDP Growth (YoY %)"},
-      {"series": ["GDPC1", "GDP"], "normalize": true, "title": "Real vs Nominal GDP (Indexed to 100)"}
+      {
+        "series": [
+          "GDPC1",
+          "GDP"
+        ],
+        "show_yoy": true,
+        "title": "Real vs Nominal GDP Growth (YoY %)"
+      },
+      {
+        "series": [
+          "GDPC1",
+          "GDP"
+        ],
+        "normalize": true,
+        "title": "Real vs Nominal GDP (Indexed to 100)"
+      }
     ]
   },
   "nominal vs real gdp": {
@@ -315,8 +332,22 @@
     "combine_chart": false,
     "explanation": "Real GDP (GDPC1) removes inflation effects using chained 2017 dollars - this measures actual economic output growth. Nominal GDP (GDP) includes inflation - it grows faster when prices rise. The difference between nominal and real GDP growth is essentially inflation. Real GDP is what economists use to measure true economic growth.",
     "chart_groups": [
-      {"series": ["GDPC1", "GDP"], "show_yoy": true, "title": "Real vs Nominal GDP Growth (YoY %)"},
-      {"series": ["GDPC1", "GDP"], "normalize": true, "title": "Nominal vs Real GDP (Indexed to 100)"}
+      {
+        "series": [
+          "GDPC1",
+          "GDP"
+        ],
+        "show_yoy": true,
+        "title": "Real vs Nominal GDP Growth (YoY %)"
+      },
+      {
+        "series": [
+          "GDPC1",
+          "GDP"
+        ],
+        "normalize": true,
+        "title": "Nominal vs Real GDP (Indexed to 100)"
+      }
     ]
   },
   "exports vs imports": {
@@ -329,8 +360,21 @@
     "combine_chart": false,
     "explanation": "U.S. trade flows: Exports (EXPGSC1) are goods and services sold abroad, Imports (IMPGSC1) are purchased from abroad. Net Exports (NETEXP) = Exports - Imports. The U.S. typically runs a trade deficit (negative net exports), meaning we import more than we export. This deficit subtracts from GDP.",
     "chart_groups": [
-      {"series": ["EXPGSC1", "IMPGSC1"], "show_yoy": false, "title": "Exports vs Imports (Real, Billions $)"},
-      {"series": ["NETEXP"], "show_yoy": false, "title": "Net Exports (Trade Balance)"}
+      {
+        "series": [
+          "EXPGSC1",
+          "IMPGSC1"
+        ],
+        "show_yoy": false,
+        "title": "Exports vs Imports (Real, Billions $)"
+      },
+      {
+        "series": [
+          "NETEXP"
+        ],
+        "show_yoy": false,
+        "title": "Net Exports (Trade Balance)"
+      }
     ]
   },
   "imports vs exports": {
@@ -343,8 +387,21 @@
     "combine_chart": false,
     "explanation": "U.S. trade flows: Exports (EXPGSC1) are goods and services sold abroad, Imports (IMPGSC1) are purchased from abroad. Net Exports (NETEXP) = Exports - Imports. The U.S. typically runs a trade deficit (negative net exports), meaning we import more than we export. This deficit subtracts from GDP.",
     "chart_groups": [
-      {"series": ["EXPGSC1", "IMPGSC1"], "show_yoy": false, "title": "Imports vs Exports (Real, Billions $)"},
-      {"series": ["NETEXP"], "show_yoy": false, "title": "Net Exports (Trade Balance)"}
+      {
+        "series": [
+          "EXPGSC1",
+          "IMPGSC1"
+        ],
+        "show_yoy": false,
+        "title": "Imports vs Exports (Real, Billions $)"
+      },
+      {
+        "series": [
+          "NETEXP"
+        ],
+        "show_yoy": false,
+        "title": "Net Exports (Trade Balance)"
+      }
     ]
   },
   "trade deficit": {
@@ -376,15 +433,34 @@
     "combine_chart": false,
     "explanation": "GDP composition breakdown: Consumer spending (PCEC96) is ~70% of GDP - the main driver. Business investment (GPDIC1) is ~17% and most volatile. Government spending (GCEC1) is ~17%. Net exports (NETEXP) typically subtracts from GDP as the US runs trade deficits. Understanding which components are growing/shrinking reveals the nature of economic expansion."
   },
-  "gdp components": {
+  "gdp vs employment": {
     "series": [
-      "PCEC96",
-      "GPDIC1",
-      "GCEC1",
-      "NETEXP"
+      "A191RO1Q156NBEA",
+      "PAYEMS"
     ],
     "show_yoy": true,
     "combine_chart": true,
-    "explanation": "The four components of GDP: Consumption (PCEC96), Investment (GPDIC1), Government (GCEC1), and Net Exports (NETEXP). Shown together to see which component is driving growth. Consumer spending dominates at ~70% of GDP, but investment and net exports are more volatile and often explain quarterly swings."
+    "is_comparison": true,
+    "explanation": "GDP growth vs employment growth shows the productivity story. When GDP grows faster than employment, productivity is rising (getting more output per worker). When employment grows faster than GDP, we're adding workers but not getting proportional output - productivity is falling. The gap also signals whether growth is job-rich or jobless."
+  },
+  "real vs nominal gdp": {
+    "series": [
+      "GDPC1",
+      "GDP"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "Real GDP (GDPC1) strips out inflation to show actual economic output growth. Nominal GDP (GDP) includes price increases. The gap between them is essentially inflation. When nominal far exceeds real, inflation is eating into purchasing power even as dollar values rise."
+  },
+  "gdp growth vs inflation": {
+    "series": [
+      "A191RO1Q156NBEA",
+      "CPIAUCSL"
+    ],
+    "show_yoy": true,
+    "combine_chart": true,
+    "is_comparison": true,
+    "explanation": "GDP growth vs inflation shows the real growth story. When GDP growth exceeds inflation, the economy is genuinely expanding in real terms. When inflation exceeds GDP growth, we're in 'stagflation' territory - nominal growth but shrinking in real terms. The gap shows whether growth is real or illusory."
   }
 }

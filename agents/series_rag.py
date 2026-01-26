@@ -672,6 +672,39 @@ FRED_SERIES_CATALOG = [
     {"id": "AMDMUO", "name": "Durable Goods Unfilled Orders",
      "description": "Unfilled orders backlog for durable goods. Big-ticket items awaiting production. Capacity utilization and demand strength."},
 
+    # === ZILLOW HOUSING DATA (NON-FRED) ===
+    {"id": "zillow_zori_national", "name": "Zillow Observed Rent Index (ZORI)",
+     "description": "Market rents, asking rents, real-time rent prices, rental market, what landlords charge. More timely than CPI rent which lags 12+ months."},
+    {"id": "zillow_rent_yoy", "name": "Zillow Rent Year-over-Year Growth",
+     "description": "Rent inflation, rent growth rate, rental price changes. Real-time rent trends before they appear in CPI."},
+    {"id": "zillow_zhvi_national", "name": "Zillow Home Value Index (ZHVI)",
+     "description": "Home values, house prices, real estate values, typical home price. More timely than Case-Shiller."},
+    {"id": "zillow_home_value_yoy", "name": "Zillow Home Value Year-over-Year Growth",
+     "description": "Home price appreciation, house price growth, real estate value changes."},
+
+    # === EIA ENERGY DATA (NON-FRED) ===
+    {"id": "eia_wti_crude", "name": "WTI Crude Oil Price (EIA)",
+     "description": "Oil price, crude oil, WTI, petroleum price. US benchmark oil price from Energy Information Administration."},
+    {"id": "eia_brent_crude", "name": "Brent Crude Oil Price (EIA)",
+     "description": "Brent oil, global oil benchmark, international crude price."},
+    {"id": "eia_gasoline_retail", "name": "Retail Gasoline Price (EIA)",
+     "description": "Gas prices, gasoline cost, pump price, fuel cost. What consumers pay at the gas station."},
+    {"id": "eia_diesel_retail", "name": "Retail Diesel Price (EIA)",
+     "description": "Diesel prices, trucking fuel, commercial fuel cost."},
+    {"id": "eia_natural_gas_henry_hub", "name": "Natural Gas Price - Henry Hub (EIA)",
+     "description": "Natural gas price, Henry Hub, heating fuel, utility gas price."},
+    {"id": "eia_crude_stocks", "name": "US Crude Oil Inventories (EIA)",
+     "description": "Oil inventories, crude stocks, petroleum reserves. Higher stocks typically mean lower prices."},
+    {"id": "eia_crude_production", "name": "US Crude Oil Production (EIA)",
+     "description": "Oil production, US drilling output, domestic crude supply."},
+
+    # === ALPHA VANTAGE MARKET DATA (NON-FRED) ===
+    {"id": "av_spy", "name": "S&P 500 ETF (SPY) - Daily",
+     "description": "S&P 500 daily, stock market daily, equity market. More frequent than FRED's SP500."},
+    {"id": "av_treasury_10y", "name": "10-Year Treasury Yield (Daily)",
+     "description": "10-year yield daily, bond yield, treasury rate. Real-time bond market data."},
+    {"id": "av_treasury_2y", "name": "2-Year Treasury Yield (Daily)",
+     "description": "2-year yield daily, short-term treasury, Fed rate expectations."},
 ]
 
 # =============================================================================
@@ -862,12 +895,18 @@ CRITICAL RULES:
 2. For "how is X doing?" questions, cover multiple dimensions: employment + wages + relevant prices if applicable.
 3. Each series should add unique insight - no redundant measures.
 
+COMBINE_CHART RULES (when to plot series together):
+- Set combine_chart=true when: all series share compatible units (all rates, all percentages, all indexes)
+- Set combine_chart=true for comparison queries: "X vs Y", "compare X and Y", "X and Y"
+- Examples where combine_chart=TRUE: treasury yields (all rates), inflation measures (all %), unemployment rates (all %)
+- Examples where combine_chart=FALSE: unemployment rate (%) + total payrolls (thousands) - different units
+
 Return JSON only:
 {{
     "series": ["ID1", "ID2", "ID3", "ID4"],
     "explanation": "Brief explanation of why these series answer the question",
     "show_yoy": false,
-    "combine_chart": false
+    "combine_chart": true or false based on unit compatibility
 }}"""
 
     # Use GPT-4 for selection (good at following instructions)
