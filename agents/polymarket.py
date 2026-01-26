@@ -582,19 +582,11 @@ def format_predictions_box(predictions: list, query: str = "") -> Optional[str]:
     if not display_items:
         return None
 
-    # Build HTML
+    # Build HTML - use simple structure that Streamlit renders reliably
     items_html = ""
     for item in display_items:
-        items_html += f"""
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #e5e7eb;">
-            <a href="{item['url']}" target="_blank" style="color: #374151; text-decoration: none; font-size: 0.85rem; flex: 1;">
-                {item['title']}
-            </a>
-            <span style="color: {item['color']}; font-weight: 600; font-size: 0.9rem; min-width: 50px; text-align: right;">
-                {item['prob']:.0f}%
-            </span>
-        </div>
-        """
+        # Simpler HTML that Streamlit handles better
+        items_html += f'<p style="margin: 4px 0; padding: 6px 0; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;"><span style="color: #374151; font-size: 0.85rem;">{item["title"]}</span><span style="color: {item["color"]}; font-weight: 600; font-size: 0.9rem;">{item["prob"]:.0f}%</span></p>'
 
     html = f"""
     <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #0ea5e9; border-radius: 8px; padding: 12px 16px; margin: 12px 0 16px 0;">
