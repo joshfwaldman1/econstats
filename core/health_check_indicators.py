@@ -321,8 +321,9 @@ def is_health_check_query(query: str) -> bool:
         r"^are .+ (doing )?(good|bad|okay|well|poorly|healthy|struggling)\??$",
         r".+ outlook\??$",
         r"^how .+ (holding up|looking)\??$",
-        # Simple "how is X?" patterns - catch queries like "how is the economy?"
+        # Simple "how is/are X?" patterns - catch queries like "how is the economy?" or "how are consumers?"
         r"^how (is|are) the .+\??$",
+        r"^how (is|are) .+\??$",  # Catch "how are consumers?" without "the"
         r"^how('s| is) .+\??$",
     ]
 
