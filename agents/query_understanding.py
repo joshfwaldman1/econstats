@@ -249,7 +249,10 @@ def understand_query(query: str, verbose: bool = False) -> Dict[str, Any]:
         # Fallback to rule-based understanding
         if verbose:
             print(f"  [QueryUnderstanding] Gemini failed, using rule-based fallback")
-        return _rule_based_understanding(query)
+        # IMPORTANT: Still validate the rule-based result to add secondary sources
+        result = _rule_based_understanding(query)
+        result = _validate_understanding(result, query)
+        return result
 
     # Validate and enrich the result
     result = _validate_understanding(result, query)
@@ -499,6 +502,38 @@ def _rule_based_understanding(query: str) -> Dict:
         if any(p in query_lower for p in patterns):
             result['entities']['sectors'].append(sector)
             result['routing']['is_sector_specific'] = True
+
+    # Detect energy queries -> route to EIA
+    energy_keywords = [
+        'oil', 'crude', 'petroleum', 'gasoline', 'gas prices', 'diesel',
+        'natural gas', 'henry hub', 'wti', 'brent', 'energy prices',
+        'fuel', 'electricity', 'power prices', 'oil inventory', 'oil stocks',
+        'crude stocks', 'oil production'
+    ]
+    if any(kw in query_lower for kw in energy_keywords):
+        result['routing']['primary_source'] = 'eia'
+        if 'eia' not in result['routing']['secondary_sources']:
+            result['routing']['secondary_sources'].append('eia')
+
+    # Detect stock market queries -> route to Alpha Vantage
+    market_keywords = [
+        'stock market', 'stocks', 's&p', 's&p 500', 'sp500', 'nasdaq',
+        'dow jones', 'dow', 'djia', 'russell', 'small cap', 'spy', 'qqq',
+        'vix', 'volatility index', 'stock index', 'equity market', 'equities'
+    ]
+    if any(kw in query_lower for kw in market_keywords):
+        result['routing']['primary_source'] = 'alphavantage'
+        if 'alphavantage' not in result['routing']['secondary_sources']:
+            result['routing']['secondary_sources'].append('alphavantage')
+
+    # Detect housing/rent queries -> add Zillow
+    housing_keywords = [
+        'rent', 'rents', 'rental', 'market rent', 'actual rent', 'zillow',
+        'home value', 'home price', 'house price', 'zori', 'zhvi'
+    ]
+    if any(kw in query_lower for kw in housing_keywords):
+        if 'zillow' not in result['routing']['secondary_sources']:
+            result['routing']['secondary_sources'].append('zillow')
 
     # Detect query type
     if any(kw in query_lower for kw in ['vs', 'versus', 'compared to', 'compare']):
