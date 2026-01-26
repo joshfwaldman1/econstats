@@ -503,7 +503,8 @@ def _rule_based_understanding(query: str) -> Dict:
             result['entities']['sectors'].append(sector)
             result['routing']['is_sector_specific'] = True
 
-    # Detect energy queries -> route to EIA
+    # Detect energy queries -> add EIA (keeps FRED as primary for broader context)
+    # Queries like "oil prices and inflation" get BOTH EIA oil data + FRED CPI
     energy_keywords = [
         'oil', 'crude', 'petroleum', 'gasoline', 'gas prices', 'diesel',
         'natural gas', 'henry hub', 'wti', 'brent', 'energy prices',
@@ -511,22 +512,23 @@ def _rule_based_understanding(query: str) -> Dict:
         'crude stocks', 'oil production'
     ]
     if any(kw in query_lower for kw in energy_keywords):
-        result['routing']['primary_source'] = 'eia'
+        # Add EIA as secondary - FRED stays primary for related economic context
         if 'eia' not in result['routing']['secondary_sources']:
             result['routing']['secondary_sources'].append('eia')
 
-    # Detect stock market queries -> route to Alpha Vantage
+    # Detect stock market queries -> add Alpha Vantage (keeps FRED for context)
+    # Queries like "stock market and unemployment" get BOTH sources
     market_keywords = [
         'stock market', 'stocks', 's&p', 's&p 500', 'sp500', 'nasdaq',
         'dow jones', 'dow', 'djia', 'russell', 'small cap', 'spy', 'qqq',
         'vix', 'volatility index', 'stock index', 'equity market', 'equities'
     ]
     if any(kw in query_lower for kw in market_keywords):
-        result['routing']['primary_source'] = 'alphavantage'
+        # Add Alpha Vantage as secondary - FRED has SP500, DJIA too
         if 'alphavantage' not in result['routing']['secondary_sources']:
             result['routing']['secondary_sources'].append('alphavantage')
 
-    # Detect housing/rent queries -> add Zillow
+    # Detect housing/rent queries -> add Zillow (FRED has CPI shelter, permits, etc.)
     housing_keywords = [
         'rent', 'rents', 'rental', 'market rent', 'actual rent', 'zillow',
         'home value', 'home price', 'house price', 'zori', 'zhvi'
