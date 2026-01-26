@@ -9607,64 +9607,14 @@ def main():
                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                 st.plotly_chart(fig, width='stretch')
 
-    # Footer - About section using Streamlit native components (no complex HTML)
+    # Footer - About section
     st.markdown("---")
-
-    # About header
     st.markdown("""
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="color: #1e293b; font-size: 1.5rem; font-weight: 700; margin: 0 0 10px 0;">About EconStats</h2>
-        <p style="color: #475569; font-size: 0.95rem; line-height: 1.5; max-width: 650px; margin: 0 auto;">
-            Government economic data is free—but too hard for most people to access and understand.
-            EconStats uses AI to help anyone draw insights directly from the numbers.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Feature cards using Streamlit columns
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.markdown("""
-        <div style="background: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #e2e8f0;">
-            <div style="font-size: 1.5rem; margin-bottom: 5px;">📊</div>
-            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">490+ Indicators</div>
-            <div style="color: #64748b; font-size: 0.75rem;">U.S. economy coverage</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with col2:
-        st.markdown("""
-        <div style="background: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #e2e8f0;">
-            <div style="font-size: 1.5rem; margin-bottom: 5px;">🏛️</div>
-            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">Official Sources</div>
-            <div style="color: #64748b; font-size: 0.75rem;">FRED, BLS, EIA & more</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with col3:
-        st.markdown("""
-        <div style="background: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #e2e8f0;">
-            <div style="font-size: 1.5rem; margin-bottom: 5px;">⚡</div>
-            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">Real-Time Data</div>
-            <div style="color: #64748b; font-size: 0.75rem;">Direct from releases</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with col4:
-        st.markdown("""
-        <div style="background: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #e2e8f0;">
-            <div style="font-size: 1.5rem; margin-bottom: 5px;">🤖</div>
-            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">AI Insights</div>
-            <div style="color: #64748b; font-size: 0.75rem;">Plain English explanations</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Contact footer
-    st.markdown("""
-    <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-        <p style="color: #64748b; font-size: 0.85rem; margin: 0 0 10px 0;">
-            Questions or feedback? <a href="mailto:waldman1@stanford.edu" style="color: #3b82f6;">waldman1@stanford.edu</a>
-        </p>
-        <p style="color: #94a3b8; font-size: 0.75rem; margin: 0;">
-            Built at Stanford University · Powered by Claude AI
-        </p>
+    <div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 15px 0;">
+        <strong>About EconStats</strong><br>
+        Government economic data is free—but too hard for most people to access and understand.
+        EconStats uses AI to help anyone draw insights directly from the numbers.<br><br>
+        Contact <a href="mailto:waldman1@stanford.edu" style="color: #3b82f6;">waldman1@stanford.edu</a> with feedback or ideas.
     </div>
     """, unsafe_allow_html=True)
 
