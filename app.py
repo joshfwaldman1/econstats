@@ -7463,24 +7463,37 @@ def main():
         font-style: normal !important;
     }
 
-    /* Search bar - warm theme */
+    /* Search bar - lovable style */
     .search-wrapper {
-        margin: 16px 0 8px 0;
-        border-radius: 16px;
+        margin: 20px 0 12px 0;
+        border-radius: 24px;
         overflow: hidden;
-        background: #FFFDFB;
-        border: 1px solid #e7e5e4;
+        background: #FFFFFF;
+        border: 2px solid #D4A574;
+        box-shadow: 0 4px 20px rgba(212, 165, 116, 0.15), 0 2px 8px rgba(0, 0, 0, 0.04);
+        transition: all 0.2s ease;
+    }
+    .search-wrapper:hover {
+        box-shadow: 0 6px 28px rgba(212, 165, 116, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06);
+        border-color: #C4956A;
+    }
+    .search-wrapper:focus-within {
+        border-color: #B8875C;
+        box-shadow: 0 6px 32px rgba(212, 165, 116, 0.28), 0 4px 16px rgba(0, 0, 0, 0.08);
     }
     div[data-testid="stTextInput"] input {
-        background: #FFFDFB !important;
+        background: #FFFFFF !important;
         border: none !important;
-        border-radius: 16px !important;
-        font-size: 1rem !important;
-        padding: 1.1rem 1.5rem !important;
+        border-radius: 24px !important;
+        font-size: 1.15rem !important;
+        padding: 1.5rem 2rem !important;
+        min-height: 64px !important;
         box-shadow: none !important;
         transition: none !important;
         text-align: center !important;
         color: #292524 !important;
+        font-weight: 400 !important;
+        letter-spacing: -0.01em !important;
     }
     div[data-testid="stTextInput"] input:focus {
         border: none !important;
@@ -7489,8 +7502,9 @@ def main():
         text-align: left !important;
     }
     div[data-testid="stTextInput"] input::placeholder {
-        color: #a8a29e !important;
+        color: #9a8a7a !important;
         text-align: center !important;
+        font-weight: 400 !important;
     }
     /* Hide Streamlit's default input wrapper styling */
     div[data-testid="stTextInput"] > div {
@@ -7514,11 +7528,12 @@ def main():
         /* Prevent horizontal scroll */
         .stApp { overflow-x: hidden; }
         /* Search bar on mobile */
-        .search-wrapper { margin: 15px 0 10px 0; }
+        .search-wrapper { margin: 15px 0 10px 0; border-radius: 20px; }
         div[data-testid="stTextInput"] input {
             font-size: 16px !important;  /* Prevents iOS zoom */
-            padding: 1rem 1.25rem !important;
-            border-radius: 12px !important;
+            padding: 1.25rem 1.5rem !important;
+            border-radius: 20px !important;
+            min-height: 56px !important;
         }
         /* Category pill buttons on mobile */
         .stButton button {
