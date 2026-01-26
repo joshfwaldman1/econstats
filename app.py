@@ -4351,7 +4351,22 @@ def call_economist_reviewer(query: str, series_data: list, original_explanation:
                 summary['yoy_direction'] = 'UNCHANGED from year ago'
 
             # YoY percent change (for non-zero base)
-            if len(values) >= 12 and values[-12] != 0:
+            # For payroll changes, compare this month's change to same-month-last-year's change
+            if info.get('is_payroll_change') and info.get('original_values'):
+                orig_values = info['original_values']
+                if len(orig_values) >= 14:
+                    # Current month's job change
+                    current_change = orig_values[-1] - orig_values[-2]
+                    # Same month last year's job change (13 months back)
+                    year_ago_change = orig_values[-13] - orig_values[-14]
+                    if year_ago_change != 0:
+                        yoy_pct = ((current_change - year_ago_change) / abs(year_ago_change)) * 100
+                        summary['yoy_percent_change'] = round(yoy_pct, 1)
+                        if yoy_pct > 0:
+                            summary['yoy_percent_direction'] = f'UP {abs(yoy_pct):.1f}% from year ago'
+                        elif yoy_pct < 0:
+                            summary['yoy_percent_direction'] = f'DOWN {abs(yoy_pct):.1f}% from year ago'
+            elif len(values) >= 12 and values[-12] != 0:
                 yoy_pct = (yoy_change / abs(values[-12])) * 100
                 summary['yoy_percent_change'] = round(yoy_pct, 1)
                 if yoy_pct > 0:
@@ -6423,6 +6438,76 @@ def main():
     }
     .subtitle { text-align: center; color: #64748b; margin-top: -5px; margin-bottom: 20px; font-size: 1rem; font-weight: 400; }
 
+    /* Hero Section - Engaging landing experience */
+    .hero-container {
+        text-align: center;
+        padding: 1.5rem 0 0.5rem 0;
+        position: relative;
+    }
+    .hero-icon {
+        display: inline-block;
+        margin-bottom: 0.75rem;
+    }
+    .hero-icon svg {
+        width: 48px;
+        height: 48px;
+    }
+    .hero-title {
+        font-size: 2.75rem !important;
+        font-weight: 700 !important;
+        color: #292524 !important;
+        margin: 0 0 0.25rem 0 !important;
+        letter-spacing: -0.5px;
+    }
+    .hero-tagline {
+        font-size: 1.15rem;
+        color: #57534e;
+        margin: 0 0 0.75rem 0;
+        font-weight: 500;
+    }
+    .hero-value-prop {
+        font-size: 0.95rem;
+        color: #78716c;
+        margin: 0 auto 1.25rem auto;
+        max-width: 480px;
+        line-height: 1.5;
+    }
+    .hero-value-prop strong {
+        color: #57534e;
+        font-weight: 600;
+    }
+    .hero-divider {
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #D4A574, #e9c9a8);
+        margin: 0 auto 1rem auto;
+        border-radius: 2px;
+    }
+
+    /* Topic pills row */
+    .topic-pills {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin: 0 auto 0.75rem auto;
+        max-width: 400px;
+    }
+
+    /* Mobile hero adjustments */
+    @media (max-width: 768px) {
+        .hero-container { padding: 1rem 0 0.25rem 0; }
+        .hero-title { font-size: 2.25rem !important; }
+        .hero-tagline { font-size: 1rem; }
+        .hero-value-prop { font-size: 0.9rem; padding: 0 1rem; }
+        .hero-icon svg { width: 40px; height: 40px; }
+    }
+    @media (max-width: 480px) {
+        .hero-title { font-size: 1.9rem !important; }
+        .hero-tagline { font-size: 0.95rem; }
+        .hero-value-prop { font-size: 0.85rem; }
+    }
+
     /* Summary Section - tight spacing */
     .summary-callout {
         background: transparent;
@@ -6836,49 +6921,97 @@ def main():
 
     /* Example queries section */
     .examples-header {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #6b7280;
-        margin: 0.75rem 0 0.75rem 0;
+        letter-spacing: 0.8px;
+        color: #78716c;
+        margin: 1.5rem 0 1rem 0;
         font-weight: 600;
         font-style: normal !important;
         text-align: center;
     }
+
+    /* Category label styling (inline, minimal) */
+    .category-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #a8a29e;
+        margin: 0.75rem 0 0.5rem 0.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .category-icon {
+        font-size: 0.8rem;
+        opacity: 0.75;
+    }
+
+    /* Popular badge styling */
+    .popular-badge {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.15rem 0.45rem;
+        border-radius: 4px;
+        margin-left: 0.5rem;
+        border: 1px solid #fcd34d;
+    }
+
     .example-query {
         padding: 0.8rem 1rem;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
+        background: #ffffff;
+        border: 1px solid #e7e5e4;
+        border-radius: 10px;
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: all 0.2s ease;
         font-size: 0.9rem;
-        color: #475569;
+        color: #44403c;
         margin-bottom: 0.5rem;
+        position: relative;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
     .example-query:hover {
-        background: #eff6ff;
-        border-color: #bfdbfe;
-        color: #1e40af;
+        background: #fffbf5;
+        border-color: #d6bcab;
+        color: #292524;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(120, 113, 108, 0.12);
     }
-    /* Example query buttons - override pill style */
+
+    /* Example query buttons - enhanced warm theme */
     .examples-section + div .stButton button,
     div[data-testid="column"] .stButton button[key^="example"] {
-        background: #f8fafc !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 8px !important;
-        color: #475569 !important;
+        background: #ffffff !important;
+        border: 1px solid #e7e5e4 !important;
+        border-radius: 10px !important;
+        color: #44403c !important;
         text-align: left !important;
         font-style: normal !important;
-        padding: 0.8rem 1rem !important;
+        padding: 0.85rem 1.1rem !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        line-height: 1.4 !important;
     }
     .examples-section + div .stButton button:hover,
     div[data-testid="column"] .stButton button[key^="example"]:hover {
-        background: #eff6ff !important;
-        border-color: #bfdbfe !important;
-        color: #1e40af !important;
-        transform: none !important;
-        box-shadow: none !important;
+        background: #fffbf5 !important;
+        border-color: #d6bcab !important;
+        color: #292524 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(120, 113, 108, 0.15) !important;
+    }
+
+    /* Subtle left border accent on hover */
+    div[data-testid="column"] .stButton button[key^="example"]:hover {
+        border-left: 3px solid #D4A574 !important;
+        padding-left: calc(1.1rem - 2px) !important;
     }
 
     /* Helper text under search */
@@ -6956,6 +7089,9 @@ def main():
         /* Examples section on mobile */
         .examples-section { padding: 1rem; }
         .example-query { font-size: 0.85rem; padding: 0.7rem 0.9rem; }
+        .category-label { font-size: 0.65rem; margin: 0.6rem 0 0.4rem 0.15rem; }
+        .category-icon { font-size: 0.75rem; }
+        .popular-badge { font-size: 0.55rem; padding: 0.1rem 0.35rem; }
         /* Hide sidebar on mobile */
         section[data-testid="stSidebar"] { display: none; }
     }
@@ -7017,9 +7153,32 @@ def main():
 
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
-        # LANDING PAGE MODE - Show title
-        st.markdown("<h1 style='margin-bottom: 0;'>EconStats</h1>", unsafe_allow_html=True)
-        st.markdown("<p class='subtitle' style='margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
+        # LANDING PAGE MODE - Enhanced hero section
+        # SVG icon: minimalist upward-trending line chart representing economic data
+        hero_icon_svg = '''
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="40" height="40" rx="8" fill="#FEF7ED"/>
+            <path d="M12 32L20 24L28 28L36 16" stroke="#D4A574" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="32" r="2.5" fill="#D4A574"/>
+            <circle cx="20" cy="24" r="2.5" fill="#D4A574"/>
+            <circle cx="28" cy="28" r="2.5" fill="#D4A574"/>
+            <circle cx="36" cy="16" r="2.5" fill="#D4A574"/>
+            <path d="M32 16H36V20" stroke="#D4A574" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        '''
+
+        st.markdown(f'''
+        <div class="hero-container">
+            <div class="hero-icon">{hero_icon_svg}</div>
+            <h1 class="hero-title">EconStats</h1>
+            <p class="hero-tagline">U.S. Economic Data with Context</p>
+            <div class="hero-divider"></div>
+            <p class="hero-value-prop">
+                Get <strong>insights in seconds</strong> that would take hours to research.
+                Ask any question about the economy and receive clear explanations backed by real data.
+            </p>
+        </div>
+        ''', unsafe_allow_html=True)
 
         # Quick search buttons in a single compact row
         col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
@@ -7054,28 +7213,80 @@ def main():
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Helper text
-        st.markdown('<p class="helper-text">Ask questions in plain English — we\'ll pull the latest economic data and explain what it means.</p>', unsafe_allow_html=True)
+        # Helper text - more concise
+        st.markdown('<p class="helper-text">Ask in plain English. We\'ll pull the data and explain what it means.</p>', unsafe_allow_html=True)
 
         # Example queries section - only show when no results yet
         if not st.session_state.last_query:
             st.markdown('<p class="examples-header">Try these questions</p>', unsafe_allow_html=True)
 
-            # Example query buttons in a grid
-            example_queries = [
-                "How is the economy?",
-                "Are wages keeping up with inflation?",
-                "Is the labor market cooling off?",
-                "How tight is the job market right now?",
-                "Is rent inflation coming down yet?",
-                "Compare the job market to pre-pandemic"
+            # Example queries organized by category with visual grouping
+            # Each category has: icon, label, queries, and optional "popular" flags
+            example_categories = [
+                {
+                    "icon": "\U0001F4C8",  # 📈 Economy
+                    "label": "Economy",
+                    "queries": [
+                        {"text": "How is the economy?", "popular": True},
+                        {"text": "Are wages keeping up with inflation?", "popular": False},
+                    ]
+                },
+                {
+                    "icon": "\U0001F4BC",  # 💼 Jobs
+                    "label": "Jobs",
+                    "queries": [
+                        {"text": "Is the labor market cooling off?", "popular": False},
+                        {"text": "How tight is the job market right now?", "popular": False},
+                    ]
+                },
+                {
+                    "icon": "\U0001F3E0",  # 🏠 Prices & Housing
+                    "label": "Prices",
+                    "queries": [
+                        {"text": "Is rent inflation coming down yet?", "popular": True},
+                        {"text": "Compare the job market to pre-pandemic", "popular": False},
+                    ]
+                },
             ]
-            cols = st.columns(2)
-            for i, eq in enumerate(example_queries):
-                with cols[i % 2]:
-                    if st.button(eq, key=f"example_{i}", width='stretch'):
-                        st.session_state.pending_query = eq
-                        st.rerun()
+
+            # Counter for unique button keys
+            btn_idx = 0
+
+            # Render each category as a visually grouped section
+            for cat in example_categories:
+                icon = cat["icon"]
+                label = cat["label"]
+                queries = cat["queries"]
+
+                # Category label row with icon
+                st.markdown(f'''
+                <div class="category-label">
+                    <span class="category-icon">{icon}</span>
+                    <span>{label}</span>
+                </div>
+                ''', unsafe_allow_html=True)
+
+                # Two-column layout for queries within category
+                cols = st.columns(2)
+                for col_idx, q_data in enumerate(queries):
+                    with cols[col_idx % 2]:
+                        query_text = q_data["text"]
+                        is_popular = q_data.get("popular", False)
+
+                        # Show "Popular" badge above popular queries
+                        if is_popular:
+                            st.markdown(
+                                '<span class="popular-badge">Popular</span>',
+                                unsafe_allow_html=True
+                            )
+
+                        if st.button(query_text, key=f"example_{btn_idx}", use_container_width=True):
+                            st.session_state.pending_query = query_text
+                            st.rerun()
+                        btn_idx += 1
+
+                # Small spacer between categories
+                st.markdown('<div style="height: 0.5rem;"></div>', unsafe_allow_html=True)
 
         if not query:
             query = text_query
@@ -9396,14 +9607,192 @@ def main():
                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                 st.plotly_chart(fig, width='stretch')
 
-    # Footer - About section at bottom of page
+    # Footer - Enhanced About section at bottom of page
     st.markdown("---")
     st.markdown("""
-    <div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 20px 0;">
-        <strong>About EconStats</strong><br>
-        Government economic data is free—but too hard for most people to access and understand.
-        EconStats uses AI to help anyone draw insights directly from the numbers.<br><br>
-        Contact <a href="mailto:waldman1@stanford.edu" style="color: #3b82f6;">waldman1@stanford.edu</a> with feedback or ideas.
+    <div style="
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 12px;
+        padding: 40px 30px;
+        margin-top: 20px;
+    ">
+        <!-- Main About Header -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="
+                color: #1e293b;
+                font-size: 1.75rem;
+                font-weight: 700;
+                margin: 0 0 12px 0;
+            ">About EconStats</h2>
+            <p style="
+                color: #475569;
+                font-size: 1.05rem;
+                line-height: 1.6;
+                max-width: 700px;
+                margin: 0 auto;
+            ">
+                Government economic data is free—but too hard for most people to access and understand.
+                EconStats uses AI to help anyone draw insights directly from the numbers, making
+                economic research accessible to journalists, students, policymakers, and curious citizens.
+            </p>
+        </div>
+
+        <!-- Feature Highlights Grid -->
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        ">
+            <!-- Feature 1: Economic Indicators -->
+            <div style="
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                border: 1px solid #e2e8f0;
+            ">
+                <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
+                <div style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">490+ Indicators</div>
+                <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">
+                    Comprehensive coverage of the U.S. economy
+                </div>
+            </div>
+
+            <!-- Feature 2: Official Sources -->
+            <div style="
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                border: 1px solid #e2e8f0;
+            ">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🏛️</div>
+                <div style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">Official Sources</div>
+                <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">
+                    Data from FRED, BLS, Zillow, EIA & more
+                </div>
+            </div>
+
+            <!-- Feature 3: Real-Time Updates -->
+            <div style="
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                border: 1px solid #e2e8f0;
+            ">
+                <div style="font-size: 2rem; margin-bottom: 8px;">⚡</div>
+                <div style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">Real-Time Updates</div>
+                <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">
+                    Data refreshed directly from official releases
+                </div>
+            </div>
+
+            <!-- Feature 4: AI Explanations -->
+            <div style="
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                border: 1px solid #e2e8f0;
+            ">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🤖</div>
+                <div style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">AI-Powered Insights</div>
+                <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">
+                    Plain English explanations of complex data
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Sources Section -->
+        <div style="
+            background: white;
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        ">
+            <h3 style="
+                color: #1e293b;
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin: 0 0 15px 0;
+                text-align: center;
+            ">Data Sources</h3>
+            <div style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px 25px;
+                color: #475569;
+                font-size: 0.9rem;
+            ">
+                <span><strong>Federal Reserve (FRED)</strong></span>
+                <span style="color: #cbd5e1;">|</span>
+                <span><strong>Bureau of Labor Statistics</strong></span>
+                <span style="color: #cbd5e1;">|</span>
+                <span><strong>Bureau of Economic Analysis</strong></span>
+                <span style="color: #cbd5e1;">|</span>
+                <span><strong>Zillow Research</strong></span>
+                <span style="color: #cbd5e1;">|</span>
+                <span><strong>Energy Information Administration</strong></span>
+                <span style="color: #cbd5e1;">|</span>
+                <span><strong>IMF</strong></span>
+            </div>
+            <p style="
+                color: #64748b;
+                font-size: 0.8rem;
+                text-align: center;
+                margin: 12px 0 0 0;
+            ">
+                All data is fetched directly from primary sources. No intermediaries, no delays.
+            </p>
+        </div>
+
+        <!-- Contact & Credits Footer -->
+        <div style="
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        ">
+            <p style="
+                color: #475569;
+                font-size: 0.95rem;
+                margin: 0 0 8px 0;
+            ">
+                <strong>Questions, feedback, or ideas?</strong>
+            </p>
+            <a href="mailto:waldman1@stanford.edu" style="
+                display: inline-block;
+                background: #3b82f6;
+                color: white;
+                padding: 10px 24px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 0.9rem;
+                margin-bottom: 15px;
+            ">waldman1@stanford.edu</a>
+            <p style="
+                color: #94a3b8;
+                font-size: 0.8rem;
+                margin: 15px 0 0 0;
+            ">
+                Built at Stanford University · Powered by Claude AI
+            </p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
