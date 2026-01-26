@@ -1,16 +1,19 @@
 """
-Recession Scorecard for EconStats.
+Leading Indicators Dashboard for EconStats.
 
-Provides a comprehensive "recession dashboard" that displays key leading and
-coincident indicators for recession risk assessment. This is the go-to tool
-for "is a recession coming?" questions.
+Provides a comprehensive economic dashboard that displays key leading and
+coincident indicators for recession risk and economic outlook assessment.
+This is the go-to tool for "is a recession coming?" and "economic outlook" questions.
 
 Indicators tracked:
 1. Sahm Rule (SAHMREALTIME) - Triggered when 3-month avg unemployment rises 0.5% above 12-month low
 2. Yield Curve (T10Y2Y) - Inverted = warning (historically precedes recessions by 12-18 months)
 3. Consumer Sentiment (UMCSENT) - Sharp drops precede recessions
 4. Initial Jobless Claims (ICSA) - Rising trend = warning
-5. Polymarket Recession Odds - Forward-looking market sentiment
+5. Leading Economic Index (USSLIND) - Conference Board's 10-component leading index
+6. ISM Manufacturing PMI (NAPM) - Above 50 = expansion, below 50 = contraction
+7. Credit Spreads (BAMLH0A0HYM2) - High yield spread widens before recessions
+8. Polymarket Recession Odds - Forward-looking market sentiment
 """
 
 from typing import Optional
@@ -74,6 +77,48 @@ INDICATOR_CONFIG = {
         'red_label': 'Elevated',
         'yellow_label': 'Rising',
         'green_label': 'Low',
+    },
+    'USSLIND': {
+        'name': 'Leading Economic Index',
+        'description': 'Conference Board LEI (10 components, % change)',
+        'thresholds': {
+            'red': -0.4,       # <= -0.4% = contraction signal
+            'yellow': 0.0,    # <= 0% = stagnation warning
+            # > 0% = green (expansion)
+        },
+        'direction': 'lower_is_worse',
+        'unit': '%',
+        'red_label': 'Contracting',
+        'yellow_label': 'Flat',
+        'green_label': 'Expanding',
+    },
+    'NAPM': {
+        'name': 'ISM Manufacturing PMI',
+        'description': 'Purchasing Managers Index (50 = neutral)',
+        'thresholds': {
+            'red': 47.0,       # <= 47 = significant contraction
+            'yellow': 50.0,    # <= 50 = contraction
+            # > 50 = green (expansion)
+        },
+        'direction': 'lower_is_worse',
+        'unit': 'index',
+        'red_label': 'Contracting',
+        'yellow_label': 'Stalling',
+        'green_label': 'Expanding',
+    },
+    'BAMLH0A0HYM2': {
+        'name': 'Credit Spreads',
+        'description': 'High yield bond spread over Treasuries',
+        'thresholds': {
+            'red': 5.0,        # >= 5% = stress in credit markets
+            'yellow': 4.0,     # >= 4% = elevated risk aversion
+            # < 4% = green (normal credit conditions)
+        },
+        'direction': 'higher_is_worse',
+        'unit': '%',
+        'red_label': 'Stressed',
+        'yellow_label': 'Elevated',
+        'green_label': 'Normal',
     },
 }
 
@@ -146,6 +191,12 @@ def get_indicator_status(
         formatted_value = f"{current_value/1000:.0f}K"
     elif series_id == 'UMCSENT':
         formatted_value = f"{current_value:.1f}"
+    elif series_id == 'NAPM':
+        formatted_value = f"{current_value:.1f}"
+    elif series_id == 'USSLIND':
+        formatted_value = f"{current_value:+.1f}%"
+    elif series_id == 'BAMLH0A0HYM2':
+        formatted_value = f"{current_value:.2f}%"
     else:
         formatted_value = f"{current_value:.2f}"
 
@@ -167,20 +218,29 @@ def build_recession_scorecard(
     yield_curve_value: Optional[float] = None,
     sentiment_value: Optional[float] = None,
     claims_value: Optional[float] = None,
+    lei_value: Optional[float] = None,
+    pmi_value: Optional[float] = None,
+    credit_spread_value: Optional[float] = None,
     polymarket_odds: Optional[float] = None,
     sahm_prev: Optional[float] = None,
     yield_curve_prev: Optional[float] = None,
     sentiment_prev: Optional[float] = None,
     claims_prev: Optional[float] = None,
+    lei_prev: Optional[float] = None,
+    pmi_prev: Optional[float] = None,
+    credit_spread_prev: Optional[float] = None,
 ) -> dict:
     """
-    Build a comprehensive recession scorecard from indicator values.
+    Build a comprehensive recession/economic outlook scorecard from indicator values.
 
     Args:
         sahm_value: Current Sahm Rule value (SAHMREALTIME)
         yield_curve_value: Current 10Y-2Y spread (T10Y2Y)
         sentiment_value: Current consumer sentiment (UMCSENT)
         claims_value: Current initial claims 4-week avg (ICSA)
+        lei_value: Conference Board Leading Economic Index MoM % change (USSLIND)
+        pmi_value: ISM Manufacturing PMI (NAPM)
+        credit_spread_value: High yield credit spread (BAMLH0A0HYM2)
         polymarket_odds: Polymarket recession probability (0-100%)
         *_prev: Previous values for trend calculation
 
@@ -200,12 +260,15 @@ def build_recession_scorecard(
     yellow_count = 0
     green_count = 0
 
-    # Process each indicator
+    # Process each indicator (order matters for display)
     indicator_data = [
         ('SAHMREALTIME', sahm_value, sahm_prev),
         ('T10Y2Y', yield_curve_value, yield_curve_prev),
+        ('USSLIND', lei_value, lei_prev),
+        ('NAPM', pmi_value, pmi_prev),
         ('UMCSENT', sentiment_value, sentiment_prev),
         ('ICSA', claims_value, claims_prev),
+        ('BAMLH0A0HYM2', credit_spread_value, credit_spread_prev),
     ]
 
     for series_id, value, prev_value in indicator_data:
@@ -385,7 +448,7 @@ def format_scorecard_for_display(scorecard: dict) -> str:
     <div style="background: white; border: 2px solid {risk['color']}; border-radius: 8px; margin: 12px 0; overflow: hidden;">
         <div style="background: {risk['bg']}; padding: 12px 16px; border-bottom: 1px solid {risk['color']};">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="font-weight: 700; color: {risk['color']}; font-size: 1.1rem;">RECESSION DASHBOARD</div>
+                <div style="font-weight: 700; color: {risk['color']}; font-size: 1.1rem;">📊 LEADING INDICATORS DASHBOARD</div>
                 <div style="background: {risk['color']}; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem;">
                     {risk['label']}
                 </div>
@@ -409,13 +472,13 @@ def format_scorecard_for_display(scorecard: dict) -> str:
 
 def is_recession_query(query: str) -> bool:
     """
-    Detect if a query is asking about recession risk.
+    Detect if a query is asking about recession risk or economic outlook.
 
-    Returns True if the query should trigger the recession dashboard.
+    Returns True if the query should trigger the leading indicators dashboard.
     """
     query_lower = query.lower()
 
-    # Direct recession keywords
+    # Recession-related keywords
     recession_keywords = [
         'recession',
         'are we in a recession',
@@ -435,11 +498,29 @@ def is_recession_query(query: str) -> bool:
         'recession signal',
     ]
 
-    for keyword in recession_keywords:
+    # Economic outlook keywords (also show dashboard)
+    outlook_keywords = [
+        'economic outlook',
+        'leading indicators',
+        'economic forecast',
+        'where is the economy headed',
+        'economic health',
+        'economy dashboard',
+        'lei ',
+        'leading index',
+    ]
+
+    all_keywords = recession_keywords + outlook_keywords
+    for keyword in all_keywords:
         if keyword in query_lower:
             return True
 
     return False
+
+
+def is_leading_indicators_query(query: str) -> bool:
+    """Alias for is_recession_query - both show the same dashboard."""
+    return is_recession_query(query)
 
 
 # For testing

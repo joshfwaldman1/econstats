@@ -9086,6 +9086,26 @@ def main():
                     claims_value = claims_values[-1] if claims_values else None
                     claims_prev = None
 
+                # USSLIND - Conference Board Leading Economic Index (MoM % change)
+                lei_dates, lei_values, _ = get_observations('USSLIND', years=2)
+                if lei_values and len(lei_values) >= 2:
+                    # LEI is an index, calculate MoM % change
+                    lei_value = ((lei_values[-1] - lei_values[-2]) / lei_values[-2]) * 100
+                    lei_prev = ((lei_values[-2] - lei_values[-3]) / lei_values[-3]) * 100 if len(lei_values) >= 3 else None
+                else:
+                    lei_value = None
+                    lei_prev = None
+
+                # NAPM - ISM Manufacturing PMI
+                pmi_dates, pmi_values, _ = get_observations('NAPM', years=2)
+                pmi_value = pmi_values[-1] if pmi_values else None
+                pmi_prev = pmi_values[-2] if len(pmi_values) >= 2 else None
+
+                # BAMLH0A0HYM2 - High Yield Credit Spread
+                spread_dates, spread_values, _ = get_observations('BAMLH0A0HYM2', years=2)
+                credit_spread_value = spread_values[-1] if spread_values else None
+                credit_spread_prev = spread_values[-2] if len(spread_values) >= 2 else None
+
                 # Get Polymarket recession odds
                 polymarket_odds = None
                 if POLYMARKET_AVAILABLE:
@@ -9097,17 +9117,23 @@ def main():
                     except Exception as e:
                         print(f"[Recession Scorecard] Error fetching Polymarket odds: {e}")
 
-                # Build the scorecard
+                # Build the scorecard with all leading indicators
                 recession_scorecard = build_recession_scorecard(
                     sahm_value=sahm_value,
                     yield_curve_value=yield_curve_value,
                     sentiment_value=sentiment_value,
                     claims_value=claims_value,
+                    lei_value=lei_value,
+                    pmi_value=pmi_value,
+                    credit_spread_value=credit_spread_value,
                     polymarket_odds=polymarket_odds,
                     sahm_prev=sahm_prev,
                     yield_curve_prev=yield_curve_prev,
                     sentiment_prev=sentiment_prev,
                     claims_prev=claims_prev,
+                    lei_prev=lei_prev,
+                    pmi_prev=pmi_prev,
+                    credit_spread_prev=credit_spread_prev,
                 )
             except Exception as e:
                 print(f"[Recession Scorecard] Error building scorecard: {e}")
