@@ -569,6 +569,429 @@ def get_sep_for_query(query: str) -> Optional[Dict]:
     }
 
 
+# =============================================================================
+# REAL RATE CALCULATION
+# =============================================================================
+
+def compute_real_rate(nominal_rate: float, inflation_rate: float) -> Dict:
+    """
+    Calculate the real Fed funds rate (nominal - inflation).
+
+    The real rate is what matters for economic impact. A 5% nominal rate with
+    3% inflation is only 2% in real terms - much less restrictive than it appears.
+
+    Args:
+        nominal_rate: Current effective Fed funds rate (e.g., 4.33%)
+        inflation_rate: Core PCE or CPI inflation rate (e.g., 2.8%)
+
+    Returns:
+        Dict with:
+            - real_rate: The real Fed funds rate
+            - nominal_rate: The nominal rate used
+            - inflation_rate: The inflation rate used
+            - neutral_real_rate: Estimated neutral real rate (0.5-1.0%)
+            - stance: "restrictive", "neutral", or "accommodative"
+            - stance_degree: "mildly", "moderately", or "significantly"
+    """
+    real_rate = nominal_rate - inflation_rate
+
+    # Neutral real rate estimates (from FOMC longer-run projections minus 2% inflation target)
+    # Fed's longer-run neutral nominal rate is ~3.0%, minus 2% inflation = ~1.0% real neutral
+    neutral_real_rate_low = 0.5
+    neutral_real_rate_high = 1.0
+    neutral_midpoint = (neutral_real_rate_low + neutral_real_rate_high) / 2
+
+    # Determine policy stance based on distance from neutral
+    distance_from_neutral = real_rate - neutral_midpoint
+
+    if distance_from_neutral > 1.5:
+        stance = "restrictive"
+        stance_degree = "significantly"
+    elif distance_from_neutral > 0.75:
+        stance = "restrictive"
+        stance_degree = "moderately"
+    elif distance_from_neutral > 0.25:
+        stance = "restrictive"
+        stance_degree = "mildly"
+    elif distance_from_neutral >= -0.25:
+        stance = "neutral"
+        stance_degree = ""
+    elif distance_from_neutral >= -0.75:
+        stance = "accommodative"
+        stance_degree = "mildly"
+    elif distance_from_neutral >= -1.5:
+        stance = "accommodative"
+        stance_degree = "moderately"
+    else:
+        stance = "accommodative"
+        stance_degree = "significantly"
+
+    return {
+        'real_rate': real_rate,
+        'nominal_rate': nominal_rate,
+        'inflation_rate': inflation_rate,
+        'neutral_real_rate_low': neutral_real_rate_low,
+        'neutral_real_rate_high': neutral_real_rate_high,
+        'stance': stance,
+        'stance_degree': stance_degree,
+    }
+
+
+# =============================================================================
+# QUERY-SPECIFIC FORMATTERS
+# =============================================================================
+
+def _format_dot_plot_response(guidance: Dict) -> str:
+    """
+    Format response for DOT PLOT / projection queries.
+
+    Shows:
+    - Full range of projections (not just median)
+    - Distribution of participants at each year
+    - Comparison context
+    """
+    sentences = []
+    projections = guidance.get('projections', {})
+    meeting = guidance.get('meeting_date', 'recent')
+    current_rate = guidance.get('current_rate', {})
+    ff = projections.get('fed_funds', {})
+
+    # Current rate context
+    if current_rate:
+        target_low = current_rate.get('target_low')
+        target_high = current_rate.get('target_high')
+        if target_low and target_high:
+            sentences.append(f"**Current Fed Funds Rate: {target_low:.2f}%-{target_high:.2f}%**")
+
+    # Dot plot title
+    sentences.append(f"**Dot Plot Summary ({meeting} SEP):**")
+
+    # Show projections for each year with ranges
+    years_to_show = ['2025', '2026', '2027', 'longer_run']
+    dot_lines = []
+
+    for year in years_to_show:
+        if year in ff:
+            data = ff[year]
+            median = data.get('median')
+            range_data = data.get('range', (None, None))
+
+            if median:
+                year_label = "Long Run" if year == "longer_run" else year
+                if range_data and range_data[0] and range_data[1]:
+                    range_low, range_high = range_data
+                    spread = range_high - range_low
+                    # Calculate implied cuts from current
+                    if current_rate and year != 'longer_run':
+                        current_midpoint = (current_rate.get('target_low', 4.25) + current_rate.get('target_high', 4.50)) / 2
+                        if year == '2025':
+                            implied_cuts = round((current_midpoint - median) / 0.25)
+                            cuts_str = f" ({int(implied_cuts)} cuts implied)" if implied_cuts > 0 else ""
+                        else:
+                            cuts_str = ""
+                    else:
+                        cuts_str = ""
+                    dot_lines.append(f"- **{year_label}:** Median {median:.1f}%, Range {range_low:.1f}%-{range_high:.1f}%{cuts_str}")
+                else:
+                    dot_lines.append(f"- **{year_label}:** Median {median:.1f}%")
+
+    if dot_lines:
+        sentences.append("\n".join(dot_lines))
+
+    # Add interpretation
+    ff_2025 = ff.get('2025', {}).get('median')
+    ff_lr = ff.get('longer_run', {}).get('median')
+    if ff_2025 and ff_lr:
+        if ff_2025 > ff_lr:
+            sentences.append(f"The dots show rates remaining above the {ff_lr}% neutral rate through 2025, indicating a gradual normalization path.")
+
+    # Add range context
+    range_2025 = ff.get('2025', {}).get('range')
+    if range_2025 and range_2025[0] and range_2025[1]:
+        spread = range_2025[1] - range_2025[0]
+        if spread > 1.0:
+            sentences.append(f"Note the wide spread in 2025 projections ({spread:.1f}pp) - participants have significant disagreement about the rate path.")
+
+    # Source
+    sentences.append(f"*Source: {meeting} FOMC Summary of Economic Projections*")
+
+    return "\n\n".join(sentences)
+
+
+def _format_policy_stance_response(guidance: Dict) -> str:
+    """
+    Format response for POLICY STANCE queries ("too tight?", "restrictive?").
+
+    Shows:
+    - Real Fed funds rate calculation
+    - Comparison to neutral rate
+    - Conclusion about stance
+    """
+    sentences = []
+    projections = guidance.get('projections', {})
+    meeting = guidance.get('meeting_date', 'recent')
+    current_rate = guidance.get('current_rate', {})
+    fomc_summary = guidance.get('fomc_summary', {})
+
+    # Get current effective rate
+    effective_rate = current_rate.get('effective_rate', 4.33) if current_rate else 4.33
+
+    # Get current inflation (core PCE from projections, or use 2024 value)
+    core_pce = projections.get('core_pce', {})
+    # Use 2024 actual or latest estimate
+    current_inflation = core_pce.get('2024', {}).get('median', 2.8)
+
+    # Compute real rate
+    real_rate_info = compute_real_rate(effective_rate, current_inflation)
+
+    # Build response
+    sentences.append("**Policy Stance Analysis:**")
+
+    # Show calculation
+    sentences.append(f"- **Nominal Fed Funds Rate:** {effective_rate:.2f}%")
+    sentences.append(f"- **Core PCE Inflation:** {current_inflation:.1f}%")
+    sentences.append(f"- **Real Fed Funds Rate:** {real_rate_info['real_rate']:.2f}% (nominal - inflation)")
+
+    # Neutral rate context
+    sentences.append(f"- **Estimated Neutral Real Rate:** {real_rate_info['neutral_real_rate_low']:.1f}%-{real_rate_info['neutral_real_rate_high']:.1f}%")
+
+    # Stance conclusion
+    stance = real_rate_info['stance']
+    degree = real_rate_info['stance_degree']
+    real_rate = real_rate_info['real_rate']
+    neutral_mid = (real_rate_info['neutral_real_rate_low'] + real_rate_info['neutral_real_rate_high']) / 2
+
+    if stance == "restrictive":
+        diff = real_rate - neutral_mid
+        conclusion = f"**Conclusion:** Policy is **{degree} {stance}**. The real Fed funds rate ({real_rate:.2f}%) is {diff:.1f}pp above the neutral range, which should slow economic activity and reduce inflation."
+    elif stance == "accommodative":
+        diff = neutral_mid - real_rate
+        conclusion = f"**Conclusion:** Policy is **{degree} {stance}**. The real Fed funds rate ({real_rate:.2f}%) is {diff:.1f}pp below the neutral range, which should stimulate economic activity."
+    else:
+        conclusion = f"**Conclusion:** Policy is **roughly neutral**. The real Fed funds rate ({real_rate:.2f}%) is close to the estimated neutral range."
+
+    sentences.append(conclusion)
+
+    # Add FOMC's own assessment if available
+    if fomc_summary:
+        key_quote = fomc_summary.get('key_quote')
+        if key_quote:
+            sentences.append(f'*FOMC Assessment: "{key_quote}"*')
+
+    # Inflation outlook
+    core_2025 = core_pce.get('2025', {}).get('median')
+    if core_2025 and current_inflation:
+        if core_2025 < current_inflation:
+            sentences.append(f"With core PCE projected to fall to {core_2025}% in 2025, the real rate would rise further (become more restrictive) unless the Fed cuts nominal rates.")
+
+    sentences.append(f"*({meeting} FOMC)*")
+
+    return "\n\n".join(sentences)
+
+
+def _format_rate_outlook_response(guidance: Dict) -> str:
+    """
+    Format response for RATE OUTLOOK queries ("will Fed cut?", "rate path?").
+
+    Shows:
+    - Next meeting expectations
+    - Dot plot path
+    - Key data dependencies
+    """
+    sentences = []
+    projections = guidance.get('projections', {})
+    meeting = guidance.get('meeting_date', 'recent')
+    current_rate = guidance.get('current_rate', {})
+    fomc_summary = guidance.get('fomc_summary', {})
+    ff = projections.get('fed_funds', {})
+
+    # Current rate
+    if current_rate:
+        target_low = current_rate.get('target_low')
+        target_high = current_rate.get('target_high')
+        last_change = current_rate.get('last_change')
+        direction = current_rate.get('last_change_direction', '')
+        size = current_rate.get('last_change_size', 0)
+
+        if target_low and target_high:
+            rate_str = f"**Current Fed Funds Rate: {target_low:.2f}%-{target_high:.2f}%**"
+            if last_change and direction and size:
+                rate_str += f"\nLast action: {direction} {size} bps on {last_change}"
+            sentences.append(rate_str)
+
+    # Rate path from dot plot
+    sentences.append("**Rate Path (Dot Plot Median):**")
+
+    ff_2025 = ff.get('2025', {}).get('median')
+    ff_2026 = ff.get('2026', {}).get('median')
+    ff_2027 = ff.get('2027', {}).get('median')
+    ff_lr = ff.get('longer_run', {}).get('median')
+
+    if current_rate:
+        current_midpoint = (current_rate.get('target_low', 4.25) + current_rate.get('target_high', 4.50)) / 2
+    else:
+        current_midpoint = 4.375
+
+    # Calculate implied cuts
+    if ff_2025:
+        cuts_2025 = round((current_midpoint - ff_2025) / 0.25)
+        sentences.append(f"- **2025:** {ff_2025:.2f}% ({int(cuts_2025)} cuts from current)")
+    if ff_2026:
+        cuts_2026 = round((ff_2025 - ff_2026) / 0.25) if ff_2025 else 0
+        sentences.append(f"- **2026:** {ff_2026:.2f}% ({int(cuts_2026)} additional cuts)")
+    if ff_2027:
+        sentences.append(f"- **2027:** {ff_2027:.2f}%")
+    if ff_lr:
+        sentences.append(f"- **Long Run (Neutral):** {ff_lr:.2f}%")
+
+    # FOMC tone and statement highlights
+    if fomc_summary:
+        tone = fomc_summary.get('tone', '')
+        highlights = fomc_summary.get('highlights', [])
+        key_quote = fomc_summary.get('key_quote')
+
+        if tone:
+            tone_display = tone.capitalize()
+            sentences.append(f"**Recent FOMC Tone:** {tone_display}")
+
+        if key_quote:
+            sentences.append(f'*"{key_quote}"*')
+
+        if highlights:
+            sentences.append("**Key Takeaways:**")
+            for h in highlights[:3]:  # Show top 3
+                sentences.append(f"- {h}")
+
+    # Data dependencies
+    sentences.append("**What the Fed is Watching:**")
+    sentences.append("- Inflation progress (core PCE toward 2%)")
+    sentences.append("- Labor market conditions (unemployment, payrolls)")
+    sentences.append("- Financial conditions and economic data")
+
+    sentences.append(f"*({meeting} FOMC)*")
+
+    return "\n\n".join(sentences)
+
+
+def _format_general_fed_response(guidance: Dict) -> str:
+    """
+    Format general Fed response (default case).
+
+    Shows balanced overview of rate, projections, and FOMC statement.
+    """
+    # This is essentially the original format_sep_for_display logic
+    if not guidance:
+        return ""
+
+    projections = guidance.get('projections', {})
+    meeting = guidance.get('meeting_date', 'recent')
+    current_rate = guidance.get('current_rate', {})
+    fomc_summary = guidance.get('fomc_summary', {})
+
+    sentences = []
+
+    # Current Fed funds rate
+    if current_rate:
+        target_low = current_rate.get('target_low')
+        target_high = current_rate.get('target_high')
+        last_change = current_rate.get('last_change')
+        direction = current_rate.get('last_change_direction', '')
+        size = current_rate.get('last_change_size', 0)
+
+        if target_low and target_high:
+            rate_str = f"**Current Fed Funds Rate: {target_low:.2f}%-{target_high:.2f}%**"
+            if last_change and direction and size:
+                rate_str += f" (last {direction}: {size} bps on {last_change})"
+            sentences.append(rate_str)
+
+    # FOMC key quote
+    if fomc_summary:
+        key_quote = fomc_summary.get('key_quote')
+        if key_quote:
+            sentences.append(f'*"{key_quote}"*')
+
+    # Fed funds rate path (dot plot)
+    if 'fed_funds' in projections:
+        ff = projections['fed_funds']
+        ff_2025 = ff.get('2025', {}).get('median')
+        ff_2026 = ff.get('2026', {}).get('median')
+        ff_lr = ff.get('longer_run', {}).get('median')
+
+        current_midpoint = 4.4
+        if current_rate:
+            target_low = current_rate.get('target_low', 4.25)
+            target_high = current_rate.get('target_high', 4.50)
+            current_midpoint = (target_low + target_high) / 2
+
+        if ff_2025 and ff_2026:
+            cuts_2025 = round((current_midpoint - ff_2025) / 0.25)
+            cuts_2026 = round((ff_2025 - ff_2026) / 0.25)
+
+            if cuts_2025 > 0 and cuts_2026 > 0:
+                sentences.append(f"**Dot Plot Path:** The median projection shows the fed funds rate falling to {ff_2025}% by end of 2025 and {ff_2026}% by end of 2026, implying roughly {int(cuts_2025 + cuts_2026)} quarter-point cuts over two years.")
+            elif cuts_2025 > 0:
+                sentences.append(f"**Dot Plot Path:** The median projection shows the fed funds rate at {ff_2025}% by end of 2025 ({int(cuts_2025)} cuts from current levels).")
+            elif ff_lr:
+                sentences.append(f"**Dot Plot Path:** The median fed funds rate projection is {ff_2025}% for 2025, with a long-run neutral rate of {ff_lr}%.")
+
+    # FOMC highlights
+    if fomc_summary:
+        highlights = fomc_summary.get('highlights', [])
+        tone = fomc_summary.get('tone', '')
+        if highlights and len(highlights) > 0:
+            tone_str = ""
+            if tone == 'hawkish':
+                tone_str = " (hawkish)"
+            elif tone == 'dovish':
+                tone_str = " (dovish)"
+            sentences.append(f"**Key Takeaways{tone_str}:** {highlights[0]}")
+
+    if not sentences:
+        return ""
+
+    narrative = " ".join(sentences)
+
+    if guidance.get('is_fallback'):
+        narrative += f" *(Based on {meeting} FOMC projections; more recent data may be available.)*"
+    else:
+        narrative += f" *({meeting} FOMC)*"
+
+    return narrative
+
+
+def format_fed_guidance_for_query(query: str, guidance: Dict) -> str:
+    """
+    Format Fed guidance based on query type.
+
+    Routes to appropriate formatter based on what the user is asking:
+    - DOT PLOT queries: Show full range of projections, participant distribution
+    - POLICY STANCE queries: Compute real rate, compare to neutral
+    - RATE OUTLOOK queries: Focus on next meeting expectations, data dependencies
+    - GENERAL queries: Balanced overview
+
+    Args:
+        query: The user's query string
+        guidance: Dict from get_fed_guidance_for_query()
+
+    Returns:
+        Formatted string tailored to the query type
+    """
+    if not guidance:
+        return ""
+
+    query_lower = query.lower()
+
+    # Route to appropriate formatter based on query type
+    if 'dot plot' in query_lower or 'projection' in query_lower or 'dots' in query_lower:
+        return _format_dot_plot_response(guidance)
+    elif any(term in query_lower for term in ['too tight', 'too loose', 'restrictive', 'accommodative', 'stance', 'real rate']):
+        return _format_policy_stance_response(guidance)
+    elif any(term in query_lower for term in ['cut', 'hike', 'raise', 'lower', 'next meeting', 'rate path', 'when will']):
+        return _format_rate_outlook_response(guidance)
+    else:
+        return _format_general_fed_response(guidance)
+
+
 def format_sep_for_display(sep_data: Dict) -> str:
     """
     Format SEP data for display in the UI.
@@ -577,6 +1000,9 @@ def format_sep_for_display(sep_data: Dict) -> str:
     - Current Fed funds rate
     - FOMC's projected rate path (dot plot)
     - Key quotes from recent FOMC statements
+
+    NOTE: For query-specific formatting, use format_fed_guidance_for_query() instead.
+    This function is kept for backward compatibility and returns general formatting.
 
     Args:
         sep_data: Dict from get_sep_for_query() or get_fed_guidance_for_query()
@@ -933,23 +1359,68 @@ if __name__ == '__main__':
         print(f"  '{q}' -> {status}")
     print()
 
-    # Test formatted output with full Fed guidance
+    # Test compute_real_rate function
     print("=" * 60)
-    print("Formatted output for 'what is the fed doing':")
+    print("Testing compute_real_rate():")
     print("=" * 60)
-    result = get_fed_guidance_for_query("what is the fed doing")
-    print(format_sep_for_display(result))
-    print()
+    test_cases = [
+        (4.33, 2.8),  # Current situation
+        (5.0, 3.0),   # More restrictive
+        (3.0, 2.0),   # Near neutral
+        (1.0, 3.0),   # Accommodative (negative real)
+    ]
+    for nominal, inflation in test_cases:
+        result = compute_real_rate(nominal, inflation)
+        print(f"  Nominal: {nominal}%, Inflation: {inflation}%")
+        print(f"    Real Rate: {result['real_rate']:.2f}%")
+        print(f"    Stance: {result['stance_degree']} {result['stance']}")
+        print()
+
+    # Test query-specific formatters (THE FIX - different queries get different output)
+    query_specific_tests = [
+        ("What is the dot plot showing?", "DOT PLOT"),
+        ("Is monetary policy too tight?", "POLICY STANCE"),
+        ("Will the Fed cut rates?", "RATE OUTLOOK"),
+        ("What is the Fed doing?", "GENERAL"),
+    ]
 
     print("=" * 60)
-    print("Formatted output for 'dot plot':")
+    print("QUERY-SPECIFIC FORMATTING (the fix!)")
     print("=" * 60)
-    result = get_fed_guidance_for_query("dot plot")
-    print(format_sep_for_display(result))
     print()
 
+    for query, query_type in query_specific_tests:
+        print("=" * 60)
+        print(f"Query: '{query}' ({query_type})")
+        print("=" * 60)
+        guidance = get_fed_guidance_for_query(query)
+        formatted = format_fed_guidance_for_query(query, guidance)
+        print(formatted)
+        print()
+        print()
+
+    # Show that the outputs are DIFFERENT (not identical)
     print("=" * 60)
-    print("Formatted output for 'when will the fed cut rates':")
+    print("VERIFICATION: Different queries produce different outputs")
     print("=" * 60)
-    result = get_fed_guidance_for_query("when will the fed cut rates")
-    print(format_sep_for_display(result))
+
+    queries = [
+        "What is the dot plot showing?",
+        "Is monetary policy too tight?",
+        "Will the Fed cut rates?",
+    ]
+
+    outputs = []
+    for q in queries:
+        guidance = get_fed_guidance_for_query(q)
+        formatted = format_fed_guidance_for_query(q, guidance)
+        outputs.append((q, len(formatted), formatted[:100] + "..."))
+
+    for q, length, preview in outputs:
+        print(f"  '{q}'")
+        print(f"    Length: {length} chars, Preview: {preview}")
+        print()
+
+    # Check they're different
+    all_different = len(set(o[1] for o in outputs)) == len(outputs)
+    print(f"  All outputs different lengths? {all_different}")

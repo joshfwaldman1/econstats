@@ -146,10 +146,14 @@ SERIES_CATEGORIES = {
 
     # Interest Rates / Fed
     'FEDFUNDS': 'rates',
+    'DFF': 'rates',  # Daily Fed Funds effective rate
     'DGS10': 'rates',
     'DGS2': 'rates',
     'T10Y2Y': 'rates',
     'MORTGAGE30US': 'rates',
+
+    # Recession Indicators
+    'SAHMREALTIME': 'recession',  # Sahm Rule Recession Indicator
 
     # Housing
     'CSUSHPINSA': 'housing',
@@ -214,64 +218,81 @@ def categorize_indicator(series_id: str, name: str = "") -> str:
 # ECONOMIC REASONING RULES
 # =============================================================================
 
-# These rules encode economic relationships for coherent narratives
+# These rules encode economic relationships for coherent narratives.
+# CRITICAL: Each rule must check that required keys EXIST before comparing values.
+# Using .get() with defaults like 0 or 10 causes false positives when data is missing.
+# For example: data.get('core_inflation', 0) <= 2.5 returns True when core_inflation
+# is missing, incorrectly triggering "inflation at target" when no data exists.
+# Pattern: 'key' in data and data['key'] <comparison>
 ECONOMIC_RELATIONSHIPS = {
     # Labor market interpretation
     'labor_tight': {
         'conditions': lambda data: (
-            data.get('unemployment', 10) < 4.5 and
-            data.get('job_openings_per_unemployed', 0) > 1.0
+            'unemployment' in data and data['unemployment'] < 4.5 and
+            'job_openings_per_unemployed' in data and data['job_openings_per_unemployed'] > 1.0
         ),
         'interpretation': "labor market remains tight with more jobs than job seekers",
         'implication': "wage pressures likely to persist",
     },
     'labor_cooling': {
         'conditions': lambda data: (
-            data.get('unemployment', 0) > 4.0 and
-            data.get('unemployment_trend', '') == 'rising'
+            'unemployment' in data and data['unemployment'] > 4.0 and
+            'unemployment_trend' in data and data['unemployment_trend'] == 'rising'
         ),
         'interpretation': "labor market is cooling as unemployment edges higher",
         'implication': "Fed gaining confidence inflation will ease",
     },
     'labor_soft': {
-        'conditions': lambda data: data.get('unemployment', 0) > 5.0,
+        'conditions': lambda data: (
+            'unemployment' in data and data['unemployment'] > 5.0
+        ),
         'interpretation': "labor market shows meaningful slack",
         'implication': "Fed likely shifting focus to employment mandate",
     },
 
     # Inflation interpretation
     'inflation_hot': {
-        'conditions': lambda data: data.get('core_inflation', 0) > 3.5,
+        'conditions': lambda data: (
+            'core_inflation' in data and data['core_inflation'] > 3.5
+        ),
         'interpretation': "inflation remains stubbornly elevated",
         'implication': "monetary policy will stay restrictive longer",
     },
     'inflation_progress': {
         'conditions': lambda data: (
-            2.5 < data.get('core_inflation', 0) <= 3.5 and
-            data.get('inflation_trend', '') == 'falling'
+            'core_inflation' in data and 2.5 < data['core_inflation'] <= 3.5 and
+            'inflation_trend' in data and data['inflation_trend'] == 'falling'
         ),
         'interpretation': "inflation is making progress toward the Fed's 2% target",
         'implication': "rate cuts becoming more likely, but patience required",
     },
     'inflation_target': {
-        'conditions': lambda data: data.get('core_inflation', 0) <= 2.5,
+        'conditions': lambda data: (
+            'core_inflation' in data and data['core_inflation'] <= 2.5
+        ),
         'interpretation': "inflation is near the Fed's 2% target",
         'implication': "Fed has flexibility to focus on growth and employment",
     },
 
     # Growth interpretation
     'growth_strong': {
-        'conditions': lambda data: data.get('gdp_growth', 0) > 2.5,
+        'conditions': lambda data: (
+            'gdp_growth' in data and data['gdp_growth'] > 2.5
+        ),
         'interpretation': "economy is expanding at a healthy pace",
         'implication': "no imminent recession risk, but inflation vigilance needed",
     },
     'growth_moderate': {
-        'conditions': lambda data: 1.0 < data.get('gdp_growth', 0) <= 2.5,
+        'conditions': lambda data: (
+            'gdp_growth' in data and 1.0 < data['gdp_growth'] <= 2.5
+        ),
         'interpretation': "growth is moderate but positive",
         'implication': "soft landing scenario remains plausible",
     },
     'growth_weak': {
-        'conditions': lambda data: data.get('gdp_growth', 0) <= 1.0,
+        'conditions': lambda data: (
+            'gdp_growth' in data and data['gdp_growth'] <= 1.0
+        ),
         'interpretation': "economic growth is slowing significantly",
         'implication': "recession risk rising, Fed may need to pivot",
     },
@@ -279,20 +300,123 @@ ECONOMIC_RELATIONSHIPS = {
     # Combined narratives
     'goldilocks': {
         'conditions': lambda data: (
-            data.get('unemployment', 10) < 4.5 and
-            data.get('core_inflation', 10) < 3.0 and
-            data.get('gdp_growth', 0) > 1.5
+            'unemployment' in data and data['unemployment'] < 4.5 and
+            'core_inflation' in data and data['core_inflation'] < 3.0 and
+            'gdp_growth' in data and data['gdp_growth'] > 1.5
         ),
         'interpretation': "economy is in a 'Goldilocks' zone with solid growth, low unemployment, and moderating inflation",
         'implication': "conditions support continued expansion without aggressive Fed action",
     },
     'stagflation_risk': {
         'conditions': lambda data: (
-            data.get('unemployment', 0) > 4.5 and
-            data.get('core_inflation', 0) > 3.5
+            'unemployment' in data and data['unemployment'] > 4.5 and
+            'core_inflation' in data and data['core_inflation'] > 3.5
         ),
         'interpretation': "concerning mix of rising unemployment and elevated inflation",
         'implication': "Fed faces difficult tradeoffs - classic stagflation dilemma",
+    },
+
+    # Yield curve inversion - historically reliable recession signal
+    'yield_curve_inverted': {
+        'conditions': lambda data: 't10y2y' in data and data['t10y2y'] < 0,
+        'interpretation': "yield curve is inverted, a historically reliable recession signal",
+        'implication': "recession risk elevated 12-18 months out",
+    },
+
+    # Sahm Rule trigger - real-time recession indicator
+    'sahm_rule_triggered': {
+        'conditions': lambda data: 'sahm_indicator' in data and data['sahm_indicator'] >= 0.5,
+        'interpretation': "Sahm Rule has triggered, indicating recession may have begun",
+        'implication': "high probability recession is underway or imminent",
+    },
+
+    # Fed policy stance - restrictive monetary policy with positive real rates
+    'fed_restrictive': {
+        'conditions': lambda data: (
+            'fed_rate' in data and
+            'core_inflation' in data and
+            data['fed_rate'] > data['core_inflation'] + 0.5
+        ),
+        'interpretation': "monetary policy is restrictive with positive real rates",
+        'implication': "economic cooling expected as policy remains tight",
+    },
+
+    # Consumer sentiment collapse - depressed consumer confidence
+    'consumer_pessimism': {
+        'conditions': lambda data: 'consumer_sentiment' in data and data['consumer_sentiment'] < 70,
+        'interpretation': "consumer sentiment is depressed",
+        'implication': "spending likely to weaken, dragging on growth",
+    },
+
+    # Soft landing scenario - economy cooling without recession
+    'soft_landing': {
+        'conditions': lambda data: (
+            'unemployment' in data and data['unemployment'] < 4.5 and
+            'unemployment_trend' in data and data['unemployment_trend'] == 'rising' and
+            'core_inflation' in data and data['core_inflation'] < 3.0 and
+            'gdp_growth' in data and data['gdp_growth'] > 1.0
+        ),
+        'interpretation': "economy is cooling while avoiding recession - a soft landing scenario",
+        'implication': "Fed achieving its goal; rate cuts may follow as inflation normalizes",
+    },
+
+    # =========================================================================
+    # COMPARISON-SPECIFIC RULES (for 2-series comparisons)
+    # =========================================================================
+
+    # Unemployment disparity - Black unemployment significantly exceeds overall
+    'unemployment_disparity': {
+        'conditions': lambda data: (
+            'black_unemployment' in data and
+            'unemployment' in data and
+            data['black_unemployment'] > data['unemployment'] * 1.3
+        ),
+        'interpretation': "Black unemployment significantly exceeds overall rate",
+        'implication': "structural labor market disparities persist despite overall strength",
+    },
+
+    # Hispanic unemployment disparity
+    'hispanic_unemployment_disparity': {
+        'conditions': lambda data: (
+            'hispanic_unemployment' in data and
+            'unemployment' in data and
+            data['hispanic_unemployment'] > data['unemployment'] * 1.2
+        ),
+        'interpretation': "Hispanic unemployment exceeds overall rate",
+        'implication': "labor market gains not evenly distributed across demographics",
+    },
+
+    # Real wage erosion - wages not keeping pace with inflation
+    'real_wage_erosion': {
+        'conditions': lambda data: (
+            'wage_growth' in data and
+            'headline_inflation' in data and
+            data['wage_growth'] < data['headline_inflation']
+        ),
+        'interpretation': "wages are not keeping pace with inflation",
+        'implication': "workers' purchasing power is declining in real terms",
+    },
+
+    # Real wage gains - wages outpacing inflation
+    'real_wage_gains': {
+        'conditions': lambda data: (
+            'wage_growth' in data and
+            'headline_inflation' in data and
+            data['wage_growth'] > data['headline_inflation'] + 0.5
+        ),
+        'interpretation': "wages are outpacing inflation",
+        'implication': "workers experiencing real purchasing power gains",
+    },
+
+    # Core vs headline inflation divergence
+    'inflation_divergence': {
+        'conditions': lambda data: (
+            'core_inflation' in data and
+            'headline_inflation' in data and
+            abs(data['headline_inflation'] - data['core_inflation']) > 1.0
+        ),
+        'interpretation': "significant divergence between headline and core inflation",
+        'implication': "food and energy prices driving wedge; core trend more indicative of underlying inflation",
     },
 }
 
@@ -332,13 +456,21 @@ def build_data_context(series_data: List[Tuple]) -> Dict[str, Any]:
     """
     Build a context dictionary from series data for economic reasoning.
 
+    This function extracts standardized economic metrics from raw series data,
+    and also detects comparison scenarios when exactly two series are present.
+
     Args:
         series_data: List of (series_id, dates, values, info) tuples
 
     Returns:
-        Dictionary with standardized economic metrics
+        Dictionary with standardized economic metrics, including comparison
+        metrics when applicable (comparison_gap, comparison_ratio, comparison_names,
+        comparison_series_keys)
     """
     context = {}
+
+    # Track series for comparison detection
+    series_keys = []  # List of (standardized_key, name, latest_value) tuples
 
     for series_id, dates, values, info in series_data:
         if not values:
@@ -346,14 +478,59 @@ def build_data_context(series_data: List[Tuple]) -> Dict[str, Any]:
 
         latest = values[-1]
         name = info.get('name', info.get('title', series_id)).lower()
+        display_name = info.get('name', info.get('title', series_id))
+
+        # Track the standardized key for comparison detection
+        standardized_key = None
 
         # Extract key metrics into standardized names
-        if series_id == 'UNRATE' or 'unemployment rate' in name:
+        # Overall unemployment rate (excludes demographic-specific rates)
+        if series_id == 'UNRATE' or ('unemployment rate' in name and 'black' not in name and 'hispanic' not in name and 'women' not in name):
             context['unemployment'] = latest
             if len(values) >= 3:
                 context['unemployment_trend'] = 'rising' if values[-1] > values[-3] else 'falling'
+            standardized_key = 'unemployment'
 
-        elif series_id in ['CPIAUCSL', 'CPILFESL', 'PCEPILFE'] or 'core' in name and ('cpi' in name or 'pce' in name):
+        # Black unemployment rate
+        elif series_id == 'LNS14000006' or ('black' in name and 'unemploy' in name):
+            context['black_unemployment'] = latest
+            if len(values) >= 3:
+                context['black_unemployment_trend'] = 'rising' if values[-1] > values[-3] else 'falling'
+            standardized_key = 'black_unemployment'
+
+        # Hispanic unemployment rate
+        elif series_id == 'LNS14000009' or ('hispanic' in name and 'unemploy' in name):
+            context['hispanic_unemployment'] = latest
+            standardized_key = 'hispanic_unemployment'
+
+        # Women's unemployment rate
+        elif series_id == 'LNS14000002' or ('women' in name and 'unemploy' in name):
+            context['women_unemployment'] = latest
+            standardized_key = 'women_unemployment'
+
+        # Wage growth (average hourly earnings)
+        elif series_id in ['CES0500000003', 'AHETPI'] or ('wage' in name or 'earnings' in name or 'hourly' in name):
+            # Calculate YoY wage growth if we have enough data
+            if len(values) >= 12:
+                yoy_wage = ((values[-1] / values[-12]) - 1) * 100
+                context['wage_growth'] = yoy_wage
+                standardized_key = 'wage_growth'
+            else:
+                context['wage_level'] = latest
+                standardized_key = 'wage_level'
+
+        # Headline inflation (CPI All Items)
+        elif series_id == 'CPIAUCSL' or ('cpi' in name and 'core' not in name and ('all' in name or 'urban' in name)):
+            if len(values) >= 12:
+                yoy = ((values[-1] / values[-12]) - 1) * 100
+                context['headline_inflation'] = yoy
+                if len(values) >= 15:
+                    prev_yoy = ((values[-3] / values[-15]) - 1) * 100
+                    context['headline_inflation_trend'] = 'falling' if yoy < prev_yoy else 'rising'
+                standardized_key = 'headline_inflation'
+
+        # Core inflation (CPI or PCE)
+        elif series_id in ['CPILFESL', 'PCEPILFE'] or ('core' in name and ('cpi' in name or 'pce' in name)):
             # Calculate YoY inflation if we have index values
             if len(values) >= 12:
                 yoy = ((values[-1] / values[-12]) - 1) * 100
@@ -361,27 +538,72 @@ def build_data_context(series_data: List[Tuple]) -> Dict[str, Any]:
                 if len(values) >= 15:
                     prev_yoy = ((values[-3] / values[-15]) - 1) * 100
                     context['inflation_trend'] = 'falling' if yoy < prev_yoy else 'rising'
+                standardized_key = 'core_inflation'
+
+        elif series_id == 'GDPC1':
+            # GDPC1 is Real GDP level (in billions) - NOT a growth rate
+            # Must calculate YoY growth from the level data
+            # Quarterly data: need 4 observations for 1 year
+            if len(values) >= 4:
+                year_ago = values[-4]
+                if year_ago > 0:
+                    context['gdp_growth'] = ((latest / year_ago) - 1) * 100
+            standardized_key = 'gdp_growth'
 
         elif series_id in ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'] or 'gdp' in name:
-            # For GDP growth rates, use the value directly
+            # These are already GDP growth rates, use the value directly
+            # A191RO1Q156NBEA = GDP YoY growth rate
+            # A191RL1Q225SBEA = GDP quarterly annualized growth rate
             if 'yoy' in name.lower() or 'growth' in name.lower():
                 context['gdp_growth'] = latest
             elif info.get('is_yoy'):
                 context['gdp_growth'] = latest
             else:
                 context['gdp_growth'] = latest
+            standardized_key = 'gdp_growth'
 
         elif series_id == 'JTSJOL' or 'job opening' in name:
             context['job_openings'] = latest
+            standardized_key = 'job_openings'
 
         elif series_id == 'PAYEMS' or 'payroll' in name:
             if info.get('is_payroll_change'):
                 context['monthly_job_change'] = latest
+                standardized_key = 'monthly_job_change'
             else:
                 context['total_payrolls'] = latest
+                standardized_key = 'total_payrolls'
 
-        elif series_id == 'FEDFUNDS':
+        elif series_id in ['FEDFUNDS', 'DFF'] or 'fed funds' in name:
+            # Federal funds rate - effective or target rate
             context['fed_rate'] = latest
+            standardized_key = 'fed_rate'
+
+        elif series_id == 'T10Y2Y' or '10-year' in name and '2-year' in name:
+            # Yield curve spread (10-year minus 2-year Treasury)
+            # Negative values indicate inversion, a recession signal
+            context['t10y2y'] = latest
+            standardized_key = 't10y2y'
+
+        elif series_id == 'SAHMREALTIME' or 'sahm' in name:
+            # Sahm Rule Recession Indicator
+            # Values >= 0.5 indicate recession has likely begun
+            context['sahm_indicator'] = latest
+            standardized_key = 'sahm_indicator'
+
+        elif series_id == 'UMCSENT' or 'consumer sentiment' in name or 'michigan' in name:
+            # University of Michigan Consumer Sentiment Index
+            # Values below 70 indicate depressed consumer confidence
+            context['consumer_sentiment'] = latest
+            standardized_key = 'consumer_sentiment'
+
+        # Track all series for comparison detection
+        # Use standardized key if we recognized the series, otherwise use series_id
+        series_keys.append((
+            standardized_key if standardized_key else series_id.lower(),
+            display_name,
+            latest
+        ))
 
     # Calculate derived metrics
     if 'job_openings' in context and 'unemployment' in context:
@@ -391,6 +613,35 @@ def build_data_context(series_data: List[Tuple]) -> Dict[str, Any]:
         unemployed = (context['unemployment'] / 100) * labor_force
         if unemployed > 0:
             context['job_openings_per_unemployed'] = context['job_openings'] / unemployed
+
+    # =========================================================================
+    # COMPARISON DETECTION: When exactly 2 series, compute comparison metrics
+    # =========================================================================
+    if len(series_keys) == 2:
+        key1, name1, val1 = series_keys[0]
+        key2, name2, val2 = series_keys[1]
+
+        # Store comparison metadata
+        context['comparison_names'] = [name1, name2]
+        context['comparison_series_keys'] = [key1, key2]
+        context['comparison_values'] = [val1, val2]
+
+        # Compute comparison gap (series1 - series2)
+        context['comparison_gap'] = val1 - val2
+
+        # Compute comparison ratio (series1 / series2), avoiding division by zero
+        if val2 != 0:
+            context['comparison_ratio'] = val1 / val2
+        else:
+            context['comparison_ratio'] = None
+
+        # Determine which series is higher
+        if val1 > val2:
+            context['comparison_higher'] = name1
+            context['comparison_lower'] = name2
+        else:
+            context['comparison_higher'] = name2
+            context['comparison_lower'] = name1
 
     return context
 
@@ -670,6 +921,10 @@ def _generate_fallback_analysis(
     """
     Generate a basic analysis when LLM is unavailable.
 
+    This function handles both general economic snapshots and comparison queries
+    (when exactly 2 series are present). For comparisons, it generates specific
+    narratives about the gap between the two series.
+
     Args:
         data_summary: Summarized data points
         data_context: Extracted economic metrics
@@ -678,7 +933,14 @@ def _generate_fallback_analysis(
     Returns:
         EconomistAnalysis with basic rule-based content
     """
-    # Build headline from data
+    # Check if this is a comparison query (exactly 2 series)
+    is_comparison = 'comparison_gap' in data_context
+
+    if is_comparison:
+        # Generate comparison-specific analysis
+        return _generate_comparison_fallback(data_summary, data_context, applicable_rules)
+
+    # Build headline from data (non-comparison case)
     headline_parts = []
 
     if 'unemployment' in data_context:
@@ -713,6 +975,162 @@ def _generate_fallback_analysis(
         opportunities=opportunities,
         watch_items=watch_items,
         confidence="low",  # Lower confidence for fallback analysis
+    )
+
+
+def _generate_comparison_fallback(
+    data_summary: List[Dict],
+    data_context: Dict[str, Any],
+    applicable_rules: List[Dict[str, str]]
+) -> EconomistAnalysis:
+    """
+    Generate analysis specifically for comparison queries (2 series).
+
+    This function creates meaningful narratives about the gap between two
+    economic indicators, such as:
+    - "Black unemployment at X% is Y percentage points above the overall rate of Z%"
+    - "Wage growth at X% is trailing inflation at Y%, meaning real wages fell Z%"
+
+    Args:
+        data_summary: Summarized data points
+        data_context: Extracted economic metrics with comparison data
+        applicable_rules: Economic reasoning rules that apply
+
+    Returns:
+        EconomistAnalysis with comparison-focused content
+    """
+    # Extract comparison data
+    names = data_context.get('comparison_names', ['Series 1', 'Series 2'])
+    keys = data_context.get('comparison_series_keys', ['unknown', 'unknown'])
+    values = data_context.get('comparison_values', [0, 0])
+    gap = data_context.get('comparison_gap', 0)
+    ratio = data_context.get('comparison_ratio')
+    higher = data_context.get('comparison_higher', names[0])
+    lower = data_context.get('comparison_lower', names[1])
+
+    val1, val2 = values[0], values[1]
+    name1, name2 = names[0], names[1]
+    key1, key2 = keys[0], keys[1]
+
+    # Determine the type of comparison for specialized narratives
+    headline = ""
+    narrative = []
+    key_insight = ""
+    risks = []
+    opportunities = []
+    watch_items = []
+
+    # =========================================================================
+    # UNEMPLOYMENT DISPARITY COMPARISONS
+    # =========================================================================
+    if key1 == 'black_unemployment' and key2 == 'unemployment':
+        # Black unemployment vs overall
+        gap_pp = val1 - val2
+        headline = f"Black unemployment at {val1:.1f}% is {abs(gap_pp):.1f} percentage points {'above' if gap_pp > 0 else 'below'} the overall rate of {val2:.1f}%."
+        narrative = [
+            f"Black unemployment stands at {val1:.1f}%, compared to the overall unemployment rate of {val2:.1f}%.",
+            f"This {abs(gap_pp):.1f} percentage point gap reflects persistent structural disparities in the labor market.",
+            f"Black workers historically experience unemployment rates roughly 1.5-2x the overall rate.",
+            f"The current ratio of {ratio:.2f}x {'indicates a typical disparity' if ratio and ratio > 1.4 else 'shows some narrowing of the gap'}." if ratio else "Gap analysis requires additional context."
+        ]
+        key_insight = f"Black workers face unemployment rates {ratio:.1f}x the national average, highlighting ongoing labor market inequality." if ratio else "Demographic unemployment disparities require policy attention."
+        risks = ["Economic downturns typically widen demographic unemployment gaps.", "Policy focus on headline employment may overlook persistent disparities."]
+        opportunities = ["Targeted workforce development programs could help close the gap.", "Tight labor markets historically narrow demographic disparities."]
+        watch_items = ["Relative trends in Black vs overall unemployment", "Labor force participation rates by demographic"]
+
+    elif key1 == 'unemployment' and key2 == 'black_unemployment':
+        # Overall vs Black unemployment (reversed order)
+        gap_pp = val2 - val1
+        headline = f"Black unemployment at {val2:.1f}% is {abs(gap_pp):.1f} percentage points above the overall rate of {val1:.1f}%."
+        narrative = [
+            f"The overall unemployment rate stands at {val1:.1f}%, while Black unemployment is {val2:.1f}%.",
+            f"This {abs(gap_pp):.1f} percentage point gap reflects persistent structural disparities in the labor market.",
+            f"Black workers historically experience unemployment rates roughly 1.5-2x the overall rate.",
+            f"The current ratio of {1/ratio:.2f}x {'indicates a typical disparity' if ratio and 1/ratio > 1.4 else 'shows some narrowing of the gap'}." if ratio else "Gap analysis requires additional context."
+        ]
+        key_insight = f"Black workers face unemployment rates {1/ratio:.1f}x the national average, highlighting ongoing labor market inequality." if ratio else "Demographic unemployment disparities require policy attention."
+        risks = ["Economic downturns typically widen demographic unemployment gaps.", "Policy focus on headline employment may overlook persistent disparities."]
+        opportunities = ["Targeted workforce development programs could help close the gap.", "Tight labor markets historically narrow demographic disparities."]
+        watch_items = ["Relative trends in Black vs overall unemployment", "Labor force participation rates by demographic"]
+
+    # =========================================================================
+    # WAGE VS INFLATION COMPARISONS
+    # =========================================================================
+    elif (key1 == 'wage_growth' and key2 == 'headline_inflation') or (key1 == 'headline_inflation' and key2 == 'wage_growth'):
+        # Wage growth vs inflation - use the COMPUTED growth rates from context, not raw values
+        # The raw comparison_values are index/dollar levels; we need the YoY % growth rates
+        # which were computed in build_data_context()
+        wage_val = data_context.get('wage_growth', 0)
+        inflation_val = data_context.get('headline_inflation', 0)
+
+        real_wage_change = wage_val - inflation_val
+
+        if real_wage_change < 0:
+            headline = f"Wage growth at {wage_val:.1f}% is trailing inflation at {inflation_val:.1f}%, meaning real wages fell {abs(real_wage_change):.1f}%."
+            narrative = [
+                f"Nominal wages grew {wage_val:.1f}% year-over-year, but inflation ran at {inflation_val:.1f}%.",
+                f"This means workers experienced a {abs(real_wage_change):.1f}% decline in real purchasing power.",
+                "Wage growth lagging inflation erodes living standards and consumer spending power.",
+                "This dynamic often leads to increased pressure for wage negotiations and potential labor unrest."
+            ]
+            key_insight = f"Workers' purchasing power declined by {abs(real_wage_change):.1f}% in real terms, putting pressure on household budgets."
+            risks = ["Continued real wage erosion could dampen consumer spending.", "Labor market tensions may increase as workers seek higher wages."]
+            opportunities = ["Inflation moderation could restore positive real wage growth.", "Productivity gains could support both wages and price stability."]
+        else:
+            headline = f"Wage growth at {wage_val:.1f}% is outpacing inflation at {inflation_val:.1f}%, delivering {real_wage_change:.1f}% real wage gains."
+            narrative = [
+                f"Nominal wages grew {wage_val:.1f}% year-over-year, exceeding inflation of {inflation_val:.1f}%.",
+                f"This translates to {real_wage_change:.1f}% growth in real purchasing power for workers.",
+                "Positive real wage growth supports consumer spending and living standards.",
+                "Sustained real wage gains without sparking inflation indicate healthy productivity growth."
+            ]
+            key_insight = f"Workers gained {real_wage_change:.1f}% in real purchasing power, supporting consumer spending and living standards."
+            risks = ["Wage growth significantly above productivity could reignite inflation.", "Tight labor markets may not be sustainable long-term."]
+            opportunities = ["Strong purchasing power supports consumer-driven growth.", "Real wage gains could boost consumer confidence."]
+
+        watch_items = ["Productivity growth relative to wage increases", "Labor market tightness indicators", "Consumer spending trends"]
+
+    # =========================================================================
+    # GENERIC COMPARISON (when no specific pattern matches)
+    # =========================================================================
+    else:
+        # Generic comparison narrative
+        if gap > 0:
+            headline = f"{name1} at {val1:.1f} exceeds {name2} at {val2:.1f} by {abs(gap):.1f}."
+        else:
+            headline = f"{name2} at {val2:.1f} exceeds {name1} at {val1:.1f} by {abs(gap):.1f}."
+
+        narrative = [
+            f"{name1} currently stands at {val1:.1f}.",
+            f"{name2} currently stands at {val2:.1f}.",
+            f"The gap between these indicators is {abs(gap):.1f}.",
+        ]
+
+        if ratio and ratio != 1:
+            ratio_display = ratio if ratio > 1 else 1/ratio
+            higher_name = name1 if ratio > 1 else name2
+            lower_name = name2 if ratio > 1 else name1
+            narrative.append(f"{higher_name} is {ratio_display:.2f}x {lower_name}.")
+
+        key_insight = f"The relationship between these indicators warrants monitoring as economic conditions evolve."
+        risks = ["Divergence between indicators may signal underlying imbalances.", "Trends in either direction could have policy implications."]
+        opportunities = ["Understanding the relationship helps inform economic expectations.", "Monitoring the gap provides early warning of shifts."]
+        watch_items = [f"Trend in {name1}", f"Trend in {name2}", "Economic factors affecting both indicators"]
+
+    # Add applicable rules to narrative
+    for rule in applicable_rules[:2]:  # Add up to 2 rule-based insights
+        rule_text = f"{rule['interpretation'].capitalize()}. {rule['implication'].capitalize()}."
+        if rule_text not in narrative:
+            narrative.append(rule_text)
+
+    return EconomistAnalysis(
+        headline=headline,
+        narrative=narrative[:5],  # Cap at 5 bullets
+        key_insight=key_insight,
+        risks=risks[:2],
+        opportunities=opportunities[:2],
+        watch_items=watch_items[:3],
+        confidence="medium",  # Higher confidence for comparison analysis since we have specific data
     )
 
 
@@ -927,6 +1345,175 @@ if __name__ == "__main__":
     print("\nPlain text format:")
     print(plain)
 
+    # =========================================================================
+    # COMPARISON TESTS
+    # =========================================================================
     print("\n" + "=" * 70)
-    print("TESTS COMPLETE")
+    print("COMPARISON ANALYSIS TESTS")
+    print("=" * 70)
+
+    # Test 5: Black unemployment vs overall unemployment
+    print("\n5. Testing: Black unemployment vs overall unemployment...")
+    comparison_data_unemployment = [
+        ('LNS14000006', ['2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'],
+         [5.8, 5.7, 5.9, 5.8], {'name': 'Black Unemployment Rate', 'unit': '%'}),
+        ('UNRATE', ['2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'],
+         [4.1, 4.0, 4.2, 4.1], {'name': 'Unemployment Rate', 'unit': '%'}),
+    ]
+
+    context_unemp = build_data_context(comparison_data_unemployment)
+    print(f"Comparison context: {json.dumps(context_unemp, indent=2)}")
+
+    # Check comparison metrics are present
+    assert 'comparison_gap' in context_unemp, "comparison_gap should be present"
+    assert 'comparison_ratio' in context_unemp, "comparison_ratio should be present"
+    assert 'comparison_names' in context_unemp, "comparison_names should be present"
+    print(f"  Gap: {context_unemp['comparison_gap']:.2f} pp")
+    print(f"  Ratio: {context_unemp['comparison_ratio']:.2f}x")
+
+    # Test the rules
+    rules_unemp = apply_economic_reasoning(context_unemp)
+    print(f"Applicable rules: {[r['rule'] for r in rules_unemp]}")
+    assert any(r['rule'] == 'unemployment_disparity' for r in rules_unemp), "unemployment_disparity rule should trigger"
+
+    # Test fallback analysis for this comparison
+    analysis_unemp = _generate_fallback_analysis([], context_unemp, rules_unemp)
+    print(f"\nHeadline: {analysis_unemp.headline}")
+    print(f"Key insight: {analysis_unemp.key_insight}")
+    assert 'percentage point' in analysis_unemp.headline.lower(), "Headline should mention percentage points"
+
+    # Test 6: Wage growth vs inflation (real wage erosion)
+    print("\n6. Testing: Wage growth vs inflation (real wage erosion)...")
+    # 12 months of data needed for YoY calculation
+    dates_12mo = [f'2024-{m:02d}-01' for m in range(1, 13)]
+    # CPI index rising 3.5% over the year
+    cpi_values = [300.0 + (i * 0.875) for i in range(12)]  # ~3.5% YoY
+    # Wages rising only 2.5% over the year
+    wage_values = [30.0 + (i * 0.0625) for i in range(12)]  # ~2.5% YoY
+
+    comparison_data_wages = [
+        ('CES0500000003', dates_12mo, wage_values,
+         {'name': 'Average Hourly Earnings', 'unit': 'Dollars'}),
+        ('CPIAUCSL', dates_12mo, cpi_values,
+         {'name': 'Consumer Price Index for All Urban Consumers', 'unit': 'Index'}),
+    ]
+
+    context_wages = build_data_context(comparison_data_wages)
+    print(f"  Wage growth: {context_wages.get('wage_growth', 'N/A'):.2f}%")
+    print(f"  Headline inflation: {context_wages.get('headline_inflation', 'N/A'):.2f}%")
+    print(f"  Comparison gap: {context_wages.get('comparison_gap', 'N/A')}")
+
+    # Test the rules
+    rules_wages = apply_economic_reasoning(context_wages)
+    print(f"Applicable rules: {[r['rule'] for r in rules_wages]}")
+    assert any(r['rule'] == 'real_wage_erosion' for r in rules_wages), "real_wage_erosion rule should trigger"
+
+    # Test fallback analysis
+    analysis_wages = _generate_fallback_analysis([], context_wages, rules_wages)
+    print(f"\nHeadline: {analysis_wages.headline}")
+    print(f"Key insight: {analysis_wages.key_insight}")
+    assert 'trailing' in analysis_wages.headline.lower() or 'fell' in analysis_wages.headline.lower() or 'declined' in analysis_wages.headline.lower(), "Headline should indicate wage erosion"
+
+    # Test 7: Wage growth vs inflation (real wage gains)
+    print("\n7. Testing: Wage growth vs inflation (real wage gains)...")
+    # CPI index rising 2.0% over the year
+    cpi_values_low = [300.0 + (i * 0.5) for i in range(12)]  # ~2.0% YoY
+    # Wages rising 4.0% over the year
+    wage_values_high = [30.0 + (i * 0.1) for i in range(12)]  # ~4.0% YoY
+
+    comparison_data_gains = [
+        ('CES0500000003', dates_12mo, wage_values_high,
+         {'name': 'Average Hourly Earnings', 'unit': 'Dollars'}),
+        ('CPIAUCSL', dates_12mo, cpi_values_low,
+         {'name': 'Consumer Price Index for All Urban Consumers', 'unit': 'Index'}),
+    ]
+
+    context_gains = build_data_context(comparison_data_gains)
+    print(f"  Wage growth: {context_gains.get('wage_growth', 'N/A'):.2f}%")
+    print(f"  Headline inflation: {context_gains.get('headline_inflation', 'N/A'):.2f}%")
+
+    rules_gains = apply_economic_reasoning(context_gains)
+    print(f"Applicable rules: {[r['rule'] for r in rules_gains]}")
+    assert any(r['rule'] == 'real_wage_gains' for r in rules_gains), "real_wage_gains rule should trigger"
+
+    analysis_gains = _generate_fallback_analysis([], context_gains, rules_gains)
+    print(f"\nHeadline: {analysis_gains.headline}")
+    assert 'outpacing' in analysis_gains.headline.lower() or 'gains' in analysis_gains.headline.lower(), "Headline should indicate wage gains"
+
+    # Test 8: Generic comparison (unknown series)
+    print("\n8. Testing: Generic comparison (unknown series)...")
+    comparison_data_generic = [
+        ('CUSTOM1', ['2024-12-01'], [100.5], {'name': 'Custom Indicator A', 'unit': 'Index'}),
+        ('CUSTOM2', ['2024-12-01'], [85.2], {'name': 'Custom Indicator B', 'unit': 'Index'}),
+    ]
+
+    context_generic = build_data_context(comparison_data_generic)
+    print(f"  Comparison gap: {context_generic.get('comparison_gap', 'N/A'):.2f}")
+    print(f"  Comparison ratio: {context_generic.get('comparison_ratio', 'N/A'):.2f}")
+
+    analysis_generic = _generate_fallback_analysis([], context_generic, [])
+    print(f"\nHeadline: {analysis_generic.headline}")
+    assert 'Custom Indicator' in analysis_generic.headline, "Headline should use series names"
+
+    # =========================================================================
+    # MISSING DATA TESTS - Rules should NOT fire when data is missing
+    # =========================================================================
+    print("\n" + "=" * 70)
+    print("MISSING DATA TESTS")
+    print("=" * 70)
+
+    # Test 9: Empty data should trigger NO rules
+    print("\n9. Testing: Empty data should trigger NO rules...")
+    empty_context = {}
+    empty_rules = apply_economic_reasoning(empty_context)
+    print(f"   Rules triggered with empty data: {[r['rule'] for r in empty_rules]}")
+    assert len(empty_rules) == 0, "No rules should fire with empty data"
+    print("   PASSED: No rules fired with empty data")
+
+    # Test 10: Partial data should only trigger relevant rules, not defaults
+    print("\n10. Testing: Partial data should not trigger default-based rules...")
+
+    # Only unemployment present - should NOT trigger inflation_target
+    # (which would fire if core_inflation defaulted to 0)
+    partial_context = {'unemployment': 4.0}
+    partial_rules = apply_economic_reasoning(partial_context)
+    rule_names = [r['rule'] for r in partial_rules]
+    print(f"    Rules with only unemployment={partial_context['unemployment']}: {rule_names}")
+
+    # inflation_target should NOT fire (no core_inflation data)
+    assert 'inflation_target' not in rule_names, "inflation_target should NOT fire without core_inflation data"
+    # growth_weak should NOT fire (no gdp_growth data)
+    assert 'growth_weak' not in rule_names, "growth_weak should NOT fire without gdp_growth data"
+    print("    PASSED: No false positive rules fired")
+
+    # Test 11: Verify specific rule does NOT fire with missing data
+    print("\n11. Testing: inflation_target should NOT fire when core_inflation is missing...")
+
+    # Old buggy behavior: data.get('core_inflation', 0) <= 2.5 returns True because 0 <= 2.5
+    # Fixed behavior: 'core_inflation' in data and data['core_inflation'] <= 2.5 returns False
+    no_inflation_context = {'unemployment': 4.0, 'gdp_growth': 2.0}  # No core_inflation
+    no_inflation_rules = apply_economic_reasoning(no_inflation_context)
+    rule_names = [r['rule'] for r in no_inflation_rules]
+    print(f"    Rules without core_inflation: {rule_names}")
+    assert 'inflation_target' not in rule_names, "inflation_target should NOT fire without core_inflation"
+    assert 'growth_weak' not in rule_names, "growth_weak should NOT fire (gdp_growth=2.0 > 1.0)"
+    print("    PASSED: inflation_target did not fire without data")
+
+    # Test 12: Verify rules DO fire when data IS present
+    print("\n12. Testing: Rules should fire when correct data IS present...")
+
+    full_context = {
+        'unemployment': 4.0,
+        'core_inflation': 2.3,  # Below 2.5 threshold
+        'gdp_growth': 2.8,      # Above 2.5 threshold
+    }
+    full_rules = apply_economic_reasoning(full_context)
+    rule_names = [r['rule'] for r in full_rules]
+    print(f"    Rules with full context: {rule_names}")
+    assert 'inflation_target' in rule_names, "inflation_target SHOULD fire (core_inflation=2.3 <= 2.5)"
+    assert 'growth_strong' in rule_names, "growth_strong SHOULD fire (gdp_growth=2.8 > 2.5)"
+    print("    PASSED: Rules correctly fired when data present")
+
+    print("\n" + "=" * 70)
+    print("ALL TESTS COMPLETE - MISSING DATA BUG FIX VERIFIED")
     print("=" * 70)
