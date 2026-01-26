@@ -6851,11 +6851,11 @@ def main():
 
     /* Example queries section */
     .examples-header {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: #78716c;
-        margin: 1.5rem 0 1rem 0;
+        letter-spacing: 0.5px;
+        color: #6b7280;
+        margin: 0.5rem 0 0.5rem 0;
         font-weight: 600;
         font-style: normal !important;
         text-align: center;
@@ -6883,8 +6883,8 @@ def main():
     .helper-text {
         text-align: center;
         color: #6b7280;
-        font-size: 0.9rem;
-        margin: 0.75rem 0 0.5rem 0;
+        font-size: 0.85rem;
+        margin: 0.25rem 0 0.25rem 0;
         font-style: normal !important;
     }
 
@@ -7016,8 +7016,8 @@ def main():
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
         # LANDING PAGE MODE - Clean, simple header
-        st.markdown("<h1 style='text-align: center; margin-bottom: 0;'>EconStats</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #64748b; margin-top: 5px; margin-bottom: 15px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; margin-bottom: 0; margin-top: 0;'>EconStats</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #64748b; margin-top: 0; margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
 
         # Quick search buttons in a single compact row
         col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
