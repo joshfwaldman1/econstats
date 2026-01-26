@@ -1638,22 +1638,17 @@ def format_analysis_as_html(analysis: EconomistAnalysis) -> str:
         html_parts.append(f"<li style='margin-bottom: 6px;'>{point}</li>")
     html_parts.append("</ul>")
 
-    # Key insight box
+    # Key insight box - use single line to avoid whitespace issues in Streamlit
     if analysis.key_insight:
-        html_parts.append(f"""
-        <div style='background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 12px; margin: 12px 0; border-radius: 4px;'>
-            <strong>Key Takeaway:</strong> {analysis.key_insight}
-        </div>
-        """)
+        html_parts.append(f"<div style='background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 12px; margin: 12px 0; border-radius: 4px;'><strong>Key Takeaway:</strong> {analysis.key_insight}</div>")
 
     # Sources footer (if any claims need attribution)
     if analysis.sources:
-        html_parts.append("<p style='margin-top: 12px; font-size: 0.8em; color: #6B7280; border-top: 1px solid #E5E7EB; padding-top: 8px;'>")
-        html_parts.append("<strong>Sources:</strong> ")
-        html_parts.append(", ".join(analysis.sources))
-        html_parts.append("</p>")
+        sources_text = ", ".join(analysis.sources)
+        html_parts.append(f"<p style='margin-top: 12px; font-size: 0.8em; color: #6B7280; border-top: 1px solid #E5E7EB; padding-top: 8px;'><strong>Sources:</strong> {sources_text}</p>")
 
-    return "\n".join(html_parts)
+    # Join without newlines to avoid Streamlit rendering issues
+    return "".join(html_parts)
 
 
 # =============================================================================
