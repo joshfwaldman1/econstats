@@ -6438,76 +6438,6 @@ def main():
     }
     .subtitle { text-align: center; color: #64748b; margin-top: -5px; margin-bottom: 20px; font-size: 1rem; font-weight: 400; }
 
-    /* Hero Section - Engaging landing experience */
-    .hero-container {
-        text-align: center;
-        padding: 1.5rem 0 0.5rem 0;
-        position: relative;
-    }
-    .hero-icon {
-        display: inline-block;
-        margin-bottom: 0.75rem;
-    }
-    .hero-icon svg {
-        width: 48px;
-        height: 48px;
-    }
-    .hero-title {
-        font-size: 2.75rem !important;
-        font-weight: 700 !important;
-        color: #292524 !important;
-        margin: 0 0 0.25rem 0 !important;
-        letter-spacing: -0.5px;
-    }
-    .hero-tagline {
-        font-size: 1.15rem;
-        color: #57534e;
-        margin: 0 0 0.75rem 0;
-        font-weight: 500;
-    }
-    .hero-value-prop {
-        font-size: 0.95rem;
-        color: #78716c;
-        margin: 0 auto 1.25rem auto;
-        max-width: 480px;
-        line-height: 1.5;
-    }
-    .hero-value-prop strong {
-        color: #57534e;
-        font-weight: 600;
-    }
-    .hero-divider {
-        width: 60px;
-        height: 3px;
-        background: linear-gradient(90deg, #D4A574, #e9c9a8);
-        margin: 0 auto 1rem auto;
-        border-radius: 2px;
-    }
-
-    /* Topic pills row */
-    .topic-pills {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin: 0 auto 0.75rem auto;
-        max-width: 400px;
-    }
-
-    /* Mobile hero adjustments */
-    @media (max-width: 768px) {
-        .hero-container { padding: 1rem 0 0.25rem 0; }
-        .hero-title { font-size: 2.25rem !important; }
-        .hero-tagline { font-size: 1rem; }
-        .hero-value-prop { font-size: 0.9rem; padding: 0 1rem; }
-        .hero-icon svg { width: 40px; height: 40px; }
-    }
-    @media (max-width: 480px) {
-        .hero-title { font-size: 1.9rem !important; }
-        .hero-tagline { font-size: 0.95rem; }
-        .hero-value-prop { font-size: 0.85rem; }
-    }
-
     /* Summary Section - tight spacing */
     .summary-callout {
         background: transparent;
@@ -6931,87 +6861,22 @@ def main():
         text-align: center;
     }
 
-    /* Category label styling (inline, minimal) */
-    .category-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        color: #a8a29e;
-        margin: 0.75rem 0 0.5rem 0.25rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-    }
-    .category-icon {
-        font-size: 0.8rem;
-        opacity: 0.75;
-    }
-
-    /* Popular badge styling */
-    .popular-badge {
-        display: inline-flex;
-        align-items: center;
-        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        color: #92400e;
-        font-size: 0.6rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 0.15rem 0.45rem;
-        border-radius: 4px;
-        margin-left: 0.5rem;
-        border: 1px solid #fcd34d;
-    }
-
-    .example-query {
-        padding: 0.8rem 1rem;
-        background: #ffffff;
-        border: 1px solid #e7e5e4;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 0.9rem;
-        color: #44403c;
-        margin-bottom: 0.5rem;
-        position: relative;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-    }
-    .example-query:hover {
-        background: #fffbf5;
-        border-color: #d6bcab;
-        color: #292524;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(120, 113, 108, 0.12);
-    }
-
-    /* Example query buttons - enhanced warm theme */
+    /* Example query buttons */
     .examples-section + div .stButton button,
     div[data-testid="column"] .stButton button[key^="example"] {
-        background: #ffffff !important;
-        border: 1px solid #e7e5e4 !important;
-        border-radius: 10px !important;
-        color: #44403c !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        color: #475569 !important;
         text-align: left !important;
         font-style: normal !important;
-        padding: 0.85rem 1.1rem !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-        line-height: 1.4 !important;
+        padding: 0.8rem 1rem !important;
     }
     .examples-section + div .stButton button:hover,
     div[data-testid="column"] .stButton button[key^="example"]:hover {
-        background: #fffbf5 !important;
-        border-color: #d6bcab !important;
-        color: #292524 !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 12px rgba(120, 113, 108, 0.15) !important;
-    }
-
-    /* Subtle left border accent on hover */
-    div[data-testid="column"] .stButton button[key^="example"]:hover {
-        border-left: 3px solid #D4A574 !important;
-        padding-left: calc(1.1rem - 2px) !important;
+        background: #eff6ff !important;
+        border-color: #bfdbfe !important;
+        color: #1e40af !important;
     }
 
     /* Helper text under search */
@@ -7089,9 +6954,6 @@ def main():
         /* Examples section on mobile */
         .examples-section { padding: 1rem; }
         .example-query { font-size: 0.85rem; padding: 0.7rem 0.9rem; }
-        .category-label { font-size: 0.65rem; margin: 0.6rem 0 0.4rem 0.15rem; }
-        .category-icon { font-size: 0.75rem; }
-        .popular-badge { font-size: 0.55rem; padding: 0.1rem 0.35rem; }
         /* Hide sidebar on mobile */
         section[data-testid="stSidebar"] { display: none; }
     }
@@ -7153,32 +7015,9 @@ def main():
 
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
-        # LANDING PAGE MODE - Enhanced hero section
-        # SVG icon: minimalist upward-trending line chart representing economic data
-        hero_icon_svg = '''
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="4" width="40" height="40" rx="8" fill="#FEF7ED"/>
-            <path d="M12 32L20 24L28 28L36 16" stroke="#D4A574" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="32" r="2.5" fill="#D4A574"/>
-            <circle cx="20" cy="24" r="2.5" fill="#D4A574"/>
-            <circle cx="28" cy="28" r="2.5" fill="#D4A574"/>
-            <circle cx="36" cy="16" r="2.5" fill="#D4A574"/>
-            <path d="M32 16H36V20" stroke="#D4A574" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        '''
-
-        st.markdown(f'''
-        <div class="hero-container">
-            <div class="hero-icon">{hero_icon_svg}</div>
-            <h1 class="hero-title">EconStats</h1>
-            <p class="hero-tagline">U.S. Economic Data with Context</p>
-            <div class="hero-divider"></div>
-            <p class="hero-value-prop">
-                Get <strong>insights in seconds</strong> that would take hours to research.
-                Ask any question about the economy and receive clear explanations backed by real data.
-            </p>
-        </div>
-        ''', unsafe_allow_html=True)
+        # LANDING PAGE MODE - Clean, simple header
+        st.markdown("<h1 style='text-align: center; margin-bottom: 0;'>EconStats</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #64748b; margin-top: 5px; margin-bottom: 15px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
 
         # Quick search buttons in a single compact row
         col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
@@ -7220,73 +7059,23 @@ def main():
         if not st.session_state.last_query:
             st.markdown('<p class="examples-header">Try these questions</p>', unsafe_allow_html=True)
 
-            # Example queries organized by category with visual grouping
-            # Each category has: icon, label, queries, and optional "popular" flags
-            example_categories = [
-                {
-                    "icon": "\U0001F4C8",  # 📈 Economy
-                    "label": "Economy",
-                    "queries": [
-                        {"text": "How is the economy?", "popular": True},
-                        {"text": "Are wages keeping up with inflation?", "popular": False},
-                    ]
-                },
-                {
-                    "icon": "\U0001F4BC",  # 💼 Jobs
-                    "label": "Jobs",
-                    "queries": [
-                        {"text": "Is the labor market cooling off?", "popular": False},
-                        {"text": "How tight is the job market right now?", "popular": False},
-                    ]
-                },
-                {
-                    "icon": "\U0001F3E0",  # 🏠 Prices & Housing
-                    "label": "Prices",
-                    "queries": [
-                        {"text": "Is rent inflation coming down yet?", "popular": True},
-                        {"text": "Compare the job market to pre-pandemic", "popular": False},
-                    ]
-                },
+            # Simple list of example queries
+            example_queries = [
+                "How is the economy?",
+                "Are wages keeping up with inflation?",
+                "Is the labor market cooling off?",
+                "How tight is the job market right now?",
+                "Is rent inflation coming down yet?",
+                "Compare the job market to pre-pandemic"
             ]
 
-            # Counter for unique button keys
-            btn_idx = 0
-
-            # Render each category as a visually grouped section
-            for cat in example_categories:
-                icon = cat["icon"]
-                label = cat["label"]
-                queries = cat["queries"]
-
-                # Category label row with icon
-                st.markdown(f'''
-                <div class="category-label">
-                    <span class="category-icon">{icon}</span>
-                    <span>{label}</span>
-                </div>
-                ''', unsafe_allow_html=True)
-
-                # Two-column layout for queries within category
-                cols = st.columns(2)
-                for col_idx, q_data in enumerate(queries):
-                    with cols[col_idx % 2]:
-                        query_text = q_data["text"]
-                        is_popular = q_data.get("popular", False)
-
-                        # Show "Popular" badge above popular queries
-                        if is_popular:
-                            st.markdown(
-                                '<span class="popular-badge">Popular</span>',
-                                unsafe_allow_html=True
-                            )
-
-                        if st.button(query_text, key=f"example_{btn_idx}", use_container_width=True):
-                            st.session_state.pending_query = query_text
-                            st.rerun()
-                        btn_idx += 1
-
-                # Small spacer between categories
-                st.markdown('<div style="height: 0.5rem;"></div>', unsafe_allow_html=True)
+            # Two-column grid
+            cols = st.columns(2)
+            for i, eq in enumerate(example_queries):
+                with cols[i % 2]:
+                    if st.button(eq, key=f"example_{i}", use_container_width=True):
+                        st.session_state.pending_query = eq
+                        st.rerun()
 
         if not query:
             query = text_query
