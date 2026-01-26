@@ -153,18 +153,28 @@ class EconomistAnalysis:
         headline: One-sentence summary answering the user's question
         narrative: 3-5 bullet points connecting the indicators
         key_insight: The most important takeaway
-        risks: Key risks to watch
-        opportunities: Potential opportunities
-        watch_items: What to monitor going forward
+        sources: Sources for any claims made (data sources, expert citations)
         confidence: How confident we are in this assessment (low/medium/high)
     """
     headline: str
     narrative: List[str]
     key_insight: str
-    risks: List[str]
-    opportunities: List[str]
-    watch_items: List[str]
+    sources: List[str] = None  # Sources for claims
     confidence: str = "medium"
+    # Deprecated - kept for backwards compatibility but not displayed
+    risks: List[str] = None
+    opportunities: List[str] = None
+    watch_items: List[str] = None
+
+    def __post_init__(self):
+        if self.sources is None:
+            self.sources = []
+        if self.risks is None:
+            self.risks = []
+        if self.opportunities is None:
+            self.opportunities = []
+        if self.watch_items is None:
+            self.watch_items = []
 
 
 # =============================================================================
@@ -945,13 +955,15 @@ Return ONLY valid JSON, no markdown or explanation."""
             analysis_dict = _extract_json(content)
 
             if analysis_dict:
+                # Add data sources
+                sources = analysis_dict.get('sources', [])
+                if not sources:
+                    sources = ["Data: BLS, BEA, Federal Reserve via FRED"]
                 return EconomistAnalysis(
                     headline=analysis_dict.get('headline', 'Analysis unavailable'),
                     narrative=analysis_dict.get('narrative', []),
                     key_insight=analysis_dict.get('key_insight', ''),
-                    risks=analysis_dict.get('risks', []),
-                    opportunities=analysis_dict.get('opportunities', []),
-                    watch_items=analysis_dict.get('watch_items', []),
+                    sources=sources,
                     confidence=analysis_dict.get('confidence', 'medium'),
                 )
     except Exception as e:
@@ -1190,13 +1202,32 @@ def _generate_fallback_analysis(
     if len(series_data) >= 3 and len(applicable_rules) >= 2:
         confidence = "medium"
 
+    # =========================================================================
+    # STEP 10: Generate sources for data used
+    # =========================================================================
+    sources = []
+    series_sources = set()
+    for series_id, info in series_dict.items():
+        # Identify data source
+        if series_id.startswith(('LNS', 'CES', 'PAYEMS', 'UNRATE')):
+            series_sources.add("BLS")
+        elif series_id.startswith(('GDP', 'A191', 'PCE')):
+            series_sources.add("BEA")
+        elif series_id.startswith(('DGS', 'T10Y', 'FEDFUNDS', 'DFF')):
+            series_sources.add("Federal Reserve")
+        elif series_id.startswith('CPI'):
+            series_sources.add("BLS")
+        else:
+            series_sources.add("FRED")
+
+    if series_sources:
+        sources.append(f"Data: {', '.join(sorted(series_sources))} via FRED")
+
     return EconomistAnalysis(
         headline=headline,
         narrative=narrative[:5],  # Cap at 5 bullets
         key_insight=key_insight,
-        risks=risks[:2],
-        opportunities=opportunities[:2],
-        watch_items=watch_items[:3],
+        sources=sources,
         confidence=confidence,
     )
 
@@ -1446,9 +1477,6 @@ def _generate_comparison_fallback(
             f"The current ratio of {ratio:.2f}x {'indicates a typical disparity' if ratio and ratio > 1.4 else 'shows some narrowing of the gap'}." if ratio else "Gap analysis requires additional context."
         ]
         key_insight = f"Black workers face unemployment rates {ratio:.1f}x the national average, highlighting ongoing labor market inequality." if ratio else "Demographic unemployment disparities require policy attention."
-        risks = ["Economic downturns typically widen demographic unemployment gaps.", "Policy focus on headline employment may overlook persistent disparities."]
-        opportunities = ["Targeted workforce development programs could help close the gap.", "Tight labor markets historically narrow demographic disparities."]
-        watch_items = ["Relative trends in Black vs overall unemployment", "Labor force participation rates by demographic"]
 
     elif key1 == 'unemployment' and key2 == 'black_unemployment':
         # Overall vs Black unemployment (reversed order)
@@ -1461,9 +1489,6 @@ def _generate_comparison_fallback(
             f"The current ratio of {1/ratio:.2f}x {'indicates a typical disparity' if ratio and 1/ratio > 1.4 else 'shows some narrowing of the gap'}." if ratio else "Gap analysis requires additional context."
         ]
         key_insight = f"Black workers face unemployment rates {1/ratio:.1f}x the national average, highlighting ongoing labor market inequality." if ratio else "Demographic unemployment disparities require policy attention."
-        risks = ["Economic downturns typically widen demographic unemployment gaps.", "Policy focus on headline employment may overlook persistent disparities."]
-        opportunities = ["Targeted workforce development programs could help close the gap.", "Tight labor markets historically narrow demographic disparities."]
-        watch_items = ["Relative trends in Black vs overall unemployment", "Labor force participation rates by demographic"]
 
     # =========================================================================
     # WAGE VS INFLATION COMPARISONS
@@ -1486,8 +1511,6 @@ def _generate_comparison_fallback(
                 "This dynamic often leads to increased pressure for wage negotiations and potential labor unrest."
             ]
             key_insight = f"Workers' purchasing power declined by {abs(real_wage_change):.1f}% in real terms, putting pressure on household budgets."
-            risks = ["Continued real wage erosion could dampen consumer spending.", "Labor market tensions may increase as workers seek higher wages."]
-            opportunities = ["Inflation moderation could restore positive real wage growth.", "Productivity gains could support both wages and price stability."]
         else:
             headline = f"Wage growth at {wage_val:.1f}% is outpacing inflation at {inflation_val:.1f}%, delivering {real_wage_change:.1f}% real wage gains."
             narrative = [
@@ -1497,10 +1520,6 @@ def _generate_comparison_fallback(
                 "Sustained real wage gains without sparking inflation indicate healthy productivity growth."
             ]
             key_insight = f"Workers gained {real_wage_change:.1f}% in real purchasing power, supporting consumer spending and living standards."
-            risks = ["Wage growth significantly above productivity could reignite inflation.", "Tight labor markets may not be sustainable long-term."]
-            opportunities = ["Strong purchasing power supports consumer-driven growth.", "Real wage gains could boost consumer confidence."]
-
-        watch_items = ["Productivity growth relative to wage increases", "Labor market tightness indicators", "Consumer spending trends"]
 
     # =========================================================================
     # GENERIC COMPARISON (when no specific pattern matches)
@@ -1525,9 +1544,6 @@ def _generate_comparison_fallback(
             narrative.append(f"{higher_name} is {ratio_display:.2f}x {lower_name}.")
 
         key_insight = f"The relationship between these indicators warrants monitoring as economic conditions evolve."
-        risks = ["Divergence between indicators may signal underlying imbalances.", "Trends in either direction could have policy implications."]
-        opportunities = ["Understanding the relationship helps inform economic expectations.", "Monitoring the gap provides early warning of shifts."]
-        watch_items = [f"Trend in {name1}", f"Trend in {name2}", "Economic factors affecting both indicators"]
 
     # Add applicable rules to narrative
     for rule in applicable_rules[:2]:  # Add up to 2 rule-based insights
@@ -1535,13 +1551,14 @@ def _generate_comparison_fallback(
         if rule_text not in narrative:
             narrative.append(rule_text)
 
+    # Generate sources
+    sources = ["Data: BLS via FRED"]
+
     return EconomistAnalysis(
         headline=headline,
         narrative=narrative[:5],  # Cap at 5 bullets
         key_insight=key_insight,
-        risks=risks[:2],
-        opportunities=opportunities[:2],
-        watch_items=watch_items[:3],
+        sources=sources,
         confidence="medium",  # Higher confidence for comparison analysis since we have specific data
     )
 
@@ -1629,45 +1646,12 @@ def format_analysis_as_html(analysis: EconomistAnalysis) -> str:
         </div>
         """)
 
-    # Two-column layout for risks and opportunities
-    html_parts.append("<div style='display: flex; gap: 16px; margin-top: 12px;'>")
-
-    # Risks column
-    if analysis.risks:
-        html_parts.append("<div style='flex: 1;'>")
-        html_parts.append("<p style='font-weight: 600; color: #DC2626; margin-bottom: 4px;'>Risks:</p>")
-        html_parts.append("<ul style='margin: 0; padding-left: 16px; font-size: 0.9em;'>")
-        for risk in analysis.risks:
-            html_parts.append(f"<li>{risk}</li>")
-        html_parts.append("</ul></div>")
-
-    # Opportunities column
-    if analysis.opportunities:
-        html_parts.append("<div style='flex: 1;'>")
-        html_parts.append("<p style='font-weight: 600; color: #059669; margin-bottom: 4px;'>Opportunities:</p>")
-        html_parts.append("<ul style='margin: 0; padding-left: 16px; font-size: 0.9em;'>")
-        for opp in analysis.opportunities:
-            html_parts.append(f"<li>{opp}</li>")
-        html_parts.append("</ul></div>")
-
-    html_parts.append("</div>")
-
-    # Watch items
-    if analysis.watch_items:
-        html_parts.append("<p style='font-weight: 600; margin-top: 12px; margin-bottom: 4px;'>What to Monitor:</p>")
-        html_parts.append("<ul style='margin: 0; padding-left: 16px; font-size: 0.9em; color: #6B7280;'>")
-        for item in analysis.watch_items:
-            html_parts.append(f"<li>{item}</li>")
-        html_parts.append("</ul>")
-
-    # Confidence indicator
-    confidence_colors = {'high': '#059669', 'medium': '#D97706', 'low': '#DC2626'}
-    confidence_color = confidence_colors.get(analysis.confidence, '#6B7280')
-    html_parts.append(f"""
-    <p style='margin-top: 12px; font-size: 0.8em; color: {confidence_color};'>
-        Analysis confidence: {analysis.confidence.upper()}
-    </p>
-    """)
+    # Sources footer (if any claims need attribution)
+    if analysis.sources:
+        html_parts.append("<p style='margin-top: 12px; font-size: 0.8em; color: #6B7280; border-top: 1px solid #E5E7EB; padding-top: 8px;'>")
+        html_parts.append("<strong>Sources:</strong> ")
+        html_parts.append(", ".join(analysis.sources))
+        html_parts.append("</p>")
 
     return "\n".join(html_parts)
 

@@ -156,26 +156,6 @@ from .citations import (
     fetch_fresh_views,
 )
 
-from .uncertainty import (
-    # Sampling error data
-    SAMPLING_ERRORS,
-    PRELIMINARY_PERIODS,
-    UNCERTAINTY_DISPLAY_CONFIG,
-    # Helper functions
-    get_sampling_error,
-    get_preliminary_config,
-    calculate_confidence_bounds,
-    hex_to_rgba,
-    # Chart enhancement functions
-    add_confidence_band,
-    add_preliminary_markers,
-    add_forecast_fan,
-    generate_uncertainty_note,
-    # Configuration helpers
-    get_uncertainty_config,
-    should_show_uncertainty,
-)
-
 from .data_revisions import (
     # Data classes
     RevisionInfo,
