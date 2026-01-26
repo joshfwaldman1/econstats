@@ -155,3 +155,48 @@ from .citations import (
     # Fresh view fetching
     fetch_fresh_views,
 )
+
+from .uncertainty import (
+    # Sampling error data
+    SAMPLING_ERRORS,
+    PRELIMINARY_PERIODS,
+    UNCERTAINTY_DISPLAY_CONFIG,
+    # Helper functions
+    get_sampling_error,
+    get_preliminary_config,
+    calculate_confidence_bounds,
+    hex_to_rgba,
+    # Chart enhancement functions
+    add_confidence_band,
+    add_preliminary_markers,
+    add_forecast_fan,
+    generate_uncertainty_note,
+    # Configuration helpers
+    get_uncertainty_config,
+    should_show_uncertainty,
+)
+
+from .data_revisions import (
+    # Data classes
+    RevisionInfo,
+    # Metadata databases
+    REVISION_METADATA,
+    RECENT_REVISIONS,
+    BENCHMARK_HISTORY,
+    # Core API functions
+    get_revision_context,
+    is_preliminary,
+    get_release_type,
+    format_with_revision_warning,
+    get_benchmark_context,
+    compare_initial_vs_revised,
+    get_data_quality_summary,
+    # Helper functions
+    get_revision_metadata,
+    list_tracked_series,
+    get_confidence_interval,
+    # Convenience functions
+    should_show_revision_warning,
+    get_revision_warning_short,
+    format_value_with_uncertainty,
+)

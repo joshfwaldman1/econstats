@@ -447,40 +447,50 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'inflation_outlook': TopicViews(
         topic='Inflation trajectory',
         last_updated='January 2026',
-        consensus='Core inflation expected to gradually decline toward 2% target',
-        key_disagreement='Persistence of services inflation',
+        consensus='Fed projects core PCE at 2.2% by end-2026; Cleveland Fed nowcasts 2.6% currently',
+        key_disagreement='Whether core PCE reaches 2.2% (Fed) or stays sticky at 2.4-2.6% (Wall Street)',
         views=[
             ExpertView(
                 source='Cleveland Fed Inflation Nowcast',
-                view='Projects core PCE at 2.6% for coming months',
+                specific_claim='projects January 2026 CPI at 2.9% YoY, core PCE at 2.6%',
+                metric='core_pce',
+                timeframe='January 2026',
                 date='January 2026',
                 tier=1,
                 rationale='Real-time inflation tracking model',
             ),
             ExpertView(
-                source='Federal Reserve',
-                view='Core PCE projected to reach 2.2% by end of 2026',
+                source='Federal Reserve SEP',
+                specific_claim='projects core PCE at 2.5% by end-2025, falling to 2.2% by end-2026',
+                metric='core_pce',
+                timeframe='2025-2026',
                 date='December 2024',
                 tier=1,
                 rationale='FOMC Summary of Economic Projections',
             ),
             ExpertView(
                 source='Goldman Sachs',
-                view='Core PCE to remain sticky around 2.4-2.6% through mid-2026',
+                specific_claim='forecasts core PCE stuck at 2.4-2.6% through mid-2026, not reaching 2.2% until 2027',
+                metric='core_pce',
+                timeframe='2026-2027',
                 date='January 2026',
                 tier=3,
                 rationale='Services inflation proving more persistent than expected',
             ),
             ExpertView(
                 source='Bank of America',
-                view='Risk of re-acceleration if labor market stays tight',
+                specific_claim='sees risk of inflation re-accelerating to 3%+ if unemployment stays below 4.2%',
+                metric='inflation_risk',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Wage growth remains elevated in services sector',
             ),
             ExpertView(
                 source='Peterson Institute',
-                view='Shelter inflation should decline as new rent data flows through',
+                specific_claim='projects shelter inflation will drop from 5.5% to 3.5% by end-2026 as market rents flow through',
+                metric='shelter_inflation',
+                timeframe='2026',
                 date='January 2026',
                 tier=2,
                 rationale='CPI shelter lags market rents by 12-18 months',
@@ -491,26 +501,32 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'shelter_inflation': TopicViews(
         topic='Shelter/housing inflation',
         last_updated='January 2026',
-        consensus='Shelter inflation expected to decline as market rents flow through',
-        key_disagreement='Timing and pace of shelter inflation decline',
+        consensus='CPI shelter at 5.5% will decline to 3.5-4% by end-2026 as market rents flow through',
+        key_disagreement='Speed of decline: some see 4% by mid-2026, others not until end-2026',
         views=[
             ExpertView(
-                source='Federal Reserve',
-                view='Shelter inflation should moderate as lagged rent data catches up',
+                source='Fed Chair Powell',
+                specific_claim='expects CPI shelter to fall to 3-4% range in 2026 as lagged rent data catches up',
+                metric='cpi_shelter',
+                timeframe='2026',
                 date='December 2024',
                 tier=1,
                 rationale='Fed Chair Powell commentary on housing inflation',
             ),
             ExpertView(
                 source='Zillow',
-                view='Market rents have already decelerated to pre-pandemic norms',
+                specific_claim='Observed Rent Index shows market rents up only 3.5% YoY as of December 2025',
+                metric='market_rents',
+                timeframe='December 2025',
                 date='January 2026',
                 tier=3,
                 rationale='Zillow Observed Rent Index shows 3.5% annual growth',
             ),
             ExpertView(
                 source='Goldman Sachs',
-                view='CPI shelter should drop to 4% by end of 2026 from current 5%+',
+                specific_claim='forecasts CPI shelter dropping from 5.5% to 4.0% by end-2026',
+                metric='cpi_shelter',
+                timeframe='end-2026',
                 date='January 2026',
                 tier=3,
                 rationale='Market rent deceleration with 12-month lag to CPI',
@@ -524,40 +540,50 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'recession_risk': TopicViews(
         topic='Recession probability',
         last_updated='January 2026',
-        consensus='Soft landing remains base case, recession risk modest',
-        key_disagreement='Whether economy can avoid recession with elevated rates',
+        consensus='Recession probability at 15-20% for 2026; soft landing remains base case',
+        key_disagreement='Goldman at 15% vs Morgan Stanley at 20%; consumer strength uncertain',
         views=[
             ExpertView(
                 source='Conference Board LEI',
-                view='Leading indicators no longer signaling elevated recession risk',
+                specific_claim='Leading Economic Index rose 0.2% in December after 6 months of declines; no longer signaling recession',
+                metric='lei_change',
+                timeframe='December 2025',
                 date='January 2026',
                 tier=2,
                 rationale='LEI has stopped declining after prior deterioration',
             ),
             ExpertView(
                 source='Polymarket',
-                view='Prediction markets show ~15-20% recession probability for 2026',
+                specific_claim='shows 18% probability of US recession in 2026 (defined as two consecutive quarters of negative GDP)',
+                metric='recession_probability',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Aggregated market-based probability estimate',
             ),
             ExpertView(
                 source='Goldman Sachs',
-                view='12-month recession probability at 15%',
+                specific_claim='assigns 15% probability to recession in next 12 months',
+                metric='recession_probability',
+                timeframe='next 12 months',
                 date='January 2026',
                 tier=3,
                 rationale='Growth remains resilient despite higher rates',
             ),
             ExpertView(
                 source='Morgan Stanley',
-                view='20% recession probability, risks tilted to downside',
+                specific_claim='estimates 20% recession probability with risks tilted to downside',
+                metric='recession_probability',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Consumer spending showing signs of fatigue',
             ),
             ExpertView(
                 source='NBER',
-                view='No recession declared as of late 2025; economy expanding',
+                specific_claim='has not declared a recession; current expansion began April 2020 (now 57 months old)',
+                metric='recession_dating',
+                timeframe='as of December 2025',
                 date='December 2025',
                 tier=2,
                 rationale='Official business cycle dating committee',
@@ -568,26 +594,32 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'soft_landing': TopicViews(
         topic='Soft landing scenario',
         last_updated='January 2026',
-        consensus='Soft landing increasingly likely but not guaranteed',
-        key_disagreement='Sustainability of current labor market strength',
+        consensus='Soft landing probability at 60-65%; inflation falling while unemployment stays below 4.5%',
+        key_disagreement='Whether unemployment can stay below 4.5% as inflation reaches 2%',
         views=[
             ExpertView(
-                source='Federal Reserve',
-                view='Balanced approach to achieving soft landing; no rush to cut',
+                source='Fed Chair Powell',
+                specific_claim='stated Fed is not in a hurry to cut rates; data-dependent approach with unemployment at 4.1%',
+                metric='policy_stance',
+                timeframe='December 2024',
                 date='December 2024',
                 tier=1,
                 rationale='Powell press conference remarks',
             ),
             ExpertView(
                 source='JP Morgan',
-                view='Soft landing base case with 60% probability',
+                specific_claim='assigns 60% probability to soft landing (inflation to 2.2%, unemployment stays below 4.5%)',
+                metric='soft_landing_probability',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Inflation declining while employment holds up',
             ),
             ExpertView(
                 source='Bridgewater',
-                view='Soft landing achievable but narrow path; risks both ways',
+                specific_claim='sees 55% soft landing probability, 25% no landing (reacceleration), 20% hard landing',
+                metric='scenario_probabilities',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Balanced upside and downside scenarios',
@@ -601,33 +633,41 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'labor_market_outlook': TopicViews(
         topic='Labor market trajectory',
         last_updated='January 2026',
-        consensus='Labor market gradually cooling but remains healthy',
-        key_disagreement='Whether cooling is orderly or accelerating',
+        consensus='Unemployment at 4.1%, job gains at 150-200K/month; Fed projects 4.3% by end-2025',
+        key_disagreement='Whether unemployment rises to 4.3% (Fed) or stays near 4.1% (Goldman)',
         views=[
             ExpertView(
-                source='Federal Reserve',
-                view='Labor market in better balance; unemployment to rise modestly to 4.3%',
+                source='Federal Reserve SEP',
+                specific_claim='projects unemployment at 4.3% by end-2025, remaining at 4.3% through 2026',
+                metric='unemployment_rate',
+                timeframe='2025-2026',
                 date='December 2024',
                 tier=1,
                 rationale='FOMC Summary of Economic Projections',
             ),
             ExpertView(
                 source='BLS',
-                view='Job gains averaging 150-200K per month; unemployment stable at 4.1%',
+                specific_claim='unemployment at 4.1% in December 2025; payroll gains averaged 186K/month in Q4 2025',
+                metric='unemployment_rate',
+                timeframe='December 2025',
                 date='January 2026',
                 tier=1,
                 rationale='Official employment statistics',
             ),
             ExpertView(
                 source='Goldman Sachs',
-                view='Labor market cooling will continue but no spike in unemployment',
+                specific_claim='expects unemployment to stay below 4.3% through 2026 as job gains remain at 150K+/month',
+                metric='unemployment_rate',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Job openings declining, quits rate normalizing',
             ),
             ExpertView(
                 source='Bank of America',
-                view='Risk of faster labor market weakening if spending slows',
+                specific_claim='sees unemployment risk rising to 4.5% by mid-2026 if consumer spending slows',
+                metric='unemployment_rate',
+                timeframe='mid-2026',
                 date='January 2026',
                 tier=3,
                 rationale='Initial claims trending higher',
@@ -638,26 +678,32 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'wage_growth': TopicViews(
         topic='Wage growth outlook',
         last_updated='January 2026',
-        consensus='Wage growth moderating toward sustainable levels',
-        key_disagreement='Whether current pace is still inflationary',
+        consensus='Wage growth at 4.5% (Atlanta Fed), down from 6%+ peak; needs to reach 3.5% for 2% inflation',
+        key_disagreement='Whether 4.5% wage growth is inflationary or sustainable with productivity',
         views=[
             ExpertView(
                 source='Atlanta Fed Wage Tracker',
-                view='Median wage growth at 4.5%, down from 6%+ peak',
+                specific_claim='median wage growth at 4.5% YoY in December 2025, down from 6.7% peak in mid-2022',
+                metric='wage_growth',
+                timeframe='December 2025',
                 date='January 2026',
                 tier=1,
                 rationale='Official wage tracking from Fed district',
             ),
             ExpertView(
                 source='Goldman Sachs',
-                view='Wage growth needs to fall to 3.5% to be consistent with 2% inflation',
+                specific_claim='estimates wage growth needs to fall to 3.5% YoY to be consistent with 2% inflation target',
+                metric='wage_growth_target',
+                timeframe='target level',
                 date='January 2026',
                 tier=3,
                 rationale='Based on productivity growth assumptions',
             ),
             ExpertView(
                 source='Peterson Institute',
-                view='Current wage growth may be sustainable if productivity improves',
+                specific_claim='argues 4.5% wage growth is sustainable if productivity growth stays at 2% (implying 2.5% unit labor costs)',
+                metric='wage_sustainability',
+                timeframe='ongoing',
                 date='January 2026',
                 tier=2,
                 rationale='Recent productivity gains creating room for higher wages',
@@ -671,33 +717,41 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'gdp_outlook': TopicViews(
         topic='GDP growth outlook',
         last_updated='January 2026',
-        consensus='Growth expected to moderate to trend pace of ~2%',
-        key_disagreement='Consumer spending sustainability',
+        consensus='Fed projects 2.0% GDP growth for 2026; Wall Street ranges from 1.8% (MS) to 2.3% (GS)',
+        key_disagreement='Goldman at 2.3% vs Morgan Stanley at 1.8%; consumer strength is key variable',
         views=[
             ExpertView(
-                source='Federal Reserve',
-                view='GDP growth projected at 2.0% for 2026',
+                source='Federal Reserve SEP',
+                specific_claim='projects real GDP growth of 2.1% for 2025, slowing to 2.0% for 2026',
+                metric='gdp_growth',
+                timeframe='2025-2026',
                 date='December 2024',
                 tier=1,
                 rationale='FOMC Summary of Economic Projections',
             ),
             ExpertView(
                 source='Atlanta Fed GDPNow',
-                view='Real-time tracking model shows current quarter growth at ~2.5%',
+                specific_claim='nowcasts Q1 2026 GDP growth at 2.5% annualized (as of January 20, 2026)',
+                metric='gdp_growth',
+                timeframe='Q1 2026',
                 date='January 2026',
                 tier=1,
                 rationale='Nowcast model incorporating latest data',
             ),
             ExpertView(
                 source='Goldman Sachs',
-                view='GDP growth of 2.3% for 2026, above consensus',
+                specific_claim='forecasts 2026 GDP growth at 2.3%, above consensus of 2.0%',
+                metric='gdp_growth',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Consumer and investment spending remain solid',
             ),
             ExpertView(
                 source='Morgan Stanley',
-                view='GDP growth of 1.8% for 2026, risks to downside',
+                specific_claim='forecasts 2026 GDP growth at 1.8%, below consensus, with downside risks',
+                metric='gdp_growth',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Consumer spending expected to slow as savings deplete',
@@ -711,33 +765,41 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'housing_outlook': TopicViews(
         topic='Housing market outlook',
         last_updated='January 2026',
-        consensus='Housing activity constrained by high rates; prices resilient',
-        key_disagreement='Whether prices will decline or plateau',
+        consensus='Home prices up 3-4% YoY; existing sales at 4.0M pace (near 30-year low); rates at 6.9%',
+        key_disagreement='Goldman sees 3% price gains in 2026 vs Moodys warning of 10-20% overvaluation in some markets',
         views=[
             ExpertView(
                 source='National Association of Realtors',
-                view='Home sales to remain weak until mortgage rates decline',
+                specific_claim='existing home sales at 4.0M annualized pace in December 2025, near lowest since 1995',
+                metric='existing_home_sales',
+                timeframe='December 2025',
                 date='January 2026',
                 tier=3,
                 rationale='Existing home sales near multi-decade lows',
             ),
             ExpertView(
                 source='Zillow',
-                view='Home prices up 3-4% year-over-year; supply constraints supporting prices',
+                specific_claim='Zillow Home Value Index up 3.8% YoY in December 2025; typical home worth $362,000',
+                metric='home_values',
+                timeframe='December 2025',
                 date='January 2026',
                 tier=3,
                 rationale='Zillow Home Value Index tracking',
             ),
             ExpertView(
                 source='Goldman Sachs',
-                view='Home prices to rise 3% in 2026 despite high rates',
+                specific_claim='forecasts home prices rising 3% in 2026 despite 30-year mortgage rates near 7%',
+                metric='home_price_growth',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Low inventory keeping prices elevated',
             ),
             ExpertView(
-                source='Moody\'s',
-                view='Some markets overvalued by 20%+; correction risk if rates stay high',
+                source='Moodys Analytics',
+                specific_claim='estimates 15-20% of metro areas are overvalued by 20%+; risk of 5-10% price declines if rates stay above 7%',
+                metric='overvaluation_risk',
+                timeframe='2026 risk scenario',
                 date='January 2026',
                 tier=3,
                 rationale='Affordability at worst levels since 1980s',
@@ -751,26 +813,32 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'financial_conditions': TopicViews(
         topic='Financial conditions',
         last_updated='January 2026',
-        consensus='Financial conditions have eased despite Fed holding rates',
-        key_disagreement='Whether easing conditions undermine Fed policy',
+        consensus='Chicago Fed NFCI at -0.45 (loose); Goldman FCI eased 50bp since October despite Fed holding rates',
+        key_disagreement='Whether loose conditions support soft landing or undermine inflation fight',
         views=[
             ExpertView(
                 source='Chicago Fed NFCI',
-                view='Financial conditions loosening, now in accommodative territory',
+                specific_claim='reads -0.45 in January 2026 (negative = loose), 0.2 standard deviations looser than pre-pandemic average',
+                metric='nfci_level',
+                timeframe='January 2026',
                 date='January 2026',
                 tier=1,
                 rationale='National Financial Conditions Index tracking',
             ),
             ExpertView(
                 source='Goldman Sachs FCI',
-                view='Financial conditions eased significantly in late 2025',
+                specific_claim='eased 50bp since October 2025 on 8% equity gains and 30bp credit spread tightening',
+                metric='fci_change',
+                timeframe='October 2025 - January 2026',
                 date='January 2026',
                 tier=3,
                 rationale='Stock gains and credit spread tightening',
             ),
             ExpertView(
-                source='Federal Reserve',
-                view='Some concern about easing conditions offsetting policy stance',
+                source='FOMC Minutes',
+                specific_claim='noted financial conditions have eased 75bp equivalent since September 2024 FOMC',
+                metric='policy_concern',
+                timeframe='September 2024 - December 2024',
                 date='December 2024',
                 tier=1,
                 rationale='FOMC minutes discussion',
@@ -1032,29 +1100,45 @@ def format_with_attribution(
     claim: str,
     sources: List[Citation],
     include_dates: bool = True,
+    use_specific_claims: bool = True,
 ) -> str:
     """
-    Format a claim with proper attribution.
+    Format a claim with proper attribution using SPECIFIC claims from sources.
 
     This transforms an unsourced claim into an attributed statement
-    that cites the relevant sources.
+    that cites the SPECIFIC predictions from each source.
+
+    IMPORTANT: This function now uses specific claims with numbers and dates,
+    NOT vague summaries.
 
     Args:
-        claim: The claim to attribute (e.g., "Rate cuts expected in 2026")
+        claim: The generic claim topic (e.g., "Rate cuts expected in 2026")
+               - Used as fallback if sources lack specific claims
         sources: List of Citation objects supporting the claim
         include_dates: Whether to include dates in the attribution
+        use_specific_claims: If True, use the specific claim text from sources
+                            instead of the generic claim (default: True)
 
     Returns:
-        Attributed version of the claim
+        Attributed version with SPECIFIC claims
 
     Examples:
-        Input:  "Rate cuts expected in 2026"
-        Output: "Goldman Sachs and Morgan Stanley both expect rate cuts in 2026,
-                though timing differs (GS: Q1, MS: June/Sept)"
+        BAD (old behavior - vague):
+            "Goldman and the Fed both expect rate cuts in 2026."
 
-        Input:  "Inflation will moderate"
-        Output: "The Federal Reserve projects inflation will moderate to 2.2%
-                by end of 2026, a view broadly shared by major forecasters"
+        GOOD (new behavior - specific):
+            "Goldman expects two rate cuts in 2026 (March and June), while the
+            Fed's dot plot shows rates falling to 3.4% by end-2026."
+
+        Input with specific sources:
+            claim = "Rate cuts expected in 2026"
+            sources = [
+                Citation(source='Fed Dot Plot', claim='rates at 3.4% by end-2026'),
+                Citation(source='Goldman', claim='two 25bp cuts in March and June'),
+            ]
+        Output:
+            "The Fed Dot Plot shows rates at 3.4% by end-2026, while Goldman
+            expects two 25bp cuts in March and June."
     """
     if not sources:
         return claim
@@ -1063,59 +1147,90 @@ def format_with_attribution(
     sorted_sources = sorted(sources, key=lambda s: s.tier)
 
     if len(sorted_sources) == 1:
-        # Single source: simple attribution
+        # Single source: use specific claim if available
         source = sorted_sources[0]
         date_part = f" ({source.date})" if include_dates and source.date else ""
-        return f"{source.source}{date_part} {claim.lower()}"
 
-    # Multiple sources: show agreement/disagreement
+        if use_specific_claims and source.claim and source.claim != claim:
+            # Use the specific claim from the source
+            return f"{source.source}{date_part} {source.claim}"
+        else:
+            return f"{source.source}{date_part} {claim.lower()}"
+
+    # Multiple sources: show SPECIFIC claims from each, highlighting differences
     tier_1_sources = [s for s in sorted_sources if s.tier == 1]
     other_sources = [s for s in sorted_sources if s.tier > 1]
 
+    parts = []
+
     if tier_1_sources:
-        # Lead with official source
+        # Lead with official source's SPECIFIC claim
         lead = tier_1_sources[0]
         lead_date = f" ({lead.date})" if include_dates and lead.date else ""
 
-        if other_sources:
-            others_text = ', '.join([s.source for s in other_sources[:2]])
-            return f"{lead.source}{lead_date} {claim.lower()}, a view supported by {others_text}"
+        if use_specific_claims and lead.claim:
+            parts.append(f"{lead.source}{lead_date} {lead.claim}")
         else:
-            return f"{lead.source}{lead_date} {claim.lower()}"
+            parts.append(f"{lead.source}{lead_date} {claim.lower()}")
 
-    # No official source, multiple private sources
-    source_names = [s.source for s in sorted_sources[:3]]
-    if len(source_names) == 2:
-        names_text = f"{source_names[0]} and {source_names[1]}"
+        # Add contrasting views from other sources with THEIR specific claims
+        if other_sources:
+            for other in other_sources[:2]:  # Limit to top 2 non-official sources
+                if use_specific_claims and other.claim:
+                    parts.append(f"{other.source} {other.claim}")
+                else:
+                    parts.append(f"{other.source} holds a similar view")
+
     else:
-        names_text = f"{', '.join(source_names[:-1])}, and {source_names[-1]}"
+        # No official source - show competing Wall Street views with specifics
+        for i, source in enumerate(sorted_sources[:3]):
+            if use_specific_claims and source.claim:
+                parts.append(f"{source.source} {source.claim}")
+            else:
+                parts.append(f"{source.source} {claim.lower()}")
 
-    return f"{names_text} {claim.lower()}"
+    # Join with appropriate conjunctions to show comparison/contrast
+    if len(parts) == 1:
+        return parts[0]
+    elif len(parts) == 2:
+        return f"{parts[0]}, while {parts[1]}"
+    else:
+        # Three or more: "A says X, B says Y, and C says Z"
+        return f"{parts[0]}; {parts[1]}; and {parts[2]}"
 
 
 def format_competing_views(
     topic: str,
     max_views: int = 4,
     include_rationale: bool = False,
+    include_metrics: bool = True,
 ) -> str:
     """
-    Format competing expert views on a topic.
+    Format competing expert views on a topic using SPECIFIC claims.
 
     This creates a balanced presentation of different expert opinions,
-    highlighting where there is agreement and disagreement.
+    highlighting SPECIFIC predictions with numbers and dates.
+
+    IMPORTANT: Uses specific_claim field for detailed, actionable information.
 
     Args:
         topic: The topic key (e.g., 'fed_rate_path')
         max_views: Maximum number of views to include
         include_rationale: Whether to include the reasoning behind each view
+        include_metrics: Whether to include the metric being predicted
 
     Returns:
-        Formatted text showing competing views
+        Formatted text showing competing views with SPECIFIC claims
 
     Example:
-        Output: "Views on the Fed's rate path vary: the dot plot suggests
-                four cuts by end-2026, while Goldman expects only two,
-                citing persistent inflation concerns."
+        BAD (vague - old behavior):
+            "Views on the Fed's rate path vary: Goldman sees cuts, Morgan sees cuts."
+
+        GOOD (specific - new behavior):
+            "Views on the Fed's rate path:
+            - Fed Dot Plot (Dec 2024): rates at 3.9% by end-2025, 3.4% by end-2026
+            - Goldman Sachs (Jan 2026): two 25bp cuts in 2026, in March and June
+            - Morgan Stanley (Jan 2026): rate cuts in June and September 2026"
     """
     if topic not in EXPERT_VIEWS:
         return f"No expert views available for topic: {topic}"
@@ -1129,45 +1244,80 @@ def format_competing_views(
     # Build narrative
     parts = []
 
-    # Add consensus if available
+    # Add consensus if available (should now be SPECIFIC)
     if topic_data.consensus:
-        parts.append(f"Consensus view: {topic_data.consensus}.")
+        parts.append(f"Current picture: {topic_data.consensus}")
 
-    # Add key disagreement if available
+    # Add key disagreement if available (should now be SPECIFIC)
     if topic_data.key_disagreement:
-        parts.append(f"Key debate: {topic_data.key_disagreement}.")
+        parts.append(f"Key disagreement: {topic_data.key_disagreement}")
 
-    # Add individual views
+    # Add individual views with SPECIFIC claims
     parts.append("")
-    parts.append("Expert views:")
+    parts.append("Specific forecasts:")
 
     for view in views:
         tier_label = get_tier_label(view.tier)
         date_part = f" ({view.date})" if view.date else ""
-        view_text = f"- {view.source}{date_part} [{tier_label}]: {view.view}"
+
+        # Use specific_claim instead of generic view
+        claim_text = view.specific_claim if view.specific_claim else view.view
+
+        # Build the view line with specifics
+        view_line = f"- {view.source}{date_part} [{tier_label}]: {claim_text}"
+
+        # Add metric and timeframe if available and requested
+        if include_metrics and (view.metric or view.timeframe):
+            metric_info = []
+            if view.metric:
+                metric_info.append(f"metric: {view.metric}")
+            if view.timeframe:
+                metric_info.append(f"timeframe: {view.timeframe}")
+            if metric_info:
+                view_line += f" [{', '.join(metric_info)}]"
 
         if include_rationale and view.rationale:
-            view_text += f" (Rationale: {view.rationale})"
+            view_line += f" (Rationale: {view.rationale})"
 
-        parts.append(view_text)
+        parts.append(view_line)
 
     return '\n'.join(parts)
 
 
-def format_single_view(view: ExpertView, include_tier: bool = True) -> str:
+def format_single_view(
+    view: ExpertView,
+    include_tier: bool = True,
+    include_timeframe: bool = True,
+) -> str:
     """
-    Format a single expert view for display.
+    Format a single expert view for display using SPECIFIC claim.
+
+    IMPORTANT: Uses specific_claim for detailed, actionable information.
 
     Args:
         view: The ExpertView to format
         include_tier: Whether to include the tier label
+        include_timeframe: Whether to include the timeframe
 
     Returns:
-        Formatted string
+        Formatted string with SPECIFIC claim
+
+    Example:
+        "Goldman Sachs (Jan 2026) [Finance]: expects two 25bp cuts in 2026, in March and June [timeframe: 2026]"
     """
     tier_part = f" [{get_tier_label(view.tier)}]" if include_tier else ""
     date_part = f" ({view.date})" if view.date else ""
-    return f"{view.source}{date_part}{tier_part}: {view.view}"
+
+    # Use specific_claim instead of generic view
+    claim_text = view.specific_claim if view.specific_claim else view.view
+
+    result = f"{view.source}{date_part}{tier_part}: {claim_text}"
+
+    # Add timeframe if available and requested
+    if include_timeframe and view.timeframe:
+        result += f" [timeframe: {view.timeframe}]"
+
+    return result
 
 
 def format_citation_footer(
@@ -1389,6 +1539,152 @@ def fetch_fresh_views(topic: str) -> List[ExpertView]:
 
 
 # =============================================================================
+# VALIDATION FUNCTIONS
+# =============================================================================
+
+# Patterns that indicate a VAGUE (bad) claim - these should be rejected
+VAGUE_CLAIM_PATTERNS = [
+    r'^[A-Za-z\s]+ see[s]? the .+ as',  # "Goldman sees the labor market as resilient"
+    r'^[A-Za-z\s]+ expect[s]? .+ to (moderate|improve|weaken|strengthen)$',  # "Analysts expect inflation to moderate"
+    r'^experts are divided',  # "Experts are divided on recession risk"
+    r'^[A-Za-z\s]+ (is|are) (bullish|bearish|optimistic|pessimistic)',  # "Goldman is bullish"
+    r'^[A-Za-z\s]+ has a (positive|negative|cautious) (view|outlook)',  # "Fed has a cautious outlook"
+]
+
+# Patterns that indicate a SPECIFIC (good) claim - should contain numbers/dates
+SPECIFIC_CLAIM_INDICATORS = [
+    r'\d+(\.\d+)?%',  # Contains a percentage (4.5%, 2.2%)
+    r'\d+ ?bp',  # Contains basis points (25bp, 50 bp)
+    r'(Q[1-4]|January|February|March|April|May|June|July|August|September|October|November|December) \d{4}',  # Quarter or month with year
+    r'(end|mid|early|late)[- ]?\d{4}',  # Timeframe with year (end-2026)
+    r'(by|through|until) \d{4}',  # By/through year
+    r'\$[\d,]+',  # Dollar amounts
+    r'\d+ (cuts?|hikes?|months?)',  # Numeric counts
+    r'(at|to|from) \d+(\.\d+)?',  # Numeric targets
+]
+
+
+def is_vague_claim(claim: str) -> bool:
+    """
+    Check if a claim is too vague (lacks specific numbers/dates/predictions).
+
+    Vague claims should be rejected and replaced with specific ones.
+
+    Args:
+        claim: The claim text to check
+
+    Returns:
+        True if the claim is vague and should be rejected
+
+    Examples:
+        is_vague_claim("Goldman sees the labor market as resilient") -> True (BAD)
+        is_vague_claim("expects unemployment to stay below 4.5% through 2026") -> False (GOOD)
+    """
+    claim_lower = claim.lower()
+
+    # Check for vague patterns
+    for pattern in VAGUE_CLAIM_PATTERNS:
+        if re.search(pattern, claim_lower, re.IGNORECASE):
+            return True
+
+    return False
+
+
+def is_specific_claim(claim: str) -> bool:
+    """
+    Check if a claim is specific enough (has numbers, dates, or concrete predictions).
+
+    Specific claims are required for all expert views.
+
+    Args:
+        claim: The claim text to check
+
+    Returns:
+        True if the claim is specific enough
+
+    Examples:
+        is_specific_claim("Goldman expects two rate cuts in 2026") -> True (GOOD)
+        is_specific_claim("Goldman is optimistic about rates") -> False (BAD)
+    """
+    # Check for specific indicators
+    for pattern in SPECIFIC_CLAIM_INDICATORS:
+        if re.search(pattern, claim, re.IGNORECASE):
+            return True
+
+    return False
+
+
+def validate_expert_view(view: ExpertView) -> Tuple[bool, str]:
+    """
+    Validate that an ExpertView has a specific claim with numbers/dates.
+
+    Returns (is_valid, reason).
+
+    Args:
+        view: The ExpertView to validate
+
+    Returns:
+        Tuple of (is_valid, validation_message)
+
+    Examples:
+        Good view:
+            source='Goldman Sachs'
+            specific_claim='expects unemployment to stay below 4.5% through 2026'
+            -> (True, "Valid: contains percentage and timeframe")
+
+        Bad view:
+            source='Goldman Sachs'
+            specific_claim='sees the labor market as resilient'
+            -> (False, "Vague: lacks specific numbers, dates, or predictions")
+    """
+    claim = view.specific_claim or view.view
+
+    if not claim:
+        return False, "Missing: no claim provided"
+
+    if is_vague_claim(claim):
+        return False, f"Vague: '{claim}' lacks specific numbers, dates, or predictions"
+
+    if not is_specific_claim(claim):
+        return False, f"Needs specifics: '{claim}' should include numbers, percentages, or dates"
+
+    # Check for required fields on new-style views
+    if not view.metric:
+        return False, f"Missing metric field (what is being predicted?)"
+
+    if not view.timeframe:
+        return False, f"Missing timeframe field (when does this apply?)"
+
+    return True, "Valid: contains specific prediction with metric and timeframe"
+
+
+def validate_all_expert_views() -> Dict[str, List[Tuple[str, bool, str]]]:
+    """
+    Validate all expert views in EXPERT_VIEWS and return validation results.
+
+    Returns:
+        Dict mapping topic -> list of (source, is_valid, message) tuples
+
+    Usage:
+        results = validate_all_expert_views()
+        for topic, validations in results.items():
+            for source, is_valid, msg in validations:
+                if not is_valid:
+                    print(f"[{topic}] {source}: {msg}")
+    """
+    results = {}
+
+    for topic, topic_views in EXPERT_VIEWS.items():
+        topic_results = []
+        for view in topic_views.views:
+            is_valid, message = validate_expert_view(view)
+            topic_results.append((view.source, is_valid, message))
+        results[topic] = topic_results
+
+    return results
+
+
+# =============================================================================
 # CONVENIENCE FUNCTIONS
 # =============================================================================
 
@@ -1501,20 +1797,41 @@ if __name__ == "__main__":
 
     print(format_competing_views('fed_rate_path', max_views=4))
 
-    # Test 4: Format with attribution
-    print("\n\n4. ATTRIBUTION FORMATTING")
+    # Test 4: Format with attribution - NOW WITH SPECIFIC CLAIMS
+    print("\n\n4. ATTRIBUTION FORMATTING (SPECIFIC CLAIMS)")
     print("-" * 40)
 
+    # BAD example - vague claims (should not use)
+    print("\nBAD (vague - what we're avoiding):")
+    print("  'Goldman and the Fed both expect rate cuts in 2026.'")
+
+    # GOOD example - specific claims
+    print("\nGOOD (specific - what we now produce):")
     citations = [
-        Citation(source='Goldman Sachs', claim='expects two rate cuts', date='January 2026', tier=3),
-        Citation(source='Morgan Stanley', claim='sees cuts in June and September', date='January 2026', tier=3),
-        Citation(source='Federal Reserve', claim='dot plot suggests four cuts', date='December 2024', tier=1),
+        Citation(
+            source='Federal Reserve Dot Plot',
+            claim='median shows rates at 3.9% by end-2025, 3.4% by end-2026',
+            date='December 2024',
+            tier=1
+        ),
+        Citation(
+            source='Goldman Sachs',
+            claim='expects two 25bp cuts in 2026, in March and June',
+            date='January 2026',
+            tier=3
+        ),
+        Citation(
+            source='Morgan Stanley',
+            claim='projects rate cuts in June and September 2026',
+            date='January 2026',
+            tier=3
+        ),
     ]
 
     claim = "Rate cuts expected in 2026"
     attributed = format_with_attribution(claim, citations)
-    print(f"Original: {claim}")
-    print(f"Attributed: {attributed}")
+    print(f"  Original generic claim: {claim}")
+    print(f"  With specific attribution: {attributed}")
 
     # Test 5: Citation footer
     print("\n\n5. CITATION FOOTER")
@@ -1567,6 +1884,57 @@ if __name__ == "__main__":
         tier = get_source_tier(source)
         label = get_tier_label(tier)
         print(f"  {source}: Tier {tier} ({label})")
+
+    # Test 9: Claim specificity validation
+    print("\n\n9. CLAIM SPECIFICITY VALIDATION")
+    print("-" * 40)
+
+    # Test vague vs specific claims
+    test_claims_specificity = [
+        # BAD - vague claims
+        ("Goldman sees the labor market as resilient", "VAGUE"),
+        ("Analysts expect inflation to moderate", "VAGUE"),
+        ("Experts are divided on recession risk", "VAGUE"),
+        ("Fed is optimistic about growth", "VAGUE"),
+        # GOOD - specific claims
+        ("expects unemployment to stay below 4.5% through 2026", "SPECIFIC"),
+        ("projects rate cuts in June and September 2026", "SPECIFIC"),
+        ("shows 18% probability of US recession in 2026", "SPECIFIC"),
+        ("forecasts core PCE at 2.2% by end-2026", "SPECIFIC"),
+        ("median shows rates at 3.9% by end-2025, 3.4% by end-2026", "SPECIFIC"),
+    ]
+
+    print("\nVague vs Specific Claim Detection:")
+    for claim_text, expected in test_claims_specificity:
+        is_vague = is_vague_claim(claim_text)
+        is_spec = is_specific_claim(claim_text)
+
+        if expected == "VAGUE":
+            result = "VAGUE" if is_vague or not is_spec else "SPECIFIC"
+        else:
+            result = "SPECIFIC" if is_spec and not is_vague else "VAGUE"
+
+        status = "PASS" if result == expected else "FAIL"
+        print(f"  [{status}] {result}: {claim_text[:50]}...")
+
+    # Test 10: Validate all expert views
+    print("\n\n10. EXPERT VIEW VALIDATION (All views should be specific)")
+    print("-" * 40)
+
+    validation_results = validate_all_expert_views()
+    all_valid = True
+    for topic, validations in validation_results.items():
+        invalid_views = [(src, msg) for src, is_valid, msg in validations if not is_valid]
+        if invalid_views:
+            all_valid = False
+            print(f"\n  [{topic}] - {len(invalid_views)} invalid views:")
+            for src, msg in invalid_views:
+                print(f"    - {src}: {msg}")
+        else:
+            print(f"  [{topic}] - All {len(validations)} views are specific")
+
+    if all_valid:
+        print("\n  ALL EXPERT VIEWS ARE PROPERLY SPECIFIC!")
 
     print("\n" + "=" * 70)
     print("ALL TESTS COMPLETED")
