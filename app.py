@@ -7015,7 +7015,16 @@ def main():
 
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
-        # LANDING PAGE MODE - Clean, simple header
+        # LANDING PAGE MODE - Logo + title
+        logo_svg = '''
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 48px; height: 48px;">
+          <rect x="15" y="55" width="15" height="30" rx="2" fill="#1e3a5f"/>
+          <rect x="35" y="40" width="15" height="45" rx="2" fill="#1e3a5f"/>
+          <rect x="55" y="28" width="15" height="57" rx="2" fill="#d97706"/>
+          <rect x="75" y="15" width="15" height="70" rx="2" fill="#d97706"/>
+        </svg>
+        '''
+        st.markdown(f"<div style='text-align: center; margin-bottom: 5px;'>{logo_svg}</div>", unsafe_allow_html=True)
         st.markdown("<h1 style='text-align: center; margin-bottom: 0; margin-top: 0;'>EconStats</h1>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #64748b; margin-top: 0; margin-bottom: 10px;'>U.S. Economic Data with Context</p>", unsafe_allow_html=True)
 
