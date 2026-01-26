@@ -309,12 +309,12 @@ def parse_followup_command(query: str, previous_series: list = None) -> dict:
             # Invalid year - ignore the temporal reference
             pass
 
-    # "all data" / "all time"
-    elif re.search(r'\b(all\s+(available\s+)?(data|time|history)|full\s+history)\b', q):
+    # "all data" / "all time" / "max data" / "full chart"
+    elif re.search(r'\b(all\s+(available\s+)?(data|time|history)|full\s+(history|chart)|max\s+(data|chart|history)|show\s+everything|complete\s+history)\b', q):
         result = {
             'is_followup': True,
             'keep_previous_series': True,
-            'years_override': None,  # None means all
+            'years_override': None,  # None means all available data
             'explanation': 'Showing all available data.',
         }
 
@@ -1049,6 +1049,42 @@ def detect_geographic_scope(query: str) -> dict:
             return {'type': 'region', 'name': region}
 
     return {'type': 'national', 'name': 'US'}
+
+
+def get_smart_date_range(query: str, default_years: int = 8) -> int | None:
+    """
+    Determine smart date range based on query content.
+
+    Returns:
+        Number of years to show, or None for all available data.
+
+    Queries about historical events or long-term trends should show more data.
+    Most queries benefit from focused recent data (default 8 years).
+    """
+    q = query.lower()
+
+    # Queries that should show ALL available data
+    if any(pattern in q for pattern in [
+        'all time', 'all data', 'full history', 'max data', 'complete history',
+        'since 1950', 'since 1960', 'since 1970', 'since 1980',
+        'historical trend', 'long-term trend', 'long term trend',
+        'over the decades', 'over decades',
+    ]):
+        return None  # All data
+
+    # Queries that need more context (15-20 years)
+    if any(pattern in q for pattern in [
+        'great recession', '2008', 'financial crisis', 'housing crisis',
+        'compared to', 'comparison', 'vs pre-pandemic', 'before covid',
+        'over the years', 'historically', 'history of',
+        'long-run', 'long run', 'long-term', 'long term', 'secular trend',
+    ]):
+        return 20
+
+    # Queries about specific recent periods (keep default)
+    # "how is the economy", "current inflation", etc. → 8 years is good
+
+    return default_years
 
 
 def strip_question_words(query: str) -> str:
@@ -6926,8 +6962,10 @@ def main():
     if 'rag_mode' not in st.session_state:
         st.session_state.rag_mode = RAG_AVAILABLE  # Default on if available (takes priority)
 
-    # Default timeframe - show all available data for full historical context
-    years = None
+    # Default timeframe - 8 years provides good context without burying recent trends
+    # Users can say "show all data" or "full history" for complete historical view
+    DEFAULT_YEARS = 8
+    years = DEFAULT_YEARS
 
     # Handle pending query from button clicks
     query = None
@@ -7720,6 +7758,10 @@ def main():
             years = interpretation['years_override']
         elif 'years_override' in interpretation and interpretation['years_override'] is None:
             years = None  # Show all data
+        else:
+            # No explicit override - use smart defaults based on query type
+            # Historical queries get more years; most queries use focused 8-year view
+            years = get_smart_date_range(query, DEFAULT_YEARS)
 
         # Handle chart type from follow-up commands (e.g., "bar chart")
         chart_type = interpretation.get('chart_type', 'line')
