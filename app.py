@@ -151,6 +151,21 @@ try:
 except Exception:
     ANALOGUES_AVAILABLE = False
 
+# Import health check indicators for "how is X doing?" queries
+# This provides curated multi-dimensional indicator sets for entities like
+# megacap firms, labor market, consumers, housing, etc.
+try:
+    from core.health_check_indicators import (
+        route_health_check_query,
+        is_health_check_query,
+        detect_health_check_entity,
+        get_health_check_series,
+        HEALTH_CHECK_ENTITIES,
+    )
+    HEALTH_CHECK_AVAILABLE = True
+except Exception:
+    HEALTH_CHECK_AVAILABLE = False
+
 # Import premium economist analysis for deeper insights
 try:
     from core.economist_analysis import (
@@ -7484,9 +7499,28 @@ def main():
                     direct_mapping_plan['explanation'] = QUERY_PLANS[plan_key].get('explanation', '')
                     break
 
+        # Check if this is a "how is X doing?" health check query
+        # These get routed to curated multi-dimensional indicator sets
+        health_check_plan = None
+        if HEALTH_CHECK_AVAILABLE and not comparison_route and not direct_mapping_plan:
+            health_route = route_health_check_query(query)
+            if health_route and health_route.get('is_health_check'):
+                # Build a plan from the health check routing
+                health_check_plan = {
+                    'series': health_route['series'],
+                    'show_yoy_series': [
+                        sid for sid, show_yoy in zip(health_route['series'], health_route['show_yoy'])
+                        if show_yoy
+                    ],
+                    'explanation': health_route['explanation'],
+                    'entity_name': health_route['entity_name'],
+                    'source': 'health_check',
+                }
+
         # Then check pre-computed query plans (fuzzy matching for typos)
-        # Only if no direct mapping was found
-        if not comparison_route and not direct_mapping_plan:
+        # Only if no direct mapping or health check was found
+        precomputed_plan = None
+        if not comparison_route and not direct_mapping_plan and not health_check_plan:
             precomputed_plan = find_query_plan(query)
 
             # Check stock market queries if no precomputed plan found
@@ -7527,6 +7561,15 @@ def main():
             interpretation['used_precomputed'] = False
             interpretation['used_direct_mapping'] = True
             # Include query understanding for downstream validation/enhancement
+            interpretation['query_understanding'] = query_understanding
+            interpretation['routing_recommendation'] = routing_recommendation
+
+        elif health_check_plan and not local_parsed:
+            # Found a health check route - use curated multi-dimensional indicators
+            # This handles "how is X doing?" queries with the RIGHT data
+            interpretation = health_check_plan.copy()
+            interpretation['used_precomputed'] = False
+            interpretation['used_health_check'] = True
             interpretation['query_understanding'] = query_understanding
             interpretation['routing_recommendation'] = routing_recommendation
 
