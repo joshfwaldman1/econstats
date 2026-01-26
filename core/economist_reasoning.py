@@ -61,16 +61,18 @@ DIRECT_SERIES_MAPPINGS = {
     'food prices': ['CPIUFDNS', 'CPIUFDSL'],
     'food inflation': ['CPIUFDNS', 'CPIUFDSL'],
     'grocery prices': ['CPIUFDNS'],
-    'shelter inflation': ['CUSR0000SAH1'],
-    'rent inflation': ['CUSR0000SEHA'],
-    'rent inflation coming down': ['CUSR0000SEHA'],  # catches "is rent inflation coming down yet?"
+    'shelter inflation': ['CUSR0000SAH1', 'zillow_rent_yoy'],
+    'rent inflation': ['CUSR0000SEHA', 'zillow_rent_yoy'],  # CPI rent + Zillow (both YoY %)
+    'rent inflation coming down': ['CUSR0000SEHA', 'zillow_rent_yoy'],  # apples-to-apples comparison
     'rents coming down': ['CUSR0000SEHA', 'zillow_rent_yoy'],
     'rent cpi': ['CUSR0000SEHA'],
-    'rental inflation': ['CUSR0000SEHA'],
-    'housing rent': ['CUSR0000SEHA', 'CUSR0000SAH1'],
-    'rent prices': ['CUSR0000SEHA', 'zillow_zori_national'],
+    'rental inflation': ['CUSR0000SEHA', 'zillow_rent_yoy'],
+    'housing rent': ['CUSR0000SEHA', 'zillow_rent_yoy'],
+    'rent prices': ['CUSR0000SEHA', 'zillow_zori_national'],  # levels, not YoY
     'owners equivalent rent': ['CUSR0000SEHC'],
     'oer': ['CUSR0000SEHC'],
+    'market rent': ['zillow_zori_national', 'zillow_rent_yoy'],
+    'zillow rent': ['zillow_zori_national', 'zillow_rent_yoy'],
 
     # GDP - specific measures (YoY primary, quarterly secondary)
     'gdp': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'],
