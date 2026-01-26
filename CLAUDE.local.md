@@ -70,15 +70,41 @@ Both should be shown on GDP charts. YoY gives the trend; quarterly gives the lat
 - **Pre-computed Plans**: 460+ query-to-series mappings across `agents/plans_*.json` files (fast-path backstop)
 - **Hybrid Fallback**: Combine RAG + FRED API search when reasoning fails
 
-## Query Processing Flow (NEW - AI-First)
-1. **Pre-computed plan check** - Exact match only (fast path for known queries)
-2. **Economist Reasoning** (PRIMARY) - AI thinks: "To answer this, an economist would need X, Y, Z..."
-3. **FRED Search** - Search for each concept the AI identified
-4. **Relevance Filter** - Skip series that don't match the intended concept
-5. **Fallback** - If reasoning fails, use hybrid RAG + FRED search
+## Query Processing Flow (UPDATED - "Thinking First")
+1. **Query Understanding** (NEW) - Gemini deeply analyzes query intent BEFORE any routing
+2. **Pre-computed plan check** - Exact match only (fast path for known queries)
+3. **Comparison Router** - Enhanced by query understanding for US vs X queries
+4. **Economist Reasoning** (PRIMARY) - AI thinks: "To answer this, an economist would need X, Y, Z..."
+5. **FRED Search** - Search for each concept the AI identified
+6. **Relevance Filter** - Skip series that don't match the intended concept
+7. **Demographic Filter** - Use query understanding to filter wrong demographic data
+8. **Fallback** - If reasoning fails, use hybrid RAG + FRED search
 
-The key insight: We ask the AI to REASON about what's needed, not to recall series IDs from memory.
-This keeps the system "on its toes" rather than just string-matching against pre-computed patterns.
+The key insight: We now "think first" about what the query REALLY means before routing.
+This prevents issues like returning women's data for Black workers queries.
+
+## Query Understanding ("Thinking First" Layer)
+**Module**: `agents/query_understanding.py`
+
+Uses Gemini to deeply analyze queries BEFORE any routing:
+- **Intent**: What is the user really asking? (factual, analytical, comparison, forecast, causal)
+- **Entities**: Demographics, regions, sectors, time periods mentioned
+- **Routing**: Which data sources to use (FRED, DBnomics, Zillow, EIA, etc.)
+- **Pitfalls**: What mistakes to avoid (e.g., "Don't use overall unemployment for Black workers")
+
+**Key Functions**:
+- `understand_query(query)` - Returns structured understanding
+- `get_routing_recommendation(understanding)` - Returns routing decisions
+
+**Example Output** for "How are Black workers doing?":
+```python
+{
+    "intent": {"query_type": "analytical"},
+    "entities": {"demographics": ["black"], "regions": ["us"]},
+    "routing": {"is_demographic_specific": True, "primary_source": "fred"},
+    "pitfalls": ["Do NOT use overall unemployment rate (UNRATE)"]
+}
+```
 
 ## Demographic Routing (CRITICAL)
 The `extract_demographic_group()` function prevents cross-demographic confusion:
@@ -216,6 +242,7 @@ Added series and plans for:
 
 ## Key Files
 - `app.py` - Main Streamlit app with query routing, temporal handling, geographic search
+- `agents/query_understanding.py` - "Thinking First" layer - deep query analysis with Gemini
 - `agents/agent_ensemble.py` - LLM ensemble for dimension discovery and validation
 - `agents/series_rag.py` - RAG system with 115+ curated series
 - `agents/polymarket.py` - Polymarket prediction market integration
@@ -251,3 +278,4 @@ Added series and plans for:
 7. **Polymarket integration** - Added forward-looking prediction market data (recession, Fed, GDP)
 8. **Eurozone GDP YoY fix** - Changed from QoQ (CLV_PCH_PRE) to YoY (CLV_PCH_SM) for proper US comparison
 9. **Comparison metadata** - Added measure_type/change_type to all DBnomics and FRED comparison series
+10. **Query Understanding layer** - NEW "Thinking First" approach using Gemini to deeply analyze query intent before routing. Prevents wrong demographic data (e.g., women's data for Black workers queries). See `agents/query_understanding.py`.

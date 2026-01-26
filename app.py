@@ -152,6 +152,14 @@ try:
 except Exception as e:
     TEMPORAL_INTENT_AVAILABLE = False
 
+# Import Query Understanding - "Thinking First" layer
+# This deeply analyzes query intent BEFORE any routing decisions
+try:
+    from agents.query_understanding import understand_query, get_routing_recommendation
+    QUERY_UNDERSTANDING_AVAILABLE = True
+except Exception:
+    QUERY_UNDERSTANDING_AVAILABLE = False
+
 
 def parse_followup_command(query: str, previous_series: list = None) -> dict:
     """
@@ -7163,12 +7171,56 @@ def main():
             # Store in session for later use
             st.session_state['current_temporal_intent'] = temporal_intent
 
+        # =================================================================
+        # QUERY UNDERSTANDING - "Thinking First" Layer
+        # =================================================================
+        # This is the NEW first step: deeply analyze query intent BEFORE
+        # any routing decisions. Uses Gemini to understand:
+        # - What is the user really asking?
+        # - What entities are mentioned (demographics, regions, sectors)?
+        # - What type of query is this (factual, analytical, comparison)?
+        # - What data sources should we use?
+        # - What pitfalls should we avoid?
+        #
+        # The understanding then guides all downstream routing decisions.
+        # =================================================================
+        query_understanding = None
+        routing_recommendation = None
+        if QUERY_UNDERSTANDING_AVAILABLE:
+            status_container.update(label="Understanding your question...")
+            query_understanding = understand_query(query, verbose=False)
+            routing_recommendation = get_routing_recommendation(query_understanding)
+
+            # Store understanding in session for debugging/logging
+            st.session_state['query_understanding'] = query_understanding
+            st.session_state['routing_recommendation'] = routing_recommendation
+
+            # Log key insights from understanding
+            if query_understanding:
+                intent = query_understanding.get('intent', {})
+                entities = query_understanding.get('entities', {})
+
+                # Use understanding to enhance subsequent routing
+                # (e.g., if demographic-specific, we'll filter results later)
+
         # Check for comparison queries FIRST (US vs Eurozone, etc.)
         # These need data from multiple sources
+        # ENHANCED by query understanding - use its is_comparison flag
         comparison_route = None
+
+        # Use query understanding to guide comparison detection
+        understanding_says_comparison = (
+            routing_recommendation and routing_recommendation.get('use_comparison_router', False)
+        )
+        understanding_says_international = (
+            routing_recommendation and routing_recommendation.get('use_international_data', False)
+        )
+
         if QUERY_ROUTER_AVAILABLE and DBNOMICS_AVAILABLE:
+            # If understanding says it's a comparison, definitely check
+            # Otherwise, still run the rule-based router as fallback
             comparison_route = smart_route_query(query)
-            if comparison_route.get('is_comparison'):
+            if comparison_route.get('is_comparison') or understanding_says_comparison:
                 # Build a combined plan from multiple sources
                 fred_series = comparison_route.get('series_to_fetch', {}).get('fred', [])
                 dbnomics_series = comparison_route.get('series_to_fetch', {}).get('dbnomics', [])
@@ -7326,6 +7378,7 @@ def main():
         else:
             # PRIMARY PATH: Use economist reasoning (AI thinks about what's needed)
             # This asks AI to reason like an economist, then searches for indicators
+            # NOW ENHANCED with query understanding from the "thinking first" layer
             if REASONING_AVAILABLE:
                 status_container.update(label="Analyzing your question...")
                 interpretation = reasoning_query_plan(query, verbose=False)
@@ -7334,6 +7387,14 @@ def main():
                 if interpretation.get('series'):
                     interpretation['used_reasoning'] = True
                     interpretation['used_precomputed'] = False
+
+                    # Enhance with query understanding metadata if available
+                    if query_understanding:
+                        interpretation['query_understanding'] = query_understanding
+                        # Add pitfalls as warnings for downstream validation
+                        pitfalls = query_understanding.get('pitfalls', [])
+                        if pitfalls:
+                            interpretation['understanding_pitfalls'] = pitfalls
                 else:
                     # Reasoning failed - fall back to hybrid search
                     interpretation = None
@@ -7361,6 +7422,21 @@ def main():
         # QA Validation Layer: Check query-series alignment
         series_for_validation = interpretation.get('series', [])
         validation_result = validate_query_series_alignment(query, series_for_validation)
+
+        # DEMOGRAPHIC FILTERING: Use query understanding to filter irrelevant series
+        # This prevents returning women's data for Black workers queries, etc.
+        if routing_recommendation and routing_recommendation.get('require_demographic_filter'):
+            demographic_filter = routing_recommendation.get('demographic_filter', [])
+            pitfalls = routing_recommendation.get('pitfalls', [])
+
+            # Log the demographic requirements
+            if demographic_filter:
+                print(f"[QueryUnderstanding] Demographic filter: {demographic_filter}")
+                print(f"[QueryUnderstanding] Pitfalls: {pitfalls[:2]}")
+
+            # Store understanding metadata in interpretation for later use
+            interpretation['query_understanding'] = query_understanding
+            interpretation['routing_recommendation'] = routing_recommendation
 
         # Log query resolution for analysis
         source = 'precomputed' if interpretation.get('used_precomputed') else (
