@@ -63,8 +63,14 @@ DIRECT_SERIES_MAPPINGS = {
     'grocery prices': ['CPIUFDNS'],
     'shelter inflation': ['CUSR0000SAH1'],
     'rent inflation': ['CUSR0000SEHA'],
-    'is rent inflation coming down': ['CUSR0000SEHA'],
+    'rent inflation coming down': ['CUSR0000SEHA'],  # catches "is rent inflation coming down yet?"
+    'rents coming down': ['CUSR0000SEHA', 'zillow_rent_yoy'],
+    'rent cpi': ['CUSR0000SEHA'],
+    'rental inflation': ['CUSR0000SEHA'],
+    'housing rent': ['CUSR0000SEHA', 'CUSR0000SAH1'],
     'rent prices': ['CUSR0000SEHA', 'zillow_zori_national'],
+    'owners equivalent rent': ['CUSR0000SEHC'],
+    'oer': ['CUSR0000SEHC'],
 
     # GDP - specific measures (YoY primary, quarterly secondary)
     'gdp': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'],
@@ -268,11 +274,14 @@ def check_direct_mapping(query: str) -> Optional[list]:
         return DIRECT_SERIES_MAPPINGS[query_lower]
 
     # Check if query contains any direct mapping key
-    for key, series in DIRECT_SERIES_MAPPINGS.items():
+    # CRITICAL: Sort by length (longest first) so more specific matches win
+    # e.g., "rent inflation" should match before "inflation"
+    sorted_keys = sorted(DIRECT_SERIES_MAPPINGS.keys(), key=len, reverse=True)
+    for key in sorted_keys:
         # Use word boundary matching to avoid partial matches
         pattern = r'\b' + re.escape(key) + r'\b'
         if re.search(pattern, query_lower):
-            return series
+            return DIRECT_SERIES_MAPPINGS[key]
 
     return None
 
