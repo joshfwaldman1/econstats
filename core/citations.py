@@ -153,6 +153,7 @@ class ExpertView:
     date: Optional[str] = None
     tier: int = 3
     rationale: Optional[str] = None
+    url: Optional[str] = None  # Link to source material
     # Legacy field for backward compatibility - will be deprecated
     view: str = ""
 
@@ -171,6 +172,7 @@ class ExpertView:
             source=self.source,
             claim=self.specific_claim,
             date=self.date,
+            url=self.url,
             tier=self.tier,
             category='expert_view',
         )
@@ -365,42 +367,37 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
                 date='December 2024',
                 tier=1,
                 rationale='Official FOMC projections based on committee median',
+                url='https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20241218.htm',
             ),
             ExpertView(
-                source='Goldman Sachs',
-                specific_claim='expects two 25bp cuts in 2026, in March and June',
-                metric='rate_cuts',
-                timeframe='2026',
-                date='January 2026',
-                tier=3,
-                rationale='Citing sticky services inflation requiring patience',
-            ),
-            ExpertView(
-                source='Morgan Stanley',
-                specific_claim='projects rate cuts in June and September 2026',
-                metric='rate_cuts',
-                timeframe='2026',
-                date='January 2026',
-                tier=3,
-                rationale='Labor market remains stronger than Fed expected',
-            ),
-            ExpertView(
-                source='JP Morgan',
-                specific_claim='expects 75bp of cuts in 2026 at a quarterly pace (March, June, September)',
-                metric='rate_cuts',
-                timeframe='2026',
-                date='January 2026',
-                tier=3,
-                rationale='Inflation progress likely to continue',
-            ),
-            ExpertView(
-                source='CME FedWatch',
+                source='CME FedWatch Tool',
                 specific_claim='futures imply 65% probability of at least two cuts by December 2026',
                 metric='rate_cut_probability',
                 timeframe='through December 2026',
                 date='January 2026',
                 tier=3,
                 rationale='Fed funds futures implied probabilities',
+                url='https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html',
+            ),
+            ExpertView(
+                source='Atlanta Fed GDPNow',
+                specific_claim='Q1 2026 GDP tracking at 2.3% annualized, suggesting no urgency to cut',
+                metric='gdp_nowcast',
+                timeframe='Q1 2026',
+                date='January 2026',
+                tier=1,
+                rationale='Real-time GDP tracking model',
+                url='https://www.atlantafed.org/cqer/research/gdpnow',
+            ),
+            ExpertView(
+                source='Fed Chair Powell (FOMC Press Conference)',
+                specific_claim='stated rates are "well into restrictive territory" but more progress on inflation needed',
+                metric='policy_stance',
+                timeframe='current',
+                date='December 2024',
+                tier=1,
+                rationale='Direct statement from Fed Chair',
+                url='https://www.federalreserve.gov/newsevents/pressreleases.htm',
             ),
         ],
     ),
@@ -458,6 +455,7 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
                 date='January 2026',
                 tier=1,
                 rationale='Real-time inflation tracking model',
+                url='https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting',
             ),
             ExpertView(
                 source='Federal Reserve SEP',
@@ -467,33 +465,37 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
                 date='December 2024',
                 tier=1,
                 rationale='FOMC Summary of Economic Projections',
+                url='https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20241218.htm',
             ),
             ExpertView(
-                source='Goldman Sachs',
-                specific_claim='forecasts core PCE stuck at 2.4-2.6% through mid-2026, not reaching 2.2% until 2027',
+                source='SF Fed Economic Letter',
+                specific_claim='estimates services inflation persistence will keep core PCE above 2.5% through Q2 2026',
                 metric='core_pce',
-                timeframe='2026-2027',
-                date='January 2026',
-                tier=3,
-                rationale='Services inflation proving more persistent than expected',
+                timeframe='Q2 2026',
+                date='December 2024',
+                tier=1,
+                rationale='Research on inflation persistence in services sector',
+                url='https://www.frbsf.org/research-and-insights/publications/economic-letter/',
             ),
             ExpertView(
-                source='Bank of America',
-                specific_claim='sees risk of inflation re-accelerating to 3%+ if unemployment stays below 4.2%',
-                metric='inflation_risk',
-                timeframe='2026',
+                source='NY Fed Underlying Inflation Gauge',
+                specific_claim='UIG full data set shows underlying inflation at 2.8% as of November 2025',
+                metric='underlying_inflation',
+                timeframe='November 2025',
                 date='January 2026',
-                tier=3,
-                rationale='Wage growth remains elevated in services sector',
+                tier=1,
+                rationale='Alternative measure filtering noise from CPI',
+                url='https://www.newyorkfed.org/research/policy/underlying-inflation-gauge',
             ),
             ExpertView(
-                source='Peterson Institute',
+                source='Peterson Institute (Jason Furman)',
                 specific_claim='projects shelter inflation will drop from 5.5% to 3.5% by end-2026 as market rents flow through',
                 metric='shelter_inflation',
                 timeframe='2026',
                 date='January 2026',
                 tier=2,
                 rationale='CPI shelter lags market rents by 12-18 months',
+                url='https://www.piie.com/blogs/realtime-economics',
             ),
         ],
     ),
@@ -544,6 +546,16 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
         key_disagreement='Goldman at 15% vs Morgan Stanley at 20%; consumer strength uncertain',
         views=[
             ExpertView(
+                source='NY Fed Recession Probability',
+                specific_claim='model shows 25% probability of recession in next 12 months based on yield curve',
+                metric='recession_probability',
+                timeframe='next 12 months',
+                date='January 2026',
+                tier=1,
+                rationale='Probit model based on Treasury spread',
+                url='https://www.newyorkfed.org/research/capital_markets/ycfaq.html',
+            ),
+            ExpertView(
                 source='Conference Board LEI',
                 specific_claim='Leading Economic Index rose 0.2% in December after 6 months of declines; no longer signaling recession',
                 metric='lei_change',
@@ -551,6 +563,7 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
                 date='January 2026',
                 tier=2,
                 rationale='LEI has stopped declining after prior deterioration',
+                url='https://www.conference-board.org/topics/us-leading-indicators',
             ),
             ExpertView(
                 source='Polymarket',
@@ -560,33 +573,27 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
                 date='January 2026',
                 tier=3,
                 rationale='Aggregated market-based probability estimate',
+                url='https://polymarket.com/event/us-recession-before-2027',
             ),
             ExpertView(
-                source='Goldman Sachs',
-                specific_claim='assigns 15% probability to recession in next 12 months',
-                metric='recession_probability',
-                timeframe='next 12 months',
+                source='Claudia Sahm (Sahm Rule)',
+                specific_claim='Sahm Rule indicator at 0.43 in December 2025, below 0.5 trigger threshold',
+                metric='sahm_indicator',
+                timeframe='December 2025',
                 date='January 2026',
-                tier=3,
-                rationale='Growth remains resilient despite higher rates',
+                tier=2,
+                rationale='Real-time recession indicator based on unemployment rate dynamics',
+                url='https://fred.stlouisfed.org/series/SAHMREALTIME',
             ),
             ExpertView(
-                source='Morgan Stanley',
-                specific_claim='estimates 20% recession probability with risks tilted to downside',
-                metric='recession_probability',
-                timeframe='2026',
-                date='January 2026',
-                tier=3,
-                rationale='Consumer spending showing signs of fatigue',
-            ),
-            ExpertView(
-                source='NBER',
+                source='NBER Business Cycle Dating',
                 specific_claim='has not declared a recession; current expansion began April 2020 (now 57 months old)',
                 metric='recession_dating',
                 timeframe='as of December 2025',
                 date='December 2025',
                 tier=2,
                 rationale='Official business cycle dating committee',
+                url='https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions',
             ),
         ],
     ),
@@ -1288,6 +1295,7 @@ def format_single_view(
     view: ExpertView,
     include_tier: bool = True,
     include_timeframe: bool = True,
+    include_url: bool = False,
 ) -> str:
     """
     Format a single expert view for display using SPECIFIC claim.
@@ -1298,6 +1306,7 @@ def format_single_view(
         view: The ExpertView to format
         include_tier: Whether to include the tier label
         include_timeframe: Whether to include the timeframe
+        include_url: Whether to include URL if available
 
     Returns:
         Formatted string with SPECIFIC claim
@@ -1317,7 +1326,69 @@ def format_single_view(
     if include_timeframe and view.timeframe:
         result += f" [timeframe: {view.timeframe}]"
 
+    # Add URL if available and requested
+    if include_url and view.url:
+        result += f" ({view.url})"
+
     return result
+
+
+def format_view_as_html(
+    view: ExpertView,
+    include_url: bool = True,
+) -> str:
+    """
+    Format a single expert view as HTML with clickable link.
+
+    Args:
+        view: The ExpertView to format
+        include_url: Whether to make source a clickable link
+
+    Returns:
+        HTML formatted string
+
+    Example:
+        '<a href="https://...">Cleveland Fed</a> (Jan 2026): projects CPI at 2.9%'
+    """
+    date_part = f" ({view.date})" if view.date else ""
+    claim_text = view.specific_claim if view.specific_claim else view.view
+
+    if include_url and view.url:
+        source_html = f'<a href="{view.url}" target="_blank" style="color: #2563eb; text-decoration: underline;">{view.source}</a>'
+    else:
+        source_html = f'<strong>{view.source}</strong>'
+
+    return f'{source_html}{date_part}: {claim_text}'
+
+
+def format_views_as_html_list(
+    views: List[ExpertView],
+    max_views: int = 3,
+    include_urls: bool = True,
+) -> str:
+    """
+    Format multiple expert views as an HTML bullet list.
+
+    Args:
+        views: List of ExpertView objects
+        max_views: Maximum number of views to include
+        include_urls: Whether to make sources clickable links
+
+    Returns:
+        HTML formatted bullet list
+    """
+    if not views:
+        return ""
+
+    # Sort by tier (most authoritative first) and take top N
+    sorted_views = sorted(views, key=lambda v: v.tier)[:max_views]
+
+    items = []
+    for view in sorted_views:
+        item_html = format_view_as_html(view, include_url=include_urls)
+        items.append(f'<li style="margin-bottom: 8px;">{item_html}</li>')
+
+    return f'<ul style="margin: 0; padding-left: 20px;">{"".join(items)}</ul>'
 
 
 def format_citation_footer(

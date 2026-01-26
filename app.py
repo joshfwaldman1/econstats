@@ -7166,22 +7166,12 @@ def main():
                                 <div style='color: #581c87;'>{context['narrative']}</div>
                             </div>""", unsafe_allow_html=True)
 
-                    # Premium Economist Analysis (deeper insights with risks/opportunities)
+                    # Economic Analysis (simplified, lighter styling)
                     if msg.get("premium_analysis_html") and PREMIUM_ANALYSIS_AVAILABLE:
                         analysis_html = msg["premium_analysis_html"]
-                        analysis_obj = msg.get("premium_analysis")
-                        confidence = analysis_obj.confidence if analysis_obj else "medium"
-                        confidence_badge = {
-                            'high': '<span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">HIGH CONFIDENCE</span>',
-                            'medium': '<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">MEDIUM CONFIDENCE</span>',
-                            'low': '<span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">LOW CONFIDENCE</span>',
-                        }.get(confidence, '')
 
-                        st.markdown(f"""<div style='background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); border: 1px solid #fcd34d; border-radius: 8px; padding: 16px; margin: 16px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);'>
-                            <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;'>
-                                <div style='color: #92400e; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;'>Economist Analysis</div>
-                                {confidence_badge}
-                            </div>
+                        st.markdown(f"""<div style='border-top: 1px solid #e5e7eb; padding-top: 16px; margin-top: 16px;'>
+                            <div style='color: #6b7280; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;'>Economic Analysis</div>
                             {analysis_html}
                         </div>""", unsafe_allow_html=True)
 
@@ -7335,9 +7325,47 @@ def main():
         # Close chat container
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Follow-up section at bottom (compact)
+        # Follow-up section at bottom (Railway-style "Continue exploring")
         if not query and st.session_state.messages:
-            # Text input for follow-up
+            # Generate context-specific follow-ups based on what's currently displayed
+            last_series = st.session_state.last_series if st.session_state.last_series else []
+            last_series_str = str(last_series).upper()
+            last_query = st.session_state.last_query or ""
+
+            # Default follow-ups
+            followup1 = ("What's driving these trends?", f"What's driving {last_query}?")
+            followup2 = ("How does this compare to pre-pandemic levels?", f"compare {last_query} to pre-pandemic")
+
+            # Context-specific follow-ups based on WHAT DATA IS SHOWN
+            if any(s in last_series_str for s in ['UNRATE', 'PAYEMS', 'LNS', 'EMPL']):
+                followup1 = ("What sectors are driving job growth?", "job growth by sector")
+                followup2 = ("How does this compare to pre-pandemic employment?", "employment vs pre-covid")
+            elif any(s in last_series_str for s in ['CPI', 'PCE', 'INFLATION']):
+                followup1 = ("What's driving the difference between core and headline inflation?", "core vs headline inflation breakdown")
+                followup2 = ("How do current inflation levels compare to pre-pandemic trends?", "inflation vs pre-pandemic")
+            elif any(s in last_series_str for s in ['GDP', 'A191']):
+                followup1 = ("What components are contributing to GDP growth?", "GDP by component")
+                followup2 = ("How does growth compare to other major economies?", "US vs Eurozone GDP growth")
+            elif any(s in last_series_str for s in ['MORTGAGE', 'HOUST', 'PERMIT', 'CSUSHPINSA']):
+                followup1 = ("How has housing affordability changed?", "housing affordability over time")
+                followup2 = ("How do home prices compare to income growth?", "home prices vs income")
+
+            # "Continue exploring" section - Railway style
+            st.markdown("""<hr style='border: none; border-top: 1px solid #e5e7eb; margin: 24px 0 16px 0;'>""", unsafe_allow_html=True)
+            st.markdown("""<div style='color: #6b7280; font-size: 0.85rem; margin-bottom: 12px;'>Continue exploring:</div>""", unsafe_allow_html=True)
+
+            # Clickable suggestion cards
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(followup1[0], key="followup_1", use_container_width=True):
+                    st.session_state.pending_query = followup1[1]
+                    st.rerun()
+            with col2:
+                if st.button(followup2[0], key="followup_2", use_container_width=True):
+                    st.session_state.pending_query = followup2[1]
+                    st.rerun()
+
+            # Follow-up input
             chat_query = st.text_input(
                 "Follow-up",
                 placeholder="Ask a follow-up question...",
@@ -7347,60 +7375,6 @@ def main():
             if chat_query:
                 st.session_state.pending_query = chat_query
                 st.rerun()
-
-            # Generate REAL follow-ups based on what's currently displayed
-            last_series = st.session_state.last_series if st.session_state.last_series else []
-            last_series_str = str(last_series).upper()
-
-            # Default: transformation follow-ups that work for any data
-            followup1 = ("Show year-over-year change", "show year-over-year")
-            followup2 = ("Compare to pre-COVID", "show pre-covid through now")
-
-            # Context-specific follow-ups based on WHAT DATA IS SHOWN (not the query text)
-            if any(s in last_series_str for s in ['UNRATE', 'PAYEMS', 'LNS', 'EMPL']):
-                # Employment data shown - suggest related employment additions
-                followup1 = ("Add job openings", "add job openings JOLTS")
-                followup2 = ("Break down by age group", "unemployment by age")
-            elif any(s in last_series_str for s in ['CPI', 'PCE', 'INFLATION']):
-                # Inflation data shown - suggest related inflation views
-                followup1 = ("Show core vs headline", "core inflation vs headline")
-                followup2 = ("Compare to wage growth", "wages vs inflation")
-            elif any(s in last_series_str for s in ['GDP', 'A191']):
-                # GDP data shown - suggest GDP-related follow-ups
-                followup1 = ("Show quarterly growth rate", "quarterly GDP growth rate")
-                followup2 = ("Add consumer spending", "add consumer spending PCE")
-            elif any(s in last_series_str for s in ['MORTGAGE', 'HOUST', 'PERMIT', 'CSUSHPINSA']):
-                # Housing data shown
-                followup1 = ("Add housing starts", "add housing starts")
-                followup2 = ("Show affordability", "housing affordability")
-
-            # Compact row: suggestions + share + new search
-            col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
-            with col1:
-                if st.button(followup1[0], key="followup_1", use_container_width=True):
-                    st.session_state.pending_query = followup1[1]
-                    st.rerun()
-            with col2:
-                if st.button(followup2[0], key="followup_2", use_container_width=True):
-                    st.session_state.pending_query = followup2[1]
-                    st.rerun()
-            with col3:
-                # Share button - generates permalink
-                last_q = st.session_state.last_query or ""
-                share_url = f"?q={quote(last_q)}"
-                if st.button("Share", key="share_btn", type="tertiary", use_container_width=True):
-                    # Copy to clipboard using JavaScript
-                    full_url = f"https://econstats.streamlit.app/{share_url}"
-                    st.toast(f"Link copied! {full_url}")
-                    # Also update URL params so user can copy from address bar
-                    st.query_params["q"] = last_q
-            with col4:
-                if st.button("New search", key="new_search_btn", type="tertiary", use_container_width=True):
-                    st.session_state.messages = []
-                    st.session_state.last_query = None
-                    st.session_state.last_series = []
-                    st.query_params.clear()
-                    st.rerun()
 
     if query:
         # Add user message to chat history
