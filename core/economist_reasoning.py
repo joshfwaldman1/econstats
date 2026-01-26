@@ -50,6 +50,8 @@ DIRECT_SERIES_MAPPINGS = {
     '30-year mortgage': ['MORTGAGE30US'],
 
     # Inflation - specific measures
+    'inflation': ['CPIAUCSL', 'PCEPILFE'],  # P0 FIX: Generic inflation query
+    'headline inflation': ['CPIAUCSL', 'PCEPI'],  # P0 FIX: Non-core (headline) inflation
     'core inflation': ['CPILFESL', 'PCEPILFE'],
     'core cpi': ['CPILFESL'],
     'core pce': ['PCEPILFE'],
@@ -97,6 +99,7 @@ DIRECT_SERIES_MAPPINGS = {
     'latino unemployment': ['LNS14000009'],
     'women unemployment': ['LNS14000002'],
     'women workers': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
+    'womens employment': ['LNS14000002', 'LNS12300002'],  # P0 FIX: Normalized from "women's"
     'female unemployment': ['LNS14000002'],
     'youth unemployment': ['LNS14000012', 'LNS14000036'],
     'teen unemployment': ['LNS14000012'],
@@ -157,9 +160,12 @@ DIRECT_SERIES_MAPPINGS = {
     'savings rate': ['PSAVERT'],
 
     # Labor market detail
+    'labor market': ['PAYEMS', 'UNRATE', 'LNS12300060', 'ICSA'],  # P0 FIX: Common query
+    'jobs market': ['PAYEMS', 'UNRATE', 'LNS12300060', 'ICSA'],  # P0 FIX: Alias
     'job openings vs unemployed': ['JTSJOL', 'UNEMPLOY'],
     'labor force participation': ['CIVPART'],
     'prime age employment': ['LNS12300060'],
+    'prime age workers': ['LNS12300060'],  # P0 FIX: Normalized from "prime-age"
     'quits rate': ['JTSQUR'],
     'hiring rate': ['JTSHIR'],
 
@@ -238,15 +244,22 @@ def check_direct_mapping(query: str) -> Optional[list]:
     """
     query_lower = query.lower().strip()
 
+    # P0 FIX: Normalize apostrophes and hyphens for better matching
+    # "women's" -> "womens", "prime-age" -> "prime age"
+    query_lower = query_lower.replace("'s", "s").replace("'", "")
+    query_lower = query_lower.replace("-", " ")
+
     # Remove common question words
     for prefix in ['what is the', 'what is', 'what are the', 'what are',
-                   'show me the', 'show me', 'current', 'latest', 'today\'s']:
+                   'show me the', 'show me', 'current', 'latest', 'today\'s',
+                   'how is the', 'how is', 'how are the', 'how are',
+                   'whats the', 'whats happening with', 'what about']:
         if query_lower.startswith(prefix):
             query_lower = query_lower[len(prefix):].strip()
 
     # Remove trailing question mark and common suffixes
     query_lower = query_lower.rstrip('?').strip()
-    for suffix in ['right now', 'today', 'currently', 'now']:
+    for suffix in ['right now', 'today', 'currently', 'now', 'doing', 'looking']:
         if query_lower.endswith(suffix):
             query_lower = query_lower[:-len(suffix)].strip()
 

@@ -5130,6 +5130,20 @@ def reasoning_query_plan(query: str, verbose: bool = False) -> dict:
     indicators = reasoning.get('indicators', [])
 
     if not search_terms and not indicators:
+        # P0 FIX: Fallback to pre-computed plans before returning empty
+        # This fixes the 60% failure rate when Gemini is unavailable
+        precomputed = find_query_plan(query)
+        if precomputed:
+            base_series = precomputed.get('series', [])[:4]
+            can_combine, _ = can_combine_series(base_series)
+            return {
+                'series': base_series,
+                'explanation': precomputed.get('explanation', ''),
+                'used_reasoning': False,
+                'used_precomputed_fallback': True,
+                'combine_chart': precomputed.get('combine_chart', can_combine),
+                'show_yoy': precomputed.get('show_yoy', False),
+            }
         return {'series': [], 'explanation': reasoning.get('reasoning', ''), 'reasoning_failed': True}
 
     # Step 2: Search FRED for each indicator concept
@@ -7299,11 +7313,42 @@ def main():
             interpretation = direct_mapping_plan.copy()
             interpretation['used_precomputed'] = False
             interpretation['used_direct_mapping'] = True
+            # Include query understanding for downstream validation/enhancement
+            interpretation['query_understanding'] = query_understanding
+            interpretation['routing_recommendation'] = routing_recommendation
 
         elif precomputed_plan and not local_parsed:
             # Found a pre-computed plan - use it as the base
+            # ENHANCED: Use query understanding to filter/validate series
             base_series = precomputed_plan.get('series', [])
             hybrid_sources = {'precomputed': base_series, 'rag': [], 'fred': []}
+
+            # Use query understanding to filter series that don't match query intent
+            # This prevents wrong demographic data (e.g., women's data for Black workers)
+            if query_understanding:
+                entities = query_understanding.get('entities', {})
+                detected_demographics = entities.get('demographics', [])
+                pitfalls = query_understanding.get('pitfalls', [])
+
+                # If query is demographic-specific, filter out wrong demographics
+                if detected_demographics:
+                    # Build list of series to exclude based on pitfalls
+                    # Pitfalls often say "Don't use UNRATE for Black workers" etc.
+                    filtered_series = []
+                    for sid in base_series:
+                        # Check if this series should be excluded
+                        exclude = False
+                        for pitfall in pitfalls:
+                            if sid in pitfall:
+                                exclude = True
+                                break
+                        if not exclude:
+                            filtered_series.append(sid)
+
+                    # Only use filtered list if we still have series
+                    if filtered_series:
+                        base_series = filtered_series
+                        hybrid_sources['precomputed'] = base_series
 
             # For holistic queries, augment with hybrid search (RAG + FRED)
             # BUT: If precomputed plan has 3+ series, it's comprehensive enough - don't augment
@@ -7352,6 +7397,9 @@ def main():
                 'source': precomputed_plan.get('source', 'fred'),
                 'is_comparison': precomputed_plan.get('is_comparison', False),
                 'dbnomics_series': precomputed_plan.get('dbnomics_series', []),
+                # ENHANCED: Include query understanding for downstream use
+                'query_understanding': query_understanding,
+                'routing_recommendation': routing_recommendation,
             }
         elif local_parsed:
             # Try local parser for common follow-up commands (no API call needed)
