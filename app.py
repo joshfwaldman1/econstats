@@ -7779,9 +7779,17 @@ def main():
         if st.session_state.chat_mode:
             st.markdown(f'<div class="chat-clearfix"><div class="chat-user-query">{query}</div></div>', unsafe_allow_html=True)
 
-        # Use a single status container for all processing phases
-        # This provides a cleaner, more professional loading experience
-        status_container = st.status("Analyzing your question...", expanded=False)
+        # Use a simple status placeholder (st.status has rendering bugs)
+        class SimpleStatus:
+            def __init__(self, label):
+                self.placeholder = st.empty()
+                self.placeholder.markdown(f"<div style='color: #6b7280; font-size: 0.9rem; padding: 8px 0;'>⏳ {label}</div>", unsafe_allow_html=True)
+            def update(self, label=None, state=None, expanded=None):
+                if state == "complete":
+                    self.placeholder.empty()
+                elif label:
+                    self.placeholder.markdown(f"<div style='color: #6b7280; font-size: 0.9rem; padding: 8px 0;'>⏳ {label}</div>", unsafe_allow_html=True)
+        status_container = SimpleStatus("Analyzing your question...")
 
         # Build context from previous query for follow-up detection
         previous_context = None
