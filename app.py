@@ -7091,11 +7091,18 @@ def main():
 
                     # =================================================================
                     # RAILWAY-STYLE MINIMAL LAYOUT
-                    # Flowing prose without labeled boxes - clean and modern
+                    # Single narrative - no redundancy between explanation and analysis
                     # =================================================================
 
-                    # Main narrative (flowing prose, no "Summary" label)
-                    if msg.get("explanation"):
+                    # Show EITHER premium analysis OR basic explanation (not both)
+                    has_premium_analysis = msg.get("premium_analysis_html") and PREMIUM_ANALYSIS_AVAILABLE
+
+                    if has_premium_analysis:
+                        # Premium analysis is richer - show it as the main content
+                        analysis_html = msg["premium_analysis_html"]
+                        st.markdown(f"""<div style='margin: 8px 0 16px 0;'>{analysis_html}</div>""", unsafe_allow_html=True)
+                    elif msg.get("explanation"):
+                        # Fallback to basic explanation if no premium analysis
                         explanation_text = msg['explanation']
                         st.markdown(f"""<div style='font-size: 0.95rem; line-height: 1.7; color: #1f2937; margin: 8px 0 16px 0;'>{explanation_text}</div>""", unsafe_allow_html=True)
 
@@ -7104,42 +7111,6 @@ def main():
                         scorecard = msg["recession_scorecard"]
                         scorecard_html = format_scorecard_for_display(scorecard)
                         st.markdown(scorecard_html, unsafe_allow_html=True)
-
-                    # Supplementary context - compact inline mentions instead of separate boxes
-                    supplementary_parts = []
-
-                    # Polymarket odds (inline mention for recession/fed queries)
-                    if msg.get("polymarket") and POLYMARKET_AVAILABLE:
-                        predictions = msg["polymarket"]
-                        narrative = synthesize_prediction_narrative(predictions)
-                        if narrative:
-                            supplementary_parts.append(f'<span style="color: #64748b;">{narrative}</span> <a href="https://polymarket.com" target="_blank" style="color: #94a3b8; font-size: 0.8rem;">(Polymarket)</a>')
-
-                    # Fed guidance (inline for Fed queries)
-                    if msg.get("sep") and SEP_AVAILABLE:
-                        sep_data = msg["sep"]
-                        sep_narrative = format_sep_for_display(sep_data)
-                        if sep_narrative:
-                            supplementary_parts.append(f'<span style="color: #1e40af;">{sep_narrative}</span>')
-
-                    # Show supplementary info as subtle inline text if present
-                    if supplementary_parts:
-                        st.markdown(f"""<div style='font-size: 0.85rem; line-height: 1.6; color: #6b7280; margin: 12px 0; padding: 10px 0; border-top: 1px solid #f3f4f6;'>{"<br>".join(supplementary_parts)}</div>""", unsafe_allow_html=True)
-
-                    # Historical context (keep but lighter)
-                    if msg.get("historical_context") and ANALOGUES_AVAILABLE:
-                        context = msg["historical_context"]
-                        if context.get("narrative"):
-                            top_analogue = context.get("analogues", [{}])[0] if context.get("analogues") else {}
-                            analogue_name = top_analogue.get("name", "")
-                            similarity = top_analogue.get("similarity_pct", 0)
-                            analogue_label = f" (similar to {analogue_name}, {similarity:.0f}% match)" if analogue_name else ""
-                            st.markdown(f"""<div style='font-size: 0.85rem; line-height: 1.6; color: #7c3aed; margin: 8px 0; font-style: italic;'>{context['narrative']}{analogue_label}</div>""", unsafe_allow_html=True)
-
-                    # Economic Analysis (merged into flow - no separate header)
-                    if msg.get("premium_analysis_html") and PREMIUM_ANALYSIS_AVAILABLE:
-                        analysis_html = msg["premium_analysis_html"]
-                        st.markdown(f"""<div style='margin-top: 12px;'>{analysis_html}</div>""", unsafe_allow_html=True)
 
                     # Render charts from stored series_data
                     if msg.get("series_data"):
