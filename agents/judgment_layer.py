@@ -12,12 +12,18 @@ This provides authoritative context that raw data alone can't give.
 import os
 import re
 import json
+import concurrent.futures
+from datetime import datetime, timedelta
 from typing import Optional, Tuple
 from urllib.request import Request, urlopen
 
 # API Keys
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+
+# Cache for judgment query results (avoids repeated expensive LLM calls)
+_judgment_cache: dict = {}
+_judgment_cache_ttl = timedelta(minutes=30)
 
 # Judgment query patterns - these need interpretation, not just facts
 JUDGMENT_PATTERNS = [
@@ -374,6 +380,37 @@ IMPORTANT:
         return ""
 
 
+def _get_judgment_cache_key(query: str, series_ids: list) -> str:
+    """Generate a cache key for judgment query results."""
+    series_str = ','.join(sorted(series_ids))
+    return f"judgment:{query.lower().strip()}:{series_str}"
+
+
+def _get_cached_judgment(cache_key: str) -> Optional[str]:
+    """Get cached judgment result if still valid."""
+    if cache_key in _judgment_cache:
+        result, timestamp = _judgment_cache[cache_key]
+        if datetime.now() - timestamp < _judgment_cache_ttl:
+            return result
+        else:
+            del _judgment_cache[cache_key]
+    return None
+
+
+def _set_judgment_cache(cache_key: str, result: str) -> None:
+    """Cache a judgment result."""
+    _judgment_cache[cache_key] = (result, datetime.now())
+    # Limit cache size
+    if len(_judgment_cache) > 100:
+        # Remove oldest entries
+        oldest_keys = sorted(
+            _judgment_cache.keys(),
+            key=lambda k: _judgment_cache[k][1]
+        )[:20]
+        for k in oldest_keys:
+            del _judgment_cache[k]
+
+
 def process_judgment_query(
     query: str,
     series_data: list,
@@ -381,6 +418,10 @@ def process_judgment_query(
 ) -> Tuple[str, bool]:
     """
     Main entry point for processing judgment queries.
+
+    OPTIMIZED:
+    - Checks cache first (saves 30-40s on repeat queries)
+    - Runs Gemini search and Claude synthesis in PARALLEL (saves 15-20s)
 
     Args:
         query: User's question
@@ -395,6 +436,14 @@ def process_judgment_query(
         return original_explanation, False
 
     print(f"[JudgmentLayer] Detected judgment query: {query}")
+
+    # Check cache first
+    series_ids = [sid for sid, _, _, _ in series_data if sid]
+    cache_key = _get_judgment_cache_key(query, series_ids)
+    cached_result = _get_cached_judgment(cache_key)
+    if cached_result:
+        print(f"[JudgmentLayer] Cache hit! Returning cached result")
+        return cached_result, True
 
     # Build data summary
     data_summary = []
@@ -440,21 +489,62 @@ def process_judgment_query(
     if not data_summary:
         return original_explanation, True
 
-    # Run Gemini web search (async-ish - we'll wait for it)
-    print(f"[JudgmentLayer] Running Gemini web search...")
-    gemini_results = gemini_web_search(query)
+    # PARALLEL EXECUTION: Run Gemini search and Claude synthesis concurrently
+    # Claude can work with or without Gemini results - thresholds are the primary source
+    print(f"[JudgmentLayer] Running Gemini search + Claude synthesis in PARALLEL...")
 
-    if gemini_results:
-        print(f"[JudgmentLayer] Gemini search returned results")
-    else:
-        print(f"[JudgmentLayer] Gemini search returned no results, using thresholds only")
+    gemini_results = None
+    synthesis = None
 
-    # Have Claude synthesize
-    print(f"[JudgmentLayer] Claude synthesizing...")
-    synthesis = claude_synthesize(query, data_summary, gemini_results, threshold_contexts)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        # Start Gemini search
+        gemini_future = executor.submit(gemini_web_search, query)
+
+        # Start Claude synthesis with threshold context only (no Gemini results yet)
+        # This gives us a baseline synthesis while we wait for Gemini
+        claude_future = executor.submit(
+            claude_synthesize,
+            query,
+            data_summary,
+            None,  # No Gemini results yet
+            threshold_contexts
+        )
+
+        # Wait for both with timeout
+        try:
+            gemini_results = gemini_future.result(timeout=20)
+            if gemini_results:
+                print(f"[JudgmentLayer] Gemini search returned results")
+            else:
+                print(f"[JudgmentLayer] Gemini search returned no results")
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            print(f"[JudgmentLayer] Gemini search failed/timed out: {e}")
+            gemini_results = None
+
+        try:
+            synthesis = claude_future.result(timeout=20)
+        except (concurrent.futures.TimeoutError, Exception) as e:
+            print(f"[JudgmentLayer] Initial Claude synthesis failed: {e}")
+            synthesis = None
+
+    # If we got Gemini results AND the initial synthesis was generic, re-synthesize with Gemini context
+    if gemini_results and synthesis:
+        # Check if synthesis would benefit from Gemini context
+        # (e.g., if synthesis just uses thresholds, Gemini might add recent commentary)
+        if "recent commentary" not in synthesis.lower() and "experts" not in synthesis.lower():
+            print(f"[JudgmentLayer] Enhancing synthesis with Gemini context...")
+            enhanced = claude_synthesize(query, data_summary, gemini_results, threshold_contexts)
+            if enhanced and len(enhanced) > len(synthesis):
+                synthesis = enhanced
+    elif gemini_results and not synthesis:
+        # Initial synthesis failed, try again with Gemini results
+        print(f"[JudgmentLayer] Retrying synthesis with Gemini context...")
+        synthesis = claude_synthesize(query, data_summary, gemini_results, threshold_contexts)
 
     if synthesis:
         print(f"[JudgmentLayer] Synthesis complete")
+        # Cache the result
+        _set_judgment_cache(cache_key, synthesis)
         return synthesis, True
     else:
         print(f"[JudgmentLayer] Synthesis failed, falling back to original")

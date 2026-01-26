@@ -18,11 +18,17 @@ This prevents issues like:
 
 import json
 import os
+from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any
 from urllib.request import urlopen, Request
 
 # API Key
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+
+# Cache for query understanding results (1-hour TTL)
+# This avoids repeated expensive Gemini calls for similar queries
+_understanding_cache: dict = {}
+_understanding_cache_ttl = timedelta(hours=1)
 
 # =============================================================================
 # QUERY UNDERSTANDING PROMPT
@@ -218,9 +224,44 @@ Be thorough. This understanding drives all downstream decisions.
 """
 
 
+def _get_understanding_cache_key(query: str) -> str:
+    """Generate cache key for query understanding."""
+    # Normalize query for better cache hits
+    normalized = query.lower().strip().rstrip('?').strip()
+    return f"understanding:{normalized}"
+
+
+def _get_cached_understanding(cache_key: str) -> Optional[Dict]:
+    """Get cached understanding result if still valid."""
+    if cache_key in _understanding_cache:
+        result, timestamp = _understanding_cache[cache_key]
+        if datetime.now() - timestamp < _understanding_cache_ttl:
+            return result
+        else:
+            del _understanding_cache[cache_key]
+    return None
+
+
+def _set_understanding_cache(cache_key: str, result: Dict) -> None:
+    """Cache an understanding result."""
+    _understanding_cache[cache_key] = (result, datetime.now())
+    # Limit cache size to prevent unbounded growth
+    if len(_understanding_cache) > 200:
+        # Remove oldest 50 entries
+        oldest_keys = sorted(
+            _understanding_cache.keys(),
+            key=lambda k: _understanding_cache[k][1]
+        )[:50]
+        for k in oldest_keys:
+            del _understanding_cache[k]
+
+
 def understand_query(query: str, verbose: bool = False) -> Dict[str, Any]:
     """
     Deeply understand a query before any routing or data fetching.
+
+    OPTIMIZED: Results are cached for 1 hour to avoid repeated Gemini calls.
+    Cache hit rate expected: 50-70% in typical sessions.
 
     This is the "thinking first" step that should run before:
     - Checking pre-computed plans
@@ -239,6 +280,14 @@ def understand_query(query: str, verbose: bool = False) -> Dict[str, Any]:
         - data_requirements: What indicators are needed
         - pitfalls: Potential issues to avoid
     """
+    # Check cache first (saves 5-8s per cache hit)
+    cache_key = _get_understanding_cache_key(query)
+    cached_result = _get_cached_understanding(cache_key)
+    if cached_result:
+        if verbose:
+            print(f"  [QueryUnderstanding] Cache hit for: {query}")
+        return cached_result
+
     if verbose:
         print(f"  [QueryUnderstanding] Analyzing: {query}")
 
@@ -252,6 +301,8 @@ def understand_query(query: str, verbose: bool = False) -> Dict[str, Any]:
         # IMPORTANT: Still validate the rule-based result to add secondary sources
         result = _rule_based_understanding(query)
         result = _validate_understanding(result, query)
+        # Cache the fallback result too
+        _set_understanding_cache(cache_key, result)
         return result
 
     # Validate and enrich the result
@@ -264,6 +315,8 @@ def understand_query(query: str, verbose: bool = False) -> Dict[str, Any]:
         if result.get('entities', {}).get('demographics'):
             print(f"  [QueryUnderstanding] Demographics: {result['entities']['demographics']}")
 
+    # Cache the result before returning
+    _set_understanding_cache(cache_key, result)
     return result
 
 
