@@ -84,3 +84,74 @@ from .indicator_context import (
     HOUSING_SERIES,
     MARKET_SERIES,
 )
+
+from .causal_reasoning import (
+    # Hedging phrase dictionaries
+    HEDGING_PHRASES,
+    UNCERTAINTY_PHRASES,
+    OVERCONFIDENT_PHRASES,
+    FORWARD_LOOKING_REPLACEMENTS,
+    # Core functions
+    hedge_causal_claim,
+    get_hedging_phrase,
+    get_uncertainty_phrase,
+    transform_overconfident_language,
+    # Narrative builders
+    build_causal_narrative,
+    describe_transmission_mechanism,
+    # Confidence helpers
+    get_confidence_for_claim,
+)
+
+from .historical_context import (
+    # Data classes
+    HistoricalContext,
+    SeriesBenchmark,
+    # Pre-computed benchmarks database
+    HISTORICAL_BENCHMARKS,
+    # Core functions - aliased to avoid conflict with indicator_context version
+    get_historical_context as get_historical_context_detailed,
+    describe_historical_context,
+    find_similar_periods,
+    compare_to_benchmark,
+    # Utility functions
+    get_benchmark,
+    list_available_benchmarks,
+    get_context_summary,
+)
+
+from .citations import (
+    # Data classes
+    Citation,
+    ExpertView,
+    TopicViews,
+    # Expert views database
+    EXPERT_VIEWS,
+    # Source tier utilities
+    get_source_tier,
+    get_tier_label,
+    ALL_SOURCE_TIERS,
+    # Claim detection
+    should_cite,
+    detect_claim_type,
+    # Expert view retrieval
+    get_expert_views,
+    get_topic_consensus,
+    get_topic_disagreement,
+    list_available_topics,
+    find_topic_for_query,
+    # Formatting functions
+    format_with_attribution,
+    format_competing_views,
+    format_single_view,
+    format_citation_footer,
+    format_inline_citation,
+    # Analysis enhancement
+    add_citations_to_analysis,
+    # Convenience functions
+    get_view_for_topic_and_source,
+    get_official_view,
+    get_wall_street_consensus,
+    # Fresh view fetching
+    fetch_fresh_views,
+)

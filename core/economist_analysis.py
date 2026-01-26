@@ -25,6 +25,63 @@ from typing import Dict, List, Optional, Tuple, Any
 from urllib.request import urlopen, Request
 
 
+# =============================================================================
+# OPTIONAL MODULE IMPORTS
+# These modules enhance fallback analysis but are not required
+# =============================================================================
+
+# Data narrator - provides contextual value descriptions
+try:
+    from core.data_narrator import (
+        build_narrative as build_data_narrative,
+        describe_value_with_context,
+        BENCHMARKS as DATA_BENCHMARKS,
+    )
+    HAS_DATA_NARRATOR = True
+except ImportError:
+    HAS_DATA_NARRATOR = False
+
+# Causal reasoning - provides WHY explanations
+try:
+    from core.causal_reasoning import (
+        build_causal_narrative,
+        hedge_causal_claim,
+        get_hedging_phrase,
+    )
+    HAS_CAUSAL_REASONING = True
+except ImportError:
+    HAS_CAUSAL_REASONING = False
+
+# Historical context - provides benchmark comparisons
+try:
+    from core.historical_context import (
+        get_historical_context,
+        describe_historical_context,
+        HISTORICAL_BENCHMARKS,
+    )
+    HAS_HISTORICAL_CONTEXT = True
+except ImportError:
+    HAS_HISTORICAL_CONTEXT = False
+
+# Narrative templates - provides query-type-specific structure
+try:
+    from core.narrative_templates import (
+        generate_narrative as generate_template_narrative,
+        select_template,
+        NARRATIVE_TEMPLATES,
+    )
+    HAS_NARRATIVE_TEMPLATES = True
+except ImportError:
+    HAS_NARRATIVE_TEMPLATES = False
+
+# Analysis gaps - provides query type detection
+try:
+    from core.analysis_gaps import detect_query_type
+    HAS_ANALYSIS_GAPS = True
+except ImportError:
+    HAS_ANALYSIS_GAPS = False
+
+
 # API Keys
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
@@ -686,6 +743,7 @@ def generate_economist_analysis(
         data_context=data_context,
         applicable_rules=applicable_rules,
         news_context=news_context,
+        series_data=series_data,
     )
 
     return analysis
@@ -774,6 +832,7 @@ def _call_llm_for_analysis(
     data_context: Dict[str, Any],
     applicable_rules: List[Dict[str, str]],
     news_context: str = "",
+    series_data: List[Tuple] = None,
 ) -> EconomistAnalysis:
     """
     Call Claude to generate the economist analysis.
@@ -784,12 +843,19 @@ def _call_llm_for_analysis(
         data_context: Extracted economic metrics
         applicable_rules: Economic reasoning rules that apply
         news_context: Recent news if available
+        series_data: Raw series data for enhanced fallback analysis
 
     Returns:
         EconomistAnalysis dataclass
     """
     if not ANTHROPIC_API_KEY:
-        return _generate_fallback_analysis(data_summary, data_context, applicable_rules)
+        return _generate_fallback_analysis(
+            query=query,
+            data_summary=data_summary,
+            data_context=data_context,
+            applicable_rules=applicable_rules,
+            series_data=series_data or [],
+        )
 
     # Build the rules context
     rules_text = ""
@@ -891,7 +957,13 @@ Return ONLY valid JSON, no markdown or explanation."""
     except Exception as e:
         print(f"[EconomistAnalysis] LLM error: {e}")
 
-    return _generate_fallback_analysis(data_summary, data_context, applicable_rules)
+    return _generate_fallback_analysis(
+        query=query,
+        data_summary=data_summary,
+        data_context=data_context,
+        applicable_rules=applicable_rules,
+        series_data=series_data or [],
+    )
 
 
 def _extract_json(text: str) -> Optional[Dict]:
@@ -914,68 +986,408 @@ def _extract_json(text: str) -> Optional[Dict]:
 
 
 def _generate_fallback_analysis(
-    data_summary: List[Dict],
-    data_context: Dict[str, Any],
-    applicable_rules: List[Dict[str, str]]
+    query: str = "",
+    data_summary: List[Dict] = None,
+    data_context: Dict[str, Any] = None,
+    applicable_rules: List[Dict[str, str]] = None,
+    series_data: List[Tuple] = None,
 ) -> EconomistAnalysis:
     """
-    Generate a basic analysis when LLM is unavailable.
+    Generate enhanced analysis when LLM is unavailable.
 
-    This function handles both general economic snapshots and comparison queries
-    (when exactly 2 series are present). For comparisons, it generates specific
-    narratives about the gap between the two series.
+    This function integrates multiple analysis modules to produce high-quality
+    output even without an LLM:
+    - data_narrator: Provides contextual value descriptions with benchmarks
+    - causal_reasoning: Explains WHY things are happening
+    - historical_context: Compares to pre-pandemic, long-term averages, etc.
+    - narrative_templates: Structures responses for different query types
 
     Args:
+        query: The user's original question
         data_summary: Summarized data points
         data_context: Extracted economic metrics
         applicable_rules: Economic reasoning rules that apply
+        series_data: Raw series data for detailed context
 
     Returns:
-        EconomistAnalysis with basic rule-based content
+        EconomistAnalysis with rich, contextual content
     """
+    data_summary = data_summary or []
+    data_context = data_context or {}
+    applicable_rules = applicable_rules or []
+    series_data = series_data or []
+
     # Check if this is a comparison query (exactly 2 series)
     is_comparison = 'comparison_gap' in data_context
 
     if is_comparison:
-        # Generate comparison-specific analysis
+        # Generate comparison-specific analysis (use existing specialized function)
         return _generate_comparison_fallback(data_summary, data_context, applicable_rules)
 
-    # Build headline from data (non-comparison case)
+    # =========================================================================
+    # STEP 1: Detect query type for appropriate narrative structure
+    # =========================================================================
+    query_type = 'general'
+    series_ids = [s[0] for s in series_data] if series_data else []
+
+    if HAS_ANALYSIS_GAPS:
+        query_type = detect_query_type(query, series_ids)
+
+    # =========================================================================
+    # STEP 2: Build series_dict for data narrator (series_id -> data dict)
+    # =========================================================================
+    series_dict = {}
+    for item in series_data:
+        if len(item) >= 4:
+            series_id, dates, values, info = item[0], item[1], item[2], item[3]
+            if values:
+                series_dict[series_id] = {
+                    'values': values,
+                    'dates': dates,
+                    'info': info,
+                }
+
+    # =========================================================================
+    # STEP 3: Get historical context for each series
+    # =========================================================================
+    historical_contexts = {}
+    historical_descriptions = []
+
+    if HAS_HISTORICAL_CONTEXT:
+        for series_id, data in series_dict.items():
+            if data.get('values'):
+                current_value = data['values'][-1]
+                ctx = get_historical_context(series_id, current_value)
+                historical_contexts[series_id] = ctx
+
+                # Generate prose description
+                info = data.get('info', {})
+                series_name = info.get('name', info.get('title', series_id))
+                description = describe_historical_context(ctx, series_name)
+                if description:
+                    historical_descriptions.append(description)
+
+    # =========================================================================
+    # STEP 4: Generate data-driven insights using narrator
+    # =========================================================================
+    data_insights = []
+
+    if HAS_DATA_NARRATOR:
+        for series_id, data in series_dict.items():
+            if data.get('values'):
+                current_value = data['values'][-1]
+                insight = describe_value_with_context(
+                    series_id, current_value, data, include_trend=True
+                )
+                if insight:
+                    data_insights.append(insight)
+
+    # =========================================================================
+    # STEP 5: Build rich headline with context
+    # =========================================================================
     headline_parts = []
+    headline_context_parts = []
 
     if 'unemployment' in data_context:
-        headline_parts.append(f"unemployment at {data_context['unemployment']:.1f}%")
+        unemp = data_context['unemployment']
+        headline_parts.append(f"unemployment at {unemp:.1f}%")
+
+        # Add context if available
+        if HAS_HISTORICAL_CONTEXT and 'UNRATE' in historical_contexts:
+            ctx = historical_contexts['UNRATE']
+            if ctx.pre_pandemic and ctx.pre_pandemic_change:
+                headline_context_parts.append(
+                    f"{ctx.pre_pandemic_change} from the pre-pandemic {ctx.pre_pandemic:.1f}%"
+                )
 
     if 'core_inflation' in data_context:
-        headline_parts.append(f"core inflation at {data_context['core_inflation']:.1f}%")
+        inflation = data_context['core_inflation']
+        headline_parts.append(f"core inflation at {inflation:.1f}%")
+
+        # Add Fed target context
+        if inflation > 2.5:
+            headline_context_parts.append("still above the Fed's 2% target")
+        elif inflation <= 2.2:
+            headline_context_parts.append("near the Fed's 2% target")
 
     if 'gdp_growth' in data_context:
-        headline_parts.append(f"GDP growing {data_context['gdp_growth']:.1f}%")
+        gdp = data_context['gdp_growth']
+        headline_parts.append(f"GDP growing {gdp:.1f}%")
 
-    headline = f"Economic snapshot: {', '.join(headline_parts)}." if headline_parts else "Economic data overview."
+        # Add trend context
+        if gdp > 2.5:
+            headline_context_parts.append("above trend growth")
+        elif gdp < 1.0:
+            headline_context_parts.append("below trend, suggesting slowdown")
 
-    # Build narrative from applicable rules
+    # Build the headline
+    if headline_parts:
+        headline = f"Economic snapshot: {', '.join(headline_parts)}"
+        if headline_context_parts:
+            headline += f" - {headline_context_parts[0]}"
+        headline += "."
+    else:
+        headline = "Economic data overview."
+
+    # =========================================================================
+    # STEP 6: Build narrative with causal reasoning
+    # =========================================================================
     narrative = []
-    for rule in applicable_rules[:4]:  # Max 4 bullets
-        narrative.append(f"{rule['interpretation'].capitalize()}. {rule['implication'].capitalize()}.")
 
+    # First, add data insights (from narrator)
+    for insight in data_insights[:2]:  # Max 2 data insights
+        # Truncate if too long
+        if len(insight) > 200:
+            insight = insight[:197] + "..."
+        narrative.append(insight)
+
+    # Add causal explanations for applicable rules
+    for rule in applicable_rules[:2]:  # Max 2 rules
+        interpretation = rule['interpretation']
+        implication = rule['implication']
+
+        # Build the rule text - hedging is already applied in the rule definitions
+        # so we just need to format it properly
+        rule_text = f"{interpretation.capitalize()}. {implication.capitalize()}."
+        narrative.append(rule_text)
+
+    # Add historical context summary if we have it
+    if historical_descriptions and len(narrative) < 4:
+        # Find the most informative historical description
+        for desc in historical_descriptions[:1]:
+            if len(desc) > 50 and desc not in ' '.join(narrative):
+                # Truncate if needed
+                if len(desc) > 180:
+                    desc = desc[:177] + "..."
+                narrative.append(desc)
+
+    # Ensure we have at least one narrative point
     if not narrative:
-        narrative = ["Data shows mixed signals across economic indicators."]
+        narrative = ["Economic data shows mixed signals across key indicators."]
 
-    # Build basic risks and opportunities
-    risks = ["Policy uncertainty remains elevated.", "Global economic conditions could shift."]
-    opportunities = ["Economic resilience creates opportunities for growth.", "Data transparency supports informed decision-making."]
-    watch_items = ["Federal Reserve policy decisions", "Upcoming employment and inflation reports"]
+    # =========================================================================
+    # STEP 7: Generate key insight based on query type and data
+    # =========================================================================
+    key_insight = _generate_key_insight(query_type, data_context, applicable_rules)
+
+    # =========================================================================
+    # STEP 8: Generate risks and opportunities based on data
+    # =========================================================================
+    risks = _generate_risks(data_context, applicable_rules)
+    opportunities = _generate_opportunities(data_context, applicable_rules)
+    watch_items = _generate_watch_items(query_type, data_context)
+
+    # =========================================================================
+    # STEP 9: Determine confidence level
+    # =========================================================================
+    confidence = "medium"  # Enhanced fallback gets medium confidence
+
+    # Lower confidence if we're missing key modules
+    if not (HAS_HISTORICAL_CONTEXT and HAS_DATA_NARRATOR):
+        confidence = "low"
+
+    # Higher confidence if we have multiple data points and rules
+    if len(series_data) >= 3 and len(applicable_rules) >= 2:
+        confidence = "medium"
 
     return EconomistAnalysis(
         headline=headline,
-        narrative=narrative,
-        key_insight="Monitor incoming data closely as economic conditions evolve.",
-        risks=risks,
-        opportunities=opportunities,
-        watch_items=watch_items,
-        confidence="low",  # Lower confidence for fallback analysis
+        narrative=narrative[:5],  # Cap at 5 bullets
+        key_insight=key_insight,
+        risks=risks[:2],
+        opportunities=opportunities[:2],
+        watch_items=watch_items[:3],
+        confidence=confidence,
     )
+
+
+def _generate_key_insight(
+    query_type: str,
+    data_context: Dict[str, Any],
+    applicable_rules: List[Dict[str, str]]
+) -> str:
+    """
+    Generate the key insight based on query type and data.
+
+    The key insight is the single most important takeaway - what a CEO
+    or policymaker would want to know from this data.
+    """
+    # Labor market insights
+    if query_type == 'labor_market' or 'unemployment' in data_context:
+        unemp = data_context.get('unemployment', 0)
+        if unemp < 4.0:
+            return "Labor market remains historically tight, supporting wage growth but adding to inflation pressures."
+        elif unemp < 4.5:
+            return "Labor market cooling gradually - consistent with the Fed's desired soft landing scenario."
+        elif unemp < 5.5:
+            return "Labor market showing meaningful slack, which should help ease inflation but raises recession concerns."
+        else:
+            return "Labor market weakness signals potential recession - Fed may need to pivot toward easing."
+
+    # Inflation insights
+    if query_type == 'inflation' or 'core_inflation' in data_context:
+        inflation = data_context.get('core_inflation', 0)
+        if inflation < 2.3:
+            return "Inflation near target gives the Fed flexibility to focus on growth and employment."
+        elif inflation < 3.0:
+            return "Inflation making progress but not yet at target - Fed likely to remain patient before cutting."
+        elif inflation < 4.0:
+            return "Inflation remains elevated, suggesting restrictive policy will persist longer."
+        else:
+            return "Sticky inflation remains the primary economic concern - policy will stay tight."
+
+    # GDP/growth insights
+    if query_type == 'gdp' or 'gdp_growth' in data_context:
+        gdp = data_context.get('gdp_growth', 0)
+        if gdp > 3.0:
+            return "Strong growth reduces recession risk but may complicate the inflation fight."
+        elif gdp > 2.0:
+            return "Economy expanding at a healthy pace - soft landing remains achievable."
+        elif gdp > 0:
+            return "Growth slowing but positive - watch for signs of further deceleration."
+        else:
+            return "Economic contraction signals recession - policy response may be needed."
+
+    # Fed policy insights
+    if query_type == 'fed_policy' or 'fed_rate' in data_context:
+        fed_rate = data_context.get('fed_rate', 0)
+        inflation = data_context.get('core_inflation', 2.5)
+        real_rate = fed_rate - inflation if fed_rate and inflation else 0
+        if real_rate > 2.0:
+            return f"With real rates at {real_rate:.1f}%, policy is significantly restrictive - economic cooling expected."
+        elif real_rate > 0.5:
+            return f"Moderately restrictive policy at {real_rate:.1f}% real rates should gradually cool the economy."
+        else:
+            return "Despite higher nominal rates, real rates suggest policy is not very restrictive."
+
+    # Recession insights
+    if query_type == 'recession':
+        sahm = data_context.get('sahm_indicator', 0)
+        yield_curve = data_context.get('t10y2y', 0)
+        if sahm >= 0.5:
+            return "Sahm Rule triggered - historically a reliable real-time recession indicator."
+        elif yield_curve < -0.5:
+            return "Deep yield curve inversion signals elevated recession risk 12-18 months ahead."
+        else:
+            return "Classic recession indicators are mixed - soft landing still possible but risks remain."
+
+    # Default insight based on rules
+    if applicable_rules:
+        return applicable_rules[0]['implication'].capitalize() + "."
+
+    return "Monitor incoming data closely as economic conditions evolve."
+
+
+def _generate_risks(
+    data_context: Dict[str, Any],
+    applicable_rules: List[Dict[str, str]]
+) -> List[str]:
+    """Generate contextual risk statements based on the data."""
+    risks = []
+
+    # Inflation risks
+    if data_context.get('core_inflation', 0) > 2.5:
+        risks.append("Sticky inflation could keep policy restrictive longer than expected.")
+
+    # Labor market risks
+    if data_context.get('unemployment', 0) > 4.5:
+        risks.append("Rising unemployment could accelerate, tipping the economy into recession.")
+    elif data_context.get('unemployment', 0) < 4.0:
+        risks.append("Tight labor market could fuel wage-price spiral, complicating the Fed's task.")
+
+    # Yield curve risks
+    if data_context.get('t10y2y', 1) < 0:
+        risks.append("Inverted yield curve historically precedes recessions by 12-18 months.")
+
+    # GDP risks
+    if data_context.get('gdp_growth', 2) < 1.5:
+        risks.append("Below-trend growth raises recession probability.")
+
+    # Default risks
+    if not risks:
+        risks = [
+            "Policy uncertainty could affect economic outlook.",
+            "Global economic conditions remain a source of risk.",
+        ]
+
+    return risks
+
+
+def _generate_opportunities(
+    data_context: Dict[str, Any],
+    applicable_rules: List[Dict[str, str]]
+) -> List[str]:
+    """Generate contextual opportunity statements based on the data."""
+    opportunities = []
+
+    # Inflation progress
+    if data_context.get('core_inflation', 5) < 3.0:
+        opportunities.append("Progress on inflation opens the door for eventual policy easing.")
+
+    # Strong labor market
+    if data_context.get('unemployment', 6) < 4.5:
+        opportunities.append("Solid job market supports consumer spending and economic resilience.")
+
+    # GDP strength
+    if data_context.get('gdp_growth', 0) > 2.0:
+        opportunities.append("Above-trend growth suggests economy can weather restrictive policy.")
+
+    # Soft landing
+    if any('soft landing' in str(r.get('interpretation', '')).lower() for r in applicable_rules):
+        opportunities.append("Soft landing scenario remains achievable based on current data.")
+
+    # Default opportunities
+    if not opportunities:
+        opportunities = [
+            "Economic resilience creates opportunities for sustained expansion.",
+            "Data transparency enables better-informed decision-making.",
+        ]
+
+    return opportunities
+
+
+def _generate_watch_items(query_type: str, data_context: Dict[str, Any]) -> List[str]:
+    """Generate contextual watch items based on query type."""
+    watch_items = []
+
+    if query_type == 'labor_market':
+        watch_items = [
+            "Monthly payroll gains and initial jobless claims",
+            "Wage growth vs productivity trends",
+            "Labor force participation, especially prime-age workers",
+        ]
+    elif query_type == 'inflation':
+        watch_items = [
+            "Core PCE inflation (Fed's preferred measure)",
+            "Shelter and services inflation stickiness",
+            "Wage growth relative to productivity",
+        ]
+    elif query_type == 'fed_policy':
+        watch_items = [
+            "FOMC statements and dot plot projections",
+            "Inflation data releases (CPI, PCE)",
+            "Employment reports for signs of labor market cooling",
+        ]
+    elif query_type == 'recession':
+        watch_items = [
+            "Sahm Rule indicator (triggered at 0.5)",
+            "Initial jobless claims trend",
+            "Yield curve normalization vs further inversion",
+        ]
+    elif query_type == 'gdp':
+        watch_items = [
+            "Consumer spending and retail sales",
+            "Business investment trends",
+            "Trade balance and inventory changes",
+        ]
+    else:
+        watch_items = [
+            "Federal Reserve policy decisions",
+            "Employment and inflation data releases",
+            "Consumer spending and confidence indicators",
+        ]
+
+    return watch_items
 
 
 def _generate_comparison_fallback(
@@ -1377,7 +1789,7 @@ if __name__ == "__main__":
     assert any(r['rule'] == 'unemployment_disparity' for r in rules_unemp), "unemployment_disparity rule should trigger"
 
     # Test fallback analysis for this comparison
-    analysis_unemp = _generate_fallback_analysis([], context_unemp, rules_unemp)
+    analysis_unemp = _generate_fallback_analysis(data_summary=[], data_context=context_unemp, applicable_rules=rules_unemp)
     print(f"\nHeadline: {analysis_unemp.headline}")
     print(f"Key insight: {analysis_unemp.key_insight}")
     assert 'percentage point' in analysis_unemp.headline.lower(), "Headline should mention percentage points"
@@ -1409,7 +1821,7 @@ if __name__ == "__main__":
     assert any(r['rule'] == 'real_wage_erosion' for r in rules_wages), "real_wage_erosion rule should trigger"
 
     # Test fallback analysis
-    analysis_wages = _generate_fallback_analysis([], context_wages, rules_wages)
+    analysis_wages = _generate_fallback_analysis(data_summary=[], data_context=context_wages, applicable_rules=rules_wages)
     print(f"\nHeadline: {analysis_wages.headline}")
     print(f"Key insight: {analysis_wages.key_insight}")
     assert 'trailing' in analysis_wages.headline.lower() or 'fell' in analysis_wages.headline.lower() or 'declined' in analysis_wages.headline.lower(), "Headline should indicate wage erosion"
@@ -1436,7 +1848,7 @@ if __name__ == "__main__":
     print(f"Applicable rules: {[r['rule'] for r in rules_gains]}")
     assert any(r['rule'] == 'real_wage_gains' for r in rules_gains), "real_wage_gains rule should trigger"
 
-    analysis_gains = _generate_fallback_analysis([], context_gains, rules_gains)
+    analysis_gains = _generate_fallback_analysis(data_summary=[], data_context=context_gains, applicable_rules=rules_gains)
     print(f"\nHeadline: {analysis_gains.headline}")
     assert 'outpacing' in analysis_gains.headline.lower() or 'gains' in analysis_gains.headline.lower(), "Headline should indicate wage gains"
 
@@ -1451,7 +1863,7 @@ if __name__ == "__main__":
     print(f"  Comparison gap: {context_generic.get('comparison_gap', 'N/A'):.2f}")
     print(f"  Comparison ratio: {context_generic.get('comparison_ratio', 'N/A'):.2f}")
 
-    analysis_generic = _generate_fallback_analysis([], context_generic, [])
+    analysis_generic = _generate_fallback_analysis(data_summary=[], data_context=context_generic, applicable_rules=[])
     print(f"\nHeadline: {analysis_generic.headline}")
     assert 'Custom Indicator' in analysis_generic.headline, "Headline should use series names"
 
