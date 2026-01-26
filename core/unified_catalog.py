@@ -347,6 +347,15 @@ def _build_fred_entries() -> Dict[str, CatalogEntry]:
 def _build_zillow_entries() -> Dict[str, CatalogEntry]:
     """
     Build catalog entries from Zillow series catalog.
+
+    Handles various Zillow series types:
+    - National home values (ZHVI): prices
+    - National rents (ZORI): rent
+    - Regional home values/rents: regional_prices, regional_rent
+    - Market metrics (inventory, days on market, etc.): inventory, market_speed, pricing
+    - Property type splits (single family, condo): property_types
+    - Price tiers (top/bottom tier): price_tiers
+    - Affordability metrics: affordability
     """
     try:
         from agents.zillow import ZILLOW_SERIES
@@ -363,26 +372,71 @@ def _build_zillow_entries() -> Dict[str, CatalogEntry]:
         keywords = info.get("keywords", [])
         change_type = info.get("change_type", "level")
         measure_type = info.get("measure_type", "nominal")
+        geography = info.get("geography", "national")
 
-        # Determine category and subcategory
-        if "rent" in name.lower() or "zori" in series_id.lower():
-            category = "housing"
-            subcategory = "rent"
-        elif "home value" in name.lower() or "zhvi" in series_id.lower():
-            category = "housing"
-            subcategory = "prices"
+        # Determine category and subcategory based on series characteristics
+        name_lower = name.lower()
+        series_id_lower = series_id.lower()
+
+        # All Zillow series are housing category
+        category = "housing"
+
+        # Determine subcategory based on series type
+        if "inventory" in series_id_lower or "inventory" in name_lower:
+            subcategory = "inventory"
+        elif "new_listings" in series_id_lower or "new listings" in name_lower:
+            subcategory = "inventory"
+        elif "days_to_pending" in series_id_lower or "days to pending" in name_lower or "days on market" in name_lower:
+            subcategory = "market_speed"
+        elif "sale_to_list" in series_id_lower or "sale-to-list" in name_lower:
+            subcategory = "pricing"
+        elif "list_price" in series_id_lower or "list price" in name_lower:
+            subcategory = "pricing"
+        elif "sale_price" in series_id_lower or "sale price" in name_lower:
+            subcategory = "pricing"
+        elif "price_to_rent" in series_id_lower or "price-to-rent" in name_lower:
+            subcategory = "affordability"
+        elif "per_sqft" in series_id_lower or "per square foot" in name_lower:
+            subcategory = "pricing"
+        elif "top_tier" in series_id_lower or "top tier" in name_lower:
+            subcategory = "price_tiers"
+        elif "bottom_tier" in series_id_lower or "bottom tier" in name_lower:
+            subcategory = "price_tiers"
+        elif "_sfr" in series_id_lower or "single family" in name_lower:
+            subcategory = "single_family"
+        elif "_condo" in series_id_lower or "condo" in name_lower:
+            subcategory = "condo"
+        elif "zori" in series_id_lower or "rent" in name_lower:
+            # Regional vs national rent
+            if geography == "metro":
+                subcategory = "regional_rent"
+            else:
+                subcategory = "rent"
+        elif "zhvi" in series_id_lower or "home value" in name_lower:
+            # Regional vs national home values
+            if geography == "metro":
+                subcategory = "regional_prices"
+            else:
+                subcategory = "prices"
         else:
-            category = "housing"
             subcategory = "general"
 
         # Determine display_as
-        if "yoy" in series_id or change_type == "yoy":
+        if "yoy" in series_id_lower or change_type == "yoy":
             display_as = "yoy_pct"
+        elif "ratio" in unit or "percent" in unit:
+            display_as = "rate"
         else:
             display_as = "level"
 
-        # Enhance description for semantic search
-        enhanced_desc = f"{description} This is a {frequency} housing market indicator from Zillow Research, tracking actual market {subcategory}. More timely than CPI shelter measures."
+        # Enhance description for semantic search with geography context
+        if geography == "metro":
+            region_filter = info.get("region_filter", "")
+            geo_context = f"Metro-level data for {region_filter}."
+        else:
+            geo_context = "National-level data."
+
+        enhanced_desc = f"{description} {geo_context} This is a {frequency} housing market indicator from Zillow Research, tracking actual market conditions. More timely than CPI shelter measures."
 
         entries[series_id] = CatalogEntry(
             id=series_id,
@@ -423,20 +477,48 @@ def _build_eia_entries() -> Dict[str, CatalogEntry]:
         measure_type = info.get("measure_type", "nominal")
         fred_equivalent = info.get("fred_equivalent")
 
-        # Determine subcategory
+        # Determine subcategory based on name and keywords
         name_lower = name.lower()
-        if "crude" in name_lower or "oil" in name_lower:
-            subcategory = "oil"
-        elif "gasoline" in name_lower or "gas" in name_lower:
-            subcategory = "gasoline"
-        elif "natural gas" in name_lower:
+        keywords_str = ' '.join(keywords).lower()
+        combined = f"{name_lower} {keywords_str}"
+
+        # Check specific categories first (order matters - more specific before general)
+        if "natural gas" in name_lower or "lng" in name_lower or "henry hub" in name_lower:
             subcategory = "natural_gas"
-        elif "electricity" in name_lower:
+        elif "coal" in name_lower:
+            subcategory = "coal"
+        elif "nuclear" in name_lower:
+            subcategory = "nuclear"
+        elif "solar" in name_lower or "photovoltaic" in combined:
+            subcategory = "solar"
+        elif "wind" in name_lower or "turbine" in combined:
+            subcategory = "wind"
+        elif "hydro" in name_lower or "hydroelectric" in name_lower:
+            subcategory = "hydro"
+        elif "ethanol" in name_lower or "biofuel" in combined:
+            subcategory = "biofuels"
+        elif "electricity" in name_lower or "generation" in name_lower:
             subcategory = "electricity"
-        elif "stock" in name_lower or "inventory" in name_lower:
+        elif "crude" in name_lower or ("oil" in name_lower and "heating" not in name_lower):
+            subcategory = "oil"
+        elif "gasoline" in name_lower:
+            subcategory = "gasoline"
+        elif "diesel" in name_lower or "distillate" in name_lower:
+            subcategory = "diesel"
+        elif "heating oil" in name_lower or "propane" in name_lower:
+            subcategory = "heating_fuels"
+        elif "jet fuel" in name_lower or "aviation" in combined:
+            subcategory = "jet_fuel"
+        elif "refinery" in name_lower or "refining" in combined:
+            subcategory = "refining"
+        elif "stock" in name_lower or "inventory" in name_lower or "storage" in name_lower:
             subcategory = "inventories"
         elif "production" in name_lower:
             subcategory = "production"
+        elif "import" in name_lower or "export" in name_lower:
+            subcategory = "trade"
+        elif "price" in name_lower:
+            subcategory = "prices"
         else:
             subcategory = "general"
 
@@ -487,15 +569,120 @@ def _build_alphavantage_entries() -> Dict[str, CatalogEntry]:
         name_lower = name.lower()
         desc_lower = description.lower()
 
-        if any(term in name_lower for term in ["spy", "qqq", "dia", "iwm", "s&p", "nasdaq", "dow", "russell"]):
+        # Sector ETFs - identify by sector keywords
+        if any(term in name_lower for term in ["financial sector", "xlf"]):
             category = "financial_markets"
-            subcategory = "equities"
-        elif "vix" in name_lower or "volatility" in name_lower:
+            subcategory = "sector_financials"
+        elif any(term in name_lower for term in ["energy sector", "xle"]):
+            category = "financial_markets"
+            subcategory = "sector_energy"
+        elif any(term in name_lower for term in ["healthcare sector", "xlv"]):
+            category = "financial_markets"
+            subcategory = "sector_healthcare"
+        elif any(term in name_lower for term in ["technology sector", "xlk"]):
+            category = "financial_markets"
+            subcategory = "sector_technology"
+        elif any(term in name_lower for term in ["industrial sector", "xli"]):
+            category = "financial_markets"
+            subcategory = "sector_industrials"
+        elif any(term in name_lower for term in ["utilities sector", "xlu"]):
+            category = "financial_markets"
+            subcategory = "sector_utilities"
+        elif any(term in name_lower for term in ["consumer staples", "xlp"]):
+            category = "financial_markets"
+            subcategory = "sector_staples"
+        elif any(term in name_lower for term in ["consumer discretionary", "xly"]):
+            category = "financial_markets"
+            subcategory = "sector_discretionary"
+        elif any(term in name_lower for term in ["materials sector", "xlb"]):
+            category = "financial_markets"
+            subcategory = "sector_materials"
+        elif any(term in name_lower for term in ["real estate sector", "xlre"]):
+            category = "financial_markets"
+            subcategory = "sector_real_estate"
+        elif any(term in name_lower for term in ["communications sector", "xlc"]):
+            category = "financial_markets"
+            subcategory = "sector_communications"
+
+        # International ETFs
+        elif any(term in name_lower for term in ["emerging markets", "eem", "vwo"]):
+            category = "international"
+            subcategory = "emerging_markets"
+        elif any(term in name_lower for term in ["developed markets", "eafe", "efa"]):
+            category = "international"
+            subcategory = "developed_markets"
+        elif any(term in name_lower for term in ["china", "fxi"]):
+            category = "international"
+            subcategory = "china"
+        elif any(term in name_lower for term in ["japan", "ewj"]):
+            category = "international"
+            subcategory = "japan"
+        elif any(term in name_lower for term in ["germany", "ewg"]):
+            category = "international"
+            subcategory = "germany"
+        elif any(term in name_lower for term in ["united kingdom", "ewu"]) and "exchange" not in name_lower:
+            category = "international"
+            subcategory = "uk"
+
+        # Bond ETFs
+        elif any(term in name_lower for term in ["long-term treasuries", "tlt"]):
+            category = "interest_rates"
+            subcategory = "bonds_long"
+        elif any(term in name_lower for term in ["short-term treasuries", "shy"]):
+            category = "interest_rates"
+            subcategory = "bonds_short"
+        elif any(term in name_lower for term in ["intermediate treasuries", "ief"]):
+            category = "interest_rates"
+            subcategory = "bonds_intermediate"
+        elif any(term in name_lower for term in ["high yield", "hyg", "junk"]):
+            category = "interest_rates"
+            subcategory = "bonds_high_yield"
+        elif any(term in name_lower for term in ["investment grade", "lqd"]):
+            category = "interest_rates"
+            subcategory = "bonds_investment_grade"
+        elif any(term in name_lower for term in ["aggregate bond", "agg"]):
+            category = "interest_rates"
+            subcategory = "bonds_aggregate"
+        elif any(term in name_lower for term in ["tips", "inflation-protected"]):
+            category = "interest_rates"
+            subcategory = "bonds_tips"
+
+        # Commodity ETFs
+        elif any(term in name_lower for term in ["gold", "gld"]) and "exchange" not in name_lower:
+            category = "financial_markets"
+            subcategory = "commodities_gold"
+        elif any(term in name_lower for term in ["silver", "slv"]):
+            category = "financial_markets"
+            subcategory = "commodities_silver"
+        elif any(term in name_lower for term in ["crude oil", "uso"]) and "etf" in name_lower:
+            category = "financial_markets"
+            subcategory = "commodities_oil"
+        elif any(term in name_lower for term in ["natural gas", "ung"]) and "etf" in name_lower:
+            category = "financial_markets"
+            subcategory = "commodities_gas"
+        elif any(term in name_lower for term in ["agriculture", "dba"]):
+            category = "financial_markets"
+            subcategory = "commodities_agriculture"
+        elif any(term in name_lower for term in ["commodities broad", "dbc"]):
+            category = "financial_markets"
+            subcategory = "commodities_broad"
+
+        # Volatility ETFs
+        elif any(term in name_lower for term in ["vix", "vixy", "uvxy", "vxx", "volatility"]):
             category = "financial_markets"
             subcategory = "volatility"
-        elif "treasury" in name_lower:
+
+        # Major US equity indices
+        elif any(term in name_lower for term in ["spy", "qqq", "dia", "iwm", "s&p", "nasdaq", "dow", "russell"]):
+            category = "financial_markets"
+            subcategory = "equities"
+
+        # Treasury yields (individual yields, not bond ETFs)
+        elif "treasury" in name_lower and "yield" in name_lower:
             category = "interest_rates"
             subcategory = "treasuries"
+
+        # Economic indicators
         elif "gdp" in name_lower:
             category = "gdp"
             subcategory = "growth"
@@ -505,7 +692,7 @@ def _build_alphavantage_entries() -> Dict[str, CatalogEntry]:
         elif "unemployment" in name_lower:
             category = "employment"
             subcategory = "unemployment"
-        elif "fed" in name_lower:
+        elif "fed" in name_lower and "fund" in name_lower:
             category = "interest_rates"
             subcategory = "fed_funds"
         elif "sentiment" in name_lower:
@@ -517,21 +704,23 @@ def _build_alphavantage_entries() -> Dict[str, CatalogEntry]:
         elif "payroll" in name_lower:
             category = "employment"
             subcategory = "jobs"
+
+        # Energy commodities (spot prices, not ETFs)
         elif "oil" in name_lower or "crude" in name_lower or "brent" in name_lower:
             category = "energy"
             subcategory = "oil"
         elif "natural gas" in name_lower:
             category = "energy"
             subcategory = "natural_gas"
-        elif "gold" in name_lower:
-            category = "financial_markets"
-            subcategory = "commodities"
-        elif "exchange" in name_lower or "forex" in name_lower or any(fx in name_lower for fx in ["eur", "usd", "jpy", "gbp"]):
+
+        # Forex - check for exchange rate pattern
+        elif "exchange rate" in name_lower or any(pair in series_id.lower() for pair in ["usd", "eur", "jpy", "gbp", "cad", "chf", "aud", "nzd", "mxn", "cny"]):
             category = "trade"
             subcategory = "forex"
         elif "dollar" in name_lower and "index" in name_lower:
             category = "trade"
             subcategory = "forex"
+
         else:
             category = "financial_markets"
             subcategory = "general"

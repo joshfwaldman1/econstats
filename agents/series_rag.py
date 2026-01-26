@@ -99,27 +99,80 @@ FRED_SERIES_CATALOG = [
     {"id": "LNS14000091", "name": "Unemployment Rate - 55 and over",
      "description": "Unemployment rate for older workers 55+. Older worker labor market indicator."},
 
-    # === EMPLOYMENT - BY SECTOR ===
+    # ==========================================================================
+    # INDUSTRY-SPECIFIC EMPLOYMENT SERIES (BLS Current Employment Statistics)
+    # ==========================================================================
+    # These are the major supersector and detailed industry employment series
+    # from the BLS Current Employment Statistics (CES) survey.
+    # Optimized for semantic search queries like "how is the tech sector doing?"
+    # "fintech companies", "banking industry", "healthcare workers", etc.
+
+    # --- SUPERSECTOR EMPLOYMENT (Major Industry Groups) ---
+
     {"id": "MANEMP", "name": "Manufacturing Employment",
-     "description": "Total employment in manufacturing sector. Factory jobs, industrial employment."},
+     "description": "Total employment in manufacturing sector. Factory jobs, industrial employment, manufacturing payrolls. Includes durable goods (machinery, computers, vehicles, aerospace, appliances, furniture) and nondurable goods (food processing, chemicals, textiles, pharmaceuticals, plastics). Key indicator for industrial economy health, trade policy impacts, automation trends, reshoring, onshoring. Manufacturing sector jobs, factory workers, production jobs, industrial jobs, blue collar manufacturing, made in USA, American manufacturing, plant workers."},
+
     {"id": "USCONS", "name": "Construction Employment",
-     "description": "Total employment in construction sector. Building, infrastructure jobs."},
-    {"id": "USTRADE", "name": "Retail Trade Employment",
-     "description": "Total employment in retail trade. Store workers, retail jobs."},
-    {"id": "USFIRE", "name": "Financial Services Employment",
-     "description": "Employment in finance, insurance, real estate. Banking, financial sector jobs."},
-    {"id": "USEHS", "name": "Education and Health Services Employment",
-     "description": "Employment in education and healthcare. Teachers, nurses, hospital workers."},
-    {"id": "USLAH", "name": "Leisure and Hospitality Employment",
-     "description": "Employment in leisure and hospitality. Hotels, restaurants, entertainment, tourism jobs."},
-    {"id": "USINFO", "name": "Information Sector Employment",
-     "description": "Employment in information sector. Tech, media, telecommunications jobs."},
-    {"id": "USPBS", "name": "Professional and Business Services Employment",
-     "description": "Employment in professional services. Consulting, legal, accounting, business services."},
+     "description": "Total employment in construction sector. Building jobs, construction workers, contractors, builders, tradespeople. Includes residential construction (homebuilding, home improvement, remodeling), commercial construction (offices, retail, warehouses, data centers), heavy/civil construction (roads, bridges, highways, infrastructure), and specialty trades (electricians, plumbers, HVAC, carpenters, roofers, masons). Key indicator for housing market, infrastructure spending, real estate development. Construction industry jobs, hard hats, building trades, skilled trades."},
+
+    {"id": "USPRIV", "name": "Total Private Sector Employment",
+     "description": "Total private sector employment, all private industries combined. Excludes government workers at all levels (federal, state, local). This is the broadest measure of private employment in the US economy. Private payrolls, private sector jobs, non-government employment, private industry employment, business sector jobs, private economy, corporate America employment, private businesses."},
+
     {"id": "USGOVT", "name": "Government Employment",
-     "description": "Total government employment. Federal, state, local government workers."},
+     "description": "Total government employment at all levels - federal, state, and local. Federal civilian workers (excludes military), state government employees, local government workers including teachers, police officers, firefighters, sanitation workers, DMV, postal workers. Public sector jobs, government payrolls, civil service, public employees, government workers, bureaucrats, municipal workers, city workers, county workers."},
+
+    {"id": "USMINE", "name": "Mining and Logging Employment",
+     "description": "Employment in mining and logging sector. Oil and gas extraction workers, coal mining, metal ore mining (copper, gold, iron), quarrying, stone/sand/gravel, logging, timber harvesting, forestry. Energy sector employment, natural resources, extractive industries. Includes oil rigs, drilling, fracking, shale jobs, offshore drilling, pipeline. Mining industry jobs, oil patch jobs, energy extraction, natural resource workers, roughnecks, drillers, wildcatters."},
+
+    {"id": "USTPU", "name": "Trade Transportation and Utilities Employment",
+     "description": "Employment in trade, transportation, and utilities supersector. Includes wholesale trade (distribution, warehousing, B2B sales), retail trade (stores, shops, e-commerce), transportation (trucking, airlines, railroads, shipping, ports, delivery services like UPS FedEx), warehousing (logistics, fulfillment centers, Amazon warehouses), and utilities (electric power, natural gas, water). Supply chain jobs, logistics employment, retail workers, warehouse workers, truck drivers, delivery drivers, distribution."},
+
+    {"id": "USINFO", "name": "Information Sector Employment",
+     "description": "Employment in information sector. Technology jobs, tech workers, software companies, IT employment, digital economy. Includes telecommunications (phone, internet, cable, wireless carriers like Verizon AT&T), broadcasting (TV, radio, streaming services like Netflix), publishing (newspapers, books, digital media, software publishers), motion pictures/film, data processing, web hosting, cloud computing (AWS, Azure, Google Cloud), video games. Tech sector jobs, technology industry, media jobs, Silicon Valley, fintech companies, Big Tech, FAANG, startups, software engineers, developers, programmers, IT workers."},
+
+    {"id": "USFIRE", "name": "Financial Activities Employment",
+     "description": "Employment in finance, insurance, and real estate (FIRE sector). Banking jobs, bankers, financial services workers, Wall Street, insurance industry, real estate agents, property management. Includes commercial banking (JPMorgan, Bank of America, Wells Fargo), investment banking (Goldman Sachs, Morgan Stanley), credit unions, hedge funds, private equity, asset management, insurance carriers and agents (State Farm, Allstate, MetLife), real estate brokerages (Redfin, Zillow, Compass), REITs, mortgage companies, fintech (PayPal, Square, Stripe). Financial sector jobs, banking industry, insurance jobs, real estate employment, lenders, underwriters, loan officers, financial advisors."},
+
+    {"id": "USPBS", "name": "Professional and Business Services Employment",
+     "description": "Employment in professional and business services. White collar jobs, knowledge workers, corporate services. Includes consulting firms (McKinsey, BCG, Deloitte, Accenture), legal services (law firms, lawyers, attorneys), accounting firms (Big 4: PwC, EY, KPMG, Deloitte), management consulting, advertising and marketing agencies, computer systems design, IT consulting, architecture, engineering firms, scientific research, R&D, staffing agencies (temp agencies like Robert Half, Manpower), administrative services, HR outsourcing, call centers. Professional services jobs, business services, consultants, lawyers, accountants, office jobs."},
+
+    {"id": "USEHS", "name": "Education and Health Services Employment",
+     "description": "Employment in education and health services. Healthcare workers, nurses, doctors, physicians, hospital employment, medical jobs. Includes hospitals (HCA, Kaiser), nursing homes, assisted living, clinics, outpatient care, home health aides, medical technicians, pharmacies, dental offices, physical therapy. Education workers, teachers, professors, school administrators, universities, colleges, K-12 schools, private schools, tutoring. Healthcare industry jobs, healthcare sector, medical employment, nursing jobs, hospital workers, eldercare, senior care, childcare, daycare workers, medical field, health sector."},
+
+    {"id": "USLAH", "name": "Leisure and Hospitality Employment",
+     "description": "Employment in leisure and hospitality sector. Restaurant workers, food service, hotel staff, hospitality industry, tourism. Includes restaurants (McDonald's, Starbucks, Chipotle), bars, fast food, quick service (QSR), full-service dining, hotels and motels (Marriott, Hilton, Hyatt), resorts, casinos, gaming, amusement parks (Disney, Universal), theme parks, recreation, arts, performing arts, museums, sports, fitness centers, gyms, spas, travel and tourism. Restaurant employment, hospitality jobs, waiters, waitresses, servers, bartenders, chefs, cooks, hotel housekeeping, front desk, tourism industry, entertainment jobs, service industry, vacation jobs."},
+
+    {"id": "USSERV", "name": "Other Services Employment",
+     "description": "Employment in other services sector (excluding public administration). Includes repair and maintenance (auto repair shops, mechanics, appliance repair, electronics repair, HVAC service), personal care services (hair salons, barbershops, beauty salons, spas, nail salons, dry cleaners, laundry, tailors), religious organizations (churches, temples, synagogues), civic and social organizations (nonprofits, charities, unions, political organizations), private households (domestic workers, housekeepers, nannies, personal assistants). Personal services, automotive services, pet grooming, veterinary, funeral services."},
+
+    # --- DETAILED INDUSTRY EMPLOYMENT (Specific Subsectors) ---
+
+    {"id": "CES4300000001", "name": "Retail Trade Employment",
+     "description": "Total employment in retail trade industry specifically. Store workers, retail jobs, shopping, sales associates, cashiers. Includes department stores (Macy's, Nordstrom), grocery stores and supermarkets (Kroger, Safeway, Whole Foods), apparel and clothing stores (Gap, H&M), electronics stores (Best Buy), home improvement (Home Depot, Lowes), auto dealers, gas stations, convenience stores, pharmacies (CVS, Walgreens), sporting goods, furniture stores, e-commerce fulfillment. Retail sector jobs, retail industry, store employment, retail workers, shop workers, retail sales, brick and mortar, Amazon effect, mall jobs, retail apocalypse."},
+
+    {"id": "CES6500000001", "name": "Financial Activities Employment (Detailed)",
+     "description": "Detailed employment in financial activities sector. More granular view than USFIRE supersector. Banking jobs, insurance employment, real estate workers. Includes depository credit institutions (commercial banks, savings banks, credit unions), nondepository credit (mortgage companies, finance companies, credit card companies, consumer lending), securities and commodities (brokerages, investment banks, stock exchanges, trading), insurance carriers and agencies, funds/trusts (mutual funds, pension funds, hedge funds), real estate operations, rental and leasing. Wall Street employment, financial industry jobs, FIRE sector."},
+
+    {"id": "CES6562000001", "name": "Credit Intermediation and Related Activities Employment",
+     "description": "Employment in credit intermediation - the banking and lending industry specifically. Commercial banks (Chase, BofA, Citi, Wells), savings institutions, credit unions, mortgage banking and brokers, credit card companies (Visa, Mastercard, Amex), consumer lending, sales financing, loan officers, bank tellers, branch managers, loan processors, underwriters. Banking sector employment, banking jobs, lending industry jobs, financial institutions employment, bank workers, credit industry, commercial banking, community banks, regional banks."},
+
+    {"id": "CES5000000001", "name": "Information Sector Employment (Detailed)",
+     "description": "Detailed information sector employment breakdown. Tech jobs, media jobs. Includes publishing industries (newspapers, periodicals, books, software publishers like Microsoft, Adobe, Salesforce), motion picture and sound recording (film studios, music labels, streaming), broadcasting (radio, TV stations, cable networks), telecommunications (wired carriers, wireless/cellular, satellite, internet service providers), data processing and hosting (cloud computing, data centers, web hosting), internet publishing and web search portals (Google, Meta/Facebook, Twitter). Tech employment, digital media, telecom jobs."},
+
+    {"id": "CES7000000001", "name": "Leisure and Hospitality Employment (Detailed)",
+     "description": "Detailed leisure and hospitality employment. Arts, entertainment, and recreation plus accommodation and food services. Performing arts and spectator sports (theaters, concerts, sports teams, stadiums), museums and historical sites, amusement parks and arcades, gambling and casinos, fitness and recreation (gyms, golf courses, ski resorts), hotels and motels, RV parks, rooming houses, full-service restaurants, limited-service restaurants (fast food, fast casual), cafeterias, caterers, bars and drinking places. Detailed restaurant jobs, hotel employment, entertainment industry."},
+
+    {"id": "CES4142000001", "name": "Wholesale Trade Employment",
+     "description": "Employment in wholesale trade - distribution and B2B sales, the middleman between manufacturers and retailers. Durable goods wholesalers (machinery, computers, electronics, automotive parts, furniture), nondurable goods wholesalers (groceries and food, apparel, chemicals, pharmaceuticals, paper). Distribution centers, wholesale distributors, B2B sales representatives, supply chain, distribution industry, warehouse operations, inventory management."},
+
+    {"id": "CES4244100001", "name": "Grocery Store Employment",
+     "description": "Employment in grocery stores and supermarkets specifically. Grocery workers, supermarket employees, food retail. Includes large grocery chains (Kroger, Safeway, Albertsons, Publix, H-E-B), warehouse clubs (Costco, Sam's Club, BJ's), specialty food stores, organic grocers (Whole Foods, Trader Joe's). Grocery industry jobs, food retail employment, essential workers, front-line retail, checkout workers, stock clerks, deli workers, bakery workers, produce workers."},
+
+    {"id": "CES7072200001", "name": "Food Services and Drinking Places Employment",
+     "description": "Employment in restaurants and bars specifically. Full-service restaurants (sit-down dining, casual dining like Applebee's, Olive Garden, fine dining), limited-service restaurants (fast food like McDonald's, Wendy's, fast casual like Chipotle, Panera), cafeterias and buffets, snack and beverage bars (Starbucks, Dunkin), caterers and food trucks, bars, taverns, and nightclubs. Restaurant industry employment, food service workers, waiters/waitresses, servers, cooks, chefs, bartenders, fast food workers, QSR employment, dining industry, hospitality."},
+
     {"id": "CES3133440001", "name": "Semiconductor Manufacturing Employment",
-     "description": "Employment in semiconductor and electronic component manufacturing. Chip makers, electronics manufacturing jobs."},
+     "description": "Employment in semiconductor and electronic component manufacturing. Chip makers, chipmakers, semiconductor fabrication, electronics manufacturing, integrated circuits. Companies like Intel, TSMC, Samsung, Micron, Nvidia, AMD. CHIPS Act, semiconductor supply chain, chip shortage, fab workers, cleanroom technicians. Tech hardware manufacturing, chip production, microprocessor manufacturing, memory chips, semiconductors jobs."},
 
     # === WAGES AND EARNINGS ===
     {"id": "CES0500000003", "name": "Average Hourly Earnings",
@@ -172,8 +225,8 @@ FRED_SERIES_CATALOG = [
      "description": "2-year Treasury constant maturity rate. Short-term rates, Fed policy expectations."},
     {"id": "T10Y2Y", "name": "10Y-2Y Treasury Spread",
      "description": "Spread between 10-year and 2-year Treasury yields. Yield curve, recession indicator when inverted."},
-    {"id": "MORTGAGE30US", "name": "30-Year Mortgage Rate",
-     "description": "30-year fixed mortgage rate. Home loan rates, housing affordability."},
+    {"id": "MORTGAGE30US", "name": "30-Year Fixed Mortgage Rate",
+     "description": "30-year fixed rate mortgage average from Freddie Mac Primary Mortgage Market Survey. The benchmark rate for US home loans. Critical for housing affordability - each 1% increase adds ~$200/month to typical payment. Fed policy directly impacts this rate."},
     {"id": "MORTGAGE15US", "name": "15-Year Mortgage Rate",
      "description": "15-year fixed mortgage rate. Shorter-term home loan rates."},
 
@@ -226,8 +279,8 @@ FRED_SERIES_CATALOG = [
      "description": "Advance retail sales. Consumer spending at stores, shopping activity."},
     {"id": "PSAVERT", "name": "Personal Saving Rate",
      "description": "Personal saving rate as percentage of income. How much households save."},
-    {"id": "TOTALSL", "name": "Consumer Credit",
-     "description": "Total consumer credit outstanding. Consumer debt, borrowing levels."},
+    {"id": "TOTALSL", "name": "Total Consumer Credit Outstanding",
+     "description": "Total consumer credit outstanding, including revolving (credit cards) and non-revolving (auto, student loans). Key measure of household debt levels and consumer borrowing capacity. Indicates consumer financial health and spending power."},
     {"id": "DSPIC96", "name": "Real Disposable Income",
      "description": "Real disposable personal income. Inflation-adjusted income after taxes."},
 
@@ -252,8 +305,6 @@ FRED_SERIES_CATALOG = [
      "description": "CBOE volatility index, the fear gauge. Market uncertainty, expected volatility."},
 
     # === CREDIT / BOND SPREADS ===
-    {"id": "T10Y2Y", "name": "10Y-2Y Treasury Spread",
-     "description": "Yield curve spread between 10-year and 2-year Treasury. Yield curve inversion, recession indicator."},
     {"id": "BAMLH0A0HYM2", "name": "High Yield Corporate Bond Spread",
      "description": "ICE BofA high yield spread over Treasuries. Credit risk, junk bond spreads, corporate distress."},
 
@@ -286,12 +337,12 @@ FRED_SERIES_CATALOG = [
      "description": "Total federal government receipts. Tax revenue, government income."},
 
     # === SMALL BUSINESS ===
-    {"id": "NFIBOPTIMISM", "name": "Small Business Optimism Index",
-     "description": "NFIB small business optimism index. Small business confidence, entrepreneurship sentiment."},
-    {"id": "BUSLOANS", "name": "Commercial & Industrial Loans",
-     "description": "Commercial and industrial loans at commercial banks. Business lending, corporate borrowing."},
-    {"id": "DRTSCLCC", "name": "Bank Lending Standards - C&I Loans",
-     "description": "Banks tightening standards for commercial and industrial loans. Credit conditions for businesses."},
+    {"id": "NFIBOPTIMISM", "name": "NFIB Small Business Optimism Index",
+     "description": "NFIB Small Business Optimism Index. Survey of small business owners covering hiring plans, capital spending, sales expectations, and economic outlook. Small businesses employ half of US workers - their sentiment predicts broader economic trends and is a leading indicator of hiring and investment."},
+    {"id": "BUSLOANS", "name": "Commercial & Industrial Loans at Banks",
+     "description": "Commercial and industrial loans at all commercial banks. Business lending from banks for working capital, equipment, and expansion. Key indicator of business credit conditions, corporate investment appetite, and bank willingness to lend to companies."},
+    {"id": "DRTSCLCC", "name": "Bank Lending Standards - Credit Cards",
+     "description": "Net percentage of banks tightening standards for credit card loans from Senior Loan Officer Survey. Positive values mean banks are tightening; rising values signal credit crunch for consumers. Leads credit card growth by 2-3 quarters."},
 
     # === SUPPLY CHAIN / LOGISTICS ===
     {"id": "RAILFRTINTERMODAL", "name": "Rail Freight Intermodal Traffic",
@@ -308,26 +359,6 @@ FRED_SERIES_CATALOG = [
      "description": "Unemployment rate for veterans who served since September 2001. Post-9/11 veterans' employment."},
     {"id": "LNU04049526", "name": "Unemployed Gulf War Era II Veterans",
      "description": "Number of unemployed veterans who served since September 2001. Veterans job seekers."},
-
-    # === INDUSTRY SECTORS ===
-    {"id": "MANEMP", "name": "Manufacturing Employment",
-     "description": "All employees in manufacturing. Factory jobs, manufacturing payrolls."},
-    {"id": "USCONS", "name": "Construction Employment",
-     "description": "All employees in construction. Construction jobs, building sector employment."},
-    {"id": "USFIRE", "name": "Financial Activities Employment",
-     "description": "All employees in financial activities. Finance, insurance, real estate jobs."},
-    {"id": "USPBS", "name": "Professional & Business Services Employment",
-     "description": "All employees in professional and business services. White collar jobs, corporate employment."},
-    {"id": "USHCS", "name": "Education & Health Services Employment",
-     "description": "All employees in education and health services. Healthcare and education jobs."},
-    {"id": "USLAH", "name": "Leisure & Hospitality Employment",
-     "description": "All employees in leisure and hospitality. Restaurant, hotel, entertainment jobs."},
-    {"id": "USINFO", "name": "Information Services Employment",
-     "description": "All employees in information services. Tech jobs, media, telecommunications."},
-    {"id": "USTRADE", "name": "Trade, Transportation & Utilities Employment",
-     "description": "All employees in trade, transportation and utilities. Retail, wholesale, transport jobs."},
-    {"id": "USGOVT", "name": "Government Employment",
-     "description": "All employees in government. Public sector jobs, federal/state/local employment."},
 
     # === MONEY SUPPLY / MONETARY ===
     {"id": "M2SL", "name": "M2 Money Supply",
@@ -348,6 +379,299 @@ FRED_SERIES_CATALOG = [
      "description": "Industrial production: crude oil. US oil production, energy output."},
     {"id": "CLPR", "name": "Coal Production",
      "description": "US coal production. Mining output, fossil fuel production."},
+
+    # === BUSINESS SURVEYS - ISM/PMI ===
+    {"id": "NAPM", "name": "ISM Manufacturing PMI Composite",
+     "description": "ISM Manufacturing Purchasing Managers Index composite. Key leading indicator of manufacturing sector health - readings above 50 indicate expansion, below 50 indicate contraction. Highly watched for early signals of economic turning points."},
+    {"id": "NAPMNOI", "name": "ISM Manufacturing New Orders",
+     "description": "ISM Manufacturing New Orders Index. Forward-looking component of PMI tracking incoming business - rising new orders signal future production increases and economic expansion. One of the most predictive PMI subcomponents."},
+    {"id": "NAPMPRD", "name": "ISM Manufacturing Production Index",
+     "description": "ISM Manufacturing Production Index. Measures current output levels in manufacturing. When combined with new orders, shows whether production is keeping pace with demand."},
+    {"id": "NAPMEI", "name": "ISM Manufacturing Employment",
+     "description": "ISM Manufacturing Employment Index. Leading indicator of manufacturing payrolls - factory hiring intentions ahead of official BLS data. Useful for forecasting manufacturing job growth."},
+    {"id": "NMFBAI", "name": "ISM Non-Manufacturing Business Activity",
+     "description": "ISM Non-Manufacturing Business Activity Index (Services PMI). Covers ~80% of US economy. Key indicator of service sector health - readings above 50 signal expansion. Critical for understanding broad economic conditions beyond manufacturing."},
+
+    # === BUSINESS SURVEYS - CONFERENCE BOARD ===
+    {"id": "CSCICP03USM665S", "name": "Consumer Confidence Index",
+     "description": "Conference Board Consumer Confidence Index. Measures consumer optimism about economy and personal finances. Leading indicator of consumer spending - confident consumers spend more. Sharp drops often precede recessions."},
+    {"id": "BSCICP03USM665S", "name": "Business Confidence Index",
+     "description": "Conference Board Business Confidence Index. Measures CEO and business leader sentiment about economic conditions. Forward-looking indicator of business investment and hiring decisions."},
+    {"id": "USSLIND", "name": "Leading Economic Index (LEI)",
+     "description": "Conference Board Leading Economic Index. Composite of 10 leading indicators designed to forecast economic turning points. Three consecutive monthly declines historically signal recession risk. The gold standard for recession forecasting."},
+    {"id": "RECPROUSM156N", "name": "Recession Probability Index",
+     "description": "Smoothed US Recession Probabilities. Model-based estimate of probability the US is in recession. Combines multiple indicators to provide a single recession risk measure. Values above 50% strongly suggest recession."},
+
+    # === BUSINESS SURVEYS - REGIONAL FED ===
+    {"id": "GACDISA066MSFRBNY", "name": "NY Fed Empire State Manufacturing",
+     "description": "NY Fed Empire State Manufacturing Survey. First regional manufacturing survey released each month - provides early read on factory sector. Covers NY, NJ, CT. Positive values indicate expansion."},
+    {"id": "GACDFSA066MSFRBPHI", "name": "Philly Fed Manufacturing Index",
+     "description": "Philadelphia Fed Manufacturing Business Outlook Survey. Closely watched regional indicator covering PA, NJ, DE. Often confirms or previews ISM Manufacturing. Positive values indicate expansion."},
+    {"id": "TEXMFGPHIPERSINDX", "name": "Dallas Fed Manufacturing Index",
+     "description": "Dallas Fed Texas Manufacturing Outlook Survey - Production Index. Key regional indicator for energy-heavy Texas manufacturing. Useful for understanding oil/gas sector business conditions. Positive values indicate expansion."},
+    {"id": "RSXFS", "name": "Retail Sales Ex Food Services",
+     "description": "Advance Retail Sales excluding Food Services. Cleaner measure of goods consumption excluding volatile restaurant spending. Proxy for underlying consumer demand strength. Key input to GDP nowcasts."},
+
+    # === CREDIT AND LENDING - CONSUMER CREDIT ===
+    {"id": "REVOLSL", "name": "Revolving Consumer Credit (Credit Cards)",
+     "description": "Revolving consumer credit outstanding, primarily credit card debt. Indicates short-term borrowing and consumer spending patterns. High growth can signal consumer confidence or financial stress depending on context."},
+    {"id": "NONREVSL", "name": "Non-Revolving Consumer Credit",
+     "description": "Non-revolving consumer credit including auto loans and student loans. Longer-term consumer debt for major purchases like vehicles and education. Reflects household financial commitments and access to credit."},
+    {"id": "DTCTHFNM", "name": "Credit Card Debt Outstanding",
+     "description": "Total credit card debt held by consumers at finance companies. Direct measure of credit card balances and consumer revolving debt. Rising balances can indicate financial stress or increased spending power."},
+    {"id": "MVLOAS", "name": "Motor Vehicle Loans Outstanding",
+     "description": "Total motor vehicle loans outstanding at all lenders. Auto loan debt held by consumers. Key indicator of auto market health, consumer borrowing for vehicles, and household debt burden."},
+    {"id": "SLOAS", "name": "Student Loans Outstanding",
+     "description": "Total student loan debt outstanding owned by federal government and commercial entities. Measures educational debt burden on households. Critical for understanding millennial and Gen-Z financial health and spending constraints."},
+
+    # === CREDIT AND LENDING - DELINQUENCIES ===
+    {"id": "DRCCLACBS", "name": "Credit Card Delinquency Rate",
+     "description": "Delinquency rate on credit card loans at commercial banks. Percentage of credit card debt 30+ days past due. Key indicator of consumer financial stress and credit risk. Rises sharply before and during recessions."},
+    {"id": "DRSFRMACBS", "name": "Mortgage Delinquency Rate",
+     "description": "Delinquency rate on single-family residential mortgages at commercial banks. Measures housing market stress and homeowner financial health. Critical indicator during housing downturns - spiked to 11% in 2010."},
+    {"id": "DRALACBN", "name": "Auto Loan Delinquency Rate",
+     "description": "Delinquency rate on auto loans at commercial banks. Measures auto loan defaults and consumer credit stress. Early warning indicator for consumer financial distress given auto loan prevalence."},
+    {"id": "SUBLPDRCSC", "name": "Subprime Auto Loan Delinquency Rate",
+     "description": "Subprime auto loan delinquency rate from NY Fed Consumer Credit Panel. Tracks 60+ day delinquencies among riskier borrowers. Leading indicator of broader consumer credit problems - often rises before prime delinquencies."},
+
+    # === CREDIT AND LENDING - BANK LENDING ===
+    {"id": "REALLN", "name": "Real Estate Loans at Commercial Banks",
+     "description": "Real estate loans at all commercial banks. Total mortgage and commercial real estate lending by banks. Measures credit availability for property purchases, construction, and development."},
+    {"id": "TOTCI", "name": "Total C&I Loans (Weekly)",
+     "description": "Total commercial and industrial loans reported weekly at commercial banks. High-frequency measure of business lending trends. More timely than monthly data for tracking credit conditions in real-time."},
+    {"id": "H8B1058NCBCMG", "name": "Consumer Loans at Commercial Banks",
+     "description": "Consumer loans at all commercial banks. Total consumer lending including credit cards, auto loans, and personal loans. Measures bank exposure to consumer credit and household borrowing from banks."},
+
+    # === CREDIT AND LENDING - LENDING STANDARDS (Senior Loan Officer Survey) ===
+    {"id": "DRTSCIS", "name": "Bank Lending Standards - Small Business C&I",
+     "description": "Net percentage of banks tightening standards for C&I loans to small firms from Senior Loan Officer Survey. Critical for small business access to capital. Tightening restricts hiring and investment by small businesses."},
+    {"id": "DRTSCILM", "name": "Bank Lending Standards - Large/Medium C&I",
+     "description": "Net percentage of banks tightening standards for C&I loans to large and medium firms. Corporate credit conditions from Senior Loan Officer Survey. Widespread tightening indicates risk aversion and can slow business investment."},
+
+    # === CREDIT AND LENDING - MORTGAGE MARKET ===
+    {"id": "WRMORTNS", "name": "Weekly Mortgage Applications Index",
+     "description": "MBA weekly mortgage applications index, not seasonally adjusted. Tracks mortgage application volume for purchases and refinancing. Leading indicator of home sales activity and housing demand. Highly sensitive to rate changes."},
+
+    # ==========================================================================
+    # EXPANDED CATALOG: SECTOR EMPLOYMENT, INDUSTRIAL PRODUCTION, REGIONAL DATA,
+    # TRADE, LEADING INDICATORS, ADDITIONAL INFLATION - January 2026 Expansion
+    # ==========================================================================
+
+    # === ADDITIONAL SECTOR EMPLOYMENT (Supplementary CES SERIES) ===
+    # These provide more granular industry breakdowns beyond the main supersector series
+    {"id": "CES6562100001", "name": "Healthcare Employment (Hospitals)",
+     "description": "Employment in hospitals specifically. Inpatient care, emergency rooms, surgical centers, hospital nurses, orderlies, medical technicians, hospital administrators. Largest employment subsector in healthcare. Stable employment, growing with aging population."},
+    {"id": "CES7072000001", "name": "Accommodation and Food Services Employment",
+     "description": "Employment in hotels, restaurants, bars, catering, food trucks. Highly cyclical sector devastated during COVID. Major employer of young workers, part-time workers, and immigrants. Sensitive to discretionary spending."},
+    {"id": "CES4348100001", "name": "Transportation and Warehousing Employment",
+     "description": "Employment in transportation and warehousing. Truckers, airline workers, rail, shipping, couriers, Amazon/FedEx warehouse workers. Critical supply chain indicator tracking goods movement through economy."},
+    {"id": "CES5500000001", "name": "Finance and Insurance Employment",
+     "description": "Employment in finance and insurance subsector. Banks, credit unions, insurance companies, investment firms, asset managers. Reflects financial sector health. Sensitive to interest rates and market conditions."},
+    {"id": "CES5552000001", "name": "Real Estate Employment",
+     "description": "Employment in real estate. Realtors, property managers, appraisers, title companies, property developers. Directly tied to housing market activity, transaction volumes, and commercial real estate."},
+    {"id": "CES1000000001", "name": "Mining and Logging Employment (CES)",
+     "description": "Employment in mining and logging. Oil and gas extraction, coal mining, metal ores, timber harvesting. Very sensitive to commodity prices and energy sector boom/bust cycles. Alternative to USMINE."},
+    {"id": "CES6100000001", "name": "Private Education Services Employment",
+     "description": "Employment in private educational services. Private K-12 schools, colleges, tutoring centers, test prep, vocational training. Does not include public school teachers."},
+    {"id": "CES7071000001", "name": "Arts and Entertainment Employment",
+     "description": "Employment in arts, entertainment, and recreation. Movie theaters, sports teams, concert venues, museums, casinos, fitness centers. Highly sensitive to discretionary consumer spending."},
+    {"id": "CES3100000001", "name": "Durable Goods Manufacturing Employment",
+     "description": "Employment in durable goods manufacturing. Factories producing long-lasting products like cars, appliances, furniture, machinery. Cyclically sensitive, key indicator of manufacturing sector health."},
+    {"id": "CES3200000001", "name": "Nondurable Goods Manufacturing Employment",
+     "description": "Employment in nondurable goods manufacturing. Food processing, textiles, chemicals, plastics, paper. More stable than durables. Includes essential goods production."},
+
+    # === INDUSTRIAL PRODUCTION INDEXES ===
+    {"id": "IPMAN", "name": "Industrial Production: Manufacturing",
+     "description": "Industrial production index for total manufacturing. Overall factory output across all manufacturing industries. Core measure of US industrial activity and manufacturing health."},
+    {"id": "IPG331S", "name": "Industrial Production: Primary Metals",
+     "description": "Industrial production index for primary metals. Steel mills, aluminum smelters, copper refineries. Key input for construction, auto manufacturing, infrastructure. Sensitive to tariffs and trade policy."},
+    {"id": "IPG3361T3S", "name": "Industrial Production: Motor Vehicles",
+     "description": "Industrial production index for motor vehicles and parts. Auto assembly plants and parts suppliers. Indicator of consumer durables demand and manufacturing supply chains."},
+    {"id": "IPG325S", "name": "Industrial Production: Chemicals",
+     "description": "Industrial production for chemical manufacturing. Pharmaceuticals, plastics, fertilizers, industrial chemicals. Broad indicator with diverse end markets from healthcare to agriculture."},
+    {"id": "IPG334S", "name": "Industrial Production: Computer and Electronics",
+     "description": "Industrial production for computers and electronic products. Semiconductors, computers, communications equipment. Technology hardware manufacturing, sensitive to chip supply."},
+    {"id": "IPDMAN", "name": "Industrial Production: Durable Goods",
+     "description": "Industrial production index for all durable goods manufacturing. Long-lasting products from appliances to aircraft. Economically sensitive, falls sharply in recessions."},
+    {"id": "IPNMAN", "name": "Industrial Production: Nondurable Goods",
+     "description": "Industrial production for nondurable goods. Food, beverages, apparel, paper, petroleum products. Less cyclical than durables, includes essentials."},
+    {"id": "IPUTIL", "name": "Industrial Production: Utilities",
+     "description": "Industrial production index for electric and gas utilities. Electricity generation, natural gas distribution. Weather-sensitive, provides baseline economic activity."},
+    {"id": "IPB50001N", "name": "Industrial Production: Consumer Goods",
+     "description": "Industrial production index for total consumer goods. All products purchased by households. Direct indicator of consumer demand and retail supply."},
+    {"id": "IPB51000S", "name": "Industrial Production: Business Equipment",
+     "description": "Industrial production for business equipment. Machinery, computers, office equipment, industrial equipment. Key indicator of business capital investment intentions."},
+    {"id": "IPG311A2S", "name": "Industrial Production: Food Manufacturing",
+     "description": "Industrial production for food manufacturing. Food processing, meat packing, beverages. Essential sector, less cyclical, affected by agricultural inputs and labor."},
+    {"id": "IPG324S", "name": "Industrial Production: Petroleum and Coal",
+     "description": "Industrial production for petroleum and coal products. Refineries, fuel production, asphalt. Sensitive to oil prices and energy demand."},
+
+    # === REGIONAL DATA - STATE UNEMPLOYMENT ===
+    {"id": "TXUR", "name": "Texas Unemployment Rate",
+     "description": "Unemployment rate for Texas. Second largest state economy with energy, technology, and manufacturing sectors. Sunbelt growth story and energy sector exposure."},
+    {"id": "CAUR", "name": "California Unemployment Rate",
+     "description": "Unemployment rate for California. Largest state economy - tech, entertainment, agriculture, trade. West Coast bellwether, often higher unemployment than national average."},
+    {"id": "NYUR", "name": "New York Unemployment Rate",
+     "description": "Unemployment rate for New York. Major financial center with Wall Street, media, healthcare. Northeast corridor economic indicator."},
+    {"id": "FLUR", "name": "Florida Unemployment Rate",
+     "description": "Unemployment rate for Florida. Tourism, real estate, and retirement-driven economy. Major migration destination, sensitive to hospitality and housing sectors."},
+    {"id": "PAUR", "name": "Pennsylvania Unemployment Rate",
+     "description": "Unemployment rate for Pennsylvania. Healthcare, manufacturing, energy. Mix of Rust Belt legacy and energy renaissance."},
+    {"id": "OHUR", "name": "Ohio Unemployment Rate",
+     "description": "Unemployment rate for Ohio. Manufacturing belt state with automotive and industrial base. Politically important swing state economic indicator."},
+    {"id": "ILUR", "name": "Illinois Unemployment Rate",
+     "description": "Unemployment rate for Illinois. Chicago metro economy with finance, manufacturing, and transportation. Midwest regional hub."},
+    {"id": "GAUR", "name": "Georgia Unemployment Rate",
+     "description": "Unemployment rate for Georgia. Atlanta metro - major corporate headquarters, logistics hub. Southeast economic indicator."},
+    {"id": "MIUR", "name": "Michigan Unemployment Rate",
+     "description": "Unemployment rate for Michigan. Auto industry capital - Detroit Big Three and suppliers. Most sensitive state to auto sector conditions."},
+    {"id": "NCUR", "name": "North Carolina Unemployment Rate",
+     "description": "Unemployment rate for North Carolina. Charlotte banking, Research Triangle tech, furniture manufacturing. Fast-growing Sunbelt state."},
+    {"id": "WAUR", "name": "Washington Unemployment Rate",
+     "description": "Unemployment rate for Washington State. Seattle tech giants (Amazon, Microsoft), Boeing aerospace, trade with Asia. Pacific Northwest tech hub indicator."},
+    {"id": "AZUR", "name": "Arizona Unemployment Rate",
+     "description": "Unemployment rate for Arizona. Phoenix metro, semiconductor manufacturing, Sunbelt migration. Fast growth state with construction and tech."},
+
+    # === REGIONAL HOUSING - CASE-SHILLER METRO INDEXES ===
+    {"id": "LXXRSA", "name": "Case-Shiller: Los Angeles Home Prices",
+     "description": "S&P Case-Shiller home price index for Los Angeles metro. West Coast housing bellwether. Entertainment industry and immigrant wealth influences."},
+    {"id": "NYXRSA", "name": "Case-Shiller: New York Home Prices",
+     "description": "S&P Case-Shiller home price index for New York metro. Northeast corridor housing. Financial sector wealth, urban density, international buyers."},
+    {"id": "SFXRSA", "name": "Case-Shiller: San Francisco Home Prices",
+     "description": "S&P Case-Shiller home price index for San Francisco metro. Silicon Valley tech wealth impact. Most volatile to tech industry fortunes."},
+    {"id": "CHXRSA", "name": "Case-Shiller: Chicago Home Prices",
+     "description": "S&P Case-Shiller home price index for Chicago metro. Midwest housing benchmark. More affordable than coasts, different dynamics."},
+    {"id": "MIAXRSA", "name": "Case-Shiller: Miami Home Prices",
+     "description": "S&P Case-Shiller home price index for Miami metro. Florida housing market. Strong international and Latin American buyer influence."},
+    {"id": "DAXRSA", "name": "Case-Shiller: Dallas Home Prices",
+     "description": "S&P Case-Shiller home price index for Dallas metro. Texas housing, rapid population growth. Corporate relocations and affordability migration."},
+    {"id": "SEXRSA", "name": "Case-Shiller: Seattle Home Prices",
+     "description": "S&P Case-Shiller home price index for Seattle metro. Pacific Northwest, tech-driven demand. Amazon HQ and Microsoft campus effects."},
+    {"id": "PHXRSA", "name": "Case-Shiller: Phoenix Home Prices",
+     "description": "S&P Case-Shiller home price index for Phoenix metro. Sunbelt migration destination with boom-bust history. Remote work migration acceleration."},
+    {"id": "DEXRSA", "name": "Case-Shiller: Denver Home Prices",
+     "description": "S&P Case-Shiller home price index for Denver metro. Mountain West housing. Outdoor lifestyle, remote work, cannabis industry effects."},
+    {"id": "ATXRSA", "name": "Case-Shiller: Atlanta Home Prices",
+     "description": "S&P Case-Shiller home price index for Atlanta metro. Southeast regional hub. Corporate headquarters relocations, logistics growth."},
+
+    # === TRADE - IMPORTS/EXPORTS ===
+    {"id": "BOPGTB", "name": "Goods Trade Balance",
+     "description": "US trade balance in goods only (excluding services). Goods exports minus goods imports. Reflects manufacturing competitiveness and consumer goods demand. US runs persistent goods deficit."},
+    {"id": "BOPSTB", "name": "Services Trade Balance",
+     "description": "US trade balance in services. Services exports minus imports. US typically runs surplus in financial services, tourism, intellectual property, software."},
+    {"id": "EXPGSC1", "name": "Real Exports of Goods and Services",
+     "description": "Real inflation-adjusted exports of goods and services. Volume of US exports reflecting global demand for American products. GDP component tracking US competitiveness."},
+    {"id": "IMPGSC1", "name": "Real Imports of Goods and Services",
+     "description": "Real inflation-adjusted imports of goods and services. Volume of imports reflecting domestic demand for foreign goods. Rises when US economy is strong."},
+    {"id": "IMP0004", "name": "Imports: Capital Goods",
+     "description": "US imports of capital goods - machinery, computers, equipment. Business investment indicator. Shows demand for productive equipment and supply chain dependency."},
+    {"id": "IMP0005", "name": "Imports: Automotive Products",
+     "description": "US imports of motor vehicles and parts. Foreign car and parts imports. Trade policy sensitive - tariff discussions affect this series."},
+    {"id": "IMP0006", "name": "Imports: Consumer Goods",
+     "description": "US imports of consumer goods. Electronics, apparel, toys, furniture from abroad. Consumer demand indicator, retail inventory supply."},
+    {"id": "EXP0004", "name": "Exports: Capital Goods",
+     "description": "US exports of capital goods. American machinery, aircraft, industrial equipment sold abroad. Manufacturing competitiveness and global capex demand."},
+    {"id": "EXP0015", "name": "Exports: Agricultural Products",
+     "description": "US exports of agricultural products. Grains, soybeans, meat, cotton exports. Farm economy indicator. Sensitive to China trade and dollar strength."},
+    {"id": "XTEXVA01CNM667S", "name": "Exports to China",
+     "description": "US goods exports to China. Bilateral trade indicator. Highly sensitive to tariffs, trade negotiations, geopolitical tensions."},
+    {"id": "XTIMVA01CNM667S", "name": "Imports from China",
+     "description": "US goods imports from China. China import dependency metric. Tariff policy implications, supply chain decoupling discussions."},
+
+    # === LEADING/LAGGING INDICATORS ===
+    {"id": "CFNAI", "name": "Chicago Fed National Activity Index",
+     "description": "Chicago Fed National Activity Index (CFNAI). Weighted average of 85 monthly indicators. Zero means trend growth, positive is above trend, negative is below trend. Real-time economy barometer."},
+    {"id": "USPHCI", "name": "Philadelphia Fed Coincident Index",
+     "description": "Philadelphia Fed coincident economic activity index. Four-variable indicator measuring current economic state. Shows where economy is right now."},
+    {"id": "STLFSI4", "name": "St. Louis Fed Financial Stress Index",
+     "description": "St. Louis Fed financial stress index. Measures financial market stress using 18 weekly series. Zero is normal, positive is stress, negative is accommodative."},
+    {"id": "NFCI", "name": "Chicago Fed Financial Conditions Index",
+     "description": "Chicago Fed national financial conditions index. Measures risk, credit, and leverage conditions. Negative means loose financial conditions, positive means tight."},
+    {"id": "ANFCI", "name": "Adjusted National Financial Conditions Index",
+     "description": "Chicago Fed adjusted NFCI controlling for economic conditions. Isolates pure financial conditions from growth effects. Shows if finance helping or hindering economy."},
+    {"id": "KCFSI", "name": "Kansas City Fed Financial Stress Index",
+     "description": "Kansas City Fed financial stress index. Alternative stress measure using yield spreads, volatility, asset prices. Zero is normal, positive shows elevated stress."},
+    {"id": "TEDRATE", "name": "TED Spread",
+     "description": "TED spread - difference between 3-month LIBOR and 3-month Treasury bill rate. Measures credit risk and bank funding stress. Spikes during financial crises."},
+
+    # === ADDITIONAL INFLATION MEASURES ===
+    {"id": "CUUR0000SAM", "name": "CPI: Medical Care",
+     "description": "Consumer price index for medical care. Healthcare costs including hospital services, physician services, prescription drugs, insurance premiums. Major household expense."},
+    {"id": "CUUR0000SAE1", "name": "CPI: Education and Communication",
+     "description": "Consumer price index for education and communication. College tuition, internet services, phone services, educational materials. Student and technology costs."},
+    {"id": "CUUR0000SETA01", "name": "CPI: New Vehicles",
+     "description": "Consumer price index for new vehicles. New car and truck prices. Auto industry pricing power. Supply chain and chip shortage effects."},
+    {"id": "CUUR0000SETA02", "name": "CPI: Used Cars and Trucks",
+     "description": "Consumer price index for used vehicles. Secondary market car prices. Extremely volatile - spiked 40% during chip shortage. Supply-driven inflation component."},
+    {"id": "CUSR0000SEHA", "name": "CPI: Rent of Primary Residence",
+     "description": "Consumer price index for actual rent paid. Real rent inflation for tenants. Lags market rents by 6-12 months due to lease renewal timing."},
+    {"id": "CUSR0000SEHC01", "name": "CPI: Owners Equivalent Rent (OER)",
+     "description": "Consumer price index for owners equivalent rent. Imputed housing cost for homeowners based on rental market. Largest single CPI component at ~25% weight."},
+    {"id": "PPIFIS", "name": "PPI: Final Demand Services",
+     "description": "Producer price index for final demand services. Business-to-business service costs. Upstream service inflation before reaching consumers."},
+    {"id": "PPIFGS", "name": "PPI: Final Demand Goods",
+     "description": "Producer price index for final demand goods. Wholesale goods prices. Manufacturing costs and pricing before retail markup."},
+    {"id": "PPIACO", "name": "PPI: All Commodities",
+     "description": "Producer price index for all commodities. Raw material and commodity prices at producer level. Input cost inflation measure, leads consumer prices."},
+    {"id": "CPIUFDSL", "name": "CPI: Food at Home",
+     "description": "Consumer price index for food at home (groceries). Supermarket prices. Affects all households, politically sensitive inflation component."},
+    {"id": "CPIENGSL", "name": "CPI: Energy",
+     "description": "Consumer price index for energy. Gasoline, electricity, natural gas, fuel oil. Most volatile CPI component, driven by oil prices."},
+
+    # === LABOR MARKET DETAILS ===
+    {"id": "UNEMPLOY", "name": "Number of Unemployed Persons",
+     "description": "Total number of unemployed persons. Absolute count of job seekers. Provides context beyond unemployment rate - shows scale of joblessness."},
+    {"id": "CLF16OV", "name": "Civilian Labor Force Level",
+     "description": "Total civilian labor force - employed plus unemployed. Labor supply measure. Growth driven by demographics and participation rate changes."},
+    {"id": "UEMPMEAN", "name": "Average Duration of Unemployment",
+     "description": "Average weeks unemployed for all unemployed persons. How long typical job search takes. Long durations indicate structural labor market problems."},
+    {"id": "LNS13025703", "name": "Unemployed Job Leavers",
+     "description": "Unemployed persons who voluntarily quit their previous job. Workers confident enough to quit before having new job. Labor market confidence indicator."},
+    {"id": "LNS13023653", "name": "Unemployed Job Losers",
+     "description": "Unemployed persons who were laid off or fired. Involuntary job loss. Rising job losers signals deteriorating labor market conditions."},
+    {"id": "JTSLDR", "name": "JOLTS Layoffs and Discharges Rate",
+     "description": "JOLTS layoffs and discharges as percent of employment. Involuntary separations rate. Low rate means strong job security."},
+    {"id": "JTSHIR", "name": "JOLTS Hires Rate",
+     "description": "JOLTS hires rate as percent of employment. Pace of new hiring. Shows labor market dynamism and employer willingness to hire."},
+    {"id": "AWHNONAG", "name": "Average Weekly Hours: Private Sector",
+     "description": "Average weekly hours worked in private sector. Leading indicator - employers adjust hours before headcount. Falling hours may precede layoffs."},
+
+    # === ADDITIONAL HOUSING METRICS ===
+    {"id": "HOUSTW", "name": "Housing Starts: West Region",
+     "description": "New residential construction starts in Western US. West coast and mountain state building activity. High cost markets with supply constraints."},
+    {"id": "HOUSTS", "name": "Housing Starts: South Region",
+     "description": "New residential construction starts in Southern US. Sunbelt building boom. Fastest growing region driven by migration and affordability."},
+    {"id": "HOUSTNE", "name": "Housing Starts: Northeast Region",
+     "description": "New residential construction starts in Northeast US. High cost, supply constrained coastal markets. Limited buildable land."},
+    {"id": "HOUSTMW", "name": "Housing Starts: Midwest Region",
+     "description": "New residential construction starts in Midwest US. Heartland building. More affordable markets with different demand dynamics."},
+    {"id": "MSACSR", "name": "Months Supply of New Houses",
+     "description": "Months supply of new houses for sale. Inventory divided by sales pace. Below 4 months is seller's market, above 6 months is buyer's market."},
+    {"id": "ACTLISCOUUS", "name": "Active Housing Listings Count",
+     "description": "Active housing listings in the US. Total homes for sale. Inventory indicator - low listings drive price increases."},
+    {"id": "USSTHPI", "name": "FHFA House Price Index",
+     "description": "FHFA all-transactions house price index. Broadest US house price measure including purchases and refinance appraisals. National benchmark."},
+    {"id": "FIXHAI", "name": "Housing Affordability Index",
+     "description": "Housing affordability index. Whether median family income can afford median home at current rates. Index below 100 means housing unaffordable."},
+
+    # === GDP COMPONENTS AND DETAILS ===
+    {"id": "DPCERL1Q225SBEA", "name": "Real Personal Consumption Growth",
+     "description": "Real personal consumption expenditures quarterly growth annualized. Consumer spending volume change. PCE is 70% of GDP, drives business cycle."},
+    {"id": "GPDIC1", "name": "Real Private Investment",
+     "description": "Real gross private domestic investment. Business equipment, structures, residential, inventory investment. Most volatile GDP component, drives recessions."},
+    {"id": "A191RC1Q027SBEA", "name": "GDP Implicit Price Deflator",
+     "description": "GDP price deflator. Broadest price measure covering all domestic production. Alternative inflation measure to CPI and PCE."},
+    {"id": "DGORDER", "name": "Durable Goods New Orders",
+     "description": "Manufacturers new orders for durable goods. Big-ticket factory orders. Volatile but important forward indicator for manufacturing."},
+    {"id": "NEWORDER", "name": "All Manufacturing New Orders",
+     "description": "Total new orders all manufacturing industries. Factory order flow. Forward indicator of production and business activity."},
+    {"id": "AMTMNO", "name": "Manufacturers Shipments",
+     "description": "Value of manufacturers shipments. Goods shipped from factories. Current production activity measure."},
+    {"id": "AMTMUO", "name": "Manufacturers Unfilled Orders",
+     "description": "Manufacturers unfilled orders backlog. Orders received but not shipped. Future production pipeline, capacity indicator."},
+    {"id": "AMDMUO", "name": "Durable Goods Unfilled Orders",
+     "description": "Unfilled orders backlog for durable goods. Big-ticket items awaiting production. Capacity utilization and demand strength."},
+
 ]
 
 # =============================================================================
