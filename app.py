@@ -58,6 +58,16 @@ try:
 except Exception:
     POLYMARKET_AVAILABLE = False
 
+# Import judgment layer for interpretive queries (Gemini search + Claude synthesis)
+try:
+    from agents.judgment_layer import (
+        is_judgment_query,
+        process_judgment_query,
+    )
+    JUDGMENT_LAYER_AVAILABLE = True
+except Exception:
+    JUDGMENT_LAYER_AVAILABLE = False
+
 # Import stock market query plans
 try:
     from agents.stocks import find_market_plan, is_market_query, MARKET_SERIES
@@ -8935,8 +8945,19 @@ def main():
 
             # Standard narrative generation (or if comparison failed)
             if not (is_temporal_comparison and comparison_metrics):
+                # Check if this is a judgment query (needs Gemini search + Claude synthesis)
+                if JUDGMENT_LAYER_AVAILABLE and is_judgment_query(query):
+                    # Use judgment layer for interpretive queries like "is unemployment high?"
+                    judgment_explanation, was_judgment = process_judgment_query(
+                        query, series_data, ai_explanation
+                    )
+                    if was_judgment and judgment_explanation:
+                        ai_explanation = judgment_explanation
+                    else:
+                        # Fall back to standard reviewer
+                        ai_explanation = call_economist_reviewer(query, series_data, ai_explanation)
                 # Use ensemble for descriptions if enabled
-                if ENSEMBLE_AVAILABLE and st.session_state.get('ensemble_mode', False):
+                elif ENSEMBLE_AVAILABLE and st.session_state.get('ensemble_mode', False):
                     # Build data summary for ensemble
                     data_summary = _build_data_summary_for_ensemble(series_data)
                     ai_explanation = generate_ensemble_description(
