@@ -7480,12 +7480,24 @@ def main():
                                 is_rate_series = ('percent' in unit.lower() or '%' in unit or
                                                   'rate' in name.lower() or i.get('is_yoy'))
 
+                                # Check if this is a payroll change series (already a flow, not a stock)
+                                is_payroll_change = i.get('is_payroll_change', False)
+
                                 # Calculate delta if we have enough data
                                 delta = None
                                 delta_color = "normal"
                                 if len(v) >= 13:  # YoY comparison
                                     prev_val = v[-13]
-                                    if is_rate_series:
+                                    if is_payroll_change:
+                                        # For job changes, show absolute comparison (not % of %)
+                                        # e.g., "vs 111K Dec 2024" instead of "-84.5% YoY"
+                                        if prev_val >= 1000:
+                                            delta = f"vs {prev_val/1000:.0f}K yr ago"
+                                        elif prev_val >= 0:
+                                            delta = f"vs {prev_val:.0f}K yr ago"
+                                        else:
+                                            delta = f"vs {prev_val:.0f}K yr ago"
+                                    elif is_rate_series:
                                         # For rates/percentages, show pp change (not % of %)
                                         pp_change = latest_val - prev_val
                                         delta = f"{pp_change:+.1f} pp YoY"
@@ -9170,17 +9182,32 @@ def main():
                             name = i.get('name', sid)[:25]
                             unit = i.get('unit', '')
 
+                            # Check if this is a payroll change series
+                            is_payroll_change = i.get('is_payroll_change', False)
+                            is_rate_series = ('percent' in unit.lower() or '%' in unit or
+                                              'rate' in name.lower() or i.get('is_yoy'))
+
                             # Calculate delta if we have enough data
                             delta = None
                             delta_color = "normal"
                             if len(v) >= 13:  # YoY comparison
                                 prev_val = v[-13]
-                                if prev_val != 0:
+                                if is_payroll_change:
+                                    # For job changes, show absolute comparison
+                                    if prev_val >= 1000:
+                                        delta = f"vs {prev_val/1000:.0f}K yr ago"
+                                    else:
+                                        delta = f"vs {prev_val:.0f}K yr ago"
+                                elif is_rate_series:
+                                    # For rates/percentages, show pp change
+                                    pp_change = latest_val - prev_val
+                                    delta = f"{pp_change:+.1f} pp YoY"
+                                elif prev_val != 0:
                                     pct_change = ((latest_val - prev_val) / abs(prev_val)) * 100
                                     delta = f"{pct_change:+.1f}% YoY"
-                                    # For rates like unemployment, down is good
-                                    if 'unemployment' in name.lower() or 'jobless' in name.lower():
-                                        delta_color = "inverse"
+                                # For rates like unemployment, down is good
+                                if 'unemployment' in name.lower() or 'jobless' in name.lower():
+                                    delta_color = "inverse"
 
                             with metric_cols[idx % len(metric_cols)]:
                                 # Format value based on type, accounting for unit multipliers
