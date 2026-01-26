@@ -9607,192 +9607,64 @@ def main():
                 fig = create_chart([(series_id, dates, values, info)], combine=False, chart_type=chart_type)
                 st.plotly_chart(fig, width='stretch')
 
-    # Footer - Enhanced About section at bottom of page
+    # Footer - About section using Streamlit native components (no complex HTML)
     st.markdown("---")
+
+    # About header
     st.markdown("""
-    <div style="
-        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-        border-radius: 12px;
-        padding: 40px 30px;
-        margin-top: 20px;
-    ">
-        <!-- Main About Header -->
-        <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="
-                color: #1e293b;
-                font-size: 1.75rem;
-                font-weight: 700;
-                margin: 0 0 12px 0;
-            ">About EconStats</h2>
-            <p style="
-                color: #475569;
-                font-size: 1.05rem;
-                line-height: 1.6;
-                max-width: 700px;
-                margin: 0 auto;
-            ">
-                Government economic data is free—but too hard for most people to access and understand.
-                EconStats uses AI to help anyone draw insights directly from the numbers, making
-                economic research accessible to journalists, students, policymakers, and curious citizens.
-            </p>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #1e293b; font-size: 1.5rem; font-weight: 700; margin: 0 0 10px 0;">About EconStats</h2>
+        <p style="color: #475569; font-size: 0.95rem; line-height: 1.5; max-width: 650px; margin: 0 auto;">
+            Government economic data is free—but too hard for most people to access and understand.
+            EconStats uses AI to help anyone draw insights directly from the numbers.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Feature cards using Streamlit columns
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.markdown("""
+        <div style="background: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #e2e8f0;">
+            <div style="font-size: 1.5rem; margin-bottom: 5px;">📊</div>
+            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">490+ Indicators</div>
+            <div style="color: #64748b; font-size: 0.75rem;">U.S. economy coverage</div>
         </div>
-
-        <!-- Feature Highlights Grid -->
-        <div style="
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 35px;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-        ">
-            <!-- Feature 1: Economic Indicators -->
-            <div style="
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                text-align: center;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-                border: 1px solid #e2e8f0;
-            ">
-                <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
-                <div style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">490+ Indicators</div>
-                <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">
-                    Comprehensive coverage of the U.S. economy
-                </div>
-            </div>
-
-            <!-- Feature 2: Official Sources -->
-            <div style="
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                text-align: center;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-                border: 1px solid #e2e8f0;
-            ">
-                <div style="font-size: 2rem; margin-bottom: 8px;">🏛️</div>
-                <div style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">Official Sources</div>
-                <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">
-                    Data from FRED, BLS, Zillow, EIA & more
-                </div>
-            </div>
-
-            <!-- Feature 3: Real-Time Updates -->
-            <div style="
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                text-align: center;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-                border: 1px solid #e2e8f0;
-            ">
-                <div style="font-size: 2rem; margin-bottom: 8px;">⚡</div>
-                <div style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">Real-Time Updates</div>
-                <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">
-                    Data refreshed directly from official releases
-                </div>
-            </div>
-
-            <!-- Feature 4: AI Explanations -->
-            <div style="
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                text-align: center;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-                border: 1px solid #e2e8f0;
-            ">
-                <div style="font-size: 2rem; margin-bottom: 8px;">🤖</div>
-                <div style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">AI-Powered Insights</div>
-                <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px;">
-                    Plain English explanations of complex data
-                </div>
-            </div>
+        """, unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+        <div style="background: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #e2e8f0;">
+            <div style="font-size: 1.5rem; margin-bottom: 5px;">🏛️</div>
+            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">Official Sources</div>
+            <div style="color: #64748b; font-size: 0.75rem;">FRED, BLS, EIA & more</div>
         </div>
-
-        <!-- Data Sources Section -->
-        <div style="
-            background: white;
-            border-radius: 10px;
-            padding: 25px 30px;
-            margin-bottom: 30px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            border: 1px solid #e2e8f0;
-        ">
-            <h3 style="
-                color: #1e293b;
-                font-size: 1.1rem;
-                font-weight: 600;
-                margin: 0 0 15px 0;
-                text-align: center;
-            ">Data Sources</h3>
-            <div style="
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 12px 25px;
-                color: #475569;
-                font-size: 0.9rem;
-            ">
-                <span><strong>Federal Reserve (FRED)</strong></span>
-                <span style="color: #cbd5e1;">|</span>
-                <span><strong>Bureau of Labor Statistics</strong></span>
-                <span style="color: #cbd5e1;">|</span>
-                <span><strong>Bureau of Economic Analysis</strong></span>
-                <span style="color: #cbd5e1;">|</span>
-                <span><strong>Zillow Research</strong></span>
-                <span style="color: #cbd5e1;">|</span>
-                <span><strong>Energy Information Administration</strong></span>
-                <span style="color: #cbd5e1;">|</span>
-                <span><strong>IMF</strong></span>
-            </div>
-            <p style="
-                color: #64748b;
-                font-size: 0.8rem;
-                text-align: center;
-                margin: 12px 0 0 0;
-            ">
-                All data is fetched directly from primary sources. No intermediaries, no delays.
-            </p>
+        """, unsafe_allow_html=True)
+    with col3:
+        st.markdown("""
+        <div style="background: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #e2e8f0;">
+            <div style="font-size: 1.5rem; margin-bottom: 5px;">⚡</div>
+            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">Real-Time Data</div>
+            <div style="color: #64748b; font-size: 0.75rem;">Direct from releases</div>
         </div>
-
-        <!-- Contact & Credits Footer -->
-        <div style="
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-        ">
-            <p style="
-                color: #475569;
-                font-size: 0.95rem;
-                margin: 0 0 8px 0;
-            ">
-                <strong>Questions, feedback, or ideas?</strong>
-            </p>
-            <a href="mailto:waldman1@stanford.edu" style="
-                display: inline-block;
-                background: #3b82f6;
-                color: white;
-                padding: 10px 24px;
-                border-radius: 6px;
-                text-decoration: none;
-                font-weight: 500;
-                font-size: 0.9rem;
-                margin-bottom: 15px;
-            ">waldman1@stanford.edu</a>
-            <p style="
-                color: #94a3b8;
-                font-size: 0.8rem;
-                margin: 15px 0 0 0;
-            ">
-                Built at Stanford University · Powered by Claude AI
-            </p>
+        """, unsafe_allow_html=True)
+    with col4:
+        st.markdown("""
+        <div style="background: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #e2e8f0;">
+            <div style="font-size: 1.5rem; margin-bottom: 5px;">🤖</div>
+            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">AI Insights</div>
+            <div style="color: #64748b; font-size: 0.75rem;">Plain English explanations</div>
         </div>
+        """, unsafe_allow_html=True)
+
+    # Contact footer
+    st.markdown("""
+    <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+        <p style="color: #64748b; font-size: 0.85rem; margin: 0 0 10px 0;">
+            Questions or feedback? <a href="mailto:waldman1@stanford.edu" style="color: #3b82f6;">waldman1@stanford.edu</a>
+        </p>
+        <p style="color: #94a3b8; font-size: 0.75rem; margin: 0;">
+            Built at Stanford University · Powered by Claude AI
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
