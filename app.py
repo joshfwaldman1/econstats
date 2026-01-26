@@ -7463,37 +7463,41 @@ def main():
         font-style: normal !important;
     }
 
-    /* Search bar - lovable style */
+    /* Search bar - clean centered style */
     .search-wrapper {
-        margin: 20px 0 12px 0;
-        border-radius: 24px;
-        overflow: hidden;
-        background: #FFFFFF;
-        border: 2px solid #D4A574;
-        box-shadow: 0 4px 20px rgba(212, 165, 116, 0.15), 0 2px 8px rgba(0, 0, 0, 0.04);
-        transition: all 0.2s ease;
+        max-width: 600px;
+        margin: 24px auto 16px auto;
+        border: none;
+        background: transparent;
     }
-    .search-wrapper:hover {
-        box-shadow: 0 6px 28px rgba(212, 165, 116, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06);
-        border-color: #C4956A;
+    div[data-testid="stTextInput"] {
+        max-width: 600px;
+        margin: 0 auto;
     }
-    .search-wrapper:focus-within {
-        border-color: #B8875C;
-        box-shadow: 0 6px 32px rgba(212, 165, 116, 0.28), 0 4px 16px rgba(0, 0, 0, 0.08);
+    div[data-testid="stTextInput"] > div {
+        background: #FFFFFF !important;
+        border: 2px solid #D4A574 !important;
+        border-radius: 50px !important;
+        box-shadow: 0 2px 12px rgba(212, 165, 116, 0.12) !important;
+        transition: all 0.2s ease !important;
+    }
+    div[data-testid="stTextInput"] > div:hover {
+        box-shadow: 0 4px 20px rgba(212, 165, 116, 0.2) !important;
+    }
+    div[data-testid="stTextInput"] > div:focus-within {
+        border-color: #C4956A !important;
+        box-shadow: 0 4px 24px rgba(212, 165, 116, 0.25) !important;
     }
     div[data-testid="stTextInput"] input {
-        background: #FFFFFF !important;
+        background: transparent !important;
         border: none !important;
-        border-radius: 24px !important;
-        font-size: 1.15rem !important;
-        padding: 1.5rem 2rem !important;
-        min-height: 64px !important;
+        border-radius: 50px !important;
+        font-size: 1.1rem !important;
+        padding: 1rem 1.75rem !important;
+        min-height: 52px !important;
         box-shadow: none !important;
-        transition: none !important;
         text-align: center !important;
         color: #292524 !important;
-        font-weight: 400 !important;
-        letter-spacing: -0.01em !important;
     }
     div[data-testid="stTextInput"] input:focus {
         border: none !important;
@@ -7502,15 +7506,8 @@ def main():
         text-align: left !important;
     }
     div[data-testid="stTextInput"] input::placeholder {
-        color: #9a8a7a !important;
+        color: #a8a29e !important;
         text-align: center !important;
-        font-weight: 400 !important;
-    }
-    /* Hide Streamlit's default input wrapper styling */
-    div[data-testid="stTextInput"] > div {
-        border: none !important;
-        box-shadow: none !important;
-        background: transparent !important;
     }
     div[data-testid="stTextInput"] label {
         display: none !important;
@@ -7528,12 +7525,14 @@ def main():
         /* Prevent horizontal scroll */
         .stApp { overflow-x: hidden; }
         /* Search bar on mobile */
-        .search-wrapper { margin: 15px 0 10px 0; border-radius: 20px; }
+        .search-wrapper { max-width: 100%; margin: 16px auto 12px auto; }
+        div[data-testid="stTextInput"] { max-width: 100%; }
+        div[data-testid="stTextInput"] > div { border-radius: 40px !important; }
         div[data-testid="stTextInput"] input {
             font-size: 16px !important;  /* Prevents iOS zoom */
-            padding: 1.25rem 1.5rem !important;
-            border-radius: 20px !important;
-            min-height: 56px !important;
+            padding: 0.9rem 1.25rem !important;
+            border-radius: 40px !important;
+            min-height: 48px !important;
         }
         /* Category pill buttons on mobile */
         .stButton button {
