@@ -1358,5 +1358,66 @@
     "combine_chart": true,
     "is_comparison": true,
     "explanation": "Consumer sentiment (Michigan) vs business confidence shows whether households and companies see the economy the same way. Divergences are interesting: businesses confident while consumers pessimistic suggests a 'vibecession' - economy OK but people feel bad. The reverse suggests businesses are more worried than headlines show."
+  },
+  "leading indicators dashboard": {
+    "series": [
+      "SAHMREALTIME",
+      "T10Y2Y",
+      "USSLIND",
+      "NAPM",
+      "UMCSENT",
+      "ICSA",
+      "BAMLH0A0HYM2"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "is_dashboard": true,
+    "explanation": "Leading Indicators Dashboard - 7 key signals for economic outlook:\n\n• **Sahm Rule** (SAHMREALTIME): Triggered at 0.5 when 3-mo unemployment rises above 12-mo low. 100% recession accuracy.\n• **Yield Curve** (T10Y2Y): Negative = inverted. Has preceded every recession since 1970.\n• **Leading Economic Index** (USSLIND): Conference Board's 10-component forward-looking index.\n• **ISM Manufacturing PMI** (NAPM): Above 50 = expansion, below 50 = contraction.\n• **Consumer Sentiment** (UMCSENT): Sharp drops precede recessions.\n• **Initial Claims** (ICSA): Rising above 300K = recession signal.\n• **Credit Spreads** (BAMLH0A0HYM2): Widen before recessions as risk aversion rises."
+  },
+  "america's finances": {
+    "series": [
+      "GFDEBTN",
+      "FYFSD",
+      "A091RC1Q027SBEA",
+      "FGRECPT",
+      "FGEXPND"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "America's Fiscal Health:\n\n• **Federal Debt** (GFDEBTN): Total US government debt outstanding - currently ~$34 trillion.\n• **Budget Deficit** (FYFSD): Annual shortfall between spending and revenue.\n• **Interest Payments** (A091RC1Q027SBEA): What we pay to service the debt - rising rapidly with higher rates.\n• **Revenue** (FGRECPT): Federal tax receipts.\n• **Spending** (FGEXPND): Total federal outlays.\n\nKey ratio: Debt-to-GDP above 100% raises sustainability concerns. Interest payments now exceed defense spending."
+  },
+  "federal debt deficit and interest payments": {
+    "series": [
+      "GFDEBTN",
+      "FYFSD",
+      "A091RC1Q027SBEA",
+      "FYOINT"
+    ],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Federal finances deep dive:\n\n• **Total Debt** (GFDEBTN): Accumulated borrowing - ~$34T and rising.\n• **Annual Deficit** (FYFSD): How much we add to debt each year.\n• **Interest Payments** (A091RC1Q027SBEA): Cost of servicing debt - exploding with higher rates.\n• **Net Interest** (FYOINT): Annual interest outlays.\n\nCritical context: At 5% rates on $34T debt, interest alone = $1.7T/year. This crowds out other spending and creates a debt spiral risk if not addressed."
+  },
+  "reindustrializing america": {
+    "series": [
+      "MANEMP",
+      "INDPRO",
+      "IPMAN",
+      "TTLCONS",
+      "ACDGNO"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Is America Reindustrializing?\n\n• **Manufacturing Employment** (MANEMP): Factory jobs - peaked at 19M in 1979, bottomed at 11.5M in 2010, now ~13M.\n• **Industrial Production** (INDPRO): Total output of factories, mines, utilities.\n• **Manufacturing Output** (IPMAN): Factory production specifically.\n• **Construction Spending** (TTLCONS): New factory construction = future capacity.\n• **Durable Goods Orders** (ACDGNO): New orders for long-lasting products.\n\nKey question: Are CHIPS Act, IRA, and reshoring actually rebuilding US manufacturing, or just stabilizing the decline?"
+  },
+  "is america reindustrializing": {
+    "series": [
+      "MANEMP",
+      "INDPRO",
+      "TTLCONS",
+      "CES3000000001"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Reindustrialization scorecard:\n\n• **Manufacturing Jobs** (MANEMP): Has the long decline reversed?\n• **Industrial Production** (INDPRO): Is factory output growing?\n• **Construction Spending** (TTLCONS): Factory construction = future capacity.\n• **Manufacturing Hours** (CES3000000001): Are existing workers producing more?\n\nContext: US lost 5M+ factory jobs 2000-2010 to China/automation. CHIPS Act and reshoring aim to reverse this. Look for sustained job gains + rising construction."
   }
 }

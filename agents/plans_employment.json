@@ -1112,4 +1112,40 @@
     ],
     "combine_chart": false,
     "explanation": "Gig economy proxies (FRED lacks direct gig worker data): Unincorporated self-employed workers (LNS12032194) captures independent contractors and freelancers. Multiple jobholders (LNS12026620) includes those with gig work as second jobs. Comparing to total payrolls (PAYEMS) shows traditional employment context. Note: These are imperfect proxies - true gig workers (Uber, DoorDash, etc.) are undercounted in official stats. For comprehensive gig data, see BLS Contingent Worker Survey (every few years)."
-  }}
+  },
+  "ai impact on jobs": {
+    "series": [
+      "USINFO",
+      "CES6054000001",
+      "OPHNFB",
+      "CES6500000001",
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "AI's Impact on the Labor Market:\n\n• **Information Sector** (USINFO): Tech jobs - software, data, AI companies.\n• **Computer Systems Design** (CES6054000001): Jobs building/deploying AI systems.\n• **Productivity** (OPHNFB): If AI works, productivity should rise faster than employment.\n• **Professional Services** (CES6500000001): White-collar work potentially disrupted by AI.\n• **Total Employment** (PAYEMS): Net job creation.\n\n**What to watch**: Rising productivity + flat white-collar employment = AI displacement underway. History: ATMs didn't kill bank tellers - they shifted to customer service. AI may do the same."
+  },
+  "ai impact on jobs and labor market": {
+    "series": [
+      "USINFO",
+      "CES6054000001",
+      "OPHNFB",
+      "USFIRE",
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "AI and Jobs - The Big Picture:\n\n• **Tech Employment** (USINFO): Where AI jobs live - growing or shrinking?\n• **Computer Systems Design** (CES6054000001): Building AI - should grow with AI investment.\n• **Productivity** (OPHNFB): The AI promise - more output per worker hour.\n• **Finance/Insurance** (USFIRE): White-collar sector most exposed to AI automation.\n• **Total Jobs** (PAYEMS): Net employment - is AI creating more jobs than it destroys?\n\n**Key insight**: Watch for productivity rising faster than employment - that's automation working. If tech jobs grow while finance/admin jobs shrink, displacement is happening."
+  },
+  "automation and jobs": {
+    "series": [
+      "OPHNFB",
+      "MANEMP",
+      "USINFO",
+      "PAYEMS"
+    ],
+    "show_yoy": true,
+    "combine_chart": false,
+    "explanation": "Automation's employment impact:\n\n• **Productivity** (OPHNFB): Rising productivity with flat employment = automation at work.\n• **Manufacturing Jobs** (MANEMP): Most automated sector - lost 5M+ jobs since 2000.\n• **Tech Employment** (USINFO): Creates automation tools, also benefits from them.\n• **Total Jobs** (PAYEMS): Net employment growth.\n\nPattern: Automation eliminates specific tasks but creates new jobs. Speed matters - slow change = adaptation; fast = disruption."
+  }
+}
