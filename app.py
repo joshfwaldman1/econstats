@@ -7015,13 +7015,24 @@ def main():
 
     # UI Mode: Search Bar (default) or Chat Mode (for follow-ups)
     if not st.session_state.chat_mode:
-        # LANDING PAGE MODE - Logo + title
+        # LANDING PAGE MODE - Logo + title (bars with arrow, blue-green gradient)
         logo_svg = '''
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 48px; height: 48px;">
-          <rect x="15" y="55" width="15" height="30" rx="2" fill="#1e3a5f"/>
-          <rect x="35" y="40" width="15" height="45" rx="2" fill="#1e3a5f"/>
-          <rect x="55" y="28" width="15" height="57" rx="2" fill="#d97706"/>
-          <rect x="75" y="15" width="15" height="70" rx="2" fill="#d97706"/>
+          <defs>
+            <linearGradient id="barGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#0ea5e9"/>
+              <stop offset="100%" style="stop-color:#22c55e"/>
+            </linearGradient>
+            <linearGradient id="arrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#22c55e"/>
+              <stop offset="100%" style="stop-color:#16a34a"/>
+            </linearGradient>
+          </defs>
+          <rect x="8" y="58" width="20" height="35" rx="2" fill="url(#barGrad)"/>
+          <rect x="32" y="40" width="20" height="53" rx="2" fill="url(#barGrad)"/>
+          <rect x="56" y="22" width="20" height="71" rx="2" fill="url(#barGrad)"/>
+          <path d="M18 55 L42 35 L66 18 L88 5" stroke="url(#arrowGrad)" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <polygon points="95,2 80,8 84,18" fill="url(#arrowGrad)"/>
         </svg>
         '''
         st.markdown(f"<div style='text-align: center; margin-bottom: 5px;'>{logo_svg}</div>", unsafe_allow_html=True)
