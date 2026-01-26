@@ -7089,91 +7089,57 @@ def main():
                                         val_str = f"{display_val:,.2f}"
                                     st.metric(label=name, value=val_str, delta=delta, delta_color=delta_color)
 
-                    # Summary callout box (after metrics)
-                    if msg.get("explanation"):
-                        summary_html = summary_to_bullets(msg['explanation'])
-                        st.markdown(f"""<div class='summary-callout'>
-                            <h3>Summary</h3>
-                            {summary_html}
-                        </div>""", unsafe_allow_html=True)
+                    # =================================================================
+                    # RAILWAY-STYLE MINIMAL LAYOUT
+                    # Flowing prose without labeled boxes - clean and modern
+                    # =================================================================
 
-                    # Recession Dashboard (displayed prominently for recession queries)
+                    # Main narrative (flowing prose, no "Summary" label)
+                    if msg.get("explanation"):
+                        explanation_text = msg['explanation']
+                        st.markdown(f"""<div style='font-size: 0.95rem; line-height: 1.7; color: #1f2937; margin: 8px 0 16px 0;'>{explanation_text}</div>""", unsafe_allow_html=True)
+
+                    # Recession Dashboard (keep for recession queries - this IS the answer)
                     if msg.get("recession_scorecard") and RECESSION_SCORECARD_AVAILABLE:
                         scorecard = msg["recession_scorecard"]
                         scorecard_html = format_scorecard_for_display(scorecard)
                         st.markdown(scorecard_html, unsafe_allow_html=True)
 
-                    # Polymarket predictions (forward-looking market sentiment)
+                    # Supplementary context - compact inline mentions instead of separate boxes
+                    supplementary_parts = []
+
+                    # Polymarket odds (inline mention for recession/fed queries)
                     if msg.get("polymarket") and POLYMARKET_AVAILABLE:
                         predictions = msg["polymarket"]
                         narrative = synthesize_prediction_narrative(predictions)
                         if narrative:
-                            st.markdown(f"""<div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
-                                <div style='color: #64748b; font-size: 0.8rem; margin-bottom: 6px;'>PREDICTION MARKETS</div>
-                                <div style='color: #334155;'>{narrative}</div>
-                                <div style='color: #94a3b8; font-size: 0.75rem; margin-top: 8px;'>Based on <a href='https://polymarket.com' target='_blank' style='color: #94a3b8;'>Polymarket</a> data, where prices function as a proxy for the likelihood of an event. These probabilities shift rapidly as traders react to news. As a market-based metric, they capture "wisdom of the crowd" sentiment but may differ from professional forecasts.</div>
-                            </div>""", unsafe_allow_html=True)
+                            supplementary_parts.append(f'<span style="color: #64748b;">{narrative}</span> <a href="https://polymarket.com" target="_blank" style="color: #94a3b8; font-size: 0.8rem;">(Polymarket)</a>')
 
-                    # Fed SEP projections (FOMC forecasts)
+                    # Fed guidance (inline for Fed queries)
                     if msg.get("sep") and SEP_AVAILABLE:
                         sep_data = msg["sep"]
                         sep_narrative = format_sep_for_display(sep_data)
                         if sep_narrative:
-                            source_url = sep_data.get('source_url', 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm')
-                            st.markdown(f"""<div style='background: #f8fafc; border-left: 3px solid #3b82f6; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
-                                <div style='color: #1e40af; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'><em><u>Fed Projections</u></em></div>
-                                <div style='color: #334155;'>{sep_narrative}</div>
-                            </div>""", unsafe_allow_html=True)
+                            supplementary_parts.append(f'<span style="color: #1e40af;">{sep_narrative}</span>')
 
-                    # Housing market narrative (Zillow data)
-                    if msg.get("housing_narrative") and ZILLOW_AVAILABLE:
-                        narrative = msg["housing_narrative"]
-                        st.markdown(f"""<div style='background: #fef3c7; border-left: 3px solid #f59e0b; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
-                            <div style='color: #92400e; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'>HOUSING MARKET</div>
-                            <div style='color: #78350f;'>{narrative}</div>
-                            <div style='color: #a16207; font-size: 0.75rem; margin-top: 8px;'>Based on <a href='https://www.zillow.com/research/data/' target='_blank' style='color: #a16207;'>Zillow Research</a> data. Market rents from ZORI lead official CPI shelter by 12-18 months.</div>
-                        </div>""", unsafe_allow_html=True)
+                    # Show supplementary info as subtle inline text if present
+                    if supplementary_parts:
+                        st.markdown(f"""<div style='font-size: 0.85rem; line-height: 1.6; color: #6b7280; margin: 12px 0; padding: 10px 0; border-top: 1px solid #f3f4f6;'>{"<br>".join(supplementary_parts)}</div>""", unsafe_allow_html=True)
 
-                    # Energy market narrative (EIA data)
-                    if msg.get("energy_narrative") and EIA_AVAILABLE:
-                        narrative = msg["energy_narrative"]
-                        st.markdown(f"""<div style='background: #ecfdf5; border-left: 3px solid #10b981; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
-                            <div style='color: #047857; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'>ENERGY PRICES</div>
-                            <div style='color: #065f46;'>{narrative}</div>
-                            <div style='color: #059669; font-size: 0.75rem; margin-top: 8px;'>Based on <a href='https://www.eia.gov/' target='_blank' style='color: #059669;'>EIA</a> data. Energy prices are volatile and affect headline inflation directly.</div>
-                        </div>""", unsafe_allow_html=True)
-
-                    # Financial markets narrative (Alpha Vantage data)
-                    if msg.get("market_narrative") and ALPHAVANTAGE_AVAILABLE:
-                        narrative = msg["market_narrative"]
-                        st.markdown(f"""<div style='background: #eff6ff; border-left: 3px solid #3b82f6; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
-                            <div style='color: #1d4ed8; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'>FINANCIAL MARKETS</div>
-                            <div style='color: #1e40af;'>{narrative}</div>
-                            <div style='color: #2563eb; font-size: 0.75rem; margin-top: 8px;'>Market data may be delayed. Treasury yields affect mortgage rates and business borrowing costs.</div>
-                        </div>""", unsafe_allow_html=True)
-
-                    # Historical analogues (1994 soft landing, 2008 crisis, etc.)
+                    # Historical context (keep but lighter)
                     if msg.get("historical_context") and ANALOGUES_AVAILABLE:
                         context = msg["historical_context"]
                         if context.get("narrative"):
-                            # Get top analogue for header
                             top_analogue = context.get("analogues", [{}])[0] if context.get("analogues") else {}
-                            analogue_name = top_analogue.get("name", "Historical Context")
+                            analogue_name = top_analogue.get("name", "")
                             similarity = top_analogue.get("similarity_pct", 0)
+                            analogue_label = f" (similar to {analogue_name}, {similarity:.0f}% match)" if analogue_name else ""
+                            st.markdown(f"""<div style='font-size: 0.85rem; line-height: 1.6; color: #7c3aed; margin: 8px 0; font-style: italic;'>{context['narrative']}{analogue_label}</div>""", unsafe_allow_html=True)
 
-                            st.markdown(f"""<div style='background: #faf5ff; border-left: 3px solid #9333ea; padding: 12px 16px; margin: 12px 0; font-size: 0.88rem; line-height: 1.6;'>
-                                <div style='color: #7c3aed; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;'>HISTORICAL CONTEXT: {analogue_name} ({similarity:.0f}% match)</div>
-                                <div style='color: #581c87;'>{context['narrative']}</div>
-                            </div>""", unsafe_allow_html=True)
-
-                    # Economic Analysis (simplified, lighter styling)
+                    # Economic Analysis (merged into flow - no separate header)
                     if msg.get("premium_analysis_html") and PREMIUM_ANALYSIS_AVAILABLE:
                         analysis_html = msg["premium_analysis_html"]
-
-                        st.markdown(f"""<div style='border-top: 1px solid #e5e7eb; padding-top: 16px; margin-top: 16px;'>
-                            <div style='color: #6b7280; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;'>Economic Analysis</div>
-                            {analysis_html}
-                        </div>""", unsafe_allow_html=True)
+                        st.markdown(f"""<div style='margin-top: 12px;'>{analysis_html}</div>""", unsafe_allow_html=True)
 
                     # Render charts from stored series_data
                     if msg.get("series_data"):
@@ -8622,13 +8588,9 @@ def main():
             # Summary callout at top - prominent dashboard style
             has_narrative_content = ai_explanation or any(values for _, _, values, _ in series_data)
             if has_narrative_content:
-                # Summary callout box
+                # Railway-style: flowing prose without box/label
                 if ai_explanation:
-                    summary_html = summary_to_bullets(ai_explanation)
-                    st.markdown(f"""<div class='summary-callout'>
-                        <h3>Summary</h3>
-                        {summary_html}
-                    </div>""", unsafe_allow_html=True)
+                    st.markdown(f"""<div style='font-size: 0.95rem; line-height: 1.7; color: #1f2937; margin: 8px 0 16px 0;'>{ai_explanation}</div>""", unsafe_allow_html=True)
 
                 # Key metrics row using st.metric
                 if series_data:
