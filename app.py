@@ -1721,8 +1721,9 @@ def parallel_route_query(query: str, skip_understanding: bool = False) -> dict:
                 result = future.result(timeout=1.0)
                 if result:
                     results[route_name] = result
-            except Exception:
-                pass
+            except Exception as e:
+                # Log routing errors instead of silently swallowing them
+                print(f"[ROUTING ERROR] {route_name} route failed: {type(e).__name__}: {e}")
 
     # Pick best result based on priority
     priority_order = ['direct', 'comparison', 'health_check', 'precomputed', 'stocks', 'international']

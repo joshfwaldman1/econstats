@@ -34,10 +34,18 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 DIRECT_SERIES_MAPPINGS = {
     # Federal Reserve / Interest Rates
     'fed funds rate': ['FEDFUNDS', 'DFEDTARU'],
-    'fed rate': ['FEDFUNDS', 'DFEDTARU'],
+    'fed rate': ['FEDFUNDS', 'DGS2', 'DGS10'],
     'federal funds': ['FEDFUNDS'],
     'interest rate': ['FEDFUNDS', 'DGS10', 'DGS2'],
     'interest rates': ['FEDFUNDS', 'DGS10', 'DGS2'],
+    'what is the fed doing': ['FEDFUNDS', 'DGS2', 'DGS10', 'T10Y2Y'],
+    'what is the fed doing with interest rates': ['FEDFUNDS', 'DGS2', 'DGS10', 'T10Y2Y', 'MORTGAGE30US'],
+    'fed doing': ['FEDFUNDS', 'DGS2', 'DGS10', 'T10Y2Y'],
+    'fed doing with interest rates': ['FEDFUNDS', 'DGS2', 'DGS10', 'T10Y2Y', 'MORTGAGE30US'],
+    'fed doing with rates': ['FEDFUNDS', 'DGS2', 'DGS10', 'T10Y2Y', 'MORTGAGE30US'],
+    'fed policy': ['FEDFUNDS', 'DGS2', 'DGS10', 'T10Y2Y'],
+    'fed interest rates': ['FEDFUNDS', 'DGS2', 'DGS10', 'T10Y2Y'],
+    'monetary policy': ['FEDFUNDS', 'DGS2', 'DGS10', 'T10Y2Y', 'M2SL'],
     'treasury yield': ['DGS10', 'DGS2', 'DGS30'],
     'treasury yields': ['DGS10', 'DGS2', 'DGS30'],
     '10 year treasury': ['DGS10'],
@@ -82,9 +90,10 @@ DIRECT_SERIES_MAPPINGS = {
     'gdpnow': ['GDPNOW', 'STLENI'],
     'nowcast': ['GDPNOW', 'STLENI'],
     'economic growth': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA'],
-    'recession': ['A191RL1Q225SBEA', 'T10Y2Y', 'UNRATE', 'UMCSENT'],
-    'is a recession coming': ['T10Y2Y', 'A191RL1Q225SBEA', 'UMCSENT', 'ICSA'],
-    'recession risk': ['T10Y2Y', 'A191RL1Q225SBEA', 'UMCSENT', 'ICSA'],
+    'recession': ['SAHMREALTIME', 'T10Y2Y', 'UNRATE', 'UMCSENT', 'A191RL1Q225SBEA'],
+    'is a recession coming': ['SAHMREALTIME', 'T10Y2Y', 'UMCSENT', 'ICSA', 'USSLIND'],
+    'recession risk': ['SAHMREALTIME', 'T10Y2Y', 'UMCSENT', 'ICSA', 'USSLIND'],
+    'recession probability': ['SAHMREALTIME', 'RECPROUSM156N', 'T10Y2Y'],
 
     # Employment - specific measures
     'unemployment rate': ['UNRATE', 'U6RATE'],
@@ -122,9 +131,10 @@ DIRECT_SERIES_MAPPINGS = {
     'housing market': ['CSUSHPINSA', 'HOUST', 'MORTGAGE30US', 'EXHOSLUSM495S'],
     'existing home sales': ['EXHOSLUSM495S'],
     'new home sales': ['HSN1F'],
-    'housing affordability': ['FIXHAI', 'MORTGAGE30US', 'MSPUS'],
-    'is housing affordable': ['FIXHAI', 'MORTGAGE30US', 'MSPUS'],
-    'can i afford a house': ['FIXHAI', 'MORTGAGE30US', 'MSPUS'],
+    'housing affordability': ['FIXHAI', 'MORTGAGE30US', 'MSPUS', 'MDSP'],
+    'is housing affordable': ['FIXHAI', 'MORTGAGE30US', 'MSPUS', 'HOUST'],
+    'can i afford a house': ['FIXHAI', 'MORTGAGE30US', 'MSPUS', 'TDSP'],
+    'housing costs': ['CUSR0000SAH1', 'MORTGAGE30US', 'MSPUS', 'FIXHAI'],
 
     # Consumer
     'consumer sentiment': ['UMCSENT'],

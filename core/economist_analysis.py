@@ -81,6 +81,19 @@ try:
 except ImportError:
     HAS_ANALYSIS_GAPS = False
 
+# Series context - provides interpretive templates and relationship data
+try:
+    from core.series_context import (
+        get_context as get_series_context,
+        interpret_value,
+        get_recession_status,
+        get_forward_implications,
+        SERIES_CONTEXT,
+    )
+    HAS_SERIES_CONTEXT = True
+except ImportError:
+    HAS_SERIES_CONTEXT = False
+
 
 # API Keys
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -883,12 +896,36 @@ def _call_llm_for_analysis(
         for rule in applicable_rules:
             rules_text += f"- {rule['interpretation']}. Implication: {rule['implication']}\n"
 
+    # Build series context section (benchmarks, thresholds, forward implications)
+    series_context_text = ""
+    if HAS_SERIES_CONTEXT and series_data:
+        context_items = []
+        for series_id, dates, values, info in series_data:
+            if values:
+                current_value = values[-1]
+                # Get the interpretive context
+                interpretation = interpret_value(series_id, current_value)
+                if interpretation:
+                    context_items.append(interpretation)
+                # Check for recession warnings
+                recession_status = get_recession_status(series_id, current_value)
+                if recession_status:
+                    context_items.insert(0, f"⚠️ {recession_status}")
+                # Get what this series leads
+                implications = get_forward_implications(series_id)
+                if implications:
+                    ctx = get_series_context(series_id)
+                    if ctx:
+                        context_items.append(f"{ctx.name} leads: {', '.join(implications[:2])}")
+        if context_items:
+            series_context_text = "\n\nBENCHMARKS & INTERPRETIVE CONTEXT:\n" + "\n".join(f"- {item}" for item in context_items[:6])
+
     # Build news context section
     news_section = ""
     if news_context:
         news_section = f"\n\nRECENT NEWS CONTEXT:\n{news_context}"
 
-    prompt = f"""You are a data analyst writing a clear summary of economic data. Your job is to DESCRIBE THE DATA clearly and specifically - that's what makes this valuable. Avoid vague interpretive claims.
+    prompt = f"""You are a sharp economic analyst at a top research firm, writing insights for intelligent non-economists. Your job is to EXPLAIN WHAT THE DATA MEANS and WHY IT MATTERS - not just describe numbers.
 
 USER QUESTION: {query}
 
@@ -898,47 +935,45 @@ DATA:
 KEY METRICS EXTRACTED:
 {json.dumps(data_context, indent=2)}
 {rules_text}
+{series_context_text}
 {news_section}
 
-Write a clear data summary in this exact JSON format:
+Write an insightful analysis in this exact JSON format:
 {{
-    "headline": "One sentence summarizing the overall picture with key numbers",
+    "headline": "One punchy sentence answering the user's question with the key insight",
     "narrative": [
-        "Bullet 1: State the first indicator's value, date, and YoY change clearly",
-        "Bullet 2: State the second indicator's value and how it compares to history",
-        "Bullet 3: State another key data point with its trend direction",
-        "Bullet 4: One sentence connecting what these numbers together suggest"
+        "First, state the most important number with context (vs last year, vs historical average)",
+        "Then explain WHY this matters or what's driving it",
+        "Connect to a related indicator that confirms or complicates the story",
+        "End with the forward-looking implication: what this means for the next 3-6 months"
     ],
-    "key_insight": "The single most important pattern in the data",
+    "key_insight": "The one thing a smart person should take away from this data",
     "confidence": "high" | "medium" | "low"
 }}
 
-CRITICAL RULES - READ CAREFULLY:
-1. DESCRIBE THE DATA - Each bullet should state a specific number, date, and context
-2. NO VAGUE ASSERTIONS - Never write "labor market remains tight" - instead write "unemployment at 4.4% is up 0.2pp from last year"
-3. NO PUNDITRY - Avoid phrases like "threading the needle", "soft landing", "normalizing", "suggesting employers are becoming more selective"
-4. LEAD WITH NUMBERS - Every bullet should start with or prominently feature a specific data value
-5. YEAR-OVER-YEAR IS GOLD - Always state the YoY change when available (e.g., "down 85% from December 2024")
-6. BE CONCRETE - "50K jobs added" not "job creation slowed"
-7. FORMAT DATES NATURALLY - "2025-12-01" becomes "December 2025"
-8. CONVERT UNITS NATURALLY - "1764.6 thousands" becomes "about 1.8 million"
+YOUR ANALYSIS SHOULD:
+1. ANSWER THE QUESTION - If they asked "is rent inflation coming down?", your headline should say yes or no, not "here's the data"
+2. CONNECT THE DOTS - Link multiple indicators into a coherent story (e.g., "Zillow rents fell 6 months ago, and now CPI rent is finally following")
+3. PROVIDE CONTEXT - Is this number high or low historically? What's normal? (e.g., "4.4% unemployment is still below the 5.7% long-term average")
+4. EXPLAIN CAUSATION - Why is this happening? (e.g., "Shelter inflation is sticky because CPI measures existing leases, not new market rents")
+5. LOOK FORWARD - What does this mean for the future? (e.g., "This suggests the Fed will have room to cut by mid-year")
+6. BE SPECIFIC - Always include the actual numbers, dates, and YoY changes
 
-GOOD BULLET EXAMPLES:
-- "Unemployment: 4.4% in December 2025, up 0.2 percentage points from a year ago"
-- "Job creation: 50K jobs added in December, down 85% from December 2024's 325K pace"
-- "GDP: Growing 2.3% year-over-year as of Q3 2025, unchanged from last year"
-- "Together these show: growth continuing while hiring has cooled significantly"
+GREAT ANALYSIS EXAMPLES:
+- "Rent inflation is finally cracking. CPI rent rose 4.8% YoY in December, but that's down from 8% a year ago—and Zillow market rents are already falling 2% YoY. Since CPI rent lags market rents by 12 months, this means shelter inflation should drop sharply by summer 2026."
+- "The labor market is cooling but not collapsing. Unemployment rose to 4.4% (up 0.5pp from the low), but initial claims at 220K/week are nowhere near recession levels of 350K+. This looks like normalization, not deterioration."
+- "The yield curve has been inverted for 18 months—the longest inversion since the 1970s. Historically, recession follows 12-18 months after inversion. But Polymarket puts recession odds at just 25%, suggesting markets see a soft landing."
 
-BAD BULLET EXAMPLES (DO NOT WRITE LIKE THIS):
-- "Labor markets remain tight but are normalizing"
-- "Growth momentum is strong with broad-based economic strength"
-- "The economy appears to be threading the needle toward a soft landing"
-- "suggesting employers are becoming more selective in hiring"
+AVOID:
+- Mere data recitation without insight ("Inflation was 2.65% in December")
+- Weasel words ("appears to be", "may suggest", "could potentially")
+- Clichés ("threading the needle", "remains to be seen", "time will tell")
+- Being wishy-washy when the data is clear
 
 The confidence level should be:
-- "high" if data is recent and clear
-- "medium" if data is mixed
-- "low" if data is stale or conflicting
+- "high" if data clearly answers the question
+- "medium" if data is mixed or requires interpretation
+- "low" if data is stale, conflicting, or doesn't directly answer the question
 
 Return ONLY valid JSON, no markdown or explanation."""
 
@@ -1089,6 +1124,33 @@ def _generate_fallback_analysis(
                     historical_descriptions.append(description)
 
     # =========================================================================
+    # STEP 3b: Get series context for interpretive insights
+    # =========================================================================
+    series_interpretations = []
+    recession_warnings = []
+    forward_implications = []
+
+    if HAS_SERIES_CONTEXT:
+        for series_id, data in series_dict.items():
+            if data.get('values'):
+                current_value = data['values'][-1]
+
+                # Get interpretation with benchmarks
+                interpretation = interpret_value(series_id, current_value)
+                if interpretation:
+                    series_interpretations.append(interpretation)
+
+                # Check for recession warnings
+                recession_status = get_recession_status(series_id, current_value)
+                if recession_status:
+                    recession_warnings.append(recession_status)
+
+                # Get forward implications
+                implications = get_forward_implications(series_id)
+                if implications:
+                    forward_implications.extend(implications[:2])  # Max 2 per series
+
+    # =========================================================================
     # STEP 4: Generate data-driven insights using narrator
     # =========================================================================
     data_insights = []
@@ -1155,12 +1217,22 @@ def _generate_fallback_analysis(
     # =========================================================================
     narrative = []
 
-    # First, add data insights (from narrator)
+    # First, add series interpretations (from series_context - the "so what")
+    for interp in series_interpretations[:2]:  # Max 2 interpretations
+        if len(interp) > 200:
+            interp = interp[:197] + "..."
+        narrative.append(interp)
+
+    # Add recession warnings prominently if any
+    for warning in recession_warnings[:1]:  # Max 1 recession warning
+        narrative.insert(0, warning)  # Put at start - most important
+
+    # Add data insights (from narrator)
     for insight in data_insights[:2]:  # Max 2 data insights
-        # Truncate if too long
-        if len(insight) > 200:
-            insight = insight[:197] + "..."
-        narrative.append(insight)
+        if insight not in ' '.join(narrative):  # Avoid duplicates
+            if len(insight) > 200:
+                insight = insight[:197] + "..."
+            narrative.append(insight)
 
     # Add causal explanations for applicable rules
     for rule in applicable_rules[:2]:  # Max 2 rules
@@ -1170,7 +1242,8 @@ def _generate_fallback_analysis(
         # Build the rule text - hedging is already applied in the rule definitions
         # so we just need to format it properly
         rule_text = f"{interpretation.capitalize()}. {implication.capitalize()}."
-        narrative.append(rule_text)
+        if rule_text not in ' '.join(narrative):  # Avoid duplicates
+            narrative.append(rule_text)
 
     # Add historical context summary if we have it
     if historical_descriptions and len(narrative) < 4:
@@ -1181,6 +1254,13 @@ def _generate_fallback_analysis(
                 if len(desc) > 180:
                     desc = desc[:177] + "..."
                 narrative.append(desc)
+
+    # Add forward implications if we have room
+    if forward_implications and len(narrative) < 5:
+        unique_implications = list(set(forward_implications))[:2]
+        if unique_implications:
+            implications_text = f"This data tends to lead: {', '.join(unique_implications)}."
+            narrative.append(implications_text)
 
     # Ensure we have at least one narrative point
     if not narrative:

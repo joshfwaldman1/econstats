@@ -26,6 +26,7 @@ except ImportError:
     pass
 
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', os.environ.get('GOOGLE_API_KEY', ''))
 
 # =============================================================================
 # FRED SERIES CATALOG
@@ -194,7 +195,7 @@ FRED_SERIES_CATALOG = [
     {"id": "PCEPILFE", "name": "Core PCE",
      "description": "Core PCE excluding food and energy. The Fed's 2% inflation target measure."},
     {"id": "CUSR0000SAH1", "name": "CPI - Shelter",
-     "description": "Consumer price index for shelter, housing costs. Rent and housing inflation."},
+     "description": "Consumer price index for shelter - TOTAL HOUSING COSTS including rent and owners equivalent rent. Shelter inflation, housing CPI, housing costs inflation, is shelter inflation coming down, housing component of CPI. Shelter is ~35% of CPI and the stickiest component - key driver of core inflation. When people ask about housing inflation or rent inflation broadly, this is the comprehensive measure."},
     {"id": "CUSR0000SAF11", "name": "CPI - Food at Home",
      "description": "Consumer price index for groceries. Food prices, grocery inflation."},
     {"id": "CUSR0000SEFV", "name": "CPI - Food Away from Home",
@@ -604,9 +605,11 @@ FRED_SERIES_CATALOG = [
     {"id": "CUUR0000SETA02", "name": "CPI: Used Cars and Trucks",
      "description": "Consumer price index for used vehicles. Secondary market car prices. Extremely volatile - spiked 40% during chip shortage. Supply-driven inflation component."},
     {"id": "CUSR0000SEHA", "name": "CPI: Rent of Primary Residence",
-     "description": "Consumer price index for actual rent paid. Real rent inflation for tenants. Lags market rents by 6-12 months due to lease renewal timing."},
-    {"id": "CUSR0000SEHC01", "name": "CPI: Owners Equivalent Rent (OER)",
-     "description": "Consumer price index for owners equivalent rent. Imputed housing cost for homeowners based on rental market. Largest single CPI component at ~25% weight."},
+     "description": "Consumer price index for actual rent paid by tenants. RENT INFLATION, rental prices, rent CPI, apartment rent costs, tenant housing costs, is rent inflation coming down, is rent going up, rental market inflation, what tenants pay, lease costs, monthly rent, rental inflation rate. Lags market rents (Zillow) by 6-12 months due to slow lease turnover - when Zillow rents fall, CPI rent takes a year to follow. Key for answering 'is rent inflation coming down' questions."},
+    {"id": "CUSR0000SEHC", "name": "CPI: Owners Equivalent Rent (OER)",
+     "description": "Consumer price index for owners equivalent rent. Imputed housing cost for homeowners based on what their home would rent for. OER, homeowner housing costs, imputed rent, housing inflation for owners. Largest single CPI component at ~25% weight. Drives shelter inflation which drives core CPI."},
+    {"id": "CUSR0000SEHC01", "name": "CPI: Owners Equivalent Rent (OER) - Detailed",
+     "description": "Detailed owners equivalent rent index. Imputed housing cost for homeowners based on rental market. Housing inflation, shelter costs, homeowner equivalent rent."},
     {"id": "PPIFIS", "name": "PPI: Final Demand Services",
      "description": "Producer price index for final demand services. Business-to-business service costs. Upstream service inflation before reaching consumers."},
     {"id": "PPIFGS", "name": "PPI: Final Demand Goods",
@@ -672,6 +675,153 @@ FRED_SERIES_CATALOG = [
     {"id": "AMDMUO", "name": "Durable Goods Unfilled Orders",
      "description": "Unfilled orders backlog for durable goods. Big-ticket items awaiting production. Capacity utilization and demand strength."},
 
+    # ==========================================================================
+    # COMPREHENSIVE ADDITIONS - January 2026
+    # Critical series for common query patterns that were previously missing
+    # ==========================================================================
+
+    # === INFLATION COMPONENTS - DETAILED BREAKDOWN ===
+    {"id": "CUSR0000SA0L1E", "name": "CPI: All Items Less Food and Energy",
+     "description": "Core CPI inflation excluding volatile food and energy. Core inflation rate, underlying inflation, inflation ex food and energy. The standard 'core' measure economists watch for underlying price pressures."},
+    {"id": "CUSR0000SA0L2", "name": "CPI: All Items Less Shelter",
+     "description": "CPI excluding shelter/housing. Inflation without rent, non-housing inflation. Shows what inflation looks like if you strip out the sticky housing component."},
+    {"id": "CUSR0000SA0L5", "name": "CPI: All Items Less Medical Care",
+     "description": "CPI excluding medical care costs. Inflation without healthcare, non-medical inflation."},
+    {"id": "CUSR0000SAS", "name": "CPI: Services",
+     "description": "Consumer price index for all services. Service sector inflation, services prices, non-goods inflation. Services are stickier than goods inflation."},
+    {"id": "CUSR0000SACL1E", "name": "CPI: Commodities Less Food and Energy",
+     "description": "Core goods inflation excluding food and energy. Goods prices, merchandise inflation, physical product prices."},
+    {"id": "CUSR0000SAH2", "name": "CPI: Fuels and Utilities",
+     "description": "Consumer price index for fuels and utilities. Energy bills, utility costs, heating fuel, electricity bills, natural gas bills, home energy costs."},
+    {"id": "CUSR0000SAH3", "name": "CPI: Household Furnishings and Operations",
+     "description": "CPI for furniture, appliances, household supplies. Home goods prices, furniture inflation, appliance costs."},
+    {"id": "CUSR0000SAA", "name": "CPI: Apparel",
+     "description": "Consumer price index for clothing and apparel. Clothing prices, fashion costs, apparel inflation, what clothes cost."},
+    {"id": "CUSR0000SAT", "name": "CPI: Transportation",
+     "description": "Consumer price index for transportation. Vehicle prices, car costs, transportation inflation, commuting costs, airfares, public transit fares."},
+    {"id": "CUSR0000SETB", "name": "CPI: Motor Fuel",
+     "description": "Consumer price index for all motor fuel. Gas prices, fuel costs, gasoline inflation, diesel prices, what you pay at the pump."},
+    {"id": "CUSR0000SEHF", "name": "CPI: Energy Services",
+     "description": "Consumer price index for energy services. Electricity prices, utility rates, piped gas, home energy inflation."},
+    {"id": "CUSR0000SEHF01", "name": "CPI: Electricity",
+     "description": "Consumer price index specifically for electricity. Electric bills, power costs, electricity rates, electricity inflation."},
+    {"id": "CUSR0000SEHF02", "name": "CPI: Utility (Piped) Gas Service",
+     "description": "Consumer price index for natural gas utility service. Gas bills, heating costs, natural gas prices for homes."},
+    {"id": "CUSR0000SS4501A", "name": "CPI: Hospital Services",
+     "description": "Consumer price index for hospital and related services. Hospital costs, inpatient care costs, medical facility prices."},
+    {"id": "CPIMEDSL", "name": "CPI: Medical Care Services",
+     "description": "Consumer price index for medical care services. Healthcare inflation, doctor visits, medical costs, health services prices."},
+
+    # === SUPERCORE AND ALTERNATIVE INFLATION MEASURES ===
+    {"id": "CORESTICKM157SFRBATL", "name": "Sticky Price CPI",
+     "description": "Atlanta Fed sticky price CPI. Prices that change infrequently, sticky inflation, underlying inflation trends. Better signal of persistent inflation."},
+    {"id": "CORESTICKM158SFRBATL", "name": "Sticky Price CPI Less Shelter",
+     "description": "Atlanta Fed sticky price CPI excluding shelter. Sticky core inflation without housing, supercore sticky inflation."},
+    {"id": "FLEXCPIM157SFRBATL", "name": "Flexible Price CPI",
+     "description": "Atlanta Fed flexible price CPI. Prices that change frequently, volatile inflation components."},
+    {"id": "TRMMEANCPIM158SFRBCLE", "name": "Trimmed Mean PCE Inflation",
+     "description": "Cleveland Fed trimmed mean PCE inflation. Removes outliers from PCE for cleaner inflation signal. Alternative core inflation measure."},
+    {"id": "MEDCPIM158SFRBCLE", "name": "Median CPI",
+     "description": "Cleveland Fed median CPI. The median price change across all items, removes influence of outliers. Persistent inflation signal."},
+    {"id": "PCETRIM1M158SFRBDAL", "name": "Dallas Fed Trimmed Mean PCE",
+     "description": "Dallas Fed trimmed mean PCE inflation rate. Removes extremes for cleaner inflation reading. Fed-preferred alternative inflation gauge."},
+    {"id": "BPCCRO1Q156NBEA", "name": "PCE Chain-Type Price Index Growth",
+     "description": "PCE price index quarterly growth rate. Fed's preferred inflation measure growth rate, PCE inflation annualized."},
+
+    # === WAGE INFLATION AND LABOR COSTS ===
+    {"id": "ECIWAG", "name": "Employment Cost Index: Wages",
+     "description": "Employment cost index for wages and salaries. Wage inflation, wage growth, pay increases, salary inflation. Most comprehensive wage measure."},
+    {"id": "ECIALLCIV", "name": "Employment Cost Index: Total Compensation",
+     "description": "Employment cost index for total compensation including benefits. Total labor costs, compensation growth, wages plus benefits."},
+    {"id": "CES0500000003", "name": "Average Hourly Earnings: All Private",
+     "description": "Average hourly earnings for all private employees. Wage growth, pay levels, hourly pay, what workers earn per hour."},
+    {"id": "CES0500000011", "name": "Average Weekly Earnings: All Private",
+     "description": "Average weekly earnings for all private employees. Weekly pay, take-home pay, total weekly earnings."},
+    {"id": "COMPRNFB", "name": "Real Compensation Per Hour: Nonfarm Business",
+     "description": "Real hourly compensation in nonfarm business sector. Inflation-adjusted pay, real wage growth, purchasing power of wages."},
+    {"id": "OPHNFB", "name": "Nonfarm Business Output Per Hour",
+     "description": "Labor productivity - output per hour worked in nonfarm business. Productivity growth, worker efficiency, how much workers produce."},
+    {"id": "ULCNFB", "name": "Unit Labor Costs: Nonfarm Business",
+     "description": "Unit labor costs in nonfarm business. Labor cost per unit of output, wage-productivity balance, cost of labor per unit produced."},
+
+    # === HOUSING AFFORDABILITY AND MARKET DYNAMICS ===
+    {"id": "HOUST1F", "name": "Housing Starts: Single Family",
+     "description": "New single-family housing starts. Single family home construction, house building, new home construction starts."},
+    {"id": "HOUST5F", "name": "Housing Starts: 5+ Units",
+     "description": "Housing starts for buildings with 5+ units. Apartment construction, multifamily building, apartment development."},
+    {"id": "PERMIT1", "name": "Building Permits: Single Family",
+     "description": "Building permits for single-family homes. Future single-family construction, home building permits."},
+    {"id": "COMPUTSA", "name": "Housing Units Under Construction",
+     "description": "Total housing units currently under construction. Construction pipeline, housing supply in progress."},
+    {"id": "COMPU1USA", "name": "Single Family Units Under Construction",
+     "description": "Single-family homes currently under construction. House building pipeline, homes being built."},
+    {"id": "ETOTALUSQ176N", "name": "Housing Inventory Estimate",
+     "description": "Total housing units in the United States. Housing stock, total homes, housing supply."},
+    {"id": "ASPUS", "name": "Average Sales Price of Houses Sold",
+     "description": "Average home sale price. House prices, home costs, what homes sell for on average."},
+    {"id": "USHOWN", "name": "Homeownership Rate",
+     "description": "US homeownership rate. Percent of households owning homes, homeowner share, ownership vs renting."},
+    {"id": "HCAI", "name": "Housing Credit Availability Index",
+     "description": "Urban Institute housing credit availability index. Mortgage lending standards, how easy to get a mortgage, credit access for homebuyers."},
+
+    # === CONSUMER FINANCIAL HEALTH ===
+    {"id": "TDSP", "name": "Household Debt Service Ratio",
+     "description": "Household debt service payments as percent of disposable income. Debt burden, how much income goes to debt payments, consumer financial stress."},
+    {"id": "FODSP", "name": "Financial Obligations Ratio",
+     "description": "Financial obligations ratio for households. Debt plus rent, auto leases, insurance as share of income. Broader debt burden measure."},
+    {"id": "CDSP", "name": "Consumer Debt Service Ratio",
+     "description": "Consumer debt service payments as percent of income. Non-mortgage debt burden, credit card and auto loan payments."},
+    {"id": "MDSP", "name": "Mortgage Debt Service Ratio",
+     "description": "Mortgage debt service as percent of income. Housing debt burden, mortgage payment share of income."},
+    {"id": "BOGZ1FL153020005Q", "name": "Household Net Worth",
+     "description": "Total household net worth. Wealth, assets minus liabilities, American household wealth, how rich are households."},
+    {"id": "HNOREMQ027S", "name": "Household Real Estate Holdings",
+     "description": "Household real estate value. Home equity, homeowner wealth, housing wealth of Americans."},
+    {"id": "HNOFDTIQ027S", "name": "Household Financial Assets",
+     "description": "Household financial assets. Stocks, bonds, savings, 401k, investment holdings of households."},
+
+    # === BUSINESS AND CORPORATE HEALTH ===
+    {"id": "CP", "name": "Corporate Profits",
+     "description": "Corporate profits after tax. Business earnings, company profits, corporate America earnings, how much companies make."},
+    {"id": "CPATAX", "name": "Corporate Profits After Tax",
+     "description": "Corporate profits after tax with inventory and capital consumption adjustments. Adjusted business profits."},
+    {"id": "A053RC1Q027SBEA", "name": "Corporate Profits Before Tax",
+     "description": "Corporate profits before tax. Pre-tax business earnings, gross corporate profits."},
+    {"id": "BOGZ1FA106000105Q", "name": "Nonfinancial Corporate Debt",
+     "description": "Nonfinancial corporate business debt. Corporate borrowing, business debt levels, company leverage."},
+    {"id": "NCBCMDPMVCE", "name": "Market Value of Corporate Equities",
+     "description": "Market value of nonfinancial corporate equities. Stock market value, corporate America market cap."},
+    {"id": "BUSINSMNSA", "name": "Business Inventories",
+     "description": "Total business inventories. Inventory levels, stock on hand, business stockpiles."},
+    {"id": "RETAILIMSA", "name": "Retail Inventories",
+     "description": "Retail inventory levels. Store stock, retail stockpiles, what retailers have on shelves."},
+    {"id": "ISRATIO", "name": "Inventory to Sales Ratio",
+     "description": "Business inventories to sales ratio. Inventory efficiency, stock turnover, how long inventory lasts."},
+
+    # === ADDITIONAL LABOR MARKET DETAILS ===
+    {"id": "UEMPLT5", "name": "Unemployed Less Than 5 Weeks",
+     "description": "Number unemployed less than 5 weeks. Short-term unemployment, newly unemployed, recent job losers."},
+    {"id": "UEMP5TO14", "name": "Unemployed 5-14 Weeks",
+     "description": "Number unemployed 5-14 weeks. Medium-term unemployment, job seekers for 1-3 months."},
+    {"id": "UEMP15T26", "name": "Unemployed 15-26 Weeks",
+     "description": "Number unemployed 15-26 weeks. Longer unemployment spell, 4-6 months without work."},
+    {"id": "UEMP27OV", "name": "Unemployed 27 Weeks and Over",
+     "description": "Long-term unemployed 27+ weeks. Long-term unemployment, chronically jobless, 6+ months without work."},
+    {"id": "U1RATE", "name": "Unemployment Rate: U-1",
+     "description": "U-1 unemployment rate - persons unemployed 15 weeks or longer. Long-term unemployment rate."},
+    {"id": "U2RATE", "name": "Unemployment Rate: U-2",
+     "description": "U-2 unemployment rate - job losers and completed temporary jobs. Involuntary unemployment."},
+    {"id": "U4RATE", "name": "Unemployment Rate: U-4",
+     "description": "U-4 unemployment rate including discouraged workers. Broader unemployment including those who stopped looking."},
+    {"id": "U5RATE", "name": "Unemployment Rate: U-5",
+     "description": "U-5 unemployment rate including marginally attached workers. Even broader unemployment measure."},
+    {"id": "LNS12032194", "name": "Part-Time for Economic Reasons",
+     "description": "Employed part-time for economic reasons. Underemployed workers, involuntary part-time, want full-time but can only get part-time."},
+    {"id": "LNS13008636", "name": "Not in Labor Force: Want a Job",
+     "description": "Not in labor force but want a job. Hidden unemployment, potential workers on sidelines."},
+    {"id": "LNS15026636", "name": "Discouraged Workers",
+     "description": "Discouraged workers not looking because no jobs available. Given up looking, believe no work available."},
+
     # === ZILLOW HOUSING DATA (NON-FRED) ===
     {"id": "zillow_zori_national", "name": "Zillow Observed Rent Index (ZORI)",
      "description": "Market rents, asking rents, real-time rent prices, rental market, what landlords charge. More timely than CPI rent which lags 12+ months."},
@@ -715,55 +865,93 @@ _embeddings_cache = {}
 _catalog_embeddings = None
 
 def get_embedding(text: str) -> np.ndarray:
-    """Get embedding for a text string using OpenAI's API."""
+    """Get embedding for a text string. Tries Gemini first, then OpenAI."""
     if text in _embeddings_cache:
         return _embeddings_cache[text]
 
-    url = 'https://api.openai.com/v1/embeddings'
-    payload = {
-        'model': 'text-embedding-3-small',
-        'input': text
-    }
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {OPENAI_API_KEY}'
-    }
-
-    try:
-        req = Request(url, data=json.dumps(payload).encode('utf-8'),
-                     headers=headers, method='POST')
-        with urlopen(req, timeout=30) as response:
-            result = json.loads(response.read().decode('utf-8'))
-            embedding = np.array(result['data'][0]['embedding'])
+    # Try Gemini embeddings first
+    if GEMINI_API_KEY:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            result = genai.embed_content(
+                model="models/text-embedding-004",
+                content=text
+            )
+            embedding = np.array(result['embedding'])
             _embeddings_cache[text] = embedding
             return embedding
-    except Exception as e:
-        print(f"Embedding error: {e}")
-        return None
+        except Exception as e:
+            print(f"Gemini embedding error: {e}")
+
+    # Fall back to OpenAI embeddings
+    if OPENAI_API_KEY:
+        url = 'https://api.openai.com/v1/embeddings'
+        payload = {
+            'model': 'text-embedding-3-small',
+            'input': text
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {OPENAI_API_KEY}'
+        }
+
+        try:
+            req = Request(url, data=json.dumps(payload).encode('utf-8'),
+                         headers=headers, method='POST')
+            with urlopen(req, timeout=30) as response:
+                result = json.loads(response.read().decode('utf-8'))
+                embedding = np.array(result['data'][0]['embedding'])
+                _embeddings_cache[text] = embedding
+                return embedding
+        except Exception as e:
+            print(f"OpenAI embedding error: {e}")
+
+    return None
 
 
 def get_batch_embeddings(texts: List[str]) -> List[np.ndarray]:
-    """Get embeddings for multiple texts in one API call."""
-    url = 'https://api.openai.com/v1/embeddings'
-    payload = {
-        'model': 'text-embedding-3-small',
-        'input': texts
-    }
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {OPENAI_API_KEY}'
-    }
+    """Get embeddings for multiple texts. Tries Gemini first, then OpenAI."""
 
-    try:
-        req = Request(url, data=json.dumps(payload).encode('utf-8'),
-                     headers=headers, method='POST')
-        with urlopen(req, timeout=60) as response:
-            result = json.loads(response.read().decode('utf-8'))
-            embeddings = [np.array(d['embedding']) for d in result['data']]
+    # Try Gemini embeddings first (processes one at a time but fast)
+    if GEMINI_API_KEY:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            embeddings = []
+            for text in texts:
+                result = genai.embed_content(
+                    model="models/text-embedding-004",
+                    content=text
+                )
+                embeddings.append(np.array(result['embedding']))
             return embeddings
-    except Exception as e:
-        print(f"Batch embedding error: {e}")
-        return None
+        except Exception as e:
+            print(f"Gemini batch embedding error: {e}")
+
+    # Fall back to OpenAI batch embeddings
+    if OPENAI_API_KEY:
+        url = 'https://api.openai.com/v1/embeddings'
+        payload = {
+            'model': 'text-embedding-3-small',
+            'input': texts
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {OPENAI_API_KEY}'
+        }
+
+        try:
+            req = Request(url, data=json.dumps(payload).encode('utf-8'),
+                         headers=headers, method='POST')
+            with urlopen(req, timeout=60) as response:
+                result = json.loads(response.read().decode('utf-8'))
+                embeddings = [np.array(d['embedding']) for d in result['data']]
+                return embeddings
+        except Exception as e:
+            print(f"OpenAI batch embedding error: {e}")
+
+    return None
 
 
 def build_catalog_embeddings():
@@ -823,9 +1011,45 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 # RAG RETRIEVAL
 # =============================================================================
 
+def keyword_score(query: str, series: Dict) -> float:
+    """Compute keyword overlap score between query and series description."""
+    query_words = set(query.lower().split())
+    # Remove common stop words
+    stop_words = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been',
+                  'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will',
+                  'would', 'could', 'should', 'may', 'might', 'must', 'shall',
+                  'can', 'need', 'dare', 'ought', 'used', 'to', 'of', 'in',
+                  'for', 'on', 'with', 'at', 'by', 'from', 'as', 'into', 'like',
+                  'through', 'after', 'over', 'between', 'out', 'against', 'during',
+                  'without', 'before', 'under', 'around', 'among', 'what', 'how',
+                  'why', 'when', 'where', 'which', 'who', 'whom', 'this', 'that',
+                  'these', 'those', 'am', 'it', 'its', 'and', 'or', 'but', 'if',
+                  'because', 'until', 'while', 'about', 'up', 'down', 'coming'}
+    query_words = query_words - stop_words
+
+    desc_text = f"{series['name']} {series['description']}".lower()
+    desc_words = set(desc_text.split())
+
+    if not query_words:
+        return 0.0
+
+    # Count matching words
+    matches = query_words & desc_words
+    # Bonus for phrase matches
+    query_lower = query.lower()
+    phrase_bonus = 0.0
+    if series['id'].lower() in query_lower:
+        phrase_bonus = 0.5
+    if series['name'].lower() in query_lower:
+        phrase_bonus = 0.3
+
+    return (len(matches) / len(query_words)) + phrase_bonus
+
+
 def retrieve_relevant_series(query: str, top_k: int = 15) -> List[Dict]:
     """
     Retrieve the most relevant FRED series for a query using semantic search.
+    Falls back to keyword matching if embeddings fail.
 
     Args:
         query: User's question
@@ -836,28 +1060,40 @@ def retrieve_relevant_series(query: str, top_k: int = 15) -> List[Dict]:
     """
     # Ensure catalog embeddings are built
     catalog_embeddings = build_catalog_embeddings()
-    if not catalog_embeddings:
-        return []
 
     # Get query embedding
-    query_embedding = get_embedding(query)
-    if query_embedding is None:
-        return []
+    query_embedding = get_embedding(query) if catalog_embeddings else None
 
-    # Compute similarities
-    similarities = []
-    for series in FRED_SERIES_CATALOG:
-        series_embedding = catalog_embeddings.get(series['id'])
-        if series_embedding is not None:
-            sim = cosine_similarity(query_embedding, series_embedding)
-            similarities.append({
-                **series,
-                'similarity': sim
-            })
+    if query_embedding is not None and catalog_embeddings:
+        # Use semantic search with embeddings
+        similarities = []
+        for series in FRED_SERIES_CATALOG:
+            series_embedding = catalog_embeddings.get(series['id'])
+            if series_embedding is not None:
+                sim = cosine_similarity(query_embedding, series_embedding)
+                similarities.append({
+                    **series,
+                    'similarity': sim
+                })
 
-    # Sort by similarity and return top-k
-    similarities.sort(key=lambda x: x['similarity'], reverse=True)
-    return similarities[:top_k]
+        # Sort by similarity and return top-k
+        similarities.sort(key=lambda x: x['similarity'], reverse=True)
+        return similarities[:top_k]
+
+    else:
+        # Fallback to keyword matching
+        print("Using keyword-based retrieval (embeddings unavailable)")
+        scored = []
+        for series in FRED_SERIES_CATALOG:
+            score = keyword_score(query, series)
+            if score > 0:
+                scored.append({
+                    **series,
+                    'similarity': score
+                })
+
+        scored.sort(key=lambda x: x['similarity'], reverse=True)
+        return scored[:top_k]
 
 
 # =============================================================================
@@ -909,25 +1145,15 @@ Return JSON only:
     "combine_chart": true or false based on unit compatibility
 }}"""
 
-    # Use GPT-4 for selection (good at following instructions)
-    url = 'https://api.openai.com/v1/chat/completions'
-    payload = {
-        'model': 'gpt-4o',
-        'messages': [{'role': 'user', 'content': prompt}],
-        'max_tokens': 500,
-        'temperature': 0.3
-    }
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {OPENAI_API_KEY}'
-    }
-
+    # Use Gemini for selection (fast, good at following instructions)
     try:
-        req = Request(url, data=json.dumps(payload).encode('utf-8'),
-                     headers=headers, method='POST')
-        with urlopen(req, timeout=30) as response:
-            result = json.loads(response.read().decode('utf-8'))
-            content = result['choices'][0]['message']['content']
+        import google.generativeai as genai
+        GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', os.environ.get('GOOGLE_API_KEY', ''))
+        if GEMINI_API_KEY:
+            genai.configure(api_key=GEMINI_API_KEY)
+            model = genai.GenerativeModel('gemini-2.0-flash')
+            response = model.generate_content(prompt)
+            content = response.text
 
             # Extract JSON
             if '```json' in content:
@@ -937,14 +1163,38 @@ Return JSON only:
 
             return json.loads(content.strip())
     except Exception as e:
-        print(f"Selection error: {e}")
-        # Fallback: return top candidates
-        return {
-            'series': [c['id'] for c in candidates[:num_series]],
-            'explanation': f"Top matches for: {query}",
-            'show_yoy': False,
-            'combine_chart': False
-        }
+        print(f"Gemini selection error: {e}")
+
+    # Fallback to Claude if Gemini fails
+    try:
+        import anthropic
+        ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
+        if ANTHROPIC_API_KEY:
+            client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+            response = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=500,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            content = response.content[0].text
+
+            # Extract JSON
+            if '```json' in content:
+                content = content.split('```json')[1].split('```')[0]
+            elif '```' in content:
+                content = content.split('```')[1].split('```')[0]
+
+            return json.loads(content.strip())
+    except Exception as e:
+        print(f"Claude selection error: {e}")
+
+    # Final fallback: return top candidates by similarity
+    return {
+        'series': [c['id'] for c in candidates[:num_series]],
+        'explanation': f"Top matches for: {query}",
+        'show_yoy': False,
+        'combine_chart': False
+    }
 
 
 # =============================================================================
