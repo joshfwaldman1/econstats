@@ -985,6 +985,178 @@ def export_for_embeddings() -> List[Dict[str, str]]:
     return results
 
 
+def check_query_coverage(query: str, search_fred: bool = True) -> Dict[str, Any]:
+    """
+    Check how well we can answer a query with our available data.
+
+    This is a safeguard against showing wrong data for out-of-left-field queries.
+    If we don't have good coverage, we should tell the user rather than
+    showing misleading data.
+
+    IMPORTANT: FRED has 800,000+ series covering almost anything economic.
+    When our curated catalog doesn't have a match, we search FRED's API
+    to see if they have relevant data we haven't curated.
+
+    Args:
+        query: User's query string
+        search_fred: Whether to search FRED API for uncurated series
+
+    Returns:
+        Dict with:
+            - coverage: "strong", "partial", "fred_available", or "none"
+            - confidence: float 0-1
+            - best_matches: List of best matching series from catalog
+            - fred_matches: List of FRED API search results (if searched)
+            - suggested_proxy: What we could show as a proxy
+            - message: User-facing message about coverage
+            - search_terms: Suggested FRED search terms
+
+    Example:
+        >>> result = check_query_coverage("semiconductor production")
+        >>> print(result['coverage'])  # "fred_available"
+        >>> print(result['fred_matches'])  # [{'id': 'IPG3344S', 'title': 'Semiconductor...'}]
+    """
+    query_lower = query.lower()
+    catalog_matches = search_catalog(query, max_results=10)
+
+    # Extract key terms from query (nouns/concepts)
+    stop_words = {
+        'how', 'are', 'the', 'what', 'about', 'doing', 'with', 'for', 'and',
+        'does', 'can', 'will', 'would', 'should', 'have', 'has', 'been',
+        'being', 'were', 'was', 'this', 'that', 'these', 'those', 'from',
+        'into', 'over', 'under', 'between', 'during', 'before', 'after',
+        'above', 'below', 'there', 'here', 'where', 'when', 'why', 'which',
+        'companies', 'company', 'firms', 'firm', 'doing', 'going', 'looking',
+        'performing', 'rate', 'rates', 'level', 'levels', 'trend', 'trends',
+    }
+    query_terms = [
+        w for w in query_lower.split()
+        if len(w) > 3 and w not in stop_words
+    ]
+
+    # Check if any query term directly matches a keyword in our catalog
+    direct_keyword_matches = []
+    for term in query_terms:
+        for entry in UNIFIED_CATALOG.values():
+            if term in [k.lower() for k in entry.keywords]:
+                direct_keyword_matches.append((term, entry))
+                break
+
+    # Search FRED API if we don't have strong catalog matches
+    fred_matches = []
+    if search_fred and len(direct_keyword_matches) == 0:
+        try:
+            # Import here to avoid circular imports
+            import os
+            from urllib.request import urlopen
+            import json
+
+            api_key = os.environ.get('FRED_API_KEY', '')
+            if api_key and query_terms:
+                # Build FRED search query
+                search_query = ' '.join(query_terms[:3])  # Use top 3 terms
+                url = f"https://api.stlouisfed.org/fred/series/search?search_text={search_query}&api_key={api_key}&file_type=json&limit=5"
+                with urlopen(url, timeout=5) as response:
+                    data = json.loads(response.read().decode())
+                    if 'seriess' in data:
+                        fred_matches = [
+                            {
+                                'id': s['id'],
+                                'title': s.get('title', ''),
+                                'frequency': s.get('frequency_short', ''),
+                                'units': s.get('units_short', ''),
+                                'popularity': s.get('popularity', 0),
+                            }
+                            for s in data['seriess'][:5]
+                        ]
+        except Exception as e:
+            # FRED search failed, continue without it
+            pass
+
+    # Calculate coverage based on catalog + FRED results
+    if direct_keyword_matches:
+        coverage = "strong"
+        confidence = 0.9
+        message = None  # No disclaimer needed
+        suggested_proxy = None
+    elif catalog_matches and len(catalog_matches) >= 3:
+        # Check for known proxy situations
+        proxy_situations = {
+            'fintech': ('NASDAQCOM', 'tech sector metrics (NASDAQ, tech employment)'),
+            'crypto': ('NASDAQCOM', 'tech sector as a proxy (no direct crypto data)'),
+            'startups': ('BUSLOANS', 'small business indicators'),
+            'venture': ('NASDAQCOM', 'tech stocks as a proxy'),
+            'private equity': ('SP500', 'public market indicators'),
+            'hedge fund': ('SP500', 'public market indicators'),
+            'banks': ('USFIRE', 'financial sector employment and rates'),
+            'insurance': ('USFIRE', 'financial sector data'),
+            'real estate investment': ('HOUST', 'housing market indicators'),
+        }
+
+        proxy_match = None
+        for term, (series, proxy_name) in proxy_situations.items():
+            if term in query_lower:
+                proxy_match = (term, series, proxy_name)
+                break
+
+        if proxy_match:
+            term, series, proxy_name = proxy_match
+            coverage = "partial"
+            confidence = 0.5
+            message = f"We don't have {term}-specific data. Showing {proxy_name}."
+            suggested_proxy = series
+        else:
+            coverage = "partial"
+            confidence = 0.6
+            message = None
+            suggested_proxy = None
+    elif fred_matches:
+        # We found data in FRED that's not in our catalog!
+        coverage = "fred_available"
+        confidence = 0.7
+        top_fred = fred_matches[0]
+        message = f"Found in FRED: {top_fred['title']} ({top_fred['id']})"
+        suggested_proxy = top_fred['id']
+    else:
+        coverage = "none"
+        confidence = 0.1
+        message = f"No economic data found for this query. Try rephrasing with economic terms."
+        suggested_proxy = None
+
+    return {
+        "coverage": coverage,
+        "confidence": confidence,
+        "best_matches": catalog_matches[:5],
+        "fred_matches": fred_matches,
+        "suggested_proxy": suggested_proxy,
+        "message": message,
+        "query_terms": query_terms,
+        "direct_matches": len(direct_keyword_matches),
+        "search_terms_for_fred": ' '.join(query_terms[:3]) if query_terms else query,
+    }
+
+
+def get_coverage_disclaimer(query: str) -> Optional[str]:
+    """
+    Get a user-facing disclaimer if we don't have strong coverage for a query.
+
+    This is a simple wrapper around check_query_coverage for easy integration.
+
+    Args:
+        query: User's query string
+
+    Returns:
+        Disclaimer message string, or None if coverage is strong
+
+    Example:
+        >>> disclaimer = get_coverage_disclaimer("how are fintech companies doing?")
+        >>> if disclaimer:
+        ...     print(f"Note: {disclaimer}")
+    """
+    result = check_query_coverage(query)
+    return result.get("message")
+
+
 def get_catalog_stats() -> Dict[str, Any]:
     """
     Get statistics about the unified catalog.

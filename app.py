@@ -166,6 +166,19 @@ try:
 except Exception:
     HEALTH_CHECK_AVAILABLE = False
 
+# Import unified catalog for coverage checking
+# This tells us if we have data for a query or need to show a proxy
+try:
+    from core.unified_catalog import (
+        check_query_coverage,
+        get_coverage_disclaimer,
+        search_catalog,
+        UNIFIED_CATALOG,
+    )
+    COVERAGE_CHECK_AVAILABLE = True
+except Exception:
+    COVERAGE_CHECK_AVAILABLE = False
+
 # Import premium economist analysis for deeper insights
 try:
     from core.economist_analysis import (
@@ -7159,6 +7172,13 @@ def main():
                         explanation_text = msg['explanation']
                         st.markdown(f"""<div style='font-size: 0.95rem; line-height: 1.7; color: #1f2937; margin: 8px 0 16px 0;'>{explanation_text}</div>""", unsafe_allow_html=True)
 
+                    # Coverage disclaimer - shown when we're displaying proxy data
+                    if msg.get("coverage_disclaimer"):
+                        disclaimer = msg["coverage_disclaimer"]
+                        st.markdown(f"""<div style='background: #fef3c7; border-left: 3px solid #f59e0b; padding: 8px 12px; margin: 8px 0 16px 0; font-size: 0.85rem; color: #92400e; border-radius: 0 4px 4px 0;'>
+                            <strong>Note:</strong> {disclaimer}
+                        </div>""", unsafe_allow_html=True)
+
                     # Recession Dashboard (keep for recession queries - this IS the answer)
                     if msg.get("recession_scorecard") and RECESSION_SCORECARD_AVAILABLE:
                         scorecard = msg["recession_scorecard"]
@@ -7572,6 +7592,13 @@ def main():
             interpretation['used_health_check'] = True
             interpretation['query_understanding'] = query_understanding
             interpretation['routing_recommendation'] = routing_recommendation
+
+            # Check coverage and add disclaimer if showing proxy data
+            if COVERAGE_CHECK_AVAILABLE:
+                coverage_result = check_query_coverage(query, search_fred=False)
+                if coverage_result.get('message'):
+                    interpretation['coverage_disclaimer'] = coverage_result['message']
+                    interpretation['coverage_level'] = coverage_result['coverage']
 
         elif precomputed_plan and not local_parsed:
             # Found a pre-computed plan - use it as the base
@@ -8632,6 +8659,7 @@ def main():
             "recession_scorecard": recession_scorecard,  # Recession dashboard for recession queries
             "premium_analysis": premium_analysis,  # Premium economist analysis
             "premium_analysis_html": premium_analysis_html,  # Pre-formatted HTML for display
+            "coverage_disclaimer": interpretation.get('coverage_disclaimer'),  # Proxy data warning
         })
 
         # Mark processing as complete and activate chat mode
