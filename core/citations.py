@@ -118,28 +118,74 @@ class ExpertView:
     This is a lighter-weight structure than Citation, used for storing
     expert opinions in the EXPERT_VIEWS database.
 
+    IMPORTANT: Views must be SPECIFIC with numbers, dates, or concrete predictions.
+
+    BAD (vague - rejected):
+        - "Goldman sees the labor market as resilient"
+        - "Analysts expect inflation to moderate"
+        - "Experts are divided on recession risk"
+
+    GOOD (specific - required):
+        - "Goldman expects unemployment to stay below 4.5% through 2026"
+        - "Morgan Stanley projects rate cuts in June and September 2026"
+        - "Cleveland Fed Nowcast projects January CPI at 2.9% YoY"
+        - "Polymarket shows 23% recession probability for 2026"
+
     Attributes:
-        source: Who holds this view
-        view: Their specific position or forecast
-        date: When this view was expressed
-        tier: Source credibility tier
+        source: Who holds this view (e.g., "Goldman Sachs", "Federal Reserve Dot Plot")
+        specific_claim: The actual prediction with numbers/dates - MUST be specific!
+                       (e.g., "expects two 25bp cuts in 2026, in March and June")
+        metric: What specifically they're predicting (e.g., "fed_funds_rate",
+                "unemployment_rate", "rate_cuts", "gdp_growth", "core_pce")
+        timeframe: When this applies (e.g., "2026", "Q1 2026", "end-2025",
+                   "next 6 months", "through 2027")
+        date: When this view was expressed (e.g., "January 2026")
+        tier: Source credibility tier (1=Fed/Govt, 2=Academic, 3=Finance, 4=Press)
         rationale: Optional explanation for why they hold this view
+
+        # Deprecated - use specific_claim instead
+        view: Legacy field, mapped to specific_claim for backward compatibility
     """
     source: str
-    view: str
+    specific_claim: str = ""
+    metric: str = ""
+    timeframe: str = ""
     date: Optional[str] = None
     tier: int = 3
     rationale: Optional[str] = None
+    # Legacy field for backward compatibility - will be deprecated
+    view: str = ""
+
+    def __post_init__(self):
+        """Handle backward compatibility with legacy 'view' field."""
+        # If specific_claim is empty but view is provided, use view as specific_claim
+        if not self.specific_claim and self.view:
+            self.specific_claim = self.view
+        # If specific_claim is provided but view is empty, copy to view for compatibility
+        elif self.specific_claim and not self.view:
+            self.view = self.specific_claim
 
     def to_citation(self, topic: str = "") -> Citation:
         """Convert to a full Citation object."""
         return Citation(
             source=self.source,
-            claim=self.view,
+            claim=self.specific_claim,
             date=self.date,
             tier=self.tier,
             category='expert_view',
         )
+
+    def format_specific(self) -> str:
+        """
+        Format this view as a specific, attributable statement.
+
+        Returns a string like:
+            "Goldman expects two rate cuts in 2026 (March and June)"
+
+        NOT vague like:
+            "Goldman expects rate cuts"
+        """
+        return f"{self.source} {self.specific_claim}"
 
 
 @dataclass
@@ -308,40 +354,50 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'fed_rate_path': TopicViews(
         topic='Federal Reserve rate path',
         last_updated='January 2026',
-        consensus='Most expect gradual rate cuts through 2026, though pace is debated',
-        key_disagreement='Timing and number of cuts in 2026',
+        consensus='Fed dot plot shows rates at 3.4% by end-2026; Wall Street expects 50-75bp of cuts',
+        key_disagreement='Number of cuts: Fed projects 100bp vs Wall Street 50-75bp',
         views=[
             ExpertView(
-                source='Federal Reserve (Dot Plot)',
-                view='Median projection shows rates falling to 3.4% by end of 2026',
+                source='Federal Reserve Dot Plot',
+                specific_claim='median shows rates at 3.9% by end-2025, 3.4% by end-2026',
+                metric='fed_funds_rate',
+                timeframe='2025-2026',
                 date='December 2024',
                 tier=1,
                 rationale='Official FOMC projections based on committee median',
             ),
             ExpertView(
                 source='Goldman Sachs',
-                view='Expects two 25bp rate cuts in 2026, likely in June and December',
+                specific_claim='expects two 25bp cuts in 2026, in March and June',
+                metric='rate_cuts',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Citing sticky services inflation requiring patience',
             ),
             ExpertView(
                 source='Morgan Stanley',
-                view='Projects cuts in June and September 2026, with risk of delay',
+                specific_claim='projects rate cuts in June and September 2026',
+                metric='rate_cuts',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Labor market remains stronger than Fed expected',
             ),
             ExpertView(
                 source='JP Morgan',
-                view='Sees 75bp of cuts in 2026, quarterly pace',
+                specific_claim='expects 75bp of cuts in 2026 at a quarterly pace (March, June, September)',
+                metric='rate_cuts',
+                timeframe='2026',
                 date='January 2026',
                 tier=3,
                 rationale='Inflation progress likely to continue',
             ),
             ExpertView(
                 source='CME FedWatch',
-                view='Markets pricing in two 25bp cuts by December 2026',
+                specific_claim='futures imply 65% probability of at least two cuts by December 2026',
+                metric='rate_cut_probability',
+                timeframe='through December 2026',
                 date='January 2026',
                 tier=3,
                 rationale='Fed funds futures implied probabilities',
@@ -352,26 +408,32 @@ EXPERT_VIEWS: Dict[str, TopicViews] = {
     'fed_terminal_rate': TopicViews(
         topic='Fed terminal/neutral rate',
         last_updated='January 2026',
-        consensus='Terminal rate likely between 2.5% and 3.5%',
-        key_disagreement='Whether neutral rate has risen post-pandemic',
+        consensus='Fed estimates neutral rate at 2.5-3.0%; some argue it has risen post-pandemic',
+        key_disagreement='Whether neutral is 2.5-3.0% (pre-pandemic) or 3.0-3.5% (higher structural)',
         views=[
             ExpertView(
-                source='Federal Reserve',
-                view='Longer-run neutral rate estimate around 2.5-3.0%',
+                source='Federal Reserve SEP',
+                specific_claim='projects longer-run neutral rate at 3.0% (median, up from 2.5% in 2023)',
+                metric='neutral_rate',
+                timeframe='long-run',
                 date='December 2024',
                 tier=1,
                 rationale='From Summary of Economic Projections',
             ),
             ExpertView(
                 source='PIMCO',
-                view='Neutral rate may have risen to 3.0-3.5% post-pandemic',
+                specific_claim='estimates neutral rate has risen to 3.0-3.5% post-pandemic',
+                metric='neutral_rate',
+                timeframe='structural estimate',
                 date='January 2026',
                 tier=3,
                 rationale='Structural factors like fiscal deficits and deglobalization',
             ),
             ExpertView(
                 source='Bridgewater',
-                view='Neutral rate could be higher than pre-pandemic at 3.5%+',
+                specific_claim='estimates neutral rate at 3.5% or higher, above pre-pandemic 2.5%',
+                metric='neutral_rate',
+                timeframe='structural estimate',
                 date='January 2026',
                 tier=3,
                 rationale='Productivity growth and investment demand shifts',
