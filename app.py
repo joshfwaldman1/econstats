@@ -1973,6 +1973,16 @@ def generate_narrative_context(dates: list, values: list, data_type: str = 'leve
     return context
 
 
+# Secondary series that provide context in charts but shouldn't appear in top metric boxes
+# These are supplementary to the "headline" series that users expect to see first
+SECONDARY_SERIES_FOR_METRICS = {
+    'U6RATE',      # Broad unemployment - UNRATE (U-3) is the headline
+    'CPILFESL',    # Core CPI - headline CPI (CPIAUCSL) is more recognized
+    'PCEPILFE',    # Core PCE - useful for Fed watchers but not the headline
+    'T10Y2Y',      # Yield spread - secondary to actual rates
+    'BAMLH0A0HYM2', # Credit spread - secondary indicator
+}
+
 # Series database with rich economist-style descriptions (CEA/Brookings/Zandi tone)
 SERIES_DB = {
     # Employment - Establishment Survey (CES)
@@ -4770,6 +4780,7 @@ Write a Furman/Sahm-quality briefing:
 
 1. LEAD WITH THE ANSWER (one clear sentence)
    - Answer the question directly. No "looking at the data..." preamble.
+   - LEAD WITH THE HEADLINE SERIES: UNRATE (U-3) is THE unemployment rate, CPIAUCSL is THE inflation rate, PAYEMS is THE jobs number. Secondary measures like U-6, core inflation, etc. come AFTER the headline.
 
 2. EXPLAIN THE CAUSAL MECHANISM (most important)
    - WHY is this happening? Not just what.
@@ -7472,8 +7483,14 @@ def main():
                     # Key metrics row FIRST (above summary)
                     if msg.get("series_data"):
                         series_data = msg["series_data"]
-                        metric_cols = st.columns(min(len(series_data), 4))
-                        for idx, (sid, d, v, i) in enumerate(series_data[:4]):
+                        # Filter out secondary series from metric boxes (they still show in charts)
+                        headline_series = [(sid, d, v, i) for sid, d, v, i in series_data
+                                          if sid not in SECONDARY_SERIES_FOR_METRICS]
+                        # Fall back to all series if filtering removes everything
+                        if not headline_series:
+                            headline_series = series_data
+                        metric_cols = st.columns(min(len(headline_series), 4))
+                        for idx, (sid, d, v, i) in enumerate(headline_series[:4]):
                             if v and len(v) > 0:
                                 latest_val = v[-1]
                                 name = i.get('name', sid)
@@ -9212,8 +9229,14 @@ def main():
 
                 # Key metrics row using st.metric
                 if series_data:
-                    metric_cols = st.columns(min(len(series_data), 4))
-                    for idx, (sid, d, v, i) in enumerate(series_data[:4]):
+                    # Filter out secondary series from metric boxes (they still show in charts)
+                    headline_series = [(sid, d, v, i) for sid, d, v, i in series_data
+                                      if sid not in SECONDARY_SERIES_FOR_METRICS]
+                    # Fall back to all series if filtering removes everything
+                    if not headline_series:
+                        headline_series = series_data
+                    metric_cols = st.columns(min(len(headline_series), 4))
+                    for idx, (sid, d, v, i) in enumerate(headline_series[:4]):
                         if v and len(v) > 0:
                             latest_val = v[-1]
                             name = i.get('name', sid)[:25]

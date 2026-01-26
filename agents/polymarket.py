@@ -129,12 +129,8 @@ ECONOMIC_EVENTS = {
     # ==========================================================================
     # LABOR MARKET / UNEMPLOYMENT (ACTIVE)
     # ==========================================================================
-    "brazil-unemployment-below-6pt3-for-q4-2025": {
-        "category": "unemployment",
-        "display_name": "Brazil Unemployment Below 6.3% Q4 2025",
-        "keywords": ["unemployment", "brazil", "jobs", "labor market", "employment"],
-        "market_type": "binary",
-    },
+    # NOTE: Brazil unemployment removed - not relevant for US-focused queries
+    # Only add US unemployment markets here when they become available
 
     # ==========================================================================
     # CRYPTO (ACTIVE - often market sentiment indicator)

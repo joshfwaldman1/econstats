@@ -743,6 +743,13 @@ Write an improved explanation that:
 5. Be fact-based. Characterize as "strong", "weak", "cooling", etc. only if data supports it
 6. If multiple series are shown, explain what EACH measures and why it matters
 
+***CRITICAL - LEAD WITH THE HEADLINE SERIES!***
+- UNRATE (U-3) is THE unemployment rate - lead with this, not U6RATE
+- CPIAUCSL (headline CPI) is THE inflation rate - lead with this, not core
+- PAYEMS is THE jobs number - lead with this
+- The first series listed is typically the "headline" that users expect to see first
+- Secondary/broader measures (U-6, core inflation, etc.) should come AFTER the headline
+
 ***CRITICAL - DO NOT HALLUCINATE DATES!***
 - ONLY use dates that appear in the DATA SUMMARY above
 - If you don't see a specific date in the data, say "recent data" or "latest available"
