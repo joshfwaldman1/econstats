@@ -6769,7 +6769,7 @@ def create_chart(series_data: list, combine: bool = False, chart_type: str = 'li
                     xref='paper', yref='paper',
                     x=0, y=-0.32,
                     showarrow=False,
-                    font=dict(size=9, color='#78716c'),
+                    font=dict(size=9, color='#64748b'),
                     xanchor='left',
                 )
             ]
@@ -6972,16 +6972,16 @@ def main():
         display: none !important;
     }
 
-    /* Financial Dashboard Theme - Inter font, professional colors */
+    /* Clean Dashboard Theme - matches Railway/FastAPI UI */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     .stApp {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background: #FAF9F6;
+        background: #f8fafc;
         color: #1e293b !important;
     }
     .stApp p, .stApp span, .stApp div, .stApp li, .stApp label {
-        color: #1e293b;
+        color: #334155;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     .stApp h1, .stApp h2, .stApp h3, .stApp h4 {
@@ -7005,7 +7005,7 @@ def main():
     /* Tight spacing for chat mode */
     .stApp [data-testid="stVerticalBlock"] > div { gap: 0 !important; margin: 0 !important; padding: 0 !important; }
     .stApp [data-testid="stVerticalBlockBorderWrapper"] { padding: 0 !important; margin: 0 !important; }
-    .stApp hr { margin: 2px 0 !important; border-color: #e7e5e4 !important; }
+    .stApp hr { margin: 2px 0 !important; border-color: #e2e8f0 !important; }
     .stApp h3 { margin-top: 0 !important; margin-bottom: 2px !important; font-size: 1rem !important; }
     .stApp ul { margin-top: 0 !important; margin-bottom: 2px !important; }
     .stApp li { margin-bottom: 1px !important; font-size: 0.88rem !important; line-height: 1.35 !important; }
@@ -7055,11 +7055,11 @@ def main():
         padding: 0 0 8px 0;
         margin-bottom: 8px;
     }
-    .summary-callout h3 { color: #292524 !important; margin: 0 0 6px 0; font-size: 1rem; font-weight: 600; }
-    .summary-callout p { color: #44403c !important; margin: 0; font-size: 0.9rem; line-height: 1.5; font-weight: 400; }
+    .summary-callout h3 { color: #0f172a !important; margin: 0 0 6px 0; font-size: 1rem; font-weight: 600; }
+    .summary-callout p { color: #334155 !important; margin: 0; font-size: 0.9rem; line-height: 1.5; font-weight: 400; }
     .summary-callout ul { margin: 0 0 4px 0; padding-left: 18px; list-style-type: disc; }
-    .summary-callout li { color: #44403c; font-size: 0.9rem; line-height: 1.45; margin-bottom: 3px; padding-left: 2px; }
-    .summary-callout li::marker { color: #D4A574; }
+    .summary-callout li { color: #334155; font-size: 0.9rem; line-height: 1.45; margin-bottom: 3px; padding-left: 2px; }
+    .summary-callout li::marker { color: #3b82f6; }
 
     /* Premium Economist Analysis Box */
     .economist-analysis {
@@ -7110,12 +7110,12 @@ def main():
 
     /* Smooth fade-in for chat messages when content loads */
     [data-testid="stChatMessage"] {
-        background: #FFFDFB !important;
-        border: 1px solid #e7e5e4 !important;
-        border-radius: 4px 20px 20px 20px !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 1rem !important;
         padding: 20px 24px !important;
         margin: 12px 0 24px 0 !important;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
         position: relative !important;
         animation: fadeInCard 0.3s ease-out !important;
     }
@@ -7141,13 +7141,13 @@ def main():
     /* Status container - clean, professional look */
     [data-testid="stStatusWidget"] {
         border: 1px solid #e2e8f0 !important;
-        border-radius: 12px !important;
-        background: #FFFDFB !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+        border-radius: 0.75rem !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
     }
     [data-testid="stStatusWidget"] summary {
         font-size: 0.9rem !important;
-        color: #475569 !important;
+        color: #64748b !important;
         padding: 12px 16px !important;
     }
     [data-testid="stStatusWidget"] summary span {
@@ -7167,14 +7167,14 @@ def main():
         align-items: center;
         gap: 12px;
         padding: 16px 0;
-        color: #6b7280;
+        color: #64748b;
         font-size: 0.95rem;
     }
     .loading-spinner {
         width: 20px;
         height: 20px;
-        border: 2px solid #e5e7eb;
-        border-top-color: #D4A574;
+        border: 2px solid #e2e8f0;
+        border-top-color: #3b82f6;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
     }
@@ -7223,54 +7223,55 @@ def main():
         position: absolute;
         top: -10px;
         left: 16px;
-        background: #FAF9F6;
+        background: #f8fafc;
         padding: 2px 10px;
         font-size: 0.7rem;
         font-weight: 600;
-        color: #94a3b8;
+        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        border-radius: 8px;
+        border-radius: 0.375rem;
         z-index: 1;
     }
 
     /* Style horizontal rules within chat message */
     [data-testid="stChatMessage"] hr {
         border: none !important;
-        border-top: 1px solid #f1f0ef !important;
+        border-top: 1px solid #f1f5f9 !important;
         margin: 16px 0 !important;
     }
 
     /* Metrics within chat message - subtle styling */
     [data-testid="stChatMessage"] [data-testid="stMetric"] {
-        background: #f8f7f6 !important;
-        border: 1px solid #f1f0ef !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 0.75rem !important;
     }
 
     /* User query display in chat history - styled bubble, right-aligned */
     .chat-user-query {
         display: inline-block;
-        background: linear-gradient(135deg, #D4A574 0%, #c4956a 100%);
-        color: #FFFDFB;
+        background: #0f172a;
+        color: #ffffff;
         padding: 12px 18px;
-        border-radius: 20px 20px 4px 20px;
+        border-radius: 1rem 1rem 0.25rem 1rem;
         font-size: 0.95rem;
         font-weight: 500;
         margin: 20px 0 12px 0;
         max-width: 85%;
-        box-shadow: 0 2px 8px rgba(212, 165, 116, 0.15);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         float: right;
         clear: both;
     }
 
     /* Assistant response container - clean card style */
     .chat-assistant-response {
-        background: #FFFDFB;
-        border: 1px solid #e7e5e4;
-        border-radius: 4px 20px 20px 20px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
         padding: 24px 24px 20px 24px;
         margin: 12px 0 24px 0;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         clear: both;
         position: relative;
     }
@@ -7281,27 +7282,27 @@ def main():
         position: absolute;
         top: -10px;
         left: 16px;
-        background: #FAF9F6;
+        background: #f8fafc;
         padding: 2px 10px;
         font-size: 0.7rem;
         font-weight: 600;
-        color: #94a3b8;
+        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        border-radius: 8px;
+        border-radius: 0.375rem;
     }
 
     /* Style horizontal rules within chat response */
     .chat-assistant-response hr {
         border: none;
-        border-top: 1px solid #f1f0ef;
+        border-top: 1px solid #f1f5f9;
         margin: 16px 0;
     }
 
     /* Metrics within response - subtle styling */
     .chat-assistant-response [data-testid="stMetric"] {
-        background: #f8f7f6 !important;
-        border: 1px solid #f1f0ef !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
     }
 
     /* Smooth transition for chat mode entry */
@@ -7329,16 +7330,16 @@ def main():
     /* Chat follow-up input - coral/terracotta border */
     [data-testid="stTextInput"][data-baseweb] input[aria-label="Follow-up"],
     div:has(> [data-testid="stTextInput"]) + div [data-testid="stTextInput"] input {
-        background: #FAF9F6 !important;
-        border: 1.5px solid #D4A574 !important;
+        background: #f8fafc !important;
+        border: 1.5px solid #3b82f6 !important;
         border-radius: 16px !important;
         padding: 16px 20px !important;
         font-size: 1rem !important;
     }
     /* Target chat input specifically via key pattern */
     [data-testid="stTextInput"]:last-of-type > div > div {
-        background: #FAF9F6 !important;
-        border: 1.5px solid #D4A574 !important;
+        background: #f8fafc !important;
+        border: 1.5px solid #3b82f6 !important;
         border-radius: 16px !important;
     }
     [data-testid="stTextInput"]:last-of-type input {
@@ -7365,62 +7366,62 @@ def main():
 
     /* Dashboard Cards - tight spacing */
     .metric-card {
-        background: #FFFDFB;
-        border: 1px solid #e7e5e4;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
         border-radius: 8px;
         padding: 10px 14px;
         margin-bottom: 8px;
     }
-    .metric-label { font-size: 0.7rem; color: #78716c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
-    .metric-value { font-size: 1.4rem; font-weight: 700; color: #292524; }
+    .metric-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .metric-value { font-size: 1.4rem; font-weight: 700; color: #0f172a; }
     .metric-delta-up { font-size: 0.75rem; color: #16a34a; font-weight: 500; }
     .metric-delta-down { font-size: 0.75rem; color: #dc2626; font-weight: 500; }
 
     /* Streamlit metric overrides - tight spacing */
     [data-testid="stMetric"] {
-        background: #FFFDFB;
-        border: 1px solid #e7e5e4;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
         border-radius: 8px;
         padding: 10px 14px;
     }
-    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; color: #78716c !important; text-transform: uppercase; letter-spacing: 0.5px; }
-    [data-testid="stMetricValue"] { font-size: 1.4rem !important; font-weight: 700 !important; color: #292524 !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; color: #64748b !important; text-transform: uppercase; letter-spacing: 0.5px; }
+    [data-testid="stMetricValue"] { font-size: 1.4rem !important; font-weight: 700 !important; color: #0f172a !important; }
     [data-testid="stMetricDelta"] svg { display: none; }
     [data-testid="stMetricDelta"] > div { font-weight: 500 !important; font-size: 0.75rem !important; }
 
     /* Chart sections - tight spacing */
     .chart-section {
-        background: #FFFDFB;
-        border: 1px solid #e7e5e4;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
         border-radius: 10px;
         margin-bottom: 12px;
         overflow: hidden;
         padding: 12px 16px;
     }
-    .chart-section h3 { margin-top: 0; margin-bottom: 6px; font-size: 1rem; color: #292524; font-weight: 600; }
+    .chart-section h3 { margin-top: 0; margin-bottom: 6px; font-size: 1rem; color: #0f172a; font-weight: 600; }
     .chart-section ul { margin: 0 0 8px 0; padding-left: 18px; }
-    .chart-section li, .chart-section p { color: #44403c; font-size: 0.85rem; line-height: 1.45; margin-bottom: 3px; }
-    .chart-header { padding: 10px 14px; border-bottom: 1px solid #e7e5e4; }
-    .chart-title { font-size: 0.95rem; color: #292524; margin-bottom: 4px; font-weight: 600; }
-    .chart-bullets { color: #57534e; font-size: 0.85rem; margin-left: 14px; line-height: 1.4; }
+    .chart-section li, .chart-section p { color: #334155; font-size: 0.85rem; line-height: 1.45; margin-bottom: 3px; }
+    .chart-header { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; }
+    .chart-title { font-size: 0.95rem; color: #0f172a; margin-bottom: 4px; font-weight: 600; }
+    .chart-bullets { color: #475569; font-size: 0.85rem; margin-left: 14px; line-height: 1.4; }
     .chart-bullets li { margin-bottom: 3px; }
     .source-line {
         padding: 6px 12px;
-        border-top: 1px solid #e7e5e4;
+        border-top: 1px solid #e2e8f0;
         font-size: 0.7rem;
-        color: #78716c;
-        background: #FAF9F6;
+        color: #64748b;
+        background: #f8fafc;
         font-family: 'Inter', monospace;
         margin-top: 8px;
     }
 
     /* AI Insight box - warm theme */
     .ai-explanation {
-        color: #292524;
+        color: #0f172a;
         padding: 20px 24px;
-        background: #FAF9F6;
-        border: 1px solid #e7e5e4;
-        border-left: 4px solid #D4A574;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #3b82f6;
         border-radius: 0 12px 12px 0;
         margin-bottom: 20px;
         font-size: 1rem;
@@ -7478,8 +7479,8 @@ def main():
     }
     /* Category pill buttons - tight spacing, no overflow */
     .stButton button:not([kind="primary"]) {
-        color: #57534e !important;
-        background-color: #FAF9F6 !important;
+        color: #475569 !important;
+        background-color: #f8fafc !important;
         border: 1px solid #d6d3d1 !important;
         border-radius: 8px !important;
         padding: 0.4rem 0.8rem !important;
@@ -7491,9 +7492,9 @@ def main():
         max-width: 100% !important;
     }
     .stButton button:not([kind="primary"]):hover {
-        border-color: #D4A574 !important;
-        color: #78716c !important;
-        background-color: #FAF9F6 !important;
+        border-color: #3b82f6 !important;
+        color: #64748b !important;
+        background-color: #f8fafc !important;
         transform: none !important;
         box-shadow: none !important;
     }
@@ -7543,7 +7544,7 @@ def main():
         margin: 28px auto 20px auto;
     }
     div[data-testid="stTextInput"] > div {
-        border: 2px solid #D4A574 !important;
+        border: 2px solid #3b82f6 !important;
         border-radius: 16px !important;
         background: white !important;
     }
@@ -7552,7 +7553,7 @@ def main():
         border: none !important;
         font-size: 1.05rem !important;
         padding: 18px 24px !important;
-        color: #292524 !important;
+        color: #0f172a !important;
         text-align: center !important;
     }
     div[data-testid="stTextInput"] input:focus {
@@ -7730,7 +7731,7 @@ def main():
                 st.session_state.last_explanation = ''
                 st.rerun()
         with col_title:
-            st.markdown("<span style='font-size: 1.3rem; font-weight: 600; color: #292524;'>EconStats</span>", unsafe_allow_html=True)
+            st.markdown("<span style='font-size: 1.3rem; font-weight: 600; color: #0f172a;'>EconStats</span>", unsafe_allow_html=True)
 
         # Wrap conversation in animated container for smooth transition
         st.markdown('<div class="chat-container">', unsafe_allow_html=True)
