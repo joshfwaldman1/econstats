@@ -525,7 +525,9 @@ def normalize_query(query: str) -> str:
 def classify_query_intent(query: str, available_topics: list) -> str:
     """Use LLM to understand what topic the user is asking about.
 
-    This is a fast, cheap call that routes queries intelligently.
+    This runs FIRST to intelligently route queries based on semantic understanding,
+    not just pattern matching. This is the "smart" layer.
+
     Returns the best matching topic from available_topics, or None.
     """
     if not ANTHROPIC_API_KEY:
@@ -534,23 +536,28 @@ def classify_query_intent(query: str, available_topics: list) -> str:
     try:
         client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
-        # Create a condensed list of topics (sample if too many)
-        topics_str = ", ".join(available_topics[:100])
+        # Group topics by category for better LLM understanding
+        topics_str = ", ".join(sorted(set(available_topics))[:150])
 
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=50,
             messages=[{
                 "role": "user",
-                "content": f"""Given the user's economic/financial data question, pick the single best matching topic from this list.
+                "content": f"""You route economic data queries to the right topic. Pick the BEST match.
 
 Question: "{query}"
 
 Available topics: {topics_str}
 
-Note: We have data from FRED (economic), Zillow (housing/rent), stock market, energy prices, and more.
+ROUTING RULES:
+- "rents", "rent prices", "how have rents changed" → "rent prices" or "rents"
+- "US vs Europe", "US v. eurozone", "compare US and Europe" → "us vs europe" or "us vs eurozone"
+- "housing", "home prices", "real estate" → "housing" or "home prices"
+- "stocks", "S&P", "market" → look for stock-related topics
+- International queries (Europe, China, UK, Japan) → look for country-specific topics
 
-Reply with ONLY the exact topic name that best matches, or "none" if nothing fits. No explanation."""
+Reply with ONLY the exact topic name from the list, or "none" if nothing fits."""
             }]
         )
 
@@ -570,13 +577,14 @@ Reply with ONLY the exact topic name that best matches, or "none" if nothing fit
 
 
 def find_query_plan(query: str):
-    """Find matching query plan.
+    """Find matching query plan using LLM-first routing.
+
+    Architecture: LLM understands intent FIRST, then routes intelligently.
 
     Priority order:
-    1. Exact match in QUERY_PLANS, QUERY_MAP, or INTERNATIONAL_QUERY_PLANS
-    2. Normalized match
-    3. Fuzzy match
-    4. LLM intent classification (if no match found)
+    1. Exact match (fast path for common queries like "jobs", "inflation")
+    2. LLM intent classification (smart path - understands semantic meaning)
+    3. Fuzzy match (fallback)
     """
     normalized = normalize_query(query)
     original_lower = query.lower().strip()
@@ -584,62 +592,43 @@ def find_query_plan(query: str):
     # Get international plans if available
     intl_plans = INTERNATIONAL_QUERY_PLANS if DBNOMICS_AVAILABLE else {}
 
-    # PRIORITY 1: Check JSON query plans first (richer series)
-    if original_lower in QUERY_PLANS:
-        return QUERY_PLANS[original_lower]
-    if normalized in QUERY_PLANS:
-        return QUERY_PLANS[normalized]
+    # Build combined lookup for all plans
+    all_plans = {}
+    all_plans.update(QUERY_MAP)  # Base layer
+    all_plans.update(intl_plans)  # International layer
+    all_plans.update(QUERY_PLANS)  # JSON plans override (richest data)
 
-    # Check international plans (Europe, UK, China, etc.)
-    if original_lower in intl_plans:
-        print(f"[International] Matched '{original_lower}' to international plan")
-        return intl_plans[original_lower]
-    if normalized in intl_plans:
-        print(f"[International] Matched '{normalized}' to international plan")
-        return intl_plans[normalized]
+    # =================================================================
+    # FAST PATH: Exact match (for common single-word queries)
+    # =================================================================
+    if original_lower in all_plans:
+        print(f"[Router] Exact match: '{original_lower}'")
+        return all_plans[original_lower]
+    if normalized in all_plans:
+        print(f"[Router] Normalized match: '{normalized}'")
+        return all_plans[normalized]
 
-    # PRIORITY 2: Check QUERY_MAP as fallback
-    if original_lower in QUERY_MAP:
-        return QUERY_MAP[original_lower]
-    if normalized in QUERY_MAP:
-        return QUERY_MAP[normalized]
-
-    # PRIORITY 3: Fuzzy match on all plan sources
-    import difflib
-
-    # Fuzzy match on QUERY_PLANS
-    matches = difflib.get_close_matches(normalized, list(QUERY_PLANS.keys()), n=1, cutoff=0.8)
-    if matches:
-        return QUERY_PLANS[matches[0]]
-
-    # Fuzzy match on international plans
-    if intl_plans:
-        matches = difflib.get_close_matches(normalized, list(intl_plans.keys()), n=1, cutoff=0.7)
-        if matches:
-            print(f"[International] Fuzzy matched '{normalized}' to '{matches[0]}'")
-            return intl_plans[matches[0]]
-
-    # Fuzzy match on QUERY_MAP
-    matches = difflib.get_close_matches(normalized, list(QUERY_MAP.keys()), n=1, cutoff=0.7)
-    if matches:
-        return QUERY_MAP[matches[0]]
-
-    # PRIORITY 4: LLM intent classification
-    # Combine all available topics from all sources
-    all_topics = list(QUERY_PLANS.keys()) + list(QUERY_MAP.keys()) + list(intl_plans.keys())
+    # =================================================================
+    # SMART PATH: LLM intent classification (for complex/novel queries)
+    # This is the KEY difference - LLM runs EARLY, not as last resort
+    # =================================================================
+    all_topics = list(all_plans.keys())
     classified_topic = classify_query_intent(query, all_topics)
 
-    if classified_topic:
-        if classified_topic in QUERY_PLANS:
-            print(f"[Intent] Routed to QUERY_PLANS['{classified_topic}']")
-            return QUERY_PLANS[classified_topic]
-        elif classified_topic in intl_plans:
-            print(f"[Intent] Routed to international plan '{classified_topic}'")
-            return intl_plans[classified_topic]
-        elif classified_topic in QUERY_MAP:
-            print(f"[Intent] Routed to QUERY_MAP['{classified_topic}']")
-            return QUERY_MAP[classified_topic]
+    if classified_topic and classified_topic in all_plans:
+        print(f"[Router] LLM classified '{query}' -> '{classified_topic}'")
+        return all_plans[classified_topic]
 
+    # =================================================================
+    # FALLBACK: Fuzzy match (catches typos, close variations)
+    # =================================================================
+    import difflib
+    matches = difflib.get_close_matches(normalized, all_topics, n=1, cutoff=0.7)
+    if matches:
+        print(f"[Router] Fuzzy matched '{normalized}' -> '{matches[0]}'")
+        return all_plans[matches[0]]
+
+    print(f"[Router] No match found for '{query}'")
     return None
 
 
