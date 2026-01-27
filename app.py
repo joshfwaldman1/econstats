@@ -245,7 +245,7 @@ except Exception as e:
 # Import Query Understanding - "Thinking First" layer
 # This deeply analyzes query intent BEFORE any routing decisions
 try:
-    from agents.query_understanding import understand_query, get_routing_recommendation
+    from agents.query_understanding import understand_query, get_routing_recommendation, validate_series_for_query
     QUERY_UNDERSTANDING_AVAILABLE = True
 except Exception:
     QUERY_UNDERSTANDING_AVAILABLE = False
@@ -8150,6 +8150,45 @@ def main():
 
         # Check if this is a "how is X doing?" style query that needs multi-dimensional answers
         holistic = is_holistic_query(query)
+
+        # =================================================================
+        # DEMOGRAPHIC VALIDATION - "Gut Check" Layer
+        # =================================================================
+        # If Gemini detected demographics (women, Black, Hispanic, etc.) but
+        # the routing returned generic series, OVERRIDE with correct series.
+        # This prevents showing UNRATE for "how are women doing?" queries.
+        # =================================================================
+        demographic_override = None
+        if query_understanding and QUERY_UNDERSTANDING_AVAILABLE:
+            # Get proposed series from whatever plan was found
+            proposed_series = []
+            if direct_mapping_plan:
+                proposed_series = direct_mapping_plan.get('series', [])
+            elif health_check_plan:
+                proposed_series = health_check_plan.get('series', [])
+            elif precomputed_plan:
+                proposed_series = precomputed_plan.get('series', [])
+
+            # Validate against query understanding
+            validation = validate_series_for_query(query_understanding, proposed_series)
+            if not validation['valid']:
+                print(f"[Demographic Validation] {validation['reason']}")
+                demographic_override = {
+                    'series': validation['corrected_series'],
+                    'reason': validation['reason'],
+                    'demographic': validation.get('demographic')
+                }
+                # Force use of corrected series via health_check path
+                health_check_plan = {
+                    'series': validation['corrected_series'],
+                    'explanation': f"Labor market data for {validation.get('demographic', 'this demographic group')}.",
+                    'entity': f"{validation.get('demographic', 'demographic')}_workers",
+                    'validated_override': True
+                }
+                # Clear other plans to ensure we use the validated series
+                direct_mapping_plan = None
+                precomputed_plan = None
+                route_type = 'health_check'
 
         # ROUTING LOGIC:
         # 1. Has pre-computed plan -> use it as base

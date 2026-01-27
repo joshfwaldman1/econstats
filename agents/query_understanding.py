@@ -603,6 +603,133 @@ def _rule_based_understanding(query: str) -> Dict:
     return result
 
 
+def validate_series_for_query(query_understanding: Dict, proposed_series: list) -> Dict:
+    """
+    Validate that proposed series match the query intent.
+
+    This is the "gut check" layer - if Gemini detected demographics but
+    the routing returned generic series, we override with correct ones.
+
+    Args:
+        query_understanding: The Gemini analysis of the query
+        proposed_series: List of FRED series IDs from routing
+
+    Returns:
+        Dict with:
+        - valid: bool - whether the series are appropriate
+        - corrected_series: list - correct series if invalid
+        - reason: str - explanation of why correction was needed
+    """
+    if not query_understanding:
+        return {'valid': True, 'corrected_series': None, 'reason': None}
+
+    routing = query_understanding.get('routing', {})
+    entities = query_understanding.get('entities', {})
+    demographics = entities.get('demographics', [])
+
+    # If not demographic-specific, no validation needed
+    if not routing.get('is_demographic_specific') and not demographics:
+        return {'valid': True, 'corrected_series': None, 'reason': None}
+
+    # Map demographics to their FRED series
+    DEMOGRAPHIC_SERIES = {
+        'women': {
+            'unemployment': 'LNS14000002',
+            'lfpr': 'LNS11300002',
+            'epop': 'LNS12300002',
+            'series': ['LNS14000002', 'LNS11300002', 'LNS12300002']
+        },
+        'female': {
+            'unemployment': 'LNS14000002',
+            'lfpr': 'LNS11300002',
+            'epop': 'LNS12300002',
+            'series': ['LNS14000002', 'LNS11300002', 'LNS12300002']
+        },
+        'men': {
+            'unemployment': 'LNS14000001',
+            'lfpr': 'LNS11300001',
+            'epop': 'LNS12300001',
+            'series': ['LNS14000001', 'LNS11300001', 'LNS12300001']
+        },
+        'male': {
+            'unemployment': 'LNS14000001',
+            'lfpr': 'LNS11300001',
+            'epop': 'LNS12300001',
+            'series': ['LNS14000001', 'LNS11300001', 'LNS12300001']
+        },
+        'black': {
+            'unemployment': 'LNS14000006',
+            'lfpr': 'LNS11300006',
+            'epop': 'LNS12300006',
+            'series': ['LNS14000006', 'LNS11300006', 'LNS12300006']
+        },
+        'african american': {
+            'unemployment': 'LNS14000006',
+            'lfpr': 'LNS11300006',
+            'epop': 'LNS12300006',
+            'series': ['LNS14000006', 'LNS11300006', 'LNS12300006']
+        },
+        'hispanic': {
+            'unemployment': 'LNS14000009',
+            'lfpr': 'LNS11300009',
+            'epop': 'LNS12300009',
+            'series': ['LNS14000009', 'LNS11300009', 'LNS12300009']
+        },
+        'latino': {
+            'unemployment': 'LNS14000009',
+            'lfpr': 'LNS11300009',
+            'epop': 'LNS12300009',
+            'series': ['LNS14000009', 'LNS11300009', 'LNS12300009']
+        },
+        'asian': {
+            'unemployment': 'LNS14000004',
+            'lfpr': 'LNS11300004',
+            'epop': 'LNS12300004',
+            'series': ['LNS14000004', 'LNS11300004', 'LNS12300004']
+        },
+        'youth': {
+            'unemployment': 'LNS14000012',
+            'lfpr': 'LNS11300012',
+            'series': ['LNS14000012', 'LNS14000036']
+        },
+        'teen': {
+            'unemployment': 'LNS14000012',
+            'series': ['LNS14000012']
+        },
+        'veteran': {
+            'unemployment': 'LNS14049526',
+            'series': ['LNS14049526']
+        }
+    }
+
+    # Generic series that should NOT be used for demographic queries
+    GENERIC_SERIES = {'UNRATE', 'PAYEMS', 'LNS12300060', 'CIVPART', 'EMRATIO'}
+
+    # Check if any detected demographic has appropriate series
+    for demo in demographics:
+        demo_lower = demo.lower()
+        if demo_lower in DEMOGRAPHIC_SERIES:
+            expected_series = set(DEMOGRAPHIC_SERIES[demo_lower]['series'])
+            proposed_set = set(proposed_series)
+
+            # Check if proposed series includes ANY demographic-specific series
+            has_demographic_series = bool(expected_series & proposed_set)
+
+            # Check if proposed series is mostly generic
+            generic_count = len(proposed_set & GENERIC_SERIES)
+            is_mostly_generic = generic_count > 0 and not has_demographic_series
+
+            if is_mostly_generic or not has_demographic_series:
+                return {
+                    'valid': False,
+                    'corrected_series': DEMOGRAPHIC_SERIES[demo_lower]['series'],
+                    'reason': f"Query is about {demo} but routing returned generic series. Using {demo}-specific data instead.",
+                    'demographic': demo
+                }
+
+    return {'valid': True, 'corrected_series': None, 'reason': None}
+
+
 def get_routing_recommendation(understanding: Dict) -> Dict:
     """
     Based on the query understanding, recommend the routing path.
