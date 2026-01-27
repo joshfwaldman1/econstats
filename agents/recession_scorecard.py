@@ -409,14 +409,14 @@ def format_scorecard_for_display(scorecard: dict) -> str:
             trend_icon = '<span style="color: #22c55e;">&#9660;</span>'  # Down arrow
 
         indicator_rows += f"""
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #e5e7eb;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; border-bottom: 1px solid #f1f5f9;">
             <div>
-                <div style="font-weight: 600; color: #1f2937; font-size: 0.9rem;">{ind['name']}</div>
-                <div style="color: #6b7280; font-size: 0.75rem;">{ind['description']}</div>
+                <div style="font-weight: 500; color: #0f172a; font-size: 0.875rem;">{ind['name']}</div>
+                <div style="color: #64748b; font-size: 0.75rem;">{ind['description']}</div>
             </div>
-            <div style="text-align: right; display: flex; align-items: center; gap: 8px;">
-                <div style="font-weight: 600; color: #1f2937;">{ind['formatted_value']} {trend_icon}</div>
-                <div style="background: {status_color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
+            <div style="text-align: right; display: flex; align-items: center; gap: 0.5rem;">
+                <div style="font-weight: 600; color: #0f172a; font-size: 0.875rem;">{ind['formatted_value']} {trend_icon}</div>
+                <div style="background: {status_color}; color: white; padding: 0.125rem 0.5rem; border-radius: 0.25rem; font-size: 0.7rem; font-weight: 600;">
                     {ind['label']}
                 </div>
             </div>
@@ -430,39 +430,43 @@ def format_scorecard_for_display(scorecard: dict) -> str:
         pm_color = status_colors[pm_status]
         pm_label = 'High' if polymarket_odds >= 40 else ('Moderate' if polymarket_odds >= 25 else 'Low')
         polymarket_row = f"""
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f8fafc;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; background: #f8fafc;">
             <div>
-                <div style="font-weight: 600; color: #1f2937; font-size: 0.9rem;">Polymarket Odds</div>
-                <div style="color: #6b7280; font-size: 0.75rem;">Prediction market recession probability</div>
+                <div style="font-weight: 500; color: #0f172a; font-size: 0.875rem;">Polymarket Odds</div>
+                <div style="color: #64748b; font-size: 0.75rem;">Prediction market recession probability</div>
             </div>
-            <div style="text-align: right; display: flex; align-items: center; gap: 8px;">
-                <div style="font-weight: 600; color: #1f2937;">{polymarket_odds:.0f}%</div>
-                <div style="background: {pm_color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
+            <div style="text-align: right; display: flex; align-items: center; gap: 0.5rem;">
+                <div style="font-weight: 600; color: #0f172a; font-size: 0.875rem;">{polymarket_odds:.0f}%</div>
+                <div style="background: {pm_color}; color: white; padding: 0.125rem 0.5rem; border-radius: 0.25rem; font-size: 0.7rem; font-weight: 600;">
                     {pm_label}
                 </div>
             </div>
         </div>
         """
 
+    # FastAPI UI style - clean white card matching chart cards
     html = f"""
-    <div style="background: white; border: 2px solid {risk['color']}; border-radius: 8px; margin: 12px 0; overflow: hidden;">
-        <div style="background: {risk['bg']}; padding: 12px 16px; border-bottom: 1px solid {risk['color']};">
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 1rem; margin: 0 0 1.5rem 0; overflow: hidden; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="font-weight: 700; color: {risk['color']}; font-size: 1.1rem;">📊 LEADING INDICATORS DASHBOARD</div>
-                <div style="background: {risk['color']}; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem;">
+                <div>
+                    <h3 style="font-weight: 600; color: #0f172a; font-size: 1rem; margin: 0;">Leading Indicators Dashboard</h3>
+                    <p style="color: #64748b; font-size: 0.875rem; margin: 0.25rem 0 0 0;">Key recession warning signals</p>
+                </div>
+                <div style="background: {risk['color']}; color: white; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.75rem;">
                     {risk['label']}
                 </div>
             </div>
-            <div style="color: #4b5563; font-size: 0.85rem; margin-top: 8px; line-height: 1.5;">
-                {narrative}
-            </div>
         </div>
-        <div style="padding: 4px 0;">
+        <div style="padding: 0.5rem 0;">
             {indicator_rows}
             {polymarket_row}
         </div>
-        <div style="padding: 8px 12px; background: #f9fafb; color: #6b7280; font-size: 0.7rem;">
-            Data sources: FRED (Federal Reserve), Polymarket. Sahm Rule threshold: 0.5. Yield curve: negative = inverted.
+        <div style="padding: 0.75rem 1.5rem; background: #f8fafc; border-top: 1px solid #f1f5f9;">
+            <p style="color: #94a3b8; font-size: 0.75rem; margin: 0; line-height: 1.5;">{narrative}</p>
+        </div>
+        <div style="padding: 0.5rem 1.5rem; background: #f8fafc;">
+            <p style="color: #94a3b8; font-size: 0.7rem; margin: 0;">Sources: FRED (Federal Reserve), Polymarket. Sahm Rule threshold: 0.5.</p>
         </div>
     </div>
     """

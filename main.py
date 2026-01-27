@@ -959,20 +959,29 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
                 color = "#dc2626" if percentile >= 90 else "#f59e0b" if percentile >= 75 else "#3b82f6"
                 status = "Extremely Elevated" if percentile >= 90 else "Elevated" if percentile >= 75 else "Above Average"
 
+                # FastAPI UI style - clean white card matching other boxes
+                vs_avg_color = "text-red-600" if vs_avg >= 50 else "text-amber-600" if vs_avg >= 25 else "text-slate-900"
+                vs_dot_com_color = "text-emerald-600" if vs_dot_com < 0 else "text-red-600"
                 cape_html = f"""
-                <div class="bg-slate-800 rounded-xl p-5 mb-6 border-l-4" style="border-color: {color}">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-xl">📊</span>
-                        <span class="text-white font-semibold">Shiller CAPE Ratio</span>
-                        <span class="px-2 py-0.5 rounded-full text-xs font-medium text-white" style="background: {color}">{status}</span>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mb-6 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-semibold text-slate-900">Shiller CAPE Ratio</h3>
+                                <p class="text-sm text-slate-500">143 years of valuation history</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold text-white" style="background: {color}">{status}</span>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-4 gap-4 text-center">
-                        <div><div class="text-slate-400 text-xs uppercase">Current</div><div class="text-white text-2xl font-bold">{cape_value:.1f}</div><div class="text-slate-500 text-xs">{percentile:.0f}th pctl</div></div>
-                        <div><div class="text-slate-400 text-xs uppercase">vs Avg</div><div class="text-amber-400 text-2xl font-bold">+{vs_avg:.0f}%</div><div class="text-slate-500 text-xs">Avg: 17</div></div>
-                        <div><div class="text-slate-400 text-xs uppercase">vs Dot-Com</div><div class="text-emerald-400 text-2xl font-bold">{vs_dot_com:+.0f}%</div><div class="text-slate-500 text-xs">Peak: {dot_com_peak:.1f}</div></div>
-                        <div><div class="text-slate-400 text-xs uppercase">History</div><div class="text-blue-400 text-2xl font-bold">143yr</div><div class="text-slate-500 text-xs">Since 1881</div></div>
+                    <div class="grid grid-cols-4 gap-4 text-center px-6 py-4">
+                        <div><p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Current</p><p class="text-2xl font-bold text-slate-900">{cape_value:.1f}</p><p class="text-xs text-slate-400">{percentile:.0f}th percentile</p></div>
+                        <div><p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">vs Average</p><p class="text-2xl font-bold {vs_avg_color}">+{vs_avg:.0f}%</p><p class="text-xs text-slate-400">Avg: 17</p></div>
+                        <div><p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">vs Dot-Com</p><p class="text-2xl font-bold {vs_dot_com_color}">{vs_dot_com:+.0f}%</p><p class="text-xs text-slate-400">Peak: {dot_com_peak:.1f}</p></div>
+                        <div><p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">History</p><p class="text-2xl font-bold text-blue-600">143yr</p><p class="text-xs text-slate-400">Since 1881</p></div>
                     </div>
-                    <div class="text-slate-300 text-sm mt-3">{cape_current['interpretation']}</div>
+                    <div class="px-6 py-3 bg-slate-50 border-t border-slate-100">
+                        <p class="text-sm text-slate-600">{cape_current['interpretation']}</p>
+                    </div>
                 </div>
                 """
                 print(f"[CAPE] Current: {cape_value:.1f} ({percentile:.0f}th percentile)")
