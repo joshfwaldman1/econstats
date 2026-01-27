@@ -174,49 +174,176 @@ RECESSIONS = [
     ('2020-02-01', '2020-04-01'),
 ]
 
-# Series metadata (subset for prototype)
+# Series metadata with educational bullets
 SERIES_DB = {
-    'PAYEMS': {'name': 'Nonfarm Payrolls', 'unit': 'Thousands of Persons', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
-    'UNRATE': {'name': 'Unemployment Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
-    'A191RO1Q156NBEA': {'name': 'Real GDP Growth', 'unit': 'Percent Change', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
-    'CPIAUCSL': {'name': 'Consumer Price Index', 'unit': 'Index 1982-84=100', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
-    'FEDFUNDS': {'name': 'Federal Funds Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Board of Governors of the Federal Reserve System'},
-    'DGS10': {'name': '10-Year Treasury Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Board of Governors of the Federal Reserve System'},
-    'DGS2': {'name': '2-Year Treasury Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Board of Governors of the Federal Reserve System'},
-    'MORTGAGE30US': {'name': '30-Year Mortgage Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Freddie Mac'},
-    # Recession indicators
-    'SAHMREALTIME': {'name': 'Sahm Rule Recession Indicator', 'unit': 'Percentage Points', 'show_yoy': False, 'sa': True, 'source': 'Federal Reserve Bank of St. Louis', 'benchmark': 0.5},
-    'T10Y2Y': {'name': 'Treasury Yield Spread (10Y-2Y)', 'unit': 'Percent', 'show_yoy': False, 'sa': False, 'source': 'Federal Reserve Bank of St. Louis'},
-    'ICSA': {'name': 'Initial Jobless Claims', 'unit': 'Number', 'show_yoy': False, 'sa': True, 'source': 'U.S. Employment and Training Administration'},
-    # Additional employment
-    'CIVPART': {'name': 'Labor Force Participation Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
-    'U6RATE': {'name': 'U-6 Unemployment Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
-    # Inflation
-    'PCEPILFE': {'name': 'Core PCE Inflation', 'unit': 'Index', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
-    'PCEPI': {'name': 'PCE Inflation', 'unit': 'Index', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
-    # Consumer/Retail
-    'RSAFS': {'name': 'Retail Sales', 'unit': 'Millions of Dollars', 'show_yoy': True, 'sa': True, 'source': 'U.S. Census Bureau'},
-    'RSXFS': {'name': 'Retail Sales ex Food Services', 'unit': 'Millions of Dollars', 'show_yoy': True, 'sa': True, 'source': 'U.S. Census Bureau'},
-    'PI': {'name': 'Personal Income', 'unit': 'Billions of Dollars', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
-    'PSAVERT': {'name': 'Personal Savings Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
-    'UMCSENT': {'name': 'Consumer Sentiment', 'unit': 'Index 1966:Q1=100', 'show_yoy': False, 'sa': False, 'source': 'University of Michigan'},
-    'PCE': {'name': 'Personal Consumption Expenditures', 'unit': 'Billions of Dollars', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
-    'PCEC96': {'name': 'Real Personal Consumption Expenditures', 'unit': 'Billions of Chained 2017 Dollars', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
-    # GDP/Growth
-    'GDPNOW': {'name': 'GDPNow Estimate', 'unit': 'Percent', 'show_yoy': False, 'sa': True, 'source': 'Federal Reserve Bank of Atlanta'},
-    'A191RL1Q225SBEA': {'name': 'Real GDP Growth Rate', 'unit': 'Percent Change', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
-    # Additional Consumer/Income
-    'DSPIC96': {'name': 'Real Disposable Personal Income', 'unit': 'Billions of Chained 2017 Dollars', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
-    # Additional Inflation
-    'CPILFESL': {'name': 'Core CPI', 'unit': 'Index 1982-84=100', 'show_yoy': True, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
-    # Leading Indicators
-    'BBKMLEIX': {'name': 'BBK Leading Index', 'unit': 'Standard Deviations', 'show_yoy': False, 'sa': True, 'source': 'Federal Reserve Bank of Chicago'},
-    # Auto Industry
-    'CES3133600101': {'name': 'Motor Vehicles & Parts Manufacturing Employment', 'unit': 'Thousands of Persons', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
-    'CES4244100001': {'name': 'Auto Dealers Employment', 'unit': 'Thousands of Persons', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
-    'MANEMP': {'name': 'Manufacturing Employment', 'unit': 'Thousands of Persons', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Labor Statistics'},
-    'IPG3361T3S': {'name': 'Industrial Production: Motor Vehicles & Parts', 'unit': 'Index 2017=100', 'show_yoy': True, 'sa': True, 'source': 'Board of Governors of the Federal Reserve System'},
-    'TOTALSA': {'name': 'Total Vehicle Sales', 'unit': 'Millions of Units', 'show_yoy': False, 'sa': True, 'source': 'U.S. Bureau of Economic Analysis'},
+    'PAYEMS': {
+        'name': 'Nonfarm Payrolls', 'unit': 'Thousands of Persons', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Bureau of Labor Statistics',
+        'bullets': [
+            'The single most important monthly indicator of labor market health—this is the "jobs number" that moves markets on the first Friday of each month.',
+            'Context: The economy now needs only 50-75K new jobs/month to keep pace with slowing population growth. Gains above 150K signal robust hiring; below 50K suggests softening.'
+        ]
+    },
+    'UNRATE': {
+        'name': 'Unemployment Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Bureau of Labor Statistics',
+        'bullets': [
+            'The headline unemployment rate—the share of Americans actively looking for work but unable to find it.',
+            'Rates below 4% are historically rare and signal a tight labor market. The rate peaked at 10% in 2009 and briefly hit 14.7% in April 2020.'
+        ]
+    },
+    'A191RO1Q156NBEA': {
+        'name': 'Real GDP Growth', 'unit': 'Percent Change', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Bureau of Economic Analysis',
+        'bullets': [
+            'The broadest measure of economic output—real GDP growth shows how fast the economy is expanding or contracting.',
+            'Healthy growth is typically 2-3% annually. Two consecutive quarters of negative growth is one common definition of recession.'
+        ]
+    },
+    'CPIAUCSL': {
+        'name': 'Consumer Price Index', 'unit': 'Index 1982-84=100', 'show_yoy': True, 'sa': True,
+        'source': 'U.S. Bureau of Labor Statistics',
+        'bullets': [
+            'CPI measures the average change in prices paid by urban consumers for a basket of goods and services.',
+            'The Fed targets 2% annual inflation. Above 3% raises concerns; sustained rates above 5% typically prompt aggressive Fed action.'
+        ]
+    },
+    'FEDFUNDS': {
+        'name': 'Federal Funds Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
+        'source': 'Board of Governors of the Federal Reserve System',
+        'bullets': [
+            'The Fed\'s primary tool for monetary policy—the rate banks charge each other for overnight loans.',
+            'When the Fed raises rates, borrowing becomes more expensive throughout the economy, slowing growth and inflation.'
+        ]
+    },
+    'DGS10': {
+        'name': '10-Year Treasury Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
+        'source': 'Board of Governors of the Federal Reserve System',
+        'bullets': [
+            'The benchmark "risk-free" rate that influences mortgages, corporate bonds, and stock valuations.',
+            'Higher 10-year yields mean higher borrowing costs across the economy and typically pressure stock prices.'
+        ]
+    },
+    'DGS2': {
+        'name': '2-Year Treasury Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
+        'source': 'Board of Governors of the Federal Reserve System',
+        'bullets': [
+            'Reflects market expectations for Fed policy over the next two years.',
+            'When the 2-year exceeds the 10-year (yield curve inversion), it has historically preceded recessions.'
+        ]
+    },
+    'MORTGAGE30US': {
+        'name': '30-Year Mortgage Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
+        'source': 'Freddie Mac',
+        'bullets': [
+            'The rate on a conventional 30-year fixed mortgage—the primary driver of housing affordability.',
+            'Each 1% increase in rates reduces buying power by roughly 10%. Rates below 4% are historically low; above 7% is restrictive.'
+        ]
+    },
+    'SAHMREALTIME': {
+        'name': 'Sahm Rule Recession Indicator', 'unit': 'Percentage Points', 'show_yoy': False, 'sa': True,
+        'source': 'Federal Reserve Bank of St. Louis', 'benchmark': 0.5,
+        'bullets': [
+            'Created by economist Claudia Sahm—signals recession when the 3-month average unemployment rate rises 0.5 points above its 12-month low.',
+            'Has correctly identified every U.S. recession since 1970 with no false positives.'
+        ]
+    },
+    'T10Y2Y': {
+        'name': 'Treasury Yield Spread (10Y-2Y)', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
+        'source': 'Federal Reserve Bank of St. Louis',
+        'bullets': [
+            'The difference between 10-year and 2-year Treasury yields—a key recession indicator.',
+            'When negative (inverted), it has preceded every recession since the 1970s, typically by 12-18 months.'
+        ]
+    },
+    'ICSA': {
+        'name': 'Initial Jobless Claims', 'unit': 'Number', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Employment and Training Administration',
+        'bullets': [
+            'Weekly count of new unemployment insurance filings—the most timely indicator of labor market stress.',
+            'Claims below 250K indicate a healthy labor market. Sustained readings above 300K suggest deterioration.'
+        ]
+    },
+    'CIVPART': {
+        'name': 'Labor Force Participation Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Bureau of Labor Statistics',
+        'bullets': [
+            'Share of the adult population either working or actively seeking work.',
+            'Has declined from 67% in 2000 due to aging demographics, rising disability, and more students pursuing education.'
+        ]
+    },
+    'U6RATE': {
+        'name': 'U-6 Unemployment Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Bureau of Labor Statistics',
+        'bullets': [
+            'The broadest measure of unemployment—includes discouraged workers and those working part-time for economic reasons.',
+            'Typically runs 3-4 percentage points higher than the headline U-3 rate.'
+        ]
+    },
+    'PCEPILFE': {
+        'name': 'Core PCE Inflation', 'unit': 'Index', 'show_yoy': True, 'sa': True,
+        'source': 'U.S. Bureau of Economic Analysis',
+        'bullets': [
+            'The Federal Reserve\'s preferred inflation measure—excludes volatile food and energy prices.',
+            'The Fed explicitly targets 2% core PCE inflation over time.'
+        ]
+    },
+    'PCEPI': {
+        'name': 'PCE Inflation', 'unit': 'Index', 'show_yoy': True, 'sa': True,
+        'source': 'U.S. Bureau of Economic Analysis',
+        'bullets': [
+            'Personal Consumption Expenditures price index—broader than CPI and the Fed\'s official inflation gauge.',
+            'Tends to run slightly lower than CPI because it accounts for consumers substituting cheaper goods.'
+        ]
+    },
+    'RSAFS': {
+        'name': 'Retail Sales', 'unit': 'Millions of Dollars', 'show_yoy': True, 'sa': True,
+        'source': 'U.S. Census Bureau',
+        'bullets': [
+            'Total receipts at retail stores—a direct measure of consumer spending, which drives ~70% of GDP.',
+            'Closely watched for signs of consumer strength or pullback.'
+        ]
+    },
+    'PSAVERT': {
+        'name': 'Personal Savings Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Bureau of Economic Analysis',
+        'bullets': [
+            'The share of disposable income that households save rather than spend.',
+            'Spiked to 33% during COVID stimulus; rates below 4% suggest consumers may be stretched.'
+        ]
+    },
+    'UMCSENT': {
+        'name': 'Consumer Sentiment', 'unit': 'Index 1966:Q1=100', 'show_yoy': False, 'sa': False,
+        'source': 'University of Michigan',
+        'bullets': [
+            'Survey-based measure of how consumers feel about their finances and the economy.',
+            'Readings above 90 indicate optimism; below 70 suggests pessimism. Can lead changes in spending behavior.'
+        ]
+    },
+    'GDPNOW': {
+        'name': 'GDPNow Estimate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
+        'source': 'Federal Reserve Bank of Atlanta',
+        'bullets': [
+            'Real-time estimate of current-quarter GDP growth based on incoming economic data.',
+            'Updates frequently as new data releases and provides the most current read on economic momentum.'
+        ]
+    },
+    'CPILFESL': {
+        'name': 'Core CPI', 'unit': 'Index 1982-84=100', 'show_yoy': True, 'sa': True,
+        'source': 'U.S. Bureau of Labor Statistics',
+        'bullets': [
+            'CPI excluding food and energy—shows underlying inflation trends without volatile components.',
+            'Markets and policymakers watch core inflation to gauge persistent price pressures.'
+        ]
+    },
+    'MANEMP': {
+        'name': 'Manufacturing Employment', 'unit': 'Thousands of Persons', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Bureau of Labor Statistics',
+        'bullets': [
+            'Total jobs in the manufacturing sector—a key indicator of industrial strength.',
+            'Has declined from 19 million in 1979 to around 13 million today due to automation and offshoring.'
+        ]
+    },
 }
 
 
@@ -861,13 +988,17 @@ def format_chart_data(series_data: list, payems_show_level: bool = False) -> lis
         db_info = SERIES_DB.get(sid, {})
         source = db_info.get('source', 'FRED')
         sa = db_info.get('sa', False)
+        bullets = db_info.get('bullets', [])
 
-        # Get FRED notes for educational content
+        # Get FRED notes for educational content (fallback if no bullets)
         notes = info.get('notes', '')
         # Clean up notes - take first 2-3 sentences for brevity
         if notes:
             sentences = notes.replace('\n', ' ').split('. ')
             notes = '. '.join(sentences[:3]) + ('.' if len(sentences) > 0 else '')
+
+        # Generate description from bullets or notes
+        description = bullets[0] if bullets else (notes if notes else '')
 
         charts.append({
             'series_id': sid,
@@ -883,6 +1014,8 @@ def format_chart_data(series_data: list, payems_show_level: bool = False) -> lis
             'source': source,
             'sa': sa,
             'notes': notes,
+            'bullets': bullets,
+            'description': description,
             'is_job_change': is_job_change,
             'is_payems_level': is_payems_level,  # PAYEMS level (value in thousands)
             'three_mo_avg': three_mo_avg,

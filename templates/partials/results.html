@@ -133,11 +133,25 @@
         </div>
     </div>
 
+    <!-- Key Insights (Bullets) -->
+    {% if chart.bullets %}
+    <div class="px-6 py-3 bg-slate-50 border-b border-slate-100">
+        <ul class="text-sm text-slate-600 space-y-1">
+            {% for bullet in chart.bullets[:2] %}
+            <li class="flex items-start gap-2">
+                <span class="text-slate-400 mt-1.5 text-xs">•</span>
+                <span class="leading-relaxed">{{ bullet }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
     <!-- Chart Container -->
     <div id="chart-{{ chart.series_id }}" class="chart-container px-4 py-2"></div>
 
-    <!-- Claude's Chart Description -->
-    {% if chart.description %}
+    <!-- Claude's Chart Description (if no bullets) -->
+    {% if chart.description and not chart.bullets %}
     <div class="px-6 py-4 border-t border-slate-100">
         <p class="text-sm text-slate-600 leading-relaxed">
             {{ chart.description }}
