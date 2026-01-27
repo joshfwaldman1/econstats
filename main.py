@@ -103,7 +103,7 @@ except Exception as e:
 
 # DBnomics (international data)
 try:
-    from agents.dbnomics import get_observations_dbnomics, INTERNATIONAL_SERIES
+    from agents.dbnomics import get_observations_dbnomics, INTERNATIONAL_SERIES, INTERNATIONAL_QUERY_PLANS
     DBNOMICS_AVAILABLE = True
 except Exception as e:
     print(f"DBnomics not available: {e}")
@@ -484,6 +484,16 @@ QUERY_MAP = {
     # Wages
     'wages': {'series': ['CES0500000003'], 'combine': False},
     'earnings': {'series': ['CES0500000003'], 'combine': False},
+
+    # International comparisons - FRED has this data!
+    'us vs europe': {'series': ['A191RL1Q225SBEA', 'CLVMNACSCAB1GQEA19', 'UNRATE', 'LRHUTTTTEZM156S'], 'show_yoy': False, 'combine': False},
+    'us vs eurozone': {'series': ['A191RL1Q225SBEA', 'CLVMNACSCAB1GQEA19', 'UNRATE', 'LRHUTTTTEZM156S'], 'show_yoy': False, 'combine': False},
+    'us v europe': {'series': ['A191RL1Q225SBEA', 'CLVMNACSCAB1GQEA19', 'UNRATE', 'LRHUTTTTEZM156S'], 'show_yoy': False, 'combine': False},
+    'us v eurozone': {'series': ['A191RL1Q225SBEA', 'CLVMNACSCAB1GQEA19', 'UNRATE', 'LRHUTTTTEZM156S'], 'show_yoy': False, 'combine': False},
+    'europe economy': {'series': ['CLVMNACSCAB1GQEA19', 'LRHUTTTTEZM156S', 'EA19CPALTT01GYM'], 'show_yoy': False, 'combine': False},
+    'eurozone economy': {'series': ['CLVMNACSCAB1GQEA19', 'LRHUTTTTEZM156S', 'EA19CPALTT01GYM'], 'show_yoy': False, 'combine': False},
+    'eurozone': {'series': ['CLVMNACSCAB1GQEA19', 'LRHUTTTTEZM156S', 'EA19CPALTT01GYM'], 'show_yoy': False, 'combine': False},
+    'europe': {'series': ['CLVMNACSCAB1GQEA19', 'LRHUTTTTEZM156S', 'EA19CPALTT01GYM'], 'show_yoy': False, 'combine': False},
 }
 
 
@@ -491,11 +501,19 @@ def normalize_query(query: str) -> str:
     """Normalize query for matching."""
     import re
     q = query.lower().strip()
+
+    # Normalize "v." and "versus" to "vs"
+    q = re.sub(r'\bv\.?\s+', 'vs ', q)
+    q = re.sub(r'\bversus\b', 'vs', q)
+    # Normalize "europe's" to "europe"
+    q = re.sub(r"europe's", 'europe', q)
+
     fillers = [
         r'^what is\s+', r'^what are\s+', r'^show me\s+', r'^show\s+',
         r'^tell me about\s+', r'^how is\s+', r'^how are\s+', r'^how has\s+', r'^how have\s+',
         r'^what\'s\s+', r'^whats\s+', r'^give me\s+',
         r'\s+changed\s*$', r'\s+doing\s*$', r'\s+looking\s*$', r'\s+trending\s*$',
+        r'\s+economy\s*$',  # "us vs europe economy" -> "us vs europe"
         r'\?$', r'\.+$', r'\s+the\s+', r'^the\s+'
     ]
     for filler in fillers:
@@ -555,7 +573,7 @@ def find_query_plan(query: str):
     """Find matching query plan.
 
     Priority order:
-    1. Exact match in QUERY_PLANS or QUERY_MAP
+    1. Exact match in QUERY_PLANS, QUERY_MAP, or INTERNATIONAL_QUERY_PLANS
     2. Normalized match
     3. Fuzzy match
     4. LLM intent classification (if no match found)
@@ -563,11 +581,22 @@ def find_query_plan(query: str):
     normalized = normalize_query(query)
     original_lower = query.lower().strip()
 
+    # Get international plans if available
+    intl_plans = INTERNATIONAL_QUERY_PLANS if DBNOMICS_AVAILABLE else {}
+
     # PRIORITY 1: Check JSON query plans first (richer series)
     if original_lower in QUERY_PLANS:
         return QUERY_PLANS[original_lower]
     if normalized in QUERY_PLANS:
         return QUERY_PLANS[normalized]
+
+    # Check international plans (Europe, UK, China, etc.)
+    if original_lower in intl_plans:
+        print(f"[International] Matched '{original_lower}' to international plan")
+        return intl_plans[original_lower]
+    if normalized in intl_plans:
+        print(f"[International] Matched '{normalized}' to international plan")
+        return intl_plans[normalized]
 
     # PRIORITY 2: Check QUERY_MAP as fallback
     if original_lower in QUERY_MAP:
@@ -575,26 +604,38 @@ def find_query_plan(query: str):
     if normalized in QUERY_MAP:
         return QUERY_MAP[normalized]
 
-    # PRIORITY 3: Fuzzy match on QUERY_PLANS first
+    # PRIORITY 3: Fuzzy match on all plan sources
     import difflib
+
+    # Fuzzy match on QUERY_PLANS
     matches = difflib.get_close_matches(normalized, list(QUERY_PLANS.keys()), n=1, cutoff=0.8)
     if matches:
         return QUERY_PLANS[matches[0]]
 
-    # Then fuzzy match on QUERY_MAP
+    # Fuzzy match on international plans
+    if intl_plans:
+        matches = difflib.get_close_matches(normalized, list(intl_plans.keys()), n=1, cutoff=0.7)
+        if matches:
+            print(f"[International] Fuzzy matched '{normalized}' to '{matches[0]}'")
+            return intl_plans[matches[0]]
+
+    # Fuzzy match on QUERY_MAP
     matches = difflib.get_close_matches(normalized, list(QUERY_MAP.keys()), n=1, cutoff=0.7)
     if matches:
         return QUERY_MAP[matches[0]]
 
     # PRIORITY 4: LLM intent classification
-    # Combine all available topics from both sources
-    all_topics = list(QUERY_PLANS.keys()) + list(QUERY_MAP.keys())
+    # Combine all available topics from all sources
+    all_topics = list(QUERY_PLANS.keys()) + list(QUERY_MAP.keys()) + list(intl_plans.keys())
     classified_topic = classify_query_intent(query, all_topics)
 
     if classified_topic:
         if classified_topic in QUERY_PLANS:
             print(f"[Intent] Routed to QUERY_PLANS['{classified_topic}']")
             return QUERY_PLANS[classified_topic]
+        elif classified_topic in intl_plans:
+            print(f"[Intent] Routed to international plan '{classified_topic}'")
+            return intl_plans[classified_topic]
         elif classified_topic in QUERY_MAP:
             print(f"[Intent] Routed to QUERY_MAP['{classified_topic}']")
             return QUERY_MAP[classified_topic]
