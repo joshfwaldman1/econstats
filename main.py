@@ -174,11 +174,13 @@ RECESSIONS = [
     ('2020-02-01', '2020-04-01'),
 ]
 
-# Series metadata with educational bullets
+# Series metadata with educational bullets and data_type for YoY safety
 SERIES_DB = {
     'PAYEMS': {
         'name': 'Nonfarm Payrolls', 'unit': 'Thousands of Persons', 'show_yoy': False, 'sa': True,
         'source': 'U.S. Bureau of Labor Statistics',
+        'data_type': 'level',  # Employment count - show absolute changes, not %
+        'show_absolute_change': True,
         'bullets': [
             'The single most important monthly indicator of labor market health—this is the "jobs number" that moves markets on the first Friday of each month.',
             'Context: The economy now needs only 50-75K new jobs/month to keep pace with slowing population growth. Gains above 150K signal robust hiring; below 50K suggests softening.'
@@ -187,6 +189,7 @@ SERIES_DB = {
     'UNRATE': {
         'name': 'Unemployment Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
         'source': 'U.S. Bureau of Labor Statistics',
+        'data_type': 'rate',  # Already a rate - never apply YoY
         'bullets': [
             'The headline unemployment rate—the share of Americans actively looking for work but unable to find it.',
             'Rates below 4% are historically rare and signal a tight labor market. The rate peaked at 10% in 2009 and briefly hit 14.7% in April 2020.'
@@ -195,6 +198,7 @@ SERIES_DB = {
     'A191RO1Q156NBEA': {
         'name': 'Real GDP Growth', 'unit': 'Percent Change', 'show_yoy': False, 'sa': True,
         'source': 'U.S. Bureau of Economic Analysis',
+        'data_type': 'growth_rate',  # Already a growth rate - never apply YoY
         'bullets': [
             'The broadest measure of economic output—real GDP growth shows how fast the economy is expanding or contracting.',
             'Healthy growth is typically 2-3% annually. Two consecutive quarters of negative growth is one common definition of recession.'
@@ -203,6 +207,9 @@ SERIES_DB = {
     'CPIAUCSL': {
         'name': 'Consumer Price Index', 'unit': 'Index 1982-84=100', 'show_yoy': True, 'sa': True,
         'source': 'U.S. Bureau of Labor Statistics',
+        'data_type': 'index',  # Index - convert to YoY %
+        'yoy_name': 'CPI Inflation Rate (Headline)',
+        'yoy_unit': '% Change YoY',
         'bullets': [
             'CPI measures the average change in prices paid by urban consumers for a basket of goods and services.',
             'The Fed targets 2% annual inflation. Above 3% raises concerns; sustained rates above 5% typically prompt aggressive Fed action.'
@@ -211,6 +218,7 @@ SERIES_DB = {
     'FEDFUNDS': {
         'name': 'Federal Funds Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
         'source': 'Board of Governors of the Federal Reserve System',
+        'data_type': 'rate',  # Already a rate
         'bullets': [
             'The Fed\'s primary tool for monetary policy—the rate banks charge each other for overnight loans.',
             'When the Fed raises rates, borrowing becomes more expensive throughout the economy, slowing growth and inflation.'
@@ -219,6 +227,7 @@ SERIES_DB = {
     'DGS10': {
         'name': '10-Year Treasury Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
         'source': 'Board of Governors of the Federal Reserve System',
+        'data_type': 'rate',
         'bullets': [
             'The benchmark "risk-free" rate that influences mortgages, corporate bonds, and stock valuations.',
             'Higher 10-year yields mean higher borrowing costs across the economy and typically pressure stock prices.'
@@ -227,6 +236,7 @@ SERIES_DB = {
     'DGS2': {
         'name': '2-Year Treasury Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
         'source': 'Board of Governors of the Federal Reserve System',
+        'data_type': 'rate',
         'bullets': [
             'Reflects market expectations for Fed policy over the next two years.',
             'When the 2-year exceeds the 10-year (yield curve inversion), it has historically preceded recessions.'
@@ -235,6 +245,7 @@ SERIES_DB = {
     'MORTGAGE30US': {
         'name': '30-Year Mortgage Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
         'source': 'Freddie Mac',
+        'data_type': 'rate',
         'bullets': [
             'The rate on a conventional 30-year fixed mortgage—the primary driver of housing affordability.',
             'Each 1% increase in rates reduces buying power by roughly 10%. Rates below 4% are historically low; above 7% is restrictive.'
@@ -243,6 +254,7 @@ SERIES_DB = {
     'SAHMREALTIME': {
         'name': 'Sahm Rule Recession Indicator', 'unit': 'Percentage Points', 'show_yoy': False, 'sa': True,
         'source': 'Federal Reserve Bank of St. Louis', 'benchmark': 0.5,
+        'data_type': 'spread',  # Spread - never apply YoY
         'bullets': [
             'Created by economist Claudia Sahm—signals recession when the 3-month average unemployment rate rises 0.5 points above its 12-month low.',
             'Has correctly identified every U.S. recession since 1970 with no false positives.'
@@ -251,6 +263,7 @@ SERIES_DB = {
     'T10Y2Y': {
         'name': 'Treasury Yield Spread (10Y-2Y)', 'unit': 'Percent', 'show_yoy': False, 'sa': False,
         'source': 'Federal Reserve Bank of St. Louis',
+        'data_type': 'spread',  # Spread - never apply YoY
         'bullets': [
             'The difference between 10-year and 2-year Treasury yields—a key recession indicator.',
             'When negative (inverted), it has preceded every recession since the 1970s, typically by 12-18 months.'
@@ -259,6 +272,7 @@ SERIES_DB = {
     'ICSA': {
         'name': 'Initial Jobless Claims', 'unit': 'Number', 'show_yoy': False, 'sa': True,
         'source': 'U.S. Employment and Training Administration',
+        'data_type': 'level',
         'bullets': [
             'Weekly count of new unemployment insurance filings—the most timely indicator of labor market stress.',
             'Claims below 250K indicate a healthy labor market. Sustained readings above 300K suggest deterioration.'
@@ -267,6 +281,7 @@ SERIES_DB = {
     'CIVPART': {
         'name': 'Labor Force Participation Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
         'source': 'U.S. Bureau of Labor Statistics',
+        'data_type': 'rate',  # Already a rate
         'bullets': [
             'Share of the adult population either working or actively seeking work.',
             'Has declined from 67% in 2000 due to aging demographics, rising disability, and more students pursuing education.'
@@ -275,6 +290,7 @@ SERIES_DB = {
     'U6RATE': {
         'name': 'U-6 Unemployment Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
         'source': 'U.S. Bureau of Labor Statistics',
+        'data_type': 'rate',
         'bullets': [
             'The broadest measure of unemployment—includes discouraged workers and those working part-time for economic reasons.',
             'Typically runs 3-4 percentage points higher than the headline U-3 rate.'
@@ -283,6 +299,9 @@ SERIES_DB = {
     'PCEPILFE': {
         'name': 'Core PCE Inflation', 'unit': 'Index', 'show_yoy': True, 'sa': True,
         'source': 'U.S. Bureau of Economic Analysis',
+        'data_type': 'index',  # Index - convert to YoY %
+        'yoy_name': 'Core PCE Inflation Rate',
+        'yoy_unit': '% Change YoY',
         'bullets': [
             'The Federal Reserve\'s preferred inflation measure—excludes volatile food and energy prices.',
             'The Fed explicitly targets 2% core PCE inflation over time.'
@@ -291,6 +310,9 @@ SERIES_DB = {
     'PCEPI': {
         'name': 'PCE Inflation', 'unit': 'Index', 'show_yoy': True, 'sa': True,
         'source': 'U.S. Bureau of Economic Analysis',
+        'data_type': 'index',
+        'yoy_name': 'PCE Inflation Rate',
+        'yoy_unit': '% Change YoY',
         'bullets': [
             'Personal Consumption Expenditures price index—broader than CPI and the Fed\'s official inflation gauge.',
             'Tends to run slightly lower than CPI because it accounts for consumers substituting cheaper goods.'
@@ -299,6 +321,7 @@ SERIES_DB = {
     'RSAFS': {
         'name': 'Retail Sales', 'unit': 'Millions of Dollars', 'show_yoy': True, 'sa': True,
         'source': 'U.S. Census Bureau',
+        'data_type': 'level',
         'bullets': [
             'Total receipts at retail stores—a direct measure of consumer spending, which drives ~70% of GDP.',
             'Closely watched for signs of consumer strength or pullback.'
@@ -307,6 +330,7 @@ SERIES_DB = {
     'PSAVERT': {
         'name': 'Personal Savings Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
         'source': 'U.S. Bureau of Economic Analysis',
+        'data_type': 'rate',
         'bullets': [
             'The share of disposable income that households save rather than spend.',
             'Spiked to 33% during COVID stimulus; rates below 4% suggest consumers may be stretched.'
@@ -315,6 +339,7 @@ SERIES_DB = {
     'UMCSENT': {
         'name': 'Consumer Sentiment', 'unit': 'Index 1966:Q1=100', 'show_yoy': False, 'sa': False,
         'source': 'University of Michigan',
+        'data_type': 'index',
         'bullets': [
             'Survey-based measure of how consumers feel about their finances and the economy.',
             'Readings above 90 indicate optimism; below 70 suggests pessimism. Can lead changes in spending behavior.'
@@ -323,6 +348,7 @@ SERIES_DB = {
     'GDPNOW': {
         'name': 'GDPNow Estimate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
         'source': 'Federal Reserve Bank of Atlanta',
+        'data_type': 'growth_rate',  # Already a growth rate
         'bullets': [
             'Real-time estimate of current-quarter GDP growth based on incoming economic data.',
             'Updates frequently as new data releases and provides the most current read on economic momentum.'
@@ -331,6 +357,9 @@ SERIES_DB = {
     'CPILFESL': {
         'name': 'Core CPI', 'unit': 'Index 1982-84=100', 'show_yoy': True, 'sa': True,
         'source': 'U.S. Bureau of Labor Statistics',
+        'data_type': 'index',
+        'yoy_name': 'Core CPI Inflation Rate',
+        'yoy_unit': '% Change YoY',
         'bullets': [
             'CPI excluding food and energy—shows underlying inflation trends without volatile components.',
             'Markets and policymakers watch core inflation to gauge persistent price pressures.'
@@ -339,11 +368,117 @@ SERIES_DB = {
     'MANEMP': {
         'name': 'Manufacturing Employment', 'unit': 'Thousands of Persons', 'show_yoy': False, 'sa': True,
         'source': 'U.S. Bureau of Labor Statistics',
+        'data_type': 'level',
         'bullets': [
             'Total jobs in the manufacturing sector—a key indicator of industrial strength.',
             'Has declined from 19 million in 1979 to around 13 million today due to automation and offshoring.'
         ]
     },
+    # Additional series for complete coverage
+    'LNS12300060': {
+        'name': 'Prime-Age Employment-Population Ratio', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Bureau of Labor Statistics',
+        'data_type': 'rate',
+        'bullets': [
+            'Share of Americans aged 25-54 who are employed—avoids distortions from retiring boomers and students.',
+            'Many economists consider this the single best measure of labor market health.'
+        ]
+    },
+    'A191RL1Q225SBEA': {
+        'name': 'Real GDP Growth Rate', 'unit': 'Percent', 'show_yoy': False, 'sa': True,
+        'source': 'U.S. Bureau of Economic Analysis',
+        'data_type': 'growth_rate',
+        'bullets': [
+            'Quarterly annualized real GDP growth rate.',
+            'Shows the pace of economic expansion or contraction.'
+        ]
+    },
+}
+
+
+# Query mappings with economist intuitions - MUST match app.py for consistency
+QUERY_MAP = {
+    # Economy overview - show the big picture (annual GDP for stability)
+    'economy': {'series': ['A191RO1Q156NBEA', 'UNRATE', 'CPIAUCSL'], 'combine': False},
+    'how is the economy': {'series': ['A191RO1Q156NBEA', 'UNRATE', 'CPIAUCSL'], 'combine': False},
+    'economic overview': {'series': ['A191RO1Q156NBEA', 'UNRATE', 'CPIAUCSL'], 'combine': False},
+    'recession': {'series': ['A191RO1Q156NBEA', 'UNRATE', 'T10Y2Y'], 'combine': False},
+
+    # Jobs - start simple with payrolls + unemployment
+    'job market': {'series': ['PAYEMS', 'UNRATE'], 'combine': False},
+    'jobs': {'series': ['PAYEMS', 'UNRATE'], 'combine': False},
+    'employment': {'series': ['PAYEMS', 'UNRATE'], 'combine': False},
+    'labor market': {'series': ['PAYEMS', 'UNRATE'], 'combine': False},
+    'unemployment': {'series': ['UNRATE'], 'combine': False},
+    'hiring': {'series': ['PAYEMS', 'JTSJOL'], 'combine': False},
+    'job openings': {'series': ['JTSJOL'], 'combine': False},
+
+    # Labor market health (deeper) - use prime-age
+    'labor market health': {'series': ['LNS12300060', 'UNRATE'], 'combine': False},
+    'labor market tight': {'series': ['LNS12300060', 'JTSJOL', 'UNRATE'], 'combine': False},
+    'participation': {'series': ['LNS11300060', 'LNS11300000'], 'combine': True},
+    'prime age': {'series': ['LNS12300060'], 'combine': False},
+
+    # Inflation - CPI for general, PCE for Fed
+    'inflation': {'series': ['CPIAUCSL', 'CPILFESL'], 'combine': True},
+    'cpi': {'series': ['CPIAUCSL'], 'combine': False},
+    'core inflation': {'series': ['CPILFESL'], 'combine': False},
+    'pce': {'series': ['PCEPI', 'PCEPILFE'], 'combine': True},
+    'fed inflation': {'series': ['PCEPILFE'], 'combine': False},
+    'rent inflation': {'series': ['CUSR0000SAH1'], 'combine': False},
+    'shelter': {'series': ['CUSR0000SAH1'], 'combine': False},
+
+    # GDP - Annual (YoY), quarterly, core GDP, and GDPNow
+    'gdp': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA', 'PB0000031Q225SBEA', 'GDPNOW'], 'combine': False},
+    'gdp growth': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA', 'PB0000031Q225SBEA', 'GDPNOW'], 'combine': False},
+    'economic growth': {'series': ['A191RO1Q156NBEA', 'A191RL1Q225SBEA', 'PB0000031Q225SBEA', 'GDPNOW'], 'combine': False},
+    'real gdp': {'series': ['GDPC1'], 'combine': False},
+    'annual gdp': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
+    'annual gdp growth': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
+    'yearly gdp': {'series': ['A191RL1A225NBEA', 'A191RO1Q156NBEA'], 'combine': False},
+    'core gdp': {'series': ['PB0000031Q225SBEA'], 'combine': False},
+    'private demand': {'series': ['PB0000031Q225SBEA'], 'combine': False},
+    'final sales': {'series': ['PB0000031Q225SBEA'], 'combine': False},
+
+    # Interest rates
+    'interest rates': {'series': ['FEDFUNDS', 'DGS10'], 'combine': True},
+    'rates': {'series': ['FEDFUNDS', 'DGS10'], 'combine': True},
+    'fed': {'series': ['FEDFUNDS'], 'combine': False},
+    'fed funds': {'series': ['FEDFUNDS'], 'combine': False},
+    'treasury': {'series': ['DGS10', 'DGS2'], 'combine': True},
+    'yield curve': {'series': ['T10Y2Y'], 'combine': False},
+    'mortgage': {'series': ['MORTGAGE30US'], 'combine': False},
+
+    # Housing
+    'housing': {'series': ['CSUSHPINSA', 'HOUST'], 'combine': False},
+    'home prices': {'series': ['CSUSHPINSA'], 'combine': False},
+    'housing market': {'series': ['CSUSHPINSA', 'MORTGAGE30US'], 'combine': False},
+
+    # Consumer
+    'consumer': {'series': ['RSXFS', 'UMCSENT'], 'combine': False},
+    'consumer sentiment': {'series': ['UMCSENT'], 'combine': False},
+    'retail sales': {'series': ['RSXFS'], 'combine': False},
+
+    # Stocks
+    'stock market': {'series': ['SP500'], 'combine': False},
+    'stocks': {'series': ['SP500'], 'combine': False},
+
+    # Demographics
+    'women': {'series': ['LNS14000002', 'LNS12300062', 'LNS11300002'], 'combine': False},
+    'women labor': {'series': ['LNS14000002', 'LNS12300062', 'LNS11300002'], 'combine': False},
+    'women employment': {'series': ['LNS14000002', 'LNS12300062'], 'combine': False},
+
+    # Trade & Commodities
+    'oil': {'series': ['DCOILWTICO', 'DCOILBRENTEU'], 'combine': True},
+    'oil prices': {'series': ['DCOILWTICO', 'DCOILBRENTEU'], 'combine': True},
+    'china': {'series': ['IMPCH'], 'combine': False},
+    'china trade': {'series': ['IMPCH'], 'combine': False},
+    'trade': {'series': ['BOPGSTB'], 'combine': False},
+    'trade deficit': {'series': ['BOPGSTB'], 'combine': False},
+
+    # Wages
+    'wages': {'series': ['CES0500000003'], 'combine': False},
+    'earnings': {'series': ['CES0500000003'], 'combine': False},
 }
 
 
@@ -364,21 +499,38 @@ def normalize_query(query: str) -> str:
 
 
 def find_query_plan(query: str):
-    """Find matching query plan."""
+    """Find matching query plan.
+
+    Priority order:
+    1. QUERY_PLANS (JSON files - richer series selections, 4-6 series per topic)
+    2. QUERY_MAP (fallback for queries not in JSON files)
+    3. Fuzzy matching on both
+    """
     normalized = normalize_query(query)
     original_lower = query.lower().strip()
 
+    # PRIORITY 1: Check JSON query plans first (richer series)
     if original_lower in QUERY_PLANS:
         return QUERY_PLANS[original_lower]
     if normalized in QUERY_PLANS:
         return QUERY_PLANS[normalized]
 
-    # Fuzzy match - use high cutoff (0.8) to avoid false positives
-    # Unusual queries should fall through to agentic search
+    # PRIORITY 2: Check QUERY_MAP as fallback
+    if original_lower in QUERY_MAP:
+        return QUERY_MAP[original_lower]
+    if normalized in QUERY_MAP:
+        return QUERY_MAP[normalized]
+
+    # PRIORITY 3: Fuzzy match on QUERY_PLANS first
     import difflib
     matches = difflib.get_close_matches(normalized, list(QUERY_PLANS.keys()), n=1, cutoff=0.8)
     if matches:
         return QUERY_PLANS[matches[0]]
+
+    # Then fuzzy match on QUERY_MAP
+    matches = difflib.get_close_matches(normalized, list(QUERY_MAP.keys()), n=1, cutoff=0.7)
+    if matches:
+        return QUERY_MAP[matches[0]]
 
     return None
 
@@ -693,17 +845,72 @@ def fetch_series_data(series_id: str, years: int = 5) -> tuple:
 
 
 def calculate_yoy(dates: list, values: list) -> tuple:
-    """Calculate year-over-year percent change."""
-    if len(dates) < 13:
+    """Calculate year-over-year percent change.
+
+    Uses proper month-based comparison (Dec 2025 vs Dec 2024) rather than
+    day-based (365 days back), which is how FRED calculates YoY.
+    """
+    if len(dates) < 2:
         return dates, values
 
-    yoy_dates = []
-    yoy_values = []
-    for i in range(12, len(values)):
-        if values[i - 12] != 0:
-            pct = ((values[i] - values[i - 12]) / abs(values[i - 12])) * 100
-            yoy_dates.append(dates[i])
-            yoy_values.append(round(pct, 2))
+    # Detect frequency by looking at date gaps
+    date_objs = [datetime.strptime(d, '%Y-%m-%d') for d in dates[:min(5, len(dates))]]
+    if len(date_objs) >= 2:
+        avg_gap = sum((date_objs[i+1] - date_objs[i]).days for i in range(len(date_objs)-1)) / (len(date_objs)-1)
+        if avg_gap > 60:  # Quarterly
+            min_obs = 4
+        elif avg_gap > 20:  # Monthly
+            min_obs = 12
+        else:  # Weekly
+            min_obs = 52
+    else:
+        min_obs = 12
+
+    if len(dates) < min_obs + 1:
+        return dates, values
+
+    date_to_value = dict(zip(dates, values))
+    yoy_dates, yoy_values = [], []
+
+    for i, date_str in enumerate(dates[min_obs:], min_obs):
+        date = datetime.strptime(date_str, '%Y-%m-%d')
+
+        # Calculate exactly 12 months ago (same month, previous year)
+        # This matches FRED's YoY calculation method
+        try:
+            year_ago = date.replace(year=date.year - 1)
+            year_ago_str = year_ago.strftime('%Y-%m-%d')
+        except ValueError:
+            # Handle Feb 29 -> Feb 28 for non-leap years
+            year_ago = date.replace(year=date.year - 1, day=28)
+            year_ago_str = year_ago.strftime('%Y-%m-%d')
+
+        # Look for exact match first, then try nearby dates (for weekly data)
+        found = False
+        for check_str in [year_ago_str]:
+            if check_str in date_to_value and date_to_value[check_str] != 0:
+                base_value = date_to_value[check_str]
+                yoy = ((values[i] - base_value) / base_value) * 100
+                yoy_dates.append(date_str)
+                yoy_values.append(yoy)
+                found = True
+                break
+
+        # Fallback for weekly data: try nearby dates within 7 days
+        if not found and avg_gap < 20:
+            for offset in range(1, 8):
+                for direction in [1, -1]:
+                    check = (year_ago + timedelta(days=offset * direction)).strftime('%Y-%m-%d')
+                    if check in date_to_value and date_to_value[check] != 0:
+                        base_value = date_to_value[check]
+                        yoy = ((values[i] - base_value) / base_value) * 100
+                        yoy_dates.append(date_str)
+                        yoy_values.append(yoy)
+                        found = True
+                        break
+                if found:
+                    break
+
     return yoy_dates, yoy_values
 
 
@@ -1200,19 +1407,37 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
                 if agentic_search and i < len(agentic_display_names) and agentic_display_names[i]:
                     info['name'] = agentic_display_names[i]
 
-                # Apply YoY if needed
+                # Apply YoY if needed (with type safety guards)
+                db_info = SERIES_DB.get(sid, {})
+                data_type = db_info.get('data_type', 'level')
+
+                # Determine if YoY should be applied
                 apply_yoy = False
                 if isinstance(show_yoy, list) and i < len(show_yoy):
                     apply_yoy = show_yoy[i]
                 elif isinstance(show_yoy, bool):
                     apply_yoy = show_yoy
-                elif SERIES_DB.get(sid, {}).get('show_yoy', False):
+                elif db_info.get('show_yoy', False):
                     apply_yoy = True
+
+                # TYPE SAFETY GUARDS - never apply YoY to:
+                # 1. Rates (unemployment rate, interest rates) - already percentages
+                # 2. Spreads (yield curve) - already differences
+                # 3. Growth rates (GDP growth) - already percent changes
+                # 4. Series marked show_absolute_change (employment counts)
+                if data_type in ('rate', 'spread', 'growth_rate'):
+                    apply_yoy = False
+                if db_info.get('show_absolute_change', False):
+                    apply_yoy = False
 
                 if apply_yoy and len(dates) > 12:
                     dates, values = calculate_yoy(dates, values)
-                    info['name'] = info.get('name', sid) + ' (YoY %)'
-                    info['unit'] = '% Change YoY'
+                    # Use custom YoY name/unit if available
+                    yoy_name = db_info.get('yoy_name', info.get('name', sid) + ' (YoY %)')
+                    yoy_unit = db_info.get('yoy_unit', '% Change YoY')
+                    info['name'] = yoy_name
+                    info['unit'] = yoy_unit
+                    info['is_yoy'] = True
 
                 series_data.append((sid, dates, values, info))
 

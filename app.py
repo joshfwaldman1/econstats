@@ -6367,19 +6367,17 @@ def fetch_single_series(series_id: str, years: int) -> dict:
 def calculate_yoy(dates: list, values: list) -> tuple:
     """Calculate year-over-year percent change.
 
-    Handles both monthly and quarterly data by detecting frequency
-    and looking back ~365 days for the comparison value.
+    Uses proper month-based comparison (Dec 2025 vs Dec 2024) rather than
+    day-based (365 days back), which is how FRED calculates YoY.
     """
     if len(dates) < 2:
         return dates, values
 
     # Detect frequency by looking at date gaps
     date_objs = [datetime.strptime(d, '%Y-%m-%d') for d in dates[:min(5, len(dates))]]
+    avg_gap = 30  # Default to monthly
     if len(date_objs) >= 2:
         avg_gap = sum((date_objs[i+1] - date_objs[i]).days for i in range(len(date_objs)-1)) / (len(date_objs)-1)
-        # Monthly: ~30 days gap, need 12 observations
-        # Quarterly: ~90 days gap, need 4 observations
-        # Weekly: ~7 days gap, need 52 observations
         if avg_gap > 60:  # Quarterly
             min_obs = 4
         elif avg_gap > 20:  # Monthly
@@ -6387,7 +6385,7 @@ def calculate_yoy(dates: list, values: list) -> tuple:
         else:  # Weekly
             min_obs = 52
     else:
-        min_obs = 12  # Default to monthly
+        min_obs = 12
 
     if len(dates) < min_obs + 1:
         return dates, values
@@ -6395,17 +6393,44 @@ def calculate_yoy(dates: list, values: list) -> tuple:
     date_to_value = dict(zip(dates, values))
     yoy_dates, yoy_values = [], []
 
-    # Start from the point where we have enough history for YoY comparison
     for i, date_str in enumerate(dates[min_obs:], min_obs):
         date = datetime.strptime(date_str, '%Y-%m-%d')
-        # Look for a value from approximately one year ago (allow 31-day window for date matching)
-        for offset in range(31):
-            check = (date - timedelta(days=365 + offset)).strftime('%Y-%m-%d')
-            if check in date_to_value and date_to_value[check] != 0:
-                yoy = ((values[i] - date_to_value[check]) / date_to_value[check]) * 100
+
+        # Calculate exactly 12 months ago (same month, previous year)
+        # This matches FRED's YoY calculation method
+        try:
+            year_ago = date.replace(year=date.year - 1)
+            year_ago_str = year_ago.strftime('%Y-%m-%d')
+        except ValueError:
+            # Handle Feb 29 -> Feb 28 for non-leap years
+            year_ago = date.replace(year=date.year - 1, day=28)
+            year_ago_str = year_ago.strftime('%Y-%m-%d')
+
+        # Look for exact match first, then try nearby dates (for weekly data)
+        found = False
+        for check_str in [year_ago_str]:
+            if check_str in date_to_value and date_to_value[check_str] != 0:
+                base_value = date_to_value[check_str]
+                yoy = ((values[i] - base_value) / base_value) * 100
                 yoy_dates.append(date_str)
                 yoy_values.append(yoy)
+                found = True
                 break
+
+        # Fallback for weekly data: try nearby dates within 7 days
+        if not found and avg_gap < 20:
+            for offset in range(1, 8):
+                for direction in [1, -1]:
+                    check = (year_ago + timedelta(days=offset * direction)).strftime('%Y-%m-%d')
+                    if check in date_to_value and date_to_value[check] != 0:
+                        base_value = date_to_value[check]
+                        yoy = ((values[i] - base_value) / base_value) * 100
+                        yoy_dates.append(date_str)
+                        yoy_values.append(yoy)
+                        found = True
+                        break
+                if found:
+                    break
 
     return yoy_dates, yoy_values
 
@@ -7250,18 +7275,22 @@ def main():
 
     /* User query display in chat history - styled bubble, right-aligned */
     .chat-user-query {
-        display: inline-block;
-        background: #0f172a;
-        color: #ffffff;
-        padding: 12px 18px;
-        border-radius: 1rem 1rem 0.25rem 1rem;
-        font-size: 0.95rem;
-        font-weight: 500;
-        margin: 20px 0 12px 0;
-        max-width: 85%;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        float: right;
-        clear: both;
+        display: inline-block !important;
+        background: #0f172a !important;
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        padding: 12px 18px !important;
+        border-radius: 1rem 1rem 0.25rem 1rem !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+        margin: 20px 0 12px 0 !important;
+        max-width: 85% !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        float: right !important;
+        clear: both !important;
+    }
+    .chat-user-query * {
+        color: #ffffff !important;
     }
 
     /* Assistant response container - clean card style */
