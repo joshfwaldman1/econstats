@@ -773,12 +773,13 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
         has_employment = bool({'USINFO', 'CES5000000001', 'PAYEMS'} & proposed_set)
 
         if not has_stock_series and (has_employment or not proposed_set):
+            # NASDAQ is best proxy for Mag7 (~50% by weight)
             return {
                 'valid': False,
-                'corrected_series': ['SP500', 'NASDAQCOM', 'CP'],
-                'reason': "Query is about stocks/Mag7 but routing returned employment data. Using market indices and corporate profits.",
+                'corrected_series': ['NASDAQCOM', 'SP500', 'CP'],
+                'reason': "Query is about Mag7/stocks but routing returned employment data. NASDAQ is the best proxy (~50% Mag7 by weight).",
                 'entity_type': 'market',
-                'entity_name': 'stocks'
+                'entity_name': 'mag7'
             }
 
     # =================================================================
