@@ -47,6 +47,19 @@
     </div>
 </div>
 
+<!-- Special Data Boxes (Recession, CAPE, Polymarket) -->
+{% if recession_html %}
+<div class="mb-6">{{ recession_html | safe }}</div>
+{% endif %}
+
+{% if cape_html %}
+<div class="mb-6">{{ cape_html | safe }}</div>
+{% endif %}
+
+{% if polymarket_html %}
+<div class="mb-6">{{ polymarket_html | safe }}</div>
+{% endif %}
+
 <!-- Metrics Row -->
 {% if charts %}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

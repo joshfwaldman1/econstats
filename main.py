@@ -1,6 +1,15 @@
 """
 EconStats - FastAPI + HTMX + Tailwind version
 A clean, modern frontend for economic data exploration.
+
+Now with full data source integration:
+- FRED (primary economic data)
+- Alpha Vantage (stocks, forex, P/E ratios)
+- Shiller CAPE (valuation/bubble analysis)
+- Polymarket (prediction markets)
+- Zillow (housing data)
+- EIA (energy data)
+- DBnomics (international data)
 """
 
 import os
@@ -37,10 +46,95 @@ templates.env.globals['last_updated'] = LAST_UPDATED
 # API Keys
 FRED_API_KEY = os.environ.get('FRED_API_KEY')
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY') or os.environ.get('GEMINI_API_KEY')
+ALPHAVANTAGE_API_KEY = os.environ.get('ALPHAVANTAGE_API_KEY')
+
+# =============================================================================
+# IMPORT DATA SOURCE MODULES
+# =============================================================================
+
+# Alpha Vantage (stocks, forex, P/E ratios)
+try:
+    from agents.alphavantage import get_alphavantage_series, ALPHAVANTAGE_SERIES
+    ALPHAVANTAGE_AVAILABLE = True
+except Exception as e:
+    print(f"Alpha Vantage not available: {e}")
+    ALPHAVANTAGE_AVAILABLE = False
+
+# Shiller CAPE (valuation/bubble analysis)
+try:
+    from agents.shiller import get_cape_series, get_current_cape, get_bubble_comparison_data, is_valuation_query
+    SHILLER_AVAILABLE = True
+except Exception as e:
+    print(f"Shiller CAPE not available: {e}")
+    SHILLER_AVAILABLE = False
+
+# Polymarket (prediction markets)
+try:
+    from agents.polymarket import find_relevant_predictions, format_predictions_box
+    POLYMARKET_AVAILABLE = True
+except Exception as e:
+    print(f"Polymarket not available: {e}")
+    POLYMARKET_AVAILABLE = False
+
+# Recession scorecard
+try:
+    from agents.recession_scorecard import is_recession_query, build_recession_scorecard, format_scorecard_for_display
+    RECESSION_SCORECARD_AVAILABLE = True
+except Exception as e:
+    print(f"Recession scorecard not available: {e}")
+    RECESSION_SCORECARD_AVAILABLE = False
+
+# Zillow (housing data)
+try:
+    from agents.zillow import get_zillow_series, ZILLOW_SERIES
+    ZILLOW_AVAILABLE = True
+except Exception as e:
+    print(f"Zillow not available: {e}")
+    ZILLOW_AVAILABLE = False
+
+# EIA (energy data)
+try:
+    from agents.eia import get_eia_series, EIA_SERIES
+    EIA_AVAILABLE = True
+except Exception as e:
+    print(f"EIA not available: {e}")
+    EIA_AVAILABLE = False
+
+# DBnomics (international data)
+try:
+    from agents.dbnomics import get_observations_dbnomics, INTERNATIONAL_SERIES
+    DBNOMICS_AVAILABLE = True
+except Exception as e:
+    print(f"DBnomics not available: {e}")
+    DBNOMICS_AVAILABLE = False
+
+# Health check indicators (megacap, labor market, etc.)
+try:
+    from core.health_check_indicators import is_health_check_query, detect_health_check_entity, get_health_check_series
+    HEALTH_CHECK_AVAILABLE = True
+except Exception as e:
+    print(f"Health check not available: {e}")
+    HEALTH_CHECK_AVAILABLE = False
 
 # Startup diagnostics
+print("=" * 60)
+print("EconStats FastAPI Starting Up")
+print("=" * 60)
 print(f"FRED_API_KEY: {'SET' if FRED_API_KEY else 'NOT SET'}")
 print(f"ANTHROPIC_API_KEY: {'SET' if ANTHROPIC_API_KEY else 'NOT SET'}")
+print(f"GOOGLE_API_KEY: {'SET' if GOOGLE_API_KEY else 'NOT SET'}")
+print(f"ALPHAVANTAGE_API_KEY: {'SET' if ALPHAVANTAGE_API_KEY else 'NOT SET'}")
+print("-" * 60)
+print(f"ALPHAVANTAGE_AVAILABLE: {ALPHAVANTAGE_AVAILABLE}")
+print(f"SHILLER_AVAILABLE: {SHILLER_AVAILABLE}")
+print(f"POLYMARKET_AVAILABLE: {POLYMARKET_AVAILABLE}")
+print(f"RECESSION_SCORECARD_AVAILABLE: {RECESSION_SCORECARD_AVAILABLE}")
+print(f"ZILLOW_AVAILABLE: {ZILLOW_AVAILABLE}")
+print(f"EIA_AVAILABLE: {EIA_AVAILABLE}")
+print(f"DBNOMICS_AVAILABLE: {DBNOMICS_AVAILABLE}")
+print(f"HEALTH_CHECK_AVAILABLE: {HEALTH_CHECK_AVAILABLE}")
+print("=" * 60)
 
 # Load query plans from existing JSON files
 def load_query_plans():
@@ -412,6 +506,65 @@ def get_fred_data(series_id: str, years: int = None) -> tuple:
         return [], [], {}
 
 
+def fetch_series_data(series_id: str, years: int = 5) -> tuple:
+    """
+    Unified data fetcher - routes to appropriate data source based on series prefix.
+
+    Supports:
+    - av_* -> Alpha Vantage (stocks, forex, treasuries)
+    - zillow_* -> Zillow (housing data)
+    - eia_* -> EIA (energy data)
+    - shiller_cape -> Shiller CAPE ratio
+    - International series -> DBnomics
+    - Everything else -> FRED
+
+    Returns: (dates, values, info) tuple
+    """
+    # Alpha Vantage series
+    if series_id.startswith('av_') and ALPHAVANTAGE_AVAILABLE:
+        try:
+            return get_alphavantage_series(series_id)
+        except Exception as e:
+            print(f"Alpha Vantage error for {series_id}: {e}")
+            return [], [], {}
+
+    # Shiller CAPE
+    if series_id == 'shiller_cape' and SHILLER_AVAILABLE:
+        try:
+            cape_data = get_cape_series()
+            return cape_data['dates'], cape_data['values'], cape_data['info']
+        except Exception as e:
+            print(f"Shiller error: {e}")
+            return [], [], {}
+
+    # Zillow series
+    if series_id.startswith('zillow_') and ZILLOW_AVAILABLE:
+        try:
+            return get_zillow_series(series_id)
+        except Exception as e:
+            print(f"Zillow error for {series_id}: {e}")
+            return [], [], {}
+
+    # EIA series
+    if series_id.startswith('eia_') and EIA_AVAILABLE:
+        try:
+            return get_eia_series(series_id)
+        except Exception as e:
+            print(f"EIA error for {series_id}: {e}")
+            return [], [], {}
+
+    # DBnomics (international) series
+    if DBNOMICS_AVAILABLE:
+        try:
+            if series_id in INTERNATIONAL_SERIES:
+                return get_observations_dbnomics(series_id)
+        except Exception as e:
+            print(f"DBnomics error for {series_id}: {e}")
+
+    # Default to FRED
+    return get_fred_data(series_id, years)
+
+
 def calculate_yoy(dates: list, values: list) -> tuple:
     """Calculate year-over-year percent change."""
     if len(dates) < 13:
@@ -756,7 +909,7 @@ async def home(request: Request):
 
 @app.post("/search", response_class=HTMLResponse)
 async def search(request: Request, query: str = Form(...), history: str = Form(default="")):
-    """Handle search query - returns HTMX partial."""
+    """Handle search query - returns HTMX partial with full data source support."""
     import traceback
 
     try:
@@ -768,40 +921,138 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
             except json.JSONDecodeError:
                 pass
 
-        # Find query plan
-        plan = find_query_plan(query)
-        agentic_search = False
-        agentic_display_names = []
-        fallback_mode = False
+        # Special data for enhanced responses
+        polymarket_html = None
+        cape_html = None
+        recession_html = None
 
-        if plan:
-            series_ids = plan.get('series', [])[:4]
-            show_yoy = plan.get('show_yoy', False)
-            payems_show_level = plan.get('payems_show_level', False)
-        else:
-            # No pre-defined plan - use Claude to search FRED
-            print(f"No plan found for '{query}', trying agentic search...")
-            agentic_plan = get_series_via_claude(query)
-
-            if agentic_plan and agentic_plan.get('series'):
-                series_ids = agentic_plan['series'][:4]
-                agentic_display_names = agentic_plan.get('display_names', [])
-                show_yoy = agentic_plan.get('show_yoy', False)
+        # =================================================================
+        # ROUTE 1: Health Check Queries (megacap, labor market, etc.)
+        # =================================================================
+        if HEALTH_CHECK_AVAILABLE and is_health_check_query(query):
+            entity = detect_health_check_entity(query)
+            if entity:
+                health_config = get_health_check_series(entity)
+                series_ids = health_config.get('primary_series', [])[:4]
+                show_yoy = health_config.get('show_yoy', [False] * len(series_ids))
                 payems_show_level = False
-                agentic_search = True
-                print(f"Agentic search found: {series_ids}")
+                agentic_search = False
+                agentic_display_names = []
+                fallback_mode = False
+                print(f"[HealthCheck] Routed '{query}' to entity '{entity}' with series {series_ids}")
             else:
-                # Final fallback to economy overview
-                print("Agentic search failed, using default series")
-                series_ids = ['PAYEMS', 'UNRATE', 'A191RO1Q156NBEA', 'CPIAUCSL']
-                show_yoy = [False, False, False, True]
-                payems_show_level = False
-                fallback_mode = True  # Flag to show acknowledgment
+                # Fall through to standard routing
+                pass
 
-        # Fetch data
+        # =================================================================
+        # ROUTE 2: Valuation/Bubble Queries (Shiller CAPE)
+        # =================================================================
+        if SHILLER_AVAILABLE and is_valuation_query(query):
+            try:
+                cape_current = get_current_cape()
+                cape_value = cape_current['current_value']
+                percentile = cape_current['percentile']
+                vs_avg = cape_current['vs_average']['premium_pct']
+                dot_com_peak = cape_current['comparisons'].get('dot_com_peak', 44.2)
+                vs_dot_com = cape_current['comparisons'].get('vs_dot_com_pct', 0)
+
+                color = "#dc2626" if percentile >= 90 else "#f59e0b" if percentile >= 75 else "#3b82f6"
+                status = "Extremely Elevated" if percentile >= 90 else "Elevated" if percentile >= 75 else "Above Average"
+
+                cape_html = f"""
+                <div class="bg-slate-800 rounded-xl p-5 mb-6 border-l-4" style="border-color: {color}">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xl">📊</span>
+                        <span class="text-white font-semibold">Shiller CAPE Ratio</span>
+                        <span class="px-2 py-0.5 rounded-full text-xs font-medium text-white" style="background: {color}">{status}</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4 text-center">
+                        <div><div class="text-slate-400 text-xs uppercase">Current</div><div class="text-white text-2xl font-bold">{cape_value:.1f}</div><div class="text-slate-500 text-xs">{percentile:.0f}th pctl</div></div>
+                        <div><div class="text-slate-400 text-xs uppercase">vs Avg</div><div class="text-amber-400 text-2xl font-bold">+{vs_avg:.0f}%</div><div class="text-slate-500 text-xs">Avg: 17</div></div>
+                        <div><div class="text-slate-400 text-xs uppercase">vs Dot-Com</div><div class="text-emerald-400 text-2xl font-bold">{vs_dot_com:+.0f}%</div><div class="text-slate-500 text-xs">Peak: {dot_com_peak:.1f}</div></div>
+                        <div><div class="text-slate-400 text-xs uppercase">History</div><div class="text-blue-400 text-2xl font-bold">143yr</div><div class="text-slate-500 text-xs">Since 1881</div></div>
+                    </div>
+                    <div class="text-slate-300 text-sm mt-3">{cape_current['interpretation']}</div>
+                </div>
+                """
+                print(f"[CAPE] Current: {cape_value:.1f} ({percentile:.0f}th percentile)")
+            except Exception as e:
+                print(f"[CAPE] Error: {e}")
+
+        # =================================================================
+        # ROUTE 3: Recession Queries (Scorecard)
+        # =================================================================
+        if RECESSION_SCORECARD_AVAILABLE and is_recession_query(query):
+            try:
+                # Fetch recession indicators
+                sahm_dates, sahm_values, _ = get_fred_data('SAHMREALTIME', years=2)
+                yc_dates, yc_values, _ = get_fred_data('T10Y2Y', years=2)
+                claims_dates, claims_values, _ = get_fred_data('ICSA', years=2)
+                sent_dates, sent_values, _ = get_fred_data('UMCSENT', years=2)
+
+                sahm = sahm_values[-1] if sahm_values else None
+                yield_curve = yc_values[-1] if yc_values else None
+                claims = sum(claims_values[-4:]) / 4 if claims_values and len(claims_values) >= 4 else None
+                sentiment = sent_values[-1] if sent_values else None
+
+                scorecard = build_recession_scorecard(
+                    sahm_value=sahm, yield_curve_value=yield_curve,
+                    sentiment_value=sentiment, claims_value=claims
+                )
+                recession_html = format_scorecard_for_display(scorecard)
+                print(f"[Recession] Scorecard built - overall risk: {scorecard.get('overall_risk', 'unknown')}")
+            except Exception as e:
+                print(f"[Recession] Error: {e}")
+
+        # =================================================================
+        # ROUTE 4: Polymarket Predictions
+        # =================================================================
+        if POLYMARKET_AVAILABLE:
+            try:
+                predictions = find_relevant_predictions(query)[:3]
+                if predictions:
+                    polymarket_html = format_predictions_box(predictions, query)
+                    print(f"[Polymarket] Found {len(predictions)} relevant predictions")
+            except Exception as e:
+                print(f"[Polymarket] Error: {e}")
+
+        # =================================================================
+        # STANDARD ROUTING: Query Plans or Agentic Search
+        # =================================================================
+        # Check if we already have series from health check routing
+        if 'series_ids' not in dir() or not series_ids:
+            plan = find_query_plan(query)
+            agentic_search = False
+            agentic_display_names = []
+            fallback_mode = False
+
+            if plan:
+                series_ids = plan.get('series', [])[:4]
+                show_yoy = plan.get('show_yoy', False)
+                payems_show_level = plan.get('payems_show_level', False)
+            else:
+                # No pre-defined plan - use Claude to search
+                print(f"No plan found for '{query}', trying agentic search...")
+                agentic_plan = get_series_via_claude(query)
+
+                if agentic_plan and agentic_plan.get('series'):
+                    series_ids = agentic_plan['series'][:4]
+                    agentic_display_names = agentic_plan.get('display_names', [])
+                    show_yoy = agentic_plan.get('show_yoy', False)
+                    payems_show_level = False
+                    agentic_search = True
+                    print(f"Agentic search found: {series_ids}")
+                else:
+                    print("Agentic search failed, using default series")
+                    series_ids = ['PAYEMS', 'UNRATE', 'A191RO1Q156NBEA', 'CPIAUCSL']
+                    show_yoy = [False, False, False, True]
+                    payems_show_level = False
+                    fallback_mode = True
+
+        # Fetch data using unified fetcher (supports av_*, zillow_*, eia_*, etc.)
         series_data = []
         for i, sid in enumerate(series_ids):
-            dates, values, info = get_fred_data(sid)
+            dates, values, info = fetch_series_data(sid)
             if dates and values:
                 # Override name with agentic display name if available
                 if agentic_search and i < len(agentic_display_names) and agentic_display_names[i]:
@@ -852,6 +1103,10 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
             "charts": charts,
             "suggestions": suggestions,
             "history": json.dumps(new_history),
+            # Enhanced data boxes
+            "polymarket_html": polymarket_html,
+            "cape_html": cape_html,
+            "recession_html": recession_html,
         })
     except Exception as e:
         print(f"Search error: {e}")
