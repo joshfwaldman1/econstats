@@ -46,8 +46,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- HTMX -->
+    <!-- HTMX with fallback -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>
+        // Fallback if HTMX didn't load from unpkg
+        if (typeof htmx === 'undefined') {
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/htmx.org@1.9.10/dist/htmx.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
 
     <!-- Plotly.js for charts -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>

@@ -111,7 +111,7 @@ except Exception as e:
 
 # Health check indicators (megacap, labor market, etc.)
 try:
-    from core.health_check_indicators import is_health_check_query, detect_health_check_entity, get_health_check_series
+    from core.health_check_indicators import is_health_check_query, detect_health_check_entity, get_health_check_config
     HEALTH_CHECK_AVAILABLE = True
 except Exception as e:
     print(f"Health check not available: {e}")
@@ -1270,20 +1270,20 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
         # =================================================================
         # ROUTE 1: Health Check Queries (megacap, labor market, etc.)
         # =================================================================
+        health_check_handled = False
         if HEALTH_CHECK_AVAILABLE and is_health_check_query(query):
             entity = detect_health_check_entity(query)
             if entity:
-                health_config = get_health_check_series(entity)
-                series_ids = health_config.get('primary_series', [])[:4]
-                show_yoy = health_config.get('show_yoy', [False] * len(series_ids))
-                payems_show_level = False
-                agentic_search = False
-                agentic_display_names = []
-                fallback_mode = False
-                print(f"[HealthCheck] Routed '{query}' to entity '{entity}' with series {series_ids}")
-            else:
-                # Fall through to standard routing
-                pass
+                health_config = get_health_check_config(entity)
+                if health_config:
+                    series_ids = health_config.primary_series[:4]
+                    show_yoy = health_config.show_yoy[:4] if health_config.show_yoy else [False] * len(series_ids)
+                    payems_show_level = False
+                    agentic_search = False
+                    agentic_display_names = []
+                    fallback_mode = False
+                    health_check_handled = True
+                    print(f"[HealthCheck] Routed '{query}' to entity '{entity}' with series {series_ids}")
 
         # =================================================================
         # ROUTE 2: Valuation/Bubble Queries (Shiller CAPE)
@@ -1370,7 +1370,7 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
         # STANDARD ROUTING: Query Plans or Agentic Search
         # =================================================================
         # Check if we already have series from health check routing
-        if 'series_ids' not in dir() or not series_ids:
+        if not health_check_handled:
             plan = find_query_plan(query)
             agentic_search = False
             agentic_display_names = []
@@ -1464,7 +1464,10 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
         # Keep last 5 exchanges
         new_history = new_history[-5:]
 
-        return templates.TemplateResponse("partials/results.html", {
+        # Check if this is an HTMX request
+        is_htmx = request.headers.get("HX-Request") == "true"
+
+        template_context = {
             "request": request,
             "query": query,
             "summary": summary,
@@ -1475,7 +1478,13 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
             "polymarket_html": polymarket_html,
             "cape_html": cape_html,
             "recession_html": recession_html,
-        })
+        }
+
+        if is_htmx:
+            return templates.TemplateResponse("partials/results.html", template_context)
+        else:
+            # Non-HTMX request (e.g., direct form POST) - return full page
+            return templates.TemplateResponse("results_full.html", template_context)
     except Exception as e:
         print(f"Search error: {e}")
         print(traceback.format_exc())
