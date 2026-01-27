@@ -3,7 +3,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -11,8 +10,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -22,7 +20,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -30,8 +27,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -41,7 +37,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -49,8 +44,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -60,7 +54,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -68,8 +61,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -79,7 +71,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -87,8 +78,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -98,7 +88,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -106,8 +95,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -117,7 +105,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -125,8 +112,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -136,7 +122,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -144,8 +129,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -155,7 +139,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -163,8 +146,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -174,7 +156,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -182,8 +163,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -193,7 +173,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -201,8 +180,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -212,7 +190,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -220,8 +197,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -231,7 +207,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -239,8 +214,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -250,7 +224,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -258,8 +231,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -269,7 +241,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -277,8 +248,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -287,26 +257,29 @@
   "economic outlook": {
     "series": [
       "BBKMLEIX",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
-      "UNRATE"
+      "UNRATE",
+      "PCEPILFE"
     ],
-    "show_yoy": false,
+    "show_yoy": [
+      false,
+      false,
+      false,
+      false
+    ],
     "combine_chart": false,
-    "explanation": "For economic outlook, I'm showing the BBK Leading Index (BBKMLEIX) from the Chicago Fed, which forecasts economic growth using 490 monthly indicators. Combined with current Real GDP growth and unemployment rate, this provides both a forward-looking view and current context. Positive BBK readings indicate above-trend growth ahead; negative readings signal slowdown."
+    "explanation": "Economic outlook combines leading indicators with current conditions: BBK Leading Index (BBKMLEIX) forecasts economic growth using 490 monthly indicators - positive readings indicate above-trend growth ahead. Real GDP growth (both YoY and quarterly) shows current trajectory. Unemployment rate reveals labor market health. Core PCE inflation shows if price pressures are easing. Together these provide both forward-looking and current context for the economic outlook."
   },
   "economic forecast": {
     "series": [
       "BBKMLEIX",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
     "show_yoy": [
       false,
       false,
-      false,
-      true
+      false
     ],
     "combine_chart": false,
     "explanation": "For economic forecasting, I'm showing the BBK Leading Index (BBKMLEIX) which predicts economic turning points using dynamic factor analysis of 490 indicators, current GDP growth to establish the baseline trajectory, and CPI inflation year-over-year to assess price pressures. Persistent negative BBK readings have historically preceded recessions."
@@ -314,7 +287,6 @@
   "is there a recession": {
     "series": [
       "SAHMREALTIME",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "T10Y2Y",
       "UNRATE"
@@ -326,7 +298,6 @@
   "are we in a recession": {
     "series": [
       "SAHMREALTIME",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "T10Y2Y",
       "UNRATE"
@@ -385,7 +356,6 @@
   },
   "recession probability": {
     "series": [
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "T10Y2Y",
       "SAHMREALTIME"
@@ -398,7 +368,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -406,8 +375,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -415,7 +383,6 @@
   },
   "hard landing": {
     "series": [
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "UNRATE",
       "T10Y2Y"
@@ -428,7 +395,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -436,8 +402,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -447,7 +412,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -455,8 +419,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -466,7 +429,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -474,8 +436,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -485,7 +446,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -493,8 +453,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -504,7 +463,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -512,8 +470,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -523,7 +480,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -531,8 +487,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -542,7 +497,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -550,8 +504,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -561,7 +514,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -569,8 +521,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -580,7 +531,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -588,8 +538,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -599,7 +548,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -607,8 +555,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -618,7 +565,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -626,8 +572,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -637,7 +582,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -645,8 +589,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -784,7 +727,6 @@
   },
   "stagflation": {
     "series": [
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL",
       "UNRATE",
@@ -794,15 +736,13 @@
       false,
       false,
       true,
-      false,
-      true
+      false
     ],
     "combine_chart": false,
     "explanation": "Stagflation = slow/negative growth + high inflation + rising unemployment. (1) GDP growth shows economic momentum - negative = recession. (2) CPI inflation YoY - high inflation is one pillar of stagflation. (3) Unemployment rate - rising unemployment is another pillar. (4) Real wages YoY - falling real wages confirm the squeeze. TRUE stagflation requires ALL three: weak GDP + high inflation + rising unemployment simultaneously."
   },
   "is stagflation happening": {
     "series": [
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL",
       "UNRATE"
@@ -810,8 +750,7 @@
     "show_yoy": [
       false,
       false,
-      true,
-      false
+      true
     ],
     "combine_chart": false,
     "explanation": "Stagflation check: (1) Is GDP growth weak or negative? (2) Is inflation high (above 3-4%)? (3) Is unemployment rising? For TRUE stagflation, all three must occur together - historically rare. 1970s had stagflation; today's conditions differ."
@@ -1060,7 +999,6 @@
   },
   "is the economy cooling": {
     "series": [
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "INDPRO",
       "PAYEMS",
@@ -1070,15 +1008,13 @@
       false,
       false,
       true,
-      true,
-      false
+      true
     ],
     "combine_chart": false,
     "explanation": "Economy cooling indicators: GDP growth (A191RL1Q225SBEA) shows overall momentum - declining = cooling. Industrial production (INDPRO) is sensitive to slowdowns. Payroll growth (PAYEMS) slowing signals labor market cooling. Initial claims (ICSA) rising indicates layoffs picking up. All slowing together = economy cooling."
   },
   "is the economy slowing": {
     "series": [
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "PAYEMS",
       "RSXFS",
@@ -1088,8 +1024,7 @@
       false,
       false,
       true,
-      true,
-      false
+      true
     ],
     "combine_chart": false,
     "explanation": "Economic slowdown indicators: GDP growth (A191RL1Q225SBEA) declining toward zero/negative. Job growth (PAYEMS) decelerating. Retail sales (RSXFS) weakening. Consumer sentiment (UMCSENT) falling. These leading indicators often turn down before recessions."
@@ -1174,7 +1109,6 @@
       "SAHMREALTIME",
       "T10Y2Y",
       "ICSA",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA"
     ],
     "show_yoy": false,
@@ -1185,7 +1119,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -1193,8 +1126,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -1210,24 +1142,6 @@
     "show_yoy": false,
     "combine_chart": false,
     "explanation": "Worry indicators: Sahm Rule (SAHMREALTIME) is the most accurate recession signal - worry if it exceeds 0.5. Yield curve (T10Y2Y) inversion has preceded every recession since 1970. Rising unemployment (UNRATE) signals weakening. Spiking initial claims (ICSA) show layoffs accelerating. All stable = less to worry about."
-  },
-  "economic outlook": {
-    "series": [
-      "BBKMLEIX",
-      "A191RO1Q156NBEA",
-      "A191RL1Q225SBEA",
-      "UNRATE",
-      "PCEPILFE"
-    ],
-    "show_yoy": [
-      false,
-      false,
-      false,
-      false,
-      true
-    ],
-    "combine_chart": false,
-    "explanation": "Economic outlook combines leading indicators with current conditions: BBK Leading Index (BBKMLEIX) forecasts economic growth using 490 monthly indicators - positive readings indicate above-trend growth ahead. Real GDP growth (both YoY and quarterly) shows current trajectory. Unemployment rate reveals labor market health. Core PCE inflation shows if price pressures are easing. Together these provide both forward-looking and current context for the economic outlook."
   },
   "will there be a recession": {
     "series": [
@@ -1258,7 +1172,6 @@
   },
   "how bad is the economy": {
     "series": [
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "UNRATE",
       "SAHMREALTIME",
@@ -1288,7 +1201,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -1296,8 +1208,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -1307,7 +1218,6 @@
     "series": [
       "PAYEMS",
       "UNRATE",
-      "A191RO1Q156NBEA",
       "A191RL1Q225SBEA",
       "CPIAUCSL"
     ],
@@ -1315,8 +1225,7 @@
       false,
       false,
       false,
-      false,
-      true
+      false
     ],
     "show_mom": true,
     "combine_chart": false,
@@ -1372,7 +1281,7 @@
     "show_yoy": false,
     "combine_chart": false,
     "is_dashboard": true,
-    "explanation": "Leading Indicators Dashboard - 7 key signals for economic outlook:\n\n• **Sahm Rule** (SAHMREALTIME): Triggered at 0.5 when 3-mo unemployment rises above 12-mo low. 100% recession accuracy.\n• **Yield Curve** (T10Y2Y): Negative = inverted. Has preceded every recession since 1970.\n• **Leading Economic Index** (USSLIND): Conference Board's 10-component forward-looking index.\n• **ISM Manufacturing PMI** (NAPM): Above 50 = expansion, below 50 = contraction.\n• **Consumer Sentiment** (UMCSENT): Sharp drops precede recessions.\n• **Initial Claims** (ICSA): Rising above 300K = recession signal.\n• **Credit Spreads** (BAMLH0A0HYM2): Widen before recessions as risk aversion rises."
+    "explanation": "Leading Indicators Dashboard - 7 key signals for economic outlook:\n\n\u2022 **Sahm Rule** (SAHMREALTIME): Triggered at 0.5 when 3-mo unemployment rises above 12-mo low. 100% recession accuracy.\n\u2022 **Yield Curve** (T10Y2Y): Negative = inverted. Has preceded every recession since 1970.\n\u2022 **Leading Economic Index** (USSLIND): Conference Board's 10-component forward-looking index.\n\u2022 **ISM Manufacturing PMI** (NAPM): Above 50 = expansion, below 50 = contraction.\n\u2022 **Consumer Sentiment** (UMCSENT): Sharp drops precede recessions.\n\u2022 **Initial Claims** (ICSA): Rising above 300K = recession signal.\n\u2022 **Credit Spreads** (BAMLH0A0HYM2): Widen before recessions as risk aversion rises."
   },
   "america's finances": {
     "series": [
@@ -1384,7 +1293,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "America's Fiscal Health:\n\n• **Federal Debt** (GFDEBTN): Total US government debt outstanding - currently ~$34 trillion.\n• **Budget Deficit** (FYFSD): Annual shortfall between spending and revenue.\n• **Interest Payments** (A091RC1Q027SBEA): What we pay to service the debt - rising rapidly with higher rates.\n• **Revenue** (FGRECPT): Federal tax receipts.\n• **Spending** (FGEXPND): Total federal outlays.\n\nKey ratio: Debt-to-GDP above 100% raises sustainability concerns. Interest payments now exceed defense spending."
+    "explanation": "America's Fiscal Health:\n\n\u2022 **Federal Debt** (GFDEBTN): Total US government debt outstanding - currently ~$34 trillion.\n\u2022 **Budget Deficit** (FYFSD): Annual shortfall between spending and revenue.\n\u2022 **Interest Payments** (A091RC1Q027SBEA): What we pay to service the debt - rising rapidly with higher rates.\n\u2022 **Revenue** (FGRECPT): Federal tax receipts.\n\u2022 **Spending** (FGEXPND): Total federal outlays.\n\nKey ratio: Debt-to-GDP above 100% raises sustainability concerns. Interest payments now exceed defense spending."
   },
   "federal debt deficit and interest payments": {
     "series": [
@@ -1395,7 +1304,7 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "Federal finances deep dive:\n\n• **Total Debt** (GFDEBTN): Accumulated borrowing - ~$34T and rising.\n• **Annual Deficit** (FYFSD): How much we add to debt each year.\n• **Interest Payments** (A091RC1Q027SBEA): Cost of servicing debt - exploding with higher rates.\n• **Net Interest** (FYOINT): Annual interest outlays.\n\nCritical context: At 5% rates on $34T debt, interest alone = $1.7T/year. This crowds out other spending and creates a debt spiral risk if not addressed."
+    "explanation": "Federal finances deep dive:\n\n\u2022 **Total Debt** (GFDEBTN): Accumulated borrowing - ~$34T and rising.\n\u2022 **Annual Deficit** (FYFSD): How much we add to debt each year.\n\u2022 **Interest Payments** (A091RC1Q027SBEA): Cost of servicing debt - exploding with higher rates.\n\u2022 **Net Interest** (FYOINT): Annual interest outlays.\n\nCritical context: At 5% rates on $34T debt, interest alone = $1.7T/year. This crowds out other spending and creates a debt spiral risk if not addressed."
   },
   "reindustrializing america": {
     "series": [
@@ -1407,7 +1316,7 @@
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "Is America Reindustrializing?\n\n• **Manufacturing Employment** (MANEMP): Factory jobs - peaked at 19M in 1979, bottomed at 11.5M in 2010, now ~13M.\n• **Industrial Production** (INDPRO): Total output of factories, mines, utilities.\n• **Manufacturing Output** (IPMAN): Factory production specifically.\n• **Construction Spending** (TTLCONS): New factory construction = future capacity.\n• **Durable Goods Orders** (ACDGNO): New orders for long-lasting products.\n\nKey question: Are CHIPS Act, IRA, and reshoring actually rebuilding US manufacturing, or just stabilizing the decline?"
+    "explanation": "Is America Reindustrializing?\n\n\u2022 **Manufacturing Employment** (MANEMP): Factory jobs - peaked at 19M in 1979, bottomed at 11.5M in 2010, now ~13M.\n\u2022 **Industrial Production** (INDPRO): Total output of factories, mines, utilities.\n\u2022 **Manufacturing Output** (IPMAN): Factory production specifically.\n\u2022 **Construction Spending** (TTLCONS): New factory construction = future capacity.\n\u2022 **Durable Goods Orders** (ACDGNO): New orders for long-lasting products.\n\nKey question: Are CHIPS Act, IRA, and reshoring actually rebuilding US manufacturing, or just stabilizing the decline?"
   },
   "is america reindustrializing": {
     "series": [
@@ -1418,6 +1327,6 @@
     ],
     "show_yoy": true,
     "combine_chart": false,
-    "explanation": "Reindustrialization scorecard:\n\n• **Manufacturing Jobs** (MANEMP): Has the long decline reversed?\n• **Industrial Production** (INDPRO): Is factory output growing?\n• **Construction Spending** (TTLCONS): Factory construction = future capacity.\n• **Manufacturing Hours** (CES3000000001): Are existing workers producing more?\n\nContext: US lost 5M+ factory jobs 2000-2010 to China/automation. CHIPS Act and reshoring aim to reverse this. Look for sustained job gains + rising construction."
+    "explanation": "Reindustrialization scorecard:\n\n\u2022 **Manufacturing Jobs** (MANEMP): Has the long decline reversed?\n\u2022 **Industrial Production** (INDPRO): Is factory output growing?\n\u2022 **Construction Spending** (TTLCONS): Factory construction = future capacity.\n\u2022 **Manufacturing Hours** (CES3000000001): Are existing workers producing more?\n\nContext: US lost 5M+ factory jobs 2000-2010 to China/automation. CHIPS Act and reshoring aim to reverse this. Look for sustained job gains + rising construction."
   }
 }

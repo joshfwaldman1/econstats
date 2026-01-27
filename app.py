@@ -3990,10 +3990,16 @@ def suggest_chart_groups(series_ids: list) -> list:
         return []  # No grouping needed
 
     # Categorize series by type
-    rates = []
+    rates_quarterly = []  # Quarterly GDP rates (SAAR)
+    rates_annual = []     # Annual/YoY GDP rates
+    rates_other = []      # Other rates (unemployment, etc.)
     levels_employment = []
     levels_other = []
     indexes = []
+
+    # GDP series that should NEVER be combined (different frequencies)
+    QUARTERLY_GDP = {'A191RL1Q225SBEA', 'PB0000031Q225SBEA', 'GDPNOW'}
+    ANNUAL_GDP = {'A191RO1Q156NBEA', 'A191RL1A225NBEA'}
 
     for sid in series_ids:
         info = SERIES_DB.get(sid, {})
@@ -4001,8 +4007,12 @@ def suggest_chart_groups(series_ids: list) -> list:
         dtype = info.get('data_type', 'unknown')
         name = info.get('name', sid)
 
-        if dtype == 'rate' or 'percent' in unit:
-            rates.append((sid, name))
+        if sid in QUARTERLY_GDP:
+            rates_quarterly.append((sid, name))
+        elif sid in ANNUAL_GDP:
+            rates_annual.append((sid, name))
+        elif dtype == 'rate' or dtype == 'growth_rate' or 'percent' in unit:
+            rates_other.append((sid, name))
         elif 'index' in unit:
             indexes.append((sid, name))
         elif 'thousands of persons' in unit or 'employment' in name.lower():
@@ -4012,17 +4022,32 @@ def suggest_chart_groups(series_ids: list) -> list:
 
     groups = []
 
-    # Group rates together
-    if len(rates) >= 2:
+    # IRON LAW: Never combine quarterly and annual GDP on same chart
+    # Each GDP series gets its own chart
+    for sid, name in rates_quarterly:
         groups.append({
-            "series": [s[0] for s in rates],
+            "series": [sid],
+            "title": name,
+            "combine": False
+        })
+    for sid, name in rates_annual:
+        groups.append({
+            "series": [sid],
+            "title": name,
+            "combine": False
+        })
+
+    # Group other rates together (unemployment, interest rates, etc.)
+    if len(rates_other) >= 2:
+        groups.append({
+            "series": [s[0] for s in rates_other],
             "title": "Rates (%)",
             "combine": True
         })
-    elif len(rates) == 1:
+    elif len(rates_other) == 1:
         groups.append({
-            "series": [rates[0][0]],
-            "title": rates[0][1],
+            "series": [rates_other[0][0]],
+            "title": rates_other[0][1],
             "combine": False
         })
 
