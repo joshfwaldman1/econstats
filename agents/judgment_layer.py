@@ -53,6 +53,20 @@ JUDGMENT_PATTERNS = [
 
     # Assessment questions
     r'\b(healthy|unhealthy|strong|weak|tight|loose|hot|cold)\s+(economy|labor market|job market|housing market)',
+
+    # Bubble/valuation/speculation questions - need expert research
+    r'\b(bubble|overvalued|undervalued|overheated|frothy|mania|euphoria|irrational)\b',
+    r'\b(are we in|is there|is this) (a|an)\b.*(bubble|crisis|recession)',
+    r'\b(sustainable|unsustainable)\b',  # "are valuations sustainable?"
+    r'\b(p/e|pe ratio|valuation|multiple)s?\b.*(high|low|elevated|stretched|reasonable)',
+    r'\bover(priced|valued|heated|bought)\b',
+    r'\bunder(priced|valued)\b',
+    r'\b(speculative|speculation|speculating)\b',
+    r'\b(crash|correction|pullback|sell-off|selloff)\b.*(coming|imminent|likely|due)',
+    r'\b(too far|too fast|too much)\b',  # "has the market gone too far?"
+    r'\b(justified|warranted)\b',  # "is the rally justified?"
+    r'\bvaluation.*(sustainable|justified|reasonable|stretched|high|low)',  # "are valuations sustainable?"
+    r'\b(rally|run-up|surge).*(sustainable|justified|warranted)',  # "is the rally sustainable?"
 ]
 
 # Pre-curated thresholds with economist quotes
@@ -225,8 +239,39 @@ def gemini_web_search(query: str, topic: str = None) -> Optional[str]:
     if not GEMINI_API_KEY:
         return None
 
-    # Build search prompt
-    search_prompt = f"""Search the web for current expert economic commentary on this question:
+    # Detect if this is a bubble/valuation question - needs different search approach
+    query_lower = query.lower()
+    is_bubble_question = any(kw in query_lower for kw in [
+        'bubble', 'overvalued', 'valuation', 'p/e', 'pe ratio', 'overheated',
+        'frothy', 'speculation', 'sustainable', 'crash', 'correction'
+    ])
+
+    if is_bubble_question:
+        search_prompt = f"""Search the web for current expert analysis on this market/valuation question:
+
+USER QUESTION: {query}
+
+Find expert opinions on:
+1. Current valuation metrics (P/E ratios, forward earnings, price-to-sales, Shiller CAPE) and whether they're stretched
+2. Comparisons to historical bubbles (dot-com, housing, etc.) - similarities and differences
+3. Fundamental drivers and whether they justify current prices (for AI: datacenter capex, revenue growth, productivity gains, hyperscaler spending)
+4. Bear case AND bull case arguments from credible analysts
+
+PRIORITIZE these authoritative sources (in order):
+1. **Wall Street chief economists and strategists** - Jan Hatzius (Goldman Sachs), Michael Gapen (BofA), Bruce Kasman (JP Morgan), Ajay Rajadhyaksha (Barclays), Larry Fink (BlackRock), Ray Dalio (Bridgewater), David Kostin (Goldman equity strategy), Mike Wilson (Morgan Stanley)
+2. **Valuation experts** - Robert Shiller (CAPE inventor), Aswath Damodaran (NYU valuation), Jeremy Siegel (Wharton)
+3. **Tech/AI analysts** - for AI bubble questions, look for semiconductor analysts, cloud/hyperscaler coverage
+4. **Financial news analysis** - WSJ, Bloomberg, FT, Barron's, Reuters
+
+Return a balanced summary (4-5 bullet points) with:
+- Specific valuation data points (actual P/E numbers, CAPE ratio, forward earnings estimates)
+- Named expert quotes with their firm and their reasoning
+- Both bull and bear perspectives
+- Any recent research notes or price targets
+If you can't find recent commentary, say so clearly."""
+    else:
+        # Standard economic indicator search
+        search_prompt = f"""Search the web for current expert economic commentary on this question:
 
 USER QUESTION: {query}
 
@@ -235,11 +280,12 @@ Find:
 2. Current consensus on whether the economic indicator is high/low/normal
 3. Any recent news that provides context
 
-Focus on authoritative sources:
-- Federal Reserve speeches and statements
-- Major economists (Claudia Sahm, Jason Furman, Paul Krugman, Larry Summers, etc.)
-- Research institutions (Brookings, AEI, NBER, etc.)
-- Financial news (WSJ, Bloomberg, FT, Reuters)
+PRIORITIZE these authoritative sources (in order):
+1. **Wall Street chief economists** - Jan Hatzius (Goldman Sachs), Michael Gapen (BofA), Bruce Kasman (JP Morgan), Ajay Rajadhyaksha (Barclays), Torsten Slok (Apollo), Ellen Zentner (Morgan Stanley)
+2. **Federal Reserve** - Jerome Powell, Fed governors (Waller, Bowman, Cook), regional Fed presidents (Neel Kashkari, Austan Goolsbee, Mary Daly)
+3. **Policy economists** - Claudia Sahm, Jason Furman, Larry Summers, Paul Krugman
+4. **Research institutions** - Brookings, Peterson Institute, NBER, Conference Board
+5. **Financial news** - WSJ, Bloomberg, FT, Reuters
 
 Return a concise summary (3-4 bullet points) of what experts are saying, with specific quotes if available.
 If you can't find recent commentary, say so clearly."""

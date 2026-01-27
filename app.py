@@ -138,7 +138,7 @@ except Exception:
 
 # Import Alpha Vantage for stocks and economic data
 try:
-    from agents.alphavantage import get_alphavantage_series, search_alphavantage_series, ALPHAVANTAGE_SERIES, synthesize_market_narrative
+    from agents.alphavantage import get_alphavantage_series, search_alphavantage_series, ALPHAVANTAGE_SERIES, synthesize_market_narrative, get_company_fundamentals, get_market_pe_summary
     ALPHAVANTAGE_AVAILABLE = True
 except Exception:
     ALPHAVANTAGE_AVAILABLE = False
@@ -218,6 +218,19 @@ try:
 except Exception:
     RECESSION_SCORECARD_AVAILABLE = False
 
+# Import Shiller CAPE for valuation/bubble queries
+try:
+    from agents.shiller import (
+        is_valuation_query,
+        get_cape_series,
+        get_current_cape,
+        get_bubble_comparison_data,
+        CAPE_BENCHMARKS,
+    )
+    SHILLER_AVAILABLE = True
+except Exception:
+    SHILLER_AVAILABLE = False
+
 # Import temporal intent detection for COMPARE vs FILTER vs CURRENT handling
 try:
     from core.temporal_intent import (
@@ -245,7 +258,7 @@ except Exception as e:
 # Import Query Understanding - "Thinking First" layer
 # This deeply analyzes query intent BEFORE any routing decisions
 try:
-    from agents.query_understanding import understand_query, get_routing_recommendation, validate_series_for_query
+    from agents.query_understanding import understand_query, get_routing_recommendation, validate_series_for_query, get_series_for_query
     QUERY_UNDERSTANDING_AVAILABLE = True
 except Exception:
     QUERY_UNDERSTANDING_AVAILABLE = False
@@ -7810,6 +7823,10 @@ def main():
                         scorecard_html = format_scorecard_for_display(scorecard)
                         st.markdown(scorecard_html, unsafe_allow_html=True)
 
+                    # CAPE Valuation Box (for bubble/valuation queries)
+                    if msg.get("cape_html"):
+                        st.markdown(msg["cape_html"], unsafe_allow_html=True)
+
                     # Prediction Markets Box (forward-looking market expectations)
                     if msg.get("polymarket_html"):
                         st.markdown(msg["polymarket_html"], unsafe_allow_html=True)
@@ -8206,6 +8223,32 @@ def main():
                 direct_mapping_plan = None
                 precomputed_plan = None
                 route_type = 'health_check'
+
+        # =================================================================
+        # DYNAMIC SERIES SELECTION - LLM "On Your Feet" Reasoning
+        # =================================================================
+        # For queries that don't match pre-computed plans or hard-coded mappings,
+        # ask Gemini to reason about what data to fetch. This handles unexpected
+        # queries like "how are oil companies doing?" or "what about regional banks?"
+        # =================================================================
+        dynamic_series_result = None
+        if QUERY_UNDERSTANDING_AVAILABLE and not direct_mapping_plan and not health_check_plan and not precomputed_plan:
+            # No plan found - try dynamic Gemini reasoning
+            dynamic_series_result = get_series_for_query(query, verbose=True)
+
+            if dynamic_series_result.get('series') and len(dynamic_series_result['series']) >= 2:
+                print(f"[Dynamic Series] Using Gemini-selected series: {dynamic_series_result['series']}")
+                print(f"[Dynamic Series] Source: {dynamic_series_result.get('source', 'unknown')}")
+
+                # Build a health_check-style plan from dynamic selection
+                health_check_plan = {
+                    'series': dynamic_series_result['series'],
+                    'explanation': dynamic_series_result.get('explanation', f'Data relevant to: {query}'),
+                    'entity': 'dynamic_selection',
+                    'dynamic_reasoning': dynamic_series_result.get('reasoning', ''),
+                    'show_yoy': [False] * len(dynamic_series_result['series']),  # Default to levels
+                }
+                route_type = 'dynamic'
 
         # ROUTING LOGIC:
         # 1. Has pre-computed plan -> use it as base
@@ -9450,6 +9493,101 @@ def main():
             except Exception as e:
                 print(f"[Recession Scorecard] Error building scorecard: {e}")
 
+        # CAPE/Valuation data for bubble/overvalued queries
+        cape_data = None
+        cape_html = None
+        if SHILLER_AVAILABLE and is_valuation_query(query):
+            try:
+                # Get current CAPE and bubble comparison data
+                cape_current = get_current_cape()
+                cape_bubble = get_bubble_comparison_data()
+                cape_series = get_cape_series()
+
+                cape_data = {
+                    'current': cape_current,
+                    'bubble_comparison': cape_bubble,
+                    'series': cape_series,
+                }
+
+                # Add CAPE series to chart data (filter to last 30 years for readability)
+                cape_dates = cape_series['dates']
+                cape_values = cape_series['values']
+                cape_info = cape_series['info']
+                # Filter to last 30 years (360 months)
+                if len(cape_dates) > 360:
+                    cape_dates = cape_dates[-360:]
+                    cape_values = cape_values[-360:]
+                series_data.append(('shiller_cape', cape_dates, cape_values, cape_info))
+
+                # Generate CAPE summary HTML
+                cape_value = cape_current['current_value']
+                percentile = cape_current['percentile']
+                vs_avg = cape_current['vs_average']['premium_pct']
+                dot_com_peak = cape_current['comparisons'].get('dot_com_peak', 44.2)
+                vs_dot_com = cape_current['comparisons'].get('vs_dot_com_pct', 0)
+
+                # Color based on percentile
+                if percentile >= 90:
+                    color = "#dc2626"  # Red
+                    status = "Extremely Elevated"
+                elif percentile >= 75:
+                    color = "#f59e0b"  # Amber
+                    status = "Elevated"
+                elif percentile >= 50:
+                    color = "#3b82f6"  # Blue
+                    status = "Above Average"
+                else:
+                    color = "#10b981"  # Green
+                    status = "Normal Range"
+
+                cape_html = f"""
+                <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+                            border-radius: 12px; padding: 20px; margin: 16px 0;
+                            border-left: 4px solid {color};">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 1.3rem;">📊</span>
+                        <span style="color: white; font-weight: 600; font-size: 1.1rem;">
+                            Shiller CAPE Ratio (Valuation)
+                        </span>
+                        <span style="background: {color}; color: white; padding: 2px 10px;
+                                     border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                            {status}
+                        </span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                        <div style="text-align: center;">
+                            <div style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase;">Current</div>
+                            <div style="color: white; font-size: 1.5rem; font-weight: 700;">{cape_value:.1f}</div>
+                            <div style="color: #94a3b8; font-size: 0.7rem;">{percentile:.0f}th percentile</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase;">vs Average</div>
+                            <div style="color: {'#ef4444' if vs_avg > 50 else '#fbbf24'}; font-size: 1.5rem; font-weight: 700;">+{vs_avg:.0f}%</div>
+                            <div style="color: #94a3b8; font-size: 0.7rem;">Long-term avg: 17</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase;">vs Dot-Com</div>
+                            <div style="color: {'#10b981' if vs_dot_com < 0 else '#ef4444'}; font-size: 1.5rem; font-weight: 700;">{vs_dot_com:+.0f}%</div>
+                            <div style="color: #94a3b8; font-size: 0.7rem;">Peak was {dot_com_peak:.1f}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase;">History</div>
+                            <div style="color: #60a5fa; font-size: 1.5rem; font-weight: 700;">143yr</div>
+                            <div style="color: #94a3b8; font-size: 0.7rem;">Since 1881</div>
+                        </div>
+                    </div>
+                    <div style="color: #cbd5e1; font-size: 0.85rem; margin-top: 12px; line-height: 1.5;">
+                        {cape_current['interpretation']}
+                    </div>
+                    <div style="color: #64748b; font-size: 0.7rem; margin-top: 8px;">
+                        Source: Robert Shiller, Yale University • Updated monthly
+                    </div>
+                </div>
+                """
+                print(f"[CAPE] Current CAPE: {cape_value:.1f} ({percentile:.0f}th percentile)")
+            except Exception as e:
+                print(f"[CAPE] Error fetching valuation data: {e}")
+
         # Generate premium economist analysis for deeper insights
         premium_analysis = None
         premium_analysis_html = None
@@ -9503,6 +9641,8 @@ def main():
             "market_narrative": market_narrative,  # Alpha Vantage market context
             "historical_context": historical_context,  # Historical analogues (1994, 2008, etc.)
             "recession_scorecard": recession_scorecard,  # Recession dashboard for recession queries
+            "cape_data": cape_data,  # Shiller CAPE for valuation/bubble queries
+            "cape_html": cape_html,  # Pre-formatted CAPE valuation box
             "premium_analysis": premium_analysis,  # Premium economist analysis
             "premium_analysis_html": premium_analysis_html,  # Pre-formatted HTML for display
             "coverage_disclaimer": interpretation.get('coverage_disclaimer'),  # Proxy data warning

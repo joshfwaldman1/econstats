@@ -381,3 +381,115 @@ Compares US to other countries. Data from FRED (US) + DBnomics (international).
 10. **Query Understanding layer** - NEW "Thinking First" approach using Gemini to deeply analyze query intent before routing. Prevents wrong demographic data (e.g., women's data for Black workers queries). See `agents/query_understanding.py`.
 11. **Recession Scorecard** - NEW comprehensive "Recession Dashboard" for recession-related queries. Shows Sahm Rule, yield curve, consumer sentiment, initial claims, and Polymarket odds with color-coded status indicators. See `agents/recession_scorecard.py`.
 12. **Premium Economist Analysis** - NEW deep analysis feature that connects multiple indicators into coherent narratives, applies economic reasoning, and highlights risks/opportunities. Displays as a yellow callout box with headline, narrative bullets, key insight, risks, and opportunities. See `core/economist_analysis.py`.
+13. **Dynamic Series Selection** - NEW "on your feet" capability using Gemini to reason about unexpected queries. When no pre-computed plan exists, Gemini looks at available data catalog and selects appropriate series. Handles novel queries like "how are oil companies doing?" See `get_dynamic_series()` in `agents/query_understanding.py`.
+14. **Mag7/Stock Routing Fix** - Stock market queries now route to Alpha Vantage daily data instead of lagged FRED monthly data. Added av_aapl, av_msft, av_googl, av_amzn, av_nvda, av_meta, av_tsla to alphavantage.py catalog.
+15. **Sector ETF Mapping** - Sector-focused queries now correctly distinguish between stock queries vs employment queries. "Healthcare stocks" → av_xlv (ETF), "Healthcare sector" → USHEALTHEMPL (employment).
+16. **Bubble/Valuation Judgment Layer** - Queries like "are we in an AI bubble?" now trigger Gemini web search for expert commentary. Added bubble-related patterns to JUDGMENT_PATTERNS in `agents/judgment_layer.py`.
+
+## Validation Layer Pattern (CRITICAL)
+**Module**: `agents/query_understanding.py` - `validate_series_for_query()`
+
+The validation layer is a "gut check" that runs AFTER routing to ensure proposed series actually match query intent:
+
+1. **Demographics** - If query mentions "Black workers" but routing returned UNRATE, override to LNS14000006
+2. **Sectors** - If query mentions "manufacturing" but got generic PAYEMS, override to MANEMP
+3. **Stock vs Employment** - If query says "healthcare stocks" but got USHEALTHEMPL, override to av_xlv
+4. **Topics** - "oil companies" → av_xle + av_crude_oil (not generic employment)
+
+**Order of checks**:
+1. Demographics (highest priority - people get this wrong most)
+2. Sectors (stock-focused vs employment-focused)
+3. Stock/market queries
+4. Topic-specific (bubble, bonds, emerging markets)
+
+## Industry/Sector Query Routing
+**Key insight**: Distinguish "X stocks" from "X sector":
+
+| Query Pattern | Series Type | Examples |
+|---------------|-------------|----------|
+| "healthcare stocks" | Sector ETF | av_xlv |
+| "healthcare sector" | Employment | USHEALTHEMPL |
+| "oil companies" | Energy ETF + prices | av_xle, av_crude_oil |
+| "energy sector" | Employment + prices | CES1021100001, DCOILWTICO |
+| "tech companies" | Tech ETF | av_xlk, av_qqq |
+| "tech employment" | Employment | USINFO |
+
+**Implementation**: `SECTOR_TO_ETF` mapping in validate_series_for_query() uses stock-focused keywords to route appropriately.
+
+## Judgment Layer for Expert Research
+**Module**: `agents/judgment_layer.py`
+
+Triggers Gemini web search for queries requiring interpretation/expert opinion:
+
+**New patterns added for bubble/valuation questions**:
+- `\b(bubble|overvalued|undervalued|overheated|frothy)\b`
+- `\b(sustainable|unsustainable)\b`
+- `\b(justified|warranted)\b`
+- `\b(p/e|pe ratio|valuation)\b`
+- `\b(crash|correction)\b.*(coming|imminent|likely)`
+
+**Specialized search prompts**:
+- Bubble questions get expanded prompt asking for P/E ratios, historical comparisons, bull/bear cases
+- Standard economic questions get expert opinions on indicator levels
+
+## P/E Ratio Data (NEW)
+**Solution**: Alpha Vantage OVERVIEW endpoint provides fundamentals!
+
+**New functions in `agents/alphavantage.py`**:
+```python
+get_company_fundamentals(symbol) -> dict
+# Returns: pe_ratio, forward_pe, peg_ratio, price_to_book, price_to_sales,
+#          eps, market_cap, beta, 52_week_high/low, profit_margin, etc.
+
+get_market_pe_summary() -> dict
+# Returns P/E ratios for SPY, QQQ, and Mag7 stocks with average
+```
+
+**Free tier limits**: 25 requests/day (Alpha Vantage OVERVIEW)
+
+**Use for**: Bubble/valuation questions - "are we in an AI bubble?", "is the market overvalued?"
+
+**Alternative free APIs for fundamentals**:
+- Financial Modeling Prep: 250 calls/day
+- Finnhub: 60 calls/min
+- EODHD: Limited free tier with 30+ years history
+
+## Shiller CAPE Ratio Integration (NEW)
+**Module**: `agents/shiller.py`
+**Data Source**: Robert Shiller's "Irrational Exuberance" dataset (Yale University)
+**File**: `data/shiller_pe.xls` (downloaded from Shiller's website)
+
+The Shiller CAPE (Cyclically Adjusted P/E) is the gold standard for long-term market valuation:
+- S&P 500 price divided by 10-year average of inflation-adjusted earnings
+- Data from 1881 to present (143+ years of history)
+- Updated monthly
+
+**Key Functions**:
+```python
+get_cape_series() -> dict
+# Returns dates, values, info in standard FRED format for charting
+
+get_current_cape() -> dict
+# Returns: current_value, percentile, vs_average, historical_range, comparisons, interpretation
+
+get_bubble_comparison_data() -> dict
+# Returns: current CAPE vs dot-com peak, streak analysis, summary
+
+is_valuation_query(query) -> bool
+# Detects bubble/valuation keywords
+```
+
+**Historical Benchmarks**:
+- Long-term average: 17.0
+- Dot-com peak (Dec 1999): 44.2
+- 2008 crisis low: 13.3
+- Current (Jan 2026): ~40 (98th percentile)
+
+**Queries that trigger CAPE display**:
+- "are we in a bubble?"
+- "is the market overvalued?"
+- "cape ratio"
+- "shiller pe"
+- "market valuation"
+
+**Display**: Blue gradient box showing current CAPE, percentile, vs average, vs dot-com, plus 30-year historical chart

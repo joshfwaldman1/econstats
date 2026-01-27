@@ -545,14 +545,23 @@ def _rule_based_understanding(query: str) -> Dict:
             result['routing']['is_international'] = True
             result['routing']['secondary_sources'].append('dbnomics')
 
-    # Detect sectors
+    # Detect sectors - expanded to cover more industry/company queries
     sector_patterns = {
-        'manufacturing': ['manufacturing', 'factory', 'factories'],
-        'construction': ['construction', 'building'],
+        'manufacturing': ['manufacturing', 'factory', 'factories', 'industrial'],
+        'construction': ['construction', 'building', 'homebuilders'],
         'restaurants': ['restaurant', 'food service', 'dining'],
-        'retail': ['retail', 'store', 'shops'],
-        'tech': ['tech', 'technology', 'software', 'semiconductor'],
-        'healthcare': ['healthcare', 'health care', 'medical', 'hospital']
+        'retail': ['retail', 'store', 'shops', 'retail stocks', 'consumer retail'],
+        'tech': ['tech', 'technology', 'software', 'semiconductor', 'tech companies', 'tech sector'],
+        'healthcare': ['healthcare', 'health care', 'medical', 'hospital', 'pharma', 'biotech'],
+        'energy': ['oil companies', 'energy companies', 'energy sector', 'oil stocks', 'energy stocks'],
+        'financials': ['banks', 'banking', 'financial sector', 'regional banks', 'financial stocks'],
+        'industrials': ['industrial companies', 'industrial sector', 'aerospace', 'defense'],
+        'utilities': ['utilities', 'utility companies', 'electric utilities'],
+        'materials': ['materials', 'mining', 'chemicals', 'metals'],
+        'communications': ['telecom', 'communications', 'media companies'],
+        'consumer_discretionary': ['consumer discretionary', 'consumer stocks', 'luxury'],
+        'consumer_staples': ['consumer staples', 'grocery', 'household products'],
+        'real_estate': ['real estate', 'reits', 'property', 'commercial real estate'],
     }
 
     for sector, patterns in sector_patterns.items():
@@ -584,6 +593,10 @@ def _rule_based_understanding(query: str) -> Dict:
         'faang', 'tech stocks', 'tech giants', 'megacap', 'mega cap',
         'apple stock', 'microsoft stock', 'google stock', 'nvidia stock',
         'tesla stock', 'amazon stock', 'meta stock',
+        # Bubble/valuation questions (market-related)
+        'bubble', 'overvalued', 'valuation', 'valuations', 'p/e', 'pe ratio',
+        'market correction', 'crash', 'rally', 'bull market', 'bear market',
+        'ai bubble', 'tech bubble', 'dot-com', 'dotcom',
     ]
     if any(kw in query_lower for kw in market_keywords):
         # Add Alpha Vantage as secondary - FRED has SP500, DJIA too
@@ -679,13 +692,22 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
         'information': ['USINFO', 'CES5000000001'],
         'finance': ['USFIRE', 'CES5500000001'],
         'financial': ['USFIRE', 'CES5500000001'],
+        'financials': ['av_xlf', 'av_spy', 'DGS10'],  # Financial sector ETF + rates
         'government': ['USGOVT', 'CES9000000001'],
         'education': ['CES6561000001', 'CES9091000001'],
         'mining': ['USMINE', 'CES1000000001'],
-        'energy': ['CES1021100001', 'DCOILWTICO', 'GASREGW'],
+        'energy': ['av_xle', 'av_crude_oil', 'eia_wti_crude'],  # Energy sector ETF + oil prices
         'transportation': ['USTPU', 'CES4300000001'],
         'professional services': ['USPBS', 'CES6000000001'],
         'business services': ['USPBS', 'CES6000000001'],
+        # Alpha Vantage sector ETFs for stock-focused queries
+        'industrials': ['av_xli', 'av_spy', 'INDPRO'],  # Industrial sector ETF + production
+        'utilities': ['av_xlu', 'INDPRO'],  # Utilities ETF
+        'materials': ['av_xlb', 'INDPRO'],  # Materials ETF
+        'communications': ['av_xlc', 'USINFO'],  # Communications ETF
+        'consumer_discretionary': ['av_xly', 'RSXFS'],  # Consumer discretionary + retail sales
+        'consumer_staples': ['av_xlp', 'PCE'],  # Consumer staples + consumption
+        'real_estate': ['av_xlre', 'HOUST', 'MORTGAGE30US'],  # Real estate ETF + housing
     }
 
     # =================================================================
@@ -704,10 +726,36 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
         'consumer': ['UMCSENT', 'PCE', 'RSXFS'],
         'credit': ['TOTALSL', 'REVOLSL', 'NONREVSL'],
         'debt': ['GFDEBTN', 'HDTGPDUSQ163N', 'TDSP'],
-        # Stock market / Mag7
-        'stocks': ['SP500', 'NASDAQCOM', 'DJIA', 'VIXCLS'],
-        'mag7': ['SP500', 'NASDAQCOM', 'CP'],  # Corporate profits as proxy
-        'tech stocks': ['NASDAQCOM', 'SP500'],
+        # Stock market / Mag7 - prefer Alpha Vantage for daily data
+        'stocks': ['av_spy', 'av_qqq', 'av_dia', 'av_vix'],
+        'mag7': ['av_qqq', 'av_xlk', 'av_nvda', 'av_aapl', 'av_msft'],
+        'tech stocks': ['av_qqq', 'av_xlk', 'av_nvda'],
+        # Sector/industry stock queries - use Alpha Vantage ETFs
+        'oil companies': ['av_xle', 'av_crude_oil', 'eia_wti_crude'],
+        'energy stocks': ['av_xle', 'av_crude_oil', 'av_natural_gas'],
+        'bank stocks': ['av_xlf', 'FEDFUNDS', 'DGS10'],
+        'regional banks': ['av_xlf', 'FEDFUNDS', 'T10Y2Y'],
+        'financial stocks': ['av_xlf', 'av_spy', 'DGS10'],
+        'healthcare stocks': ['av_xlv', 'USHEALTHEMPL'],
+        'industrial stocks': ['av_xli', 'INDPRO', 'DGORDER'],
+        'retail stocks': ['av_xly', 'RSXFS', 'UMCSENT'],
+        'utility stocks': ['av_xlu', 'INDPRO'],
+        'real estate stocks': ['av_xlre', 'HOUST', 'MORTGAGE30US'],
+        'defense stocks': ['av_xli', 'USGOVT'],  # Defense is in industrials
+        'semiconductor': ['av_nvda', 'av_xlk', 'av_qqq'],
+        'emerging markets': ['av_eem', 'av_fxi', 'av_vwo'],
+        'international stocks': ['av_efa', 'av_eem', 'av_ewj'],
+        'bonds': ['av_tlt', 'av_lqd', 'DGS10'],
+        'treasury bonds': ['av_tlt', 'av_shy', 'DGS10', 'DGS2'],
+        'corporate bonds': ['av_lqd', 'av_hyg', 'BAMLH0A0HYM2'],
+        # Bubble/valuation questions - need P/E, market indices, and comparison to dot-com
+        'bubble': ['av_qqq', 'av_spy', 'SP500', 'NASDAQCOM'],  # Long history for comparison
+        'ai bubble': ['av_qqq', 'av_xlk', 'av_nvda', 'NASDAQCOM'],  # AI/tech focused
+        'tech bubble': ['av_qqq', 'av_xlk', 'NASDAQCOM'],
+        'overvalued': ['av_spy', 'av_qqq', 'SP500', 'NASDAQCOM'],
+        'valuation': ['av_spy', 'av_qqq', 'SP500'],
+        'market correction': ['av_spy', 'av_vix', 'SP500', 'T10Y2Y'],
+        'crash': ['av_spy', 'av_vix', 'ICSA', 'T10Y2Y'],  # Include recession indicators
     }
 
     # Generic series that should NOT be used for specific queries
@@ -739,10 +787,48 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
     # CHECK SECTORS
     # =================================================================
     # Trigger when sectors detected - don't require is_sector_specific flag
+    # If query mentions "stocks" or "companies", prefer market data (ETFs) over employment
+
+    # Sector to Alpha Vantage ETF mapping for stock-focused queries
+    SECTOR_TO_ETF = {
+        'tech': ['av_xlk', 'av_qqq', 'av_nvda'],
+        'technology': ['av_xlk', 'av_qqq', 'av_nvda'],
+        'healthcare': ['av_xlv', 'USHEALTHEMPL'],
+        'financials': ['av_xlf', 'DGS10', 'FEDFUNDS'],
+        'energy': ['av_xle', 'av_crude_oil', 'eia_wti_crude'],
+        'industrials': ['av_xli', 'INDPRO'],
+        'consumer_discretionary': ['av_xly', 'RSXFS'],
+        'consumer_staples': ['av_xlp', 'PCE'],
+        'utilities': ['av_xlu'],
+        'materials': ['av_xlb'],
+        'real_estate': ['av_xlre', 'HOUST'],
+        'communications': ['av_xlc', 'USINFO'],
+    }
+
+    query_lower_check = query_understanding.get('intent', {}).get('core_question', '').lower()
+    is_stock_focused = any(kw in query_lower_check for kw in ['stock', 'stocks', 'companies', 'company', 'etf'])
+
     if sectors:
         for sector in sectors:
             sector_lower = sector.lower()
-            if sector_lower in SECTOR_SERIES:
+
+            # If query is about stocks/companies, prefer ETF data over employment
+            if is_stock_focused and sector_lower in SECTOR_TO_ETF:
+                etf_series = SECTOR_TO_ETF[sector_lower]
+                etf_set = set(etf_series)
+                has_etf = bool(etf_set & proposed_set)
+
+                if not has_etf and (GENERIC_LABOR_SERIES & proposed_set or not proposed_set):
+                    return {
+                        'valid': False,
+                        'corrected_series': etf_series,
+                        'reason': f"Query is about {sector} stocks/companies. Using sector ETF and market data.",
+                        'entity_type': 'sector_market',
+                        'entity_name': sector
+                    }
+
+            # Otherwise use employment/activity data
+            elif sector_lower in SECTOR_SERIES:
                 expected = set(SECTOR_SERIES[sector_lower])
                 has_specific = bool(expected & proposed_set)
                 has_generic = bool(GENERIC_LABOR_SERIES & proposed_set)
@@ -761,26 +847,64 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
     # CHECK STOCK/MARKET QUERIES
     # =================================================================
     # If query is about stocks/Mag7 but we're returning employment data, override
-    STOCK_SERIES = {'SP500', 'NASDAQCOM', 'DJIA', 'VIXCLS', 'CP'}
-    STOCK_KEYWORDS = ['mag7', 'mag 7', 'magnificent', 'stock', 'nasdaq', 's&p',
-                      'tech stock', 'big tech', 'faang', 'megacap']
+    # Use Alpha Vantage series for daily real-time data (FRED is lagged monthly)
+    STOCK_SERIES_FRED = {'SP500', 'NASDAQCOM', 'DJIA', 'VIXCLS', 'CP'}
+    STOCK_SERIES_AV = {'av_spy', 'av_qqq', 'av_dia', 'av_vix', 'av_xlk',
+                       'av_aapl', 'av_msft', 'av_googl', 'av_amzn', 'av_nvda', 'av_meta', 'av_tsla'}
+    STOCK_SERIES = STOCK_SERIES_FRED | STOCK_SERIES_AV
+
+    MAG7_KEYWORDS = ['mag7', 'mag 7', 'magnificent 7', 'magnificent seven', 'big tech', 'faang', 'megacap']
+    STOCK_KEYWORDS = MAG7_KEYWORDS + ['stock', 'stocks', 'nasdaq', 's&p', 'sp500', 'tech stock', 'market index', 'companies']
 
     query_lower_check = query_understanding.get('intent', {}).get('core_question', '').lower()
     is_stock_query = routing.get('is_stock_query', False) or any(kw in query_lower_check for kw in STOCK_KEYWORDS)
+    is_mag7_query = any(kw in query_lower_check for kw in MAG7_KEYWORDS)
 
     if is_stock_query:
         has_stock_series = bool(STOCK_SERIES & proposed_set)
         has_employment = bool({'USINFO', 'CES5000000001', 'PAYEMS'} & proposed_set)
 
         if not has_stock_series and (has_employment or not proposed_set):
-            # NASDAQ is best proxy for Mag7 (~50% by weight)
-            return {
-                'valid': False,
-                'corrected_series': ['NASDAQCOM', 'SP500', 'CP'],
-                'reason': "Query is about Mag7/stocks but routing returned employment data. NASDAQ is the best proxy (~50% Mag7 by weight).",
-                'entity_type': 'market',
-                'entity_name': 'mag7'
-            }
+            # Use Alpha Vantage for real-time daily data
+            if is_mag7_query:
+                # Mag7 query: Use QQQ (NASDAQ-100) as primary proxy (~50% Mag7 by weight)
+                # Plus XLK (tech sector ETF) and individual Mag7 stocks
+                return {
+                    'valid': False,
+                    'corrected_series': ['av_qqq', 'av_xlk', 'av_nvda', 'av_aapl', 'av_msft'],
+                    'reason': "Query is about Mag7. Using Alpha Vantage daily data: QQQ (~50% Mag7), XLK (tech sector), and top Mag7 stocks.",
+                    'entity_type': 'market',
+                    'entity_name': 'mag7'
+                }
+            else:
+                # General stock/market query: Use broad indices
+                return {
+                    'valid': False,
+                    'corrected_series': ['av_spy', 'av_qqq', 'av_dia'],
+                    'reason': "Query is about stock market. Using Alpha Vantage daily data: S&P 500, NASDAQ-100, and Dow Jones ETFs.",
+                    'entity_type': 'market',
+                    'entity_name': 'stocks'
+                }
+
+    # =================================================================
+    # CHECK TOPIC-SPECIFIC QUERIES (oil companies, banks, etc.)
+    # =================================================================
+    # Match query against TOPIC_SERIES for industry/topic specific overrides
+    for topic, topic_series in TOPIC_SERIES.items():
+        if topic in query_lower_check:
+            # Found a topic match - check if we have appropriate series
+            topic_series_set = set(topic_series)
+            has_topic_series = bool(topic_series_set & proposed_set)
+
+            if not has_topic_series and (GENERIC_LABOR_SERIES & proposed_set or not proposed_set):
+                # We have generic data but query is about a specific topic
+                return {
+                    'valid': False,
+                    'corrected_series': topic_series,
+                    'reason': f"Query is about {topic}. Using relevant market data and indicators.",
+                    'entity_type': 'topic',
+                    'entity_name': topic
+                }
 
     # =================================================================
     # CHECK DATA REQUIREMENTS FROM GEMINI
@@ -864,6 +988,415 @@ def get_routing_recommendation(understanding: Dict) -> Dict:
     }
 
     return recommendations
+
+
+# =============================================================================
+# DYNAMIC SERIES SELECTION - LLM-Powered Data Routing
+# =============================================================================
+
+# Condensed catalog of available data for Gemini to reason about
+# This is a summary - Gemini picks from these categories and we map to actual series
+DATA_CATALOG_SUMMARY = """
+## AVAILABLE DATA SOURCES
+
+### ALPHA VANTAGE (Real-time daily market data)
+**Stock Indices (ETFs)**:
+- av_spy: S&P 500 (SPY ETF) - broad US market
+- av_qqq: NASDAQ-100 (QQQ ETF) - tech-heavy, ~50% Mag7
+- av_dia: Dow Jones (DIA ETF) - blue chip industrials
+- av_iwm: Russell 2000 (IWM ETF) - small caps
+- av_vix: VIX volatility (VXX) - fear gauge
+
+**Magnificent 7 Individual Stocks**:
+- av_aapl: Apple - consumer electronics, services
+- av_msft: Microsoft - enterprise software, cloud, AI
+- av_googl: Alphabet/Google - search, ads, cloud, AI
+- av_amzn: Amazon - e-commerce, AWS cloud
+- av_nvda: NVIDIA - GPUs, AI chips (AI infrastructure leader)
+- av_meta: Meta - social media (Facebook, Instagram)
+- av_tsla: Tesla - EVs, energy, autonomous driving
+
+**Sector ETFs (S&P 500 sectors)**:
+- av_xlk: Technology (Apple, Microsoft, NVIDIA)
+- av_xlf: Financials (banks, insurance - JPMorgan, BofA)
+- av_xle: Energy (oil/gas - Exxon, Chevron)
+- av_xlv: Healthcare (pharma, biotech - UnitedHealth, Lilly)
+- av_xli: Industrials (aerospace, machinery - GE, Caterpillar)
+- av_xly: Consumer Discretionary (retail - Amazon, Tesla, Home Depot)
+- av_xlp: Consumer Staples (food, household - P&G, Costco, Walmart)
+- av_xlu: Utilities (electric, defensive)
+- av_xlb: Materials (chemicals, mining)
+- av_xlre: Real Estate (REITs, data centers)
+- av_xlc: Communications (Meta, Alphabet, Netflix)
+
+**International ETFs**:
+- av_eem: Emerging Markets (China, India, Brazil)
+- av_efa: Developed ex-US (Europe, Japan)
+- av_fxi: China large-cap (Alibaba, Tencent)
+- av_ewj: Japan (Toyota, Sony)
+- av_ewg: Germany (Siemens, SAP)
+
+**Bonds & Treasuries**:
+- av_tlt: Long-term Treasury (TLT ETF, 20+ year)
+- av_shy: Short-term Treasury (SHY ETF, 1-3 year)
+- av_lqd: Investment Grade Corporate Bonds
+- av_hyg: High Yield Corporate Bonds (junk bonds)
+- av_treasury_10y: 10-Year Treasury Yield
+- av_treasury_2y: 2-Year Treasury Yield
+- av_treasury_30y: 30-Year Treasury Yield
+
+**Commodities**:
+- av_crude_oil: WTI Crude Oil price
+- av_brent: Brent Crude Oil price
+- av_natural_gas: Natural Gas (Henry Hub)
+- av_gold: Gold price (safe haven)
+
+**Forex**:
+- av_eurusd: Euro/Dollar
+- av_usdjpy: Dollar/Yen
+- av_gbpusd: Pound/Dollar
+- av_dollar_index: US Dollar Index
+
+### FRED (Federal Reserve Economic Data - comprehensive US economic data)
+**Labor Market**:
+- UNRATE: Overall unemployment rate
+- PAYEMS: Total nonfarm payrolls (job growth)
+- CIVPART: Labor force participation rate
+- ICSA: Initial jobless claims (weekly)
+- JTS1000JOL: Job openings (JOLTS)
+- CES0500000003: Average hourly earnings
+
+**Demographic Employment** (use these for demographic-specific queries):
+- LNS14000002: Women unemployment rate
+- LNS14000001: Men unemployment rate
+- LNS14000006: Black unemployment rate
+- LNS14000009: Hispanic unemployment rate
+- LNS14000003: White unemployment rate
+- LNS14000012: Youth (16-19) unemployment rate
+
+**Sector Employment**:
+- MANEMP: Manufacturing employment
+- USCONS: Construction employment
+- USTRADE: Retail trade employment
+- USLAH: Leisure & hospitality employment
+- USINFO: Information/tech sector employment
+- USFIRE: Finance/insurance employment
+- USHEALTHEMPL: Healthcare employment
+- CES7072200001: Restaurants/bars employment
+
+**Inflation & Prices**:
+- CPIAUCSL: Consumer Price Index (headline inflation)
+- CPILFESL: Core CPI (ex food & energy)
+- PCEPI: PCE Price Index (Fed's preferred measure)
+- PCEPILFE: Core PCE
+
+**GDP & Output**:
+- GDPC1: Real GDP
+- A191RL1Q225SBEA: Real GDP growth rate
+- INDPRO: Industrial production
+- DGORDER: Durable goods orders
+
+**Interest Rates & Fed**:
+- FEDFUNDS: Federal funds rate
+- DGS10: 10-year Treasury yield
+- DGS2: 2-year Treasury yield
+- T10Y2Y: Yield curve (10Y-2Y spread)
+- MORTGAGE30US: 30-year mortgage rate
+
+**Housing**:
+- HOUST: Housing starts
+- PERMIT: Building permits
+- CSUSHPINSA: Case-Shiller home price index
+- EXHOSLUSM495S: Existing home sales
+
+**Consumer & Business**:
+- RSXFS: Retail sales
+- UMCSENT: Consumer sentiment
+- PCE: Personal consumption expenditures
+- BUSLOANS: Commercial & industrial loans
+- CP: Corporate profits
+
+**Financial Conditions**:
+- SP500: S&P 500 index (monthly, lagged)
+- NASDAQCOM: NASDAQ Composite (monthly, lagged)
+- VIXCLS: VIX volatility index
+- BAMLH0A0HYM2: High yield bond spread
+
+### EIA (Energy Information Administration)
+- eia_wti_crude: WTI crude oil price
+- eia_gasoline_retail: Retail gasoline price
+- eia_natural_gas_henry_hub: Natural gas spot price
+- eia_crude_production: US crude oil production
+- eia_crude_stocks: US crude oil inventories
+
+### ZILLOW (Real estate market data)
+- zillow_rent_national: National median rent (ZORI)
+- zillow_home_value_national: National home values (ZHVI)
+- zillow_rent_* / zillow_home_*: Metro-level data available
+
+### DBNOMICS (International economic data)
+- Eurozone GDP, inflation, unemployment
+- UK, Japan, China, Germany data
+- Use for international comparisons
+"""
+
+SERIES_SELECTION_PROMPT = """You are an expert economist selecting data series to answer a user's question.
+
+USER QUERY: "{query}"
+
+{catalog}
+
+## YOUR TASK
+
+Based on the query, select 3-6 data series that would BEST answer this question.
+
+Think step by step:
+1. What is the user really asking about?
+2. What data would an economist look at to answer this?
+3. Which specific series from the catalog match?
+
+## IMPORTANT RULES
+- Return ONLY series IDs from the catalog above (e.g., "av_xle", "UNRATE", "eia_wti_crude")
+- For stock/market queries, prefer Alpha Vantage (av_*) for real-time daily data
+- For economic indicators, use FRED
+- For demographic questions, use the demographic-specific FRED series
+- For energy/oil, combine EIA data with relevant ETFs
+- Pick 3-6 most relevant series - quality over quantity
+
+## RESPONSE FORMAT
+
+Return JSON only:
+```json
+{{
+    "reasoning": "Brief explanation of why these series answer the query",
+    "series": ["series_id_1", "series_id_2", "series_id_3"],
+    "explanation": "One sentence explaining what these series show together"
+}}
+```
+
+RESPOND WITH JSON ONLY."""
+
+
+def get_dynamic_series(query: str, verbose: bool = False) -> Dict:
+    """
+    Use Gemini to dynamically select series for ANY query.
+
+    This is the "on your feet" function - instead of hard-coded keyword mappings,
+    Gemini reasons about the query and the available data catalog to decide
+    what series to fetch.
+
+    Args:
+        query: User's natural language query
+        verbose: Print debug info
+
+    Returns:
+        Dict with:
+        - series: List of series IDs to fetch
+        - reasoning: Why these series were chosen
+        - explanation: What the series show together
+        - success: Whether dynamic selection worked
+    """
+    if not GEMINI_API_KEY:
+        if verbose:
+            print("  [DynamicSeries] No Gemini API key, falling back to validation layer")
+        return {'series': [], 'reasoning': None, 'explanation': None, 'success': False}
+
+    # Check cache first
+    cache_key = f"dynamic_{query.lower().strip()}"
+    cached = _get_understanding_cache(cache_key)
+    if cached:
+        if verbose:
+            print("  [DynamicSeries] Using cached result")
+        return cached
+
+    if verbose:
+        print(f"  [DynamicSeries] Asking Gemini to select series for: {query}")
+
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}'
+
+    prompt = SERIES_SELECTION_PROMPT.format(query=query, catalog=DATA_CATALOG_SUMMARY)
+
+    payload = {
+        'contents': [{'parts': [{'text': prompt}]}],
+        'generationConfig': {
+            'temperature': 0.3,  # Slightly higher for creative reasoning
+            'maxOutputTokens': 800
+        }
+    }
+    headers = {'Content-Type': 'application/json'}
+
+    try:
+        req = Request(url, data=json.dumps(payload).encode('utf-8'),
+                     headers=headers, method='POST')
+        with urlopen(req, timeout=25) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            content = result['candidates'][0]['content']['parts'][0]['text']
+
+            # Extract JSON from response
+            parsed = _extract_json(content)
+
+            if parsed and 'series' in parsed:
+                series_list = parsed['series']
+
+                # Validate that series exist in our catalogs
+                valid_series = _validate_series_exist(series_list)
+
+                result = {
+                    'series': valid_series,
+                    'reasoning': parsed.get('reasoning', ''),
+                    'explanation': parsed.get('explanation', ''),
+                    'success': len(valid_series) > 0
+                }
+
+                if verbose:
+                    print(f"  [DynamicSeries] Selected: {valid_series}")
+                    print(f"  [DynamicSeries] Reasoning: {parsed.get('reasoning', '')[:100]}...")
+
+                # Cache the result
+                _set_understanding_cache(cache_key, result)
+                return result
+
+    except Exception as e:
+        if verbose:
+            print(f"  [DynamicSeries] Error: {e}")
+
+    return {'series': [], 'reasoning': None, 'explanation': None, 'success': False}
+
+
+def _validate_series_exist(series_list: List[str]) -> List[str]:
+    """
+    Validate that the series Gemini selected actually exist in our catalogs.
+
+    Returns only the valid series IDs.
+    """
+    valid = []
+
+    # Import catalogs lazily to avoid circular imports
+    try:
+        from agents.alphavantage import ALPHAVANTAGE_SERIES
+        av_series = set(ALPHAVANTAGE_SERIES.keys())
+    except:
+        av_series = set()
+
+    try:
+        from agents.eia import EIA_SERIES
+        eia_series = set(EIA_SERIES.keys())
+    except:
+        eia_series = set()
+
+    try:
+        from agents.zillow import ZILLOW_METROS
+        zillow_series = set(ZILLOW_METROS.keys())
+    except:
+        zillow_series = set()
+
+    # Known FRED series (we don't import all, just validate format)
+    # FRED series are typically uppercase alphanumeric
+
+    for series_id in series_list:
+        series_id = series_id.strip()
+
+        # Check Alpha Vantage
+        if series_id in av_series:
+            valid.append(series_id)
+            continue
+
+        # Check EIA
+        if series_id in eia_series:
+            valid.append(series_id)
+            continue
+
+        # Check Zillow
+        if series_id.startswith('zillow_') and series_id in zillow_series:
+            valid.append(series_id)
+            continue
+
+        # Assume FRED series are valid if they match the pattern
+        # (uppercase, possibly with numbers, common prefixes)
+        if series_id.isupper() or series_id.startswith('LNS') or series_id.startswith('CES'):
+            valid.append(series_id)
+            continue
+
+        # Check for av_ prefix even if not in catalog (might be valid)
+        if series_id.startswith('av_'):
+            valid.append(series_id)
+            continue
+
+        if series_id.startswith('eia_'):
+            valid.append(series_id)
+            continue
+
+    return valid
+
+
+def get_series_for_query(query: str, verbose: bool = False) -> Dict:
+    """
+    Main entry point for getting series to answer a query.
+
+    This combines:
+    1. Dynamic Gemini reasoning (tries first)
+    2. Validation layer fallback (hard-coded mappings)
+    3. Health check routing (for "how is X doing" queries)
+
+    Args:
+        query: User's natural language query
+        verbose: Print debug info
+
+    Returns:
+        Dict with:
+        - series: List of series IDs to fetch
+        - source: How the series were determined ('dynamic', 'validation', 'health_check')
+        - explanation: What the series show
+    """
+    # Try dynamic Gemini reasoning first
+    dynamic_result = get_dynamic_series(query, verbose=verbose)
+
+    if dynamic_result['success'] and len(dynamic_result['series']) >= 2:
+        return {
+            'series': dynamic_result['series'],
+            'source': 'dynamic',
+            'explanation': dynamic_result['explanation'],
+            'reasoning': dynamic_result['reasoning']
+        }
+
+    # Fallback to validation layer (which uses understand_query + validate_series_for_query)
+    if verbose:
+        print("  [SeriesSelection] Dynamic failed, using validation layer fallback")
+
+    understanding = understand_query(query, verbose=verbose)
+
+    # Use validation layer FIRST for demographic/sector/topic overrides
+    # This takes priority over generic health check routing
+    validation = validate_series_for_query(understanding, [])
+    if not validation['valid'] and validation.get('corrected_series'):
+        return {
+            'series': validation['corrected_series'],
+            'source': 'validation',
+            'explanation': validation.get('reason', ''),
+            'entity_type': validation.get('entity_type', ''),
+            'entity_name': validation.get('entity_name', '')
+        }
+
+    # Check health check routing (only if validation didn't override)
+    try:
+        from core.health_check_indicators import route_health_check_query
+        health_result = route_health_check_query(query)
+        if health_result and health_result.get('series'):
+            return {
+                'series': health_result['series'],
+                'source': 'health_check',
+                'explanation': health_result.get('explanation', ''),
+                'entity': health_result.get('entity', '')
+            }
+    except:
+        pass
+
+    # Last resort: return empty (let app.py handle default routing)
+    return {
+        'series': [],
+        'source': 'none',
+        'explanation': 'Could not determine specific series'
+    }
 
 
 # =============================================================================

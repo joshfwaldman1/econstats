@@ -94,6 +94,87 @@ ALPHAVANTAGE_SERIES = {
     },
 
     # ==========================================================================
+    # MAGNIFICENT 7 STOCKS (Individual Mag7 Companies)
+    # ==========================================================================
+    'av_aapl': {
+        'name': 'Apple (AAPL)',
+        'description': 'Apple Inc. - Consumer electronics, software, and services. iPhone, Mac, iPad, Services.',
+        'function': 'TIME_SERIES_DAILY',
+        'symbol': 'AAPL',
+        'units': 'dollars',
+        'frequency': 'daily',
+        'measure_type': 'nominal',
+        'change_type': 'level',
+        'keywords': ['apple', 'aapl', 'iphone', 'mac', 'mag7', 'magnificent 7', 'big tech', 'tech stock'],
+    },
+    'av_msft': {
+        'name': 'Microsoft (MSFT)',
+        'description': 'Microsoft Corporation - Enterprise software, cloud (Azure), gaming (Xbox), AI (OpenAI partnership).',
+        'function': 'TIME_SERIES_DAILY',
+        'symbol': 'MSFT',
+        'units': 'dollars',
+        'frequency': 'daily',
+        'measure_type': 'nominal',
+        'change_type': 'level',
+        'keywords': ['microsoft', 'msft', 'azure', 'windows', 'mag7', 'magnificent 7', 'big tech', 'tech stock', 'ai'],
+    },
+    'av_googl': {
+        'name': 'Alphabet/Google (GOOGL)',
+        'description': 'Alphabet Inc. - Search, advertising, YouTube, Google Cloud, Waymo, DeepMind AI.',
+        'function': 'TIME_SERIES_DAILY',
+        'symbol': 'GOOGL',
+        'units': 'dollars',
+        'frequency': 'daily',
+        'measure_type': 'nominal',
+        'change_type': 'level',
+        'keywords': ['google', 'alphabet', 'googl', 'youtube', 'mag7', 'magnificent 7', 'big tech', 'tech stock', 'search', 'ai'],
+    },
+    'av_amzn': {
+        'name': 'Amazon (AMZN)',
+        'description': 'Amazon.com Inc. - E-commerce, AWS cloud, Prime streaming, advertising, logistics.',
+        'function': 'TIME_SERIES_DAILY',
+        'symbol': 'AMZN',
+        'units': 'dollars',
+        'frequency': 'daily',
+        'measure_type': 'nominal',
+        'change_type': 'level',
+        'keywords': ['amazon', 'amzn', 'aws', 'prime', 'mag7', 'magnificent 7', 'big tech', 'ecommerce', 'cloud'],
+    },
+    'av_nvda': {
+        'name': 'NVIDIA (NVDA)',
+        'description': 'NVIDIA Corporation - GPUs, AI chips, data center accelerators. Leading AI infrastructure provider.',
+        'function': 'TIME_SERIES_DAILY',
+        'symbol': 'NVDA',
+        'units': 'dollars',
+        'frequency': 'daily',
+        'measure_type': 'nominal',
+        'change_type': 'level',
+        'keywords': ['nvidia', 'nvda', 'gpu', 'ai chips', 'mag7', 'magnificent 7', 'big tech', 'tech stock', 'ai', 'semiconductors'],
+    },
+    'av_meta': {
+        'name': 'Meta Platforms (META)',
+        'description': 'Meta Platforms Inc. - Facebook, Instagram, WhatsApp, Threads, Reality Labs VR/AR.',
+        'function': 'TIME_SERIES_DAILY',
+        'symbol': 'META',
+        'units': 'dollars',
+        'frequency': 'daily',
+        'measure_type': 'nominal',
+        'change_type': 'level',
+        'keywords': ['meta', 'facebook', 'instagram', 'whatsapp', 'mag7', 'magnificent 7', 'big tech', 'tech stock', 'social media'],
+    },
+    'av_tsla': {
+        'name': 'Tesla (TSLA)',
+        'description': 'Tesla Inc. - Electric vehicles, energy storage, solar, autonomous driving, AI.',
+        'function': 'TIME_SERIES_DAILY',
+        'symbol': 'TSLA',
+        'units': 'dollars',
+        'frequency': 'daily',
+        'measure_type': 'nominal',
+        'change_type': 'level',
+        'keywords': ['tesla', 'tsla', 'ev', 'electric vehicle', 'mag7', 'magnificent 7', 'big tech', 'elon musk', 'auto'],
+    },
+
+    # ==========================================================================
     # ECONOMIC INDICATORS
     # ==========================================================================
     'av_real_gdp': {
@@ -1073,6 +1154,130 @@ def get_stock_price(symbol: str) -> tuple:
     }
 
     return dates, values, info
+
+
+def get_company_fundamentals(symbol: str) -> dict:
+    """
+    Fetch company fundamentals including P/E ratio, market cap, etc.
+
+    Uses Alpha Vantage OVERVIEW endpoint to get valuation metrics.
+    Free tier: 25 requests/day.
+
+    Args:
+        symbol: Stock ticker symbol (e.g., 'AAPL', 'MSFT', 'SPY')
+
+    Returns:
+        Dict with fundamental data:
+        - pe_ratio: Trailing P/E ratio
+        - forward_pe: Forward P/E ratio
+        - peg_ratio: P/E to growth ratio
+        - price_to_book: Price to book value
+        - price_to_sales: Price to sales ratio
+        - eps: Earnings per share (TTM)
+        - market_cap: Market capitalization
+        - beta: Stock beta
+        - 52_week_high/low: 52-week range
+        - dividend_yield: Dividend yield %
+        - profit_margin: Profit margin %
+    """
+    params = {
+        'function': 'OVERVIEW',
+        'symbol': symbol.upper(),
+    }
+
+    data = _fetch_alphavantage(params)
+
+    if 'error' in data or not data:
+        return {'error': f'No fundamentals data for {symbol}'}
+
+    # Alpha Vantage returns "None" as string for missing values
+    def safe_float(val):
+        if val is None or val == 'None' or val == '-':
+            return None
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return None
+
+    fundamentals = {
+        'symbol': data.get('Symbol', symbol.upper()),
+        'name': data.get('Name', ''),
+        'description': data.get('Description', ''),
+        'sector': data.get('Sector', ''),
+        'industry': data.get('Industry', ''),
+
+        # Valuation metrics
+        'pe_ratio': safe_float(data.get('TrailingPE')),
+        'forward_pe': safe_float(data.get('ForwardPE')),
+        'peg_ratio': safe_float(data.get('PEGRatio')),
+        'price_to_book': safe_float(data.get('PriceToBookRatio')),
+        'price_to_sales': safe_float(data.get('PriceToSalesRatioTTM')),
+        'ev_to_ebitda': safe_float(data.get('EVToEBITDA')),
+
+        # Earnings & profitability
+        'eps': safe_float(data.get('EPS')),
+        'profit_margin': safe_float(data.get('ProfitMargin')),
+        'operating_margin': safe_float(data.get('OperatingMarginTTM')),
+        'return_on_equity': safe_float(data.get('ReturnOnEquityTTM')),
+        'return_on_assets': safe_float(data.get('ReturnOnAssetsTTM')),
+
+        # Market data
+        'market_cap': safe_float(data.get('MarketCapitalization')),
+        'beta': safe_float(data.get('Beta')),
+        '52_week_high': safe_float(data.get('52WeekHigh')),
+        '52_week_low': safe_float(data.get('52WeekLow')),
+
+        # Dividends
+        'dividend_yield': safe_float(data.get('DividendYield')),
+        'dividend_per_share': safe_float(data.get('DividendPerShare')),
+
+        # Growth
+        'revenue_growth': safe_float(data.get('QuarterlyRevenueGrowthYOY')),
+        'earnings_growth': safe_float(data.get('QuarterlyEarningsGrowthYOY')),
+
+        # Analyst estimates
+        'analyst_target_price': safe_float(data.get('AnalystTargetPrice')),
+    }
+
+    return fundamentals
+
+
+def get_market_pe_summary() -> dict:
+    """
+    Get P/E ratio summary for major market indices/ETFs.
+
+    Fetches fundamentals for SPY, QQQ, and key Mag7 stocks to provide
+    market valuation context for bubble/valuation questions.
+
+    Returns:
+        Dict with market valuation summary
+    """
+    symbols = ['SPY', 'QQQ', 'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN']
+    results = {}
+
+    for symbol in symbols:
+        fundamentals = get_company_fundamentals(symbol)
+        if 'error' not in fundamentals:
+            results[symbol] = {
+                'name': fundamentals.get('name', symbol),
+                'pe_ratio': fundamentals.get('pe_ratio'),
+                'forward_pe': fundamentals.get('forward_pe'),
+                'peg_ratio': fundamentals.get('peg_ratio'),
+                'market_cap': fundamentals.get('market_cap'),
+            }
+
+    # Calculate averages for Mag7
+    mag7_pes = [r['pe_ratio'] for s, r in results.items()
+                if s not in ['SPY', 'QQQ'] and r.get('pe_ratio')]
+    mag7_avg_pe = sum(mag7_pes) / len(mag7_pes) if mag7_pes else None
+
+    return {
+        'spy': results.get('SPY', {}),
+        'qqq': results.get('QQQ', {}),
+        'mag7_stocks': {k: v for k, v in results.items() if k not in ['SPY', 'QQQ']},
+        'mag7_avg_pe': mag7_avg_pe,
+        'timestamp': datetime.now().isoformat(),
+    }
 
 
 def search_alphavantage_series(query: str) -> list:

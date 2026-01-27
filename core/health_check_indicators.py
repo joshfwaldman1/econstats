@@ -59,9 +59,10 @@ HEALTH_CHECK_ENTITIES: Dict[str, HealthCheckConfig] = {
     "megacap_firms": HealthCheckConfig(
         name="Magnificent 7 / Big Tech",
         description="Performance of megacap tech stocks (Apple, Microsoft, Google, Amazon, Nvidia, Meta, Tesla)",
-        primary_series=["NASDAQCOM", "SP500", "CP"],
-        secondary_series=["DJIA", "VIXCLS"],
-        show_yoy=[False, False, True],  # Indices as levels, profits as YoY
+        # Alpha Vantage series for real-time daily data
+        primary_series=["av_qqq", "av_xlk", "av_nvda", "av_aapl", "av_msft"],
+        secondary_series=["av_spy", "av_googl", "av_amzn", "av_meta", "av_tsla"],
+        show_yoy=[False, False, False, False, False],  # Stock prices as levels
         keywords=[
             # Magnificent 7 / Big Tech (primary use case)
             "mag7", "mag 7", "magnificent 7", "magnificent seven", "big tech",
@@ -71,7 +72,7 @@ HEALTH_CHECK_ENTITIES: Dict[str, HealthCheckConfig] = {
             "corporations", "corporate", "big firms", "large firms", "us firms",
             "american companies", "fortune 500", "blue chip",
         ],
-        explanation="The Mag7 (Apple, Microsoft, Google, Amazon, Nvidia, Meta, Tesla) make up ~30% of S&P 500 and ~50% of NASDAQ by market cap. NASDAQ is the best proxy for their collective performance. Corporate profits show broader earnings health."
+        explanation="Using Alpha Vantage for real-time daily data. QQQ (NASDAQ-100) is ~50% Mag7 by weight. XLK is the tech sector ETF. Showing top Mag7 stocks: NVDA (AI leader), AAPL, MSFT. The Mag7 make up ~30% of S&P 500."
     ),
 
     "small_business": HealthCheckConfig(
