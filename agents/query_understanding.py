@@ -607,8 +607,9 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
     """
     Validate that proposed series match the query intent.
 
-    This is the "gut check" layer - if Gemini detected demographics but
-    the routing returned generic series, we override with correct ones.
+    This is the "gut check" layer - if Gemini detected specific entities
+    (demographics, sectors, regions) but the routing returned generic series,
+    we override with the correct specific series.
 
     Args:
         query_understanding: The Gemini analysis of the query
@@ -619,6 +620,8 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
         - valid: bool - whether the series are appropriate
         - corrected_series: list - correct series if invalid
         - reason: str - explanation of why correction was needed
+        - entity_type: str - type of entity (demographic, sector, region)
+        - entity_name: str - name of the specific entity
     """
     if not query_understanding:
         return {'valid': True, 'corrected_series': None, 'reason': None}
@@ -626,106 +629,150 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
     routing = query_understanding.get('routing', {})
     entities = query_understanding.get('entities', {})
     demographics = entities.get('demographics', [])
+    sectors = entities.get('sectors', [])
+    regions = entities.get('regions', [])
 
-    # If not demographic-specific, no validation needed
-    if not routing.get('is_demographic_specific') and not demographics:
-        return {'valid': True, 'corrected_series': None, 'reason': None}
-
-    # Map demographics to their FRED series
+    # =================================================================
+    # DEMOGRAPHIC SERIES MAPPING
+    # =================================================================
     DEMOGRAPHIC_SERIES = {
-        'women': {
-            'unemployment': 'LNS14000002',
-            'lfpr': 'LNS11300002',
-            'epop': 'LNS12300002',
-            'series': ['LNS14000002', 'LNS11300002', 'LNS12300002']
-        },
-        'female': {
-            'unemployment': 'LNS14000002',
-            'lfpr': 'LNS11300002',
-            'epop': 'LNS12300002',
-            'series': ['LNS14000002', 'LNS11300002', 'LNS12300002']
-        },
-        'men': {
-            'unemployment': 'LNS14000001',
-            'lfpr': 'LNS11300001',
-            'epop': 'LNS12300001',
-            'series': ['LNS14000001', 'LNS11300001', 'LNS12300001']
-        },
-        'male': {
-            'unemployment': 'LNS14000001',
-            'lfpr': 'LNS11300001',
-            'epop': 'LNS12300001',
-            'series': ['LNS14000001', 'LNS11300001', 'LNS12300001']
-        },
-        'black': {
-            'unemployment': 'LNS14000006',
-            'lfpr': 'LNS11300006',
-            'epop': 'LNS12300006',
-            'series': ['LNS14000006', 'LNS11300006', 'LNS12300006']
-        },
-        'african american': {
-            'unemployment': 'LNS14000006',
-            'lfpr': 'LNS11300006',
-            'epop': 'LNS12300006',
-            'series': ['LNS14000006', 'LNS11300006', 'LNS12300006']
-        },
-        'hispanic': {
-            'unemployment': 'LNS14000009',
-            'lfpr': 'LNS11300009',
-            'epop': 'LNS12300009',
-            'series': ['LNS14000009', 'LNS11300009', 'LNS12300009']
-        },
-        'latino': {
-            'unemployment': 'LNS14000009',
-            'lfpr': 'LNS11300009',
-            'epop': 'LNS12300009',
-            'series': ['LNS14000009', 'LNS11300009', 'LNS12300009']
-        },
-        'asian': {
-            'unemployment': 'LNS14000004',
-            'lfpr': 'LNS11300004',
-            'epop': 'LNS12300004',
-            'series': ['LNS14000004', 'LNS11300004', 'LNS12300004']
-        },
-        'youth': {
-            'unemployment': 'LNS14000012',
-            'lfpr': 'LNS11300012',
-            'series': ['LNS14000012', 'LNS14000036']
-        },
-        'teen': {
-            'unemployment': 'LNS14000012',
-            'series': ['LNS14000012']
-        },
-        'veteran': {
-            'unemployment': 'LNS14049526',
-            'series': ['LNS14049526']
-        }
+        'women': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
+        'female': ['LNS14000002', 'LNS11300002', 'LNS12300002'],
+        'men': ['LNS14000001', 'LNS11300001', 'LNS12300001'],
+        'male': ['LNS14000001', 'LNS11300001', 'LNS12300001'],
+        'black': ['LNS14000006', 'LNS11300006', 'LNS12300006'],
+        'african american': ['LNS14000006', 'LNS11300006', 'LNS12300006'],
+        'hispanic': ['LNS14000009', 'LNS11300009', 'LNS12300009'],
+        'latino': ['LNS14000009', 'LNS11300009', 'LNS12300009'],
+        'latina': ['LNS14000009', 'LNS11300009', 'LNS12300009'],
+        'asian': ['LNS14000004', 'LNS11300004', 'LNS12300004'],
+        'white': ['LNS14000003', 'LNS11300003', 'LNS12300003'],
+        'youth': ['LNS14000012', 'LNS14000036'],
+        'teen': ['LNS14000012'],
+        'veteran': ['LNS14049526'],
     }
 
-    # Generic series that should NOT be used for demographic queries
-    GENERIC_SERIES = {'UNRATE', 'PAYEMS', 'LNS12300060', 'CIVPART', 'EMRATIO'}
+    # =================================================================
+    # SECTOR SERIES MAPPING
+    # =================================================================
+    SECTOR_SERIES = {
+        'manufacturing': ['MANEMP', 'IPMAN', 'AWHMAN', 'CES3000000001'],
+        'construction': ['USCONS', 'HOUST', 'PERMIT', 'CES2000000001'],
+        'retail': ['USTRADE', 'RSXFS', 'RETAILSMNSA', 'CES4200000001'],
+        'restaurants': ['CES7072200001', 'USHOSLEMPL'],
+        'hospitality': ['USLAH', 'CES7000000001'],
+        'leisure': ['USLAH', 'CES7000000001'],
+        'healthcare': ['USHEALTHEMPL', 'CES6562000001'],
+        'tech': ['USINFO', 'CES5000000001'],
+        'technology': ['USINFO', 'CES5000000001'],
+        'information': ['USINFO', 'CES5000000001'],
+        'finance': ['USFIRE', 'CES5500000001'],
+        'financial': ['USFIRE', 'CES5500000001'],
+        'government': ['USGOVT', 'CES9000000001'],
+        'education': ['CES6561000001', 'CES9091000001'],
+        'mining': ['USMINE', 'CES1000000001'],
+        'energy': ['CES1021100001', 'DCOILWTICO', 'GASREGW'],
+        'transportation': ['USTPU', 'CES4300000001'],
+        'professional services': ['USPBS', 'CES6000000001'],
+        'business services': ['USPBS', 'CES6000000001'],
+    }
 
-    # Check if any detected demographic has appropriate series
-    for demo in demographics:
-        demo_lower = demo.lower()
-        if demo_lower in DEMOGRAPHIC_SERIES:
-            expected_series = set(DEMOGRAPHIC_SERIES[demo_lower]['series'])
-            proposed_set = set(proposed_series)
+    # =================================================================
+    # TOPIC-SPECIFIC SERIES MAPPING
+    # =================================================================
+    TOPIC_SERIES = {
+        'housing': ['CSUSHPINSA', 'HOUST', 'MORTGAGE30US', 'EXHOSLUSM495S'],
+        'rent': ['CUSR0000SEHA', 'CUUR0000SEHA'],
+        'inflation': ['CPIAUCSL', 'CPILFESL', 'PCEPI', 'PCEPILFE'],
+        'wages': ['CES0500000003', 'AHETPI', 'ECIWAG'],
+        'gas': ['GASREGW', 'GASREGCOVW'],
+        'oil': ['DCOILWTICO', 'DCOILBRENTEU'],
+        'interest rates': ['FEDFUNDS', 'DFF', 'DGS10', 'DGS2'],
+        'fed': ['FEDFUNDS', 'DFF', 'WALCL'],
+        'savings': ['PSAVERT', 'PMSAVE'],
+        'consumer': ['UMCSENT', 'PCE', 'RSXFS'],
+        'credit': ['TOTALSL', 'REVOLSL', 'NONREVSL'],
+        'debt': ['GFDEBTN', 'HDTGPDUSQ163N', 'TDSP'],
+    }
 
-            # Check if proposed series includes ANY demographic-specific series
-            has_demographic_series = bool(expected_series & proposed_set)
+    # Generic series that should NOT be used for specific queries
+    GENERIC_LABOR_SERIES = {'UNRATE', 'PAYEMS', 'LNS12300060', 'CIVPART', 'EMRATIO'}
 
-            # Check if proposed series is mostly generic
-            generic_count = len(proposed_set & GENERIC_SERIES)
-            is_mostly_generic = generic_count > 0 and not has_demographic_series
+    proposed_set = set(proposed_series) if proposed_series else set()
 
-            if is_mostly_generic or not has_demographic_series:
-                return {
-                    'valid': False,
-                    'corrected_series': DEMOGRAPHIC_SERIES[demo_lower]['series'],
-                    'reason': f"Query is about {demo} but routing returned generic series. Using {demo}-specific data instead.",
-                    'demographic': demo
-                }
+    # =================================================================
+    # CHECK DEMOGRAPHICS
+    # =================================================================
+    if demographics:
+        for demo in demographics:
+            demo_lower = demo.lower()
+            if demo_lower in DEMOGRAPHIC_SERIES:
+                expected = set(DEMOGRAPHIC_SERIES[demo_lower])
+                has_specific = bool(expected & proposed_set)
+                has_generic = bool(GENERIC_LABOR_SERIES & proposed_set)
+
+                if not has_specific and (has_generic or not proposed_set):
+                    return {
+                        'valid': False,
+                        'corrected_series': DEMOGRAPHIC_SERIES[demo_lower],
+                        'reason': f"Query is about {demo} but routing returned generic labor data. Using {demo}-specific series.",
+                        'entity_type': 'demographic',
+                        'entity_name': demo
+                    }
+
+    # =================================================================
+    # CHECK SECTORS
+    # =================================================================
+    if sectors and routing.get('is_sector_specific'):
+        for sector in sectors:
+            sector_lower = sector.lower()
+            if sector_lower in SECTOR_SERIES:
+                expected = set(SECTOR_SERIES[sector_lower])
+                has_specific = bool(expected & proposed_set)
+
+                if not has_specific and not proposed_set:
+                    return {
+                        'valid': False,
+                        'corrected_series': SECTOR_SERIES[sector_lower],
+                        'reason': f"Query is about {sector} sector but no sector-specific data found. Using {sector} employment series.",
+                        'entity_type': 'sector',
+                        'entity_name': sector
+                    }
+
+    # =================================================================
+    # CHECK DATA REQUIREMENTS FROM GEMINI
+    # =================================================================
+    data_reqs = query_understanding.get('data_requirements', {})
+    indicators_needed = data_reqs.get('indicators_needed', [])
+
+    # If Gemini explicitly said what indicators are needed, check if we have them
+    if indicators_needed and data_reqs.get('must_be_group_specific'):
+        # This is a strong signal that generic data won't work
+        if proposed_set and proposed_set.issubset(GENERIC_LABOR_SERIES):
+            # We're returning only generic data but Gemini said we need specific
+            # Try to infer what's needed from the indicators list
+            for indicator in indicators_needed:
+                indicator_lower = indicator.lower()
+                # Check if indicator mentions a demographic
+                for demo, series in DEMOGRAPHIC_SERIES.items():
+                    if demo in indicator_lower:
+                        return {
+                            'valid': False,
+                            'corrected_series': series,
+                            'reason': f"Query requires '{indicator}' but got generic data. Using {demo}-specific series.",
+                            'entity_type': 'demographic',
+                            'entity_name': demo
+                        }
+                # Check if indicator mentions a sector
+                for sector, series in SECTOR_SERIES.items():
+                    if sector in indicator_lower:
+                        return {
+                            'valid': False,
+                            'corrected_series': series,
+                            'reason': f"Query requires '{indicator}' but got generic data. Using {sector} sector series.",
+                            'entity_type': 'sector',
+                            'entity_name': sector
+                        }
 
     return {'valid': True, 'corrected_series': None, 'reason': None}
 

@@ -8152,13 +8152,14 @@ def main():
         holistic = is_holistic_query(query)
 
         # =================================================================
-        # DEMOGRAPHIC VALIDATION - "Gut Check" Layer
+        # QUERY VALIDATION - "Gut Check" Layer
         # =================================================================
-        # If Gemini detected demographics (women, Black, Hispanic, etc.) but
-        # the routing returned generic series, OVERRIDE with correct series.
-        # This prevents showing UNRATE for "how are women doing?" queries.
+        # If Gemini detected specific entities (demographics, sectors, regions)
+        # but the routing returned generic series, OVERRIDE with correct ones.
+        # This prevents showing UNRATE for "how are women doing?" or generic
+        # payrolls for "how is manufacturing doing?" queries.
         # =================================================================
-        demographic_override = None
+        query_override = None
         if query_understanding and QUERY_UNDERSTANDING_AVAILABLE:
             # Get proposed series from whatever plan was found
             proposed_series = []
@@ -8172,17 +8173,33 @@ def main():
             # Validate against query understanding
             validation = validate_series_for_query(query_understanding, proposed_series)
             if not validation['valid']:
-                print(f"[Demographic Validation] {validation['reason']}")
-                demographic_override = {
+                entity_type = validation.get('entity_type', 'entity')
+                entity_name = validation.get('entity_name', 'specific')
+                print(f"[Query Validation] {validation['reason']}")
+
+                query_override = {
                     'series': validation['corrected_series'],
                     'reason': validation['reason'],
-                    'demographic': validation.get('demographic')
+                    'entity_type': entity_type,
+                    'entity_name': entity_name
                 }
+
+                # Build appropriate explanation based on entity type
+                if entity_type == 'demographic':
+                    explanation = f"Labor market data for {entity_name}."
+                    entity_key = f"{entity_name}_workers"
+                elif entity_type == 'sector':
+                    explanation = f"Employment and activity data for the {entity_name} sector."
+                    entity_key = f"{entity_name}_sector"
+                else:
+                    explanation = f"Data for {entity_name}."
+                    entity_key = entity_name
+
                 # Force use of corrected series via health_check path
                 health_check_plan = {
                     'series': validation['corrected_series'],
-                    'explanation': f"Labor market data for {validation.get('demographic', 'this demographic group')}.",
-                    'entity': f"{validation.get('demographic', 'demographic')}_workers",
+                    'explanation': explanation,
+                    'entity': entity_key,
                     'validated_override': True
                 }
                 # Clear other plans to ensure we use the validated series
