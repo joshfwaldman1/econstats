@@ -7720,7 +7720,24 @@ def main():
             else:
                 # Assistant message with summary and charts - Dashboard layout
                 with st.chat_message("assistant"):
-                    # Key metrics row FIRST (above summary)
+                    # =================================================================
+                    # SUMMARY FIRST (like Streamlit version)
+                    # Single narrative - no redundancy between explanation and analysis
+                    # =================================================================
+
+                    # Show EITHER premium analysis OR basic explanation (not both)
+                    has_premium_analysis = msg.get("premium_analysis_html") and PREMIUM_ANALYSIS_AVAILABLE
+
+                    if has_premium_analysis:
+                        # Premium analysis is richer - show it as the main content
+                        analysis_html = msg["premium_analysis_html"]
+                        st.markdown(f"""<div style='margin: 8px 0 16px 0;'>{analysis_html}</div>""", unsafe_allow_html=True)
+                    elif msg.get("explanation"):
+                        # Fallback to basic explanation if no premium analysis
+                        explanation_text = msg['explanation']
+                        st.markdown(f"""<div style='font-size: 0.95rem; line-height: 1.7; color: #1f2937; margin: 8px 0 16px 0;'>{explanation_text}</div>""", unsafe_allow_html=True)
+
+                    # Key metrics row (after summary)
                     if msg.get("series_data"):
                         series_data = msg["series_data"]
                         # Filter out secondary series from metric boxes (they still show in charts)
@@ -7792,23 +7809,6 @@ def main():
                                     else:
                                         val_str = f"{display_val:,.2f}"
                                     st.metric(label=name, value=val_str, delta=delta, delta_color=delta_color)
-
-                    # =================================================================
-                    # RAILWAY-STYLE MINIMAL LAYOUT
-                    # Single narrative - no redundancy between explanation and analysis
-                    # =================================================================
-
-                    # Show EITHER premium analysis OR basic explanation (not both)
-                    has_premium_analysis = msg.get("premium_analysis_html") and PREMIUM_ANALYSIS_AVAILABLE
-
-                    if has_premium_analysis:
-                        # Premium analysis is richer - show it as the main content
-                        analysis_html = msg["premium_analysis_html"]
-                        st.markdown(f"""<div style='margin: 8px 0 16px 0;'>{analysis_html}</div>""", unsafe_allow_html=True)
-                    elif msg.get("explanation"):
-                        # Fallback to basic explanation if no premium analysis
-                        explanation_text = msg['explanation']
-                        st.markdown(f"""<div style='font-size: 0.95rem; line-height: 1.7; color: #1f2937; margin: 8px 0 16px 0;'>{explanation_text}</div>""", unsafe_allow_html=True)
 
                     # Coverage disclaimer - shown when we're displaying proxy data
                     if msg.get("coverage_disclaimer"):
