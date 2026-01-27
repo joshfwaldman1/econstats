@@ -509,19 +509,21 @@ def _rule_based_understanding(query: str) -> Dict:
         'pitfalls': []
     }
 
-    # Detect demographics
+    # Detect demographics - use word boundaries to avoid false matches
+    # e.g., "men" should not match "unemployment"
+    import re
     demographic_patterns = {
-        'black': ['black', 'african american', 'african-american'],
-        'hispanic': ['hispanic', 'latino', 'latina'],
-        'women': ['women', 'female', 'woman'],
-        'men': ['men', 'male', 'man '],
-        'youth': ['youth', 'young', 'teen', 'teenage'],
-        'veteran': ['veteran'],
-        'immigrant': ['immigrant', 'foreign-born', 'foreign born']
+        'black': [r'\bblack\b', r'\bafrican american\b', r'\bafrican-american\b'],
+        'hispanic': [r'\bhispanic\b', r'\blatino\b', r'\blatina\b'],
+        'women': [r'\bwomen\b', r'\bfemale\b', r'\bwoman\b'],
+        'men': [r'\bmen\b', r'\bmale\b', r'\bman\b'],
+        'youth': [r'\byouth\b', r'\byoung workers\b', r'\bteen\b', r'\bteenage\b'],
+        'veteran': [r'\bveteran\b'],
+        'immigrant': [r'\bimmigrant\b', r'\bforeign-born\b', r'\bforeign born\b']
     }
 
     for demo_key, patterns in demographic_patterns.items():
-        if any(p in query_lower for p in patterns):
+        if any(re.search(p, query_lower) for p in patterns):
             result['entities']['demographics'].append(demo_key)
             result['routing']['is_demographic_specific'] = True
             result['data_requirements']['must_be_group_specific'] = True
@@ -723,18 +725,21 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
     # =================================================================
     # CHECK SECTORS
     # =================================================================
-    if sectors and routing.get('is_sector_specific'):
+    # Trigger when sectors detected - don't require is_sector_specific flag
+    if sectors:
         for sector in sectors:
             sector_lower = sector.lower()
             if sector_lower in SECTOR_SERIES:
                 expected = set(SECTOR_SERIES[sector_lower])
                 has_specific = bool(expected & proposed_set)
+                has_generic = bool(GENERIC_LABOR_SERIES & proposed_set)
 
-                if not has_specific and not proposed_set:
+                # Override if we have generic labor series but not sector-specific
+                if not has_specific and (has_generic or not proposed_set):
                     return {
                         'valid': False,
                         'corrected_series': SECTOR_SERIES[sector_lower],
-                        'reason': f"Query is about {sector} sector but no sector-specific data found. Using {sector} employment series.",
+                        'reason': f"Query is about {sector} sector but routing returned generic data. Using {sector}-specific series.",
                         'entity_type': 'sector',
                         'entity_name': sector
                     }
