@@ -425,12 +425,12 @@ QUERY_MAP = {
     'core inflation': {'series': ['CPILFESL'], 'combine': False},
     'pce': {'series': ['PCEPI', 'PCEPILFE'], 'combine': True},
     'fed inflation': {'series': ['PCEPILFE'], 'combine': False},
-    'rent inflation': {'series': ['CUSR0000SAH1'], 'combine': False},
-    'shelter': {'series': ['CUSR0000SAH1'], 'combine': False},
-    'rents': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'combine': True},
-    'rent': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'combine': True},
-    'how have rents changed': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'combine': True},
-    'rental prices': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'combine': True},
+    'rent inflation': {'series': ['CUSR0000SAH1'], 'show_yoy': True, 'combine': False},
+    'shelter': {'series': ['CUSR0000SAH1'], 'show_yoy': True, 'combine': False},
+    'rents': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'show_yoy': True, 'combine': True},
+    'rent': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'show_yoy': True, 'combine': True},
+    'how have rents changed': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'show_yoy': True, 'combine': True},
+    'rental prices': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'show_yoy': True, 'combine': True},
 
     # GDP - Annual (YoY), quarterly, core GDP, and GDPNow
     # GDP queries - use only quarterly for main view (JSON plans have full breakdown with chart_groups)
@@ -524,11 +524,13 @@ def classify_query_intent(query: str, available_topics: list) -> str:
             max_tokens=50,
             messages=[{
                 "role": "user",
-                "content": f"""Given the user's economic data question, pick the single best matching topic from this list.
+                "content": f"""Given the user's economic/financial data question, pick the single best matching topic from this list.
 
 Question: "{query}"
 
 Available topics: {topics_str}
+
+Note: We have data from FRED (economic), Zillow (housing/rent), stock market, energy prices, and more.
 
 Reply with ONLY the exact topic name that best matches, or "none" if nothing fits. No explanation."""
             }]
@@ -689,35 +691,47 @@ def get_series_via_claude(query: str) -> dict:
         }
     ]
 
-    system_prompt = """You are an economist assistant helping users find FRED data.
+    system_prompt = """You are an economist assistant helping users find economic and financial data.
 
-IMPORTANT WORKFLOW:
-1. Call search_fred ONCE to find relevant series
-2. Call select_series IMMEDIATELY after to pick 1-4 series from the results
-3. Do NOT search multiple times - one search, then select
+AVAILABLE DATA SOURCES (not just FRED!):
+1. **FRED** - Federal Reserve Economic Data (search_fred tool)
+   - Employment, GDP, inflation, interest rates, international data
+   - Use series IDs like: UNRATE, PAYEMS, CPIAUCSL, FEDFUNDS, GDP
 
-SEARCH TIPS - Use these search terms for common topics:
-- Rent/housing costs: search "CPI rent" or "shelter" (gets CUSR0000SEHA, CUSR0000SAH1)
-- Home prices: search "case shiller" (gets CSUSHPINSA)
-- Wages: search "average hourly earnings" or "employment cost index"
-- Retail: search "retail sales"
-- Manufacturing: search "industrial production" or "manufacturing employment"
-- Consumer spending: search "personal consumption" or "retail sales"
-- Business investment: search "private fixed investment" or "nonresidential"
+2. **Zillow** - Real-time housing data (use series IDs starting with "zillow_")
+   - zillow_zhvi_national: National home values (~$360K)
+   - zillow_home_value_yoy: Home price YoY change
+   - zillow_zori_national: National asking rents (~$2,100/mo)
+   - zillow_rent_yoy: Rent YoY change (LEADS CPI rent by 12 months!)
 
-FRED has international data (not just U.S.). Search for exactly what the user asks.
+3. **Alpha Vantage** - Stock market data (use series IDs starting with "av_")
+   - av_SPY, av_QQQ, av_AAPL, av_MSFT, etc. (any ticker)
+   - For "how are stocks doing" or company-specific queries
 
-Selection criteria: prefer seasonally adjusted, monthly/quarterly frequency, high popularity.
+4. **Shiller CAPE** - Stock market valuation
+   - For bubble/valuation queries, the system auto-includes CAPE ratio
+
+5. **EIA** - Energy data (use series IDs starting with "eia_")
+   - eia_gasoline_price: Retail gas prices
+   - eia_crude_oil: Crude oil prices
+
+WORKFLOW:
+1. Call search_fred to find FRED series (if needed)
+2. Call select_series with your chosen series - can include zillow_*, av_*, eia_* IDs directly!
+
+SEARCH TIPS for FRED:
+- Rent/housing costs: "CPI rent" or "shelter" (CUSR0000SEHA, CUSR0000SAH1)
+- Home prices: "case shiller" (CSUSHPINSA) - OR use zillow_zhvi_national for real-time
+- Wages: "average hourly earnings"
+- Manufacturing: "industrial production"
 
 CRITICAL - show_yoy rules:
-- show_yoy=False for rates/percentages (unemployment rate, interest rates, inflation rates, etc.) - these are ALREADY rates, don't take % change of a %
-- show_yoy=True for levels/indexes (GDP, employment counts, price indexes, production indexes) - convert to growth rates
-- When in doubt, show_yoy=False is safer
+- show_yoy=True for price INDEXES (CPI, home prices, rent CPI) - raw index values are meaningless
+- show_yoy=True for LEVELS (GDP dollars, employment counts, production indexes)
+- show_yoy=False for RATES (unemployment %, interest rates, inflation rates that are already %)
+- When showing Zillow YoY series (zillow_rent_yoy, zillow_home_value_yoy), show_yoy=False (already YoY)
 
-CRITICAL - display_names rules:
-- Always specify "Real" for inflation-adjusted GDP (e.g., "Norway Real GDP" not "Norway GDP")
-- Always specify the country (e.g., "Norway Unemployment Rate" not just "Unemployment Rate")
-- Keep names short but precise (e.g., "Norway CPI Inflation", "Norway 3-Month Rate")"""
+CRITICAL - display_names: Keep short but precise. Include country for international data."""
 
     try:
         client = Anthropic(api_key=ANTHROPIC_API_KEY)
