@@ -427,6 +427,10 @@ QUERY_MAP = {
     'fed inflation': {'series': ['PCEPILFE'], 'combine': False},
     'rent inflation': {'series': ['CUSR0000SAH1'], 'combine': False},
     'shelter': {'series': ['CUSR0000SAH1'], 'combine': False},
+    'rents': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'combine': True},
+    'rent': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'combine': True},
+    'how have rents changed': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'combine': True},
+    'rental prices': {'series': ['CUSR0000SEHA', 'CUSR0000SAH1'], 'combine': True},
 
     # GDP - Annual (YoY), quarterly, core GDP, and GDPNow
     # GDP queries - use only quarterly for main view (JSON plans have full breakdown with chart_groups)
@@ -489,8 +493,9 @@ def normalize_query(query: str) -> str:
     q = query.lower().strip()
     fillers = [
         r'^what is\s+', r'^what are\s+', r'^show me\s+', r'^show\s+',
-        r'^tell me about\s+', r'^how is\s+', r'^how are\s+',
+        r'^tell me about\s+', r'^how is\s+', r'^how are\s+', r'^how has\s+', r'^how have\s+',
         r'^what\'s\s+', r'^whats\s+', r'^give me\s+',
+        r'\s+changed\s*$', r'\s+doing\s*$', r'\s+looking\s*$', r'\s+trending\s*$',
         r'\?$', r'\.+$', r'\s+the\s+', r'^the\s+'
     ]
     for filler in fillers:
