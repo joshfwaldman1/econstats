@@ -504,13 +504,59 @@ def normalize_query(query: str) -> str:
     return q
 
 
+def classify_query_intent(query: str, available_topics: list) -> str:
+    """Use LLM to understand what topic the user is asking about.
+
+    This is a fast, cheap call that routes queries intelligently.
+    Returns the best matching topic from available_topics, or None.
+    """
+    if not ANTHROPIC_API_KEY:
+        return None
+
+    try:
+        client = Anthropic(api_key=ANTHROPIC_API_KEY)
+
+        # Create a condensed list of topics (sample if too many)
+        topics_str = ", ".join(available_topics[:100])
+
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=50,
+            messages=[{
+                "role": "user",
+                "content": f"""Given the user's economic data question, pick the single best matching topic from this list.
+
+Question: "{query}"
+
+Available topics: {topics_str}
+
+Reply with ONLY the exact topic name that best matches, or "none" if nothing fits. No explanation."""
+            }]
+        )
+
+        result = response.content[0].text.strip().lower()
+        print(f"[Intent] Query '{query}' -> classified as '{result}'")
+
+        if result != "none" and result in [t.lower() for t in available_topics]:
+            # Find the original casing
+            for topic in available_topics:
+                if topic.lower() == result:
+                    return topic
+        return None
+
+    except Exception as e:
+        print(f"[Intent] Classification error: {e}")
+        return None
+
+
 def find_query_plan(query: str):
     """Find matching query plan.
 
     Priority order:
-    1. QUERY_PLANS (JSON files - richer series selections, 4-6 series per topic)
-    2. QUERY_MAP (fallback for queries not in JSON files)
-    3. Fuzzy matching on both
+    1. Exact match in QUERY_PLANS or QUERY_MAP
+    2. Normalized match
+    3. Fuzzy match
+    4. LLM intent classification (if no match found)
     """
     normalized = normalize_query(query)
     original_lower = query.lower().strip()
@@ -537,6 +583,19 @@ def find_query_plan(query: str):
     matches = difflib.get_close_matches(normalized, list(QUERY_MAP.keys()), n=1, cutoff=0.7)
     if matches:
         return QUERY_MAP[matches[0]]
+
+    # PRIORITY 4: LLM intent classification
+    # Combine all available topics from both sources
+    all_topics = list(QUERY_PLANS.keys()) + list(QUERY_MAP.keys())
+    classified_topic = classify_query_intent(query, all_topics)
+
+    if classified_topic:
+        if classified_topic in QUERY_PLANS:
+            print(f"[Intent] Routed to QUERY_PLANS['{classified_topic}']")
+            return QUERY_PLANS[classified_topic]
+        elif classified_topic in QUERY_MAP:
+            print(f"[Intent] Routed to QUERY_MAP['{classified_topic}']")
+            return QUERY_MAP[classified_topic]
 
     return None
 
@@ -636,6 +695,15 @@ IMPORTANT WORKFLOW:
 1. Call search_fred ONCE to find relevant series
 2. Call select_series IMMEDIATELY after to pick 1-4 series from the results
 3. Do NOT search multiple times - one search, then select
+
+SEARCH TIPS - Use these search terms for common topics:
+- Rent/housing costs: search "CPI rent" or "shelter" (gets CUSR0000SEHA, CUSR0000SAH1)
+- Home prices: search "case shiller" (gets CSUSHPINSA)
+- Wages: search "average hourly earnings" or "employment cost index"
+- Retail: search "retail sales"
+- Manufacturing: search "industrial production" or "manufacturing employment"
+- Consumer spending: search "personal consumption" or "retail sales"
+- Business investment: search "private fixed investment" or "nonresidential"
 
 FRED has international data (not just U.S.). Search for exactly what the user asks.
 
