@@ -335,8 +335,9 @@ SERIES_DB = {
         'source': 'Federal Reserve Bank of St. Louis',
         'data_type': 'spread',  # Spread - never apply YoY
         'bullets': [
-            'The difference between 10-year and 2-year Treasury yields—a key recession indicator.',
-            'When negative (inverted), it has preceded every recession since the 1970s, typically by 12-18 months.'
+            'WHY IT MATTERS: When short-term rates exceed long-term rates (inversion), it signals markets expect the Fed\'s tight policy will slow growth—historically a reliable recession warning.',
+            'The 2022-2024 inversion was the longest since the 1980s, yet no recession followed—possibly due to post-COVID resilience, strong labor markets, and excess savings cushioning the economy.',
+            'Preceded every recession since 1970, but the recent "false signal" raises questions about whether structural changes have weakened its predictive power.'
         ]
     },
     'ICSA': {

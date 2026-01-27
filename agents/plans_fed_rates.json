@@ -142,7 +142,7 @@
     "show_yoy": false,
     "combine_chart": true,
     "is_comparison": true,
-    "explanation": "The yield curve shows Treasury yields across maturities. Normally it slopes up (longer = higher yield for locking up money). When inverted (short rates exceed long), it's a recession warning - markets expect the Fed to cut rates. The 2Y-10Y spread is the classic indicator; 3-month to 10-year is the NY Fed's preferred measure."
+    "explanation": "**WHY IT MATTERS:** The yield curve shows Treasury yields across maturities. Normally it slopes UP (longer = higher yield for locking up money longer). When INVERTED (short rates exceed long), it signals tight Fed policy + weak growth expectations—a recipe that preceded every recession since 1970.\n\n**IMPORTANT CAVEAT:** The 2022-2024 inversion was the deepest and longest since the 1980s, yet no recession followed. Post-COVID labor market strength and excess savings may have changed the signal's reliability."
   },
   "inverted yield curve": {
     "series": [
@@ -150,7 +150,7 @@
     ],
     "show_yoy": false,
     "combine_chart": true,
-    "explanation": "The 10-year minus 2-year Treasury spread (T10Y2Y) is the classic measure of yield curve inversion. When this spread turns negative, it indicates the yield curve is inverted - a historically reliable recession predictor. This single series directly shows inversion periods when it drops below zero."
+    "explanation": "**WHY INVERSION SIGNALS RECESSION:** When short-term rates exceed long-term rates, it means: (1) The Fed has raised rates aggressively (pushing up the short end), and (2) Markets expect this tight policy will slow growth/inflation (keeping long rates low). This combination historically caused recessions.\n\n**THE 2022-2024 EXCEPTION:** The curve inverted for nearly 2 years—the longest since the 1980s—yet no recession followed. Strong labor markets, excess pandemic savings, and fiscal stimulus may have broken the pattern. Some argue it's 'different this time'; others say the lag is just longer."
   },
   "bond yields": {
     "series": [
@@ -383,7 +383,7 @@
     ],
     "show_yoy": false,
     "combine_chart": true,
-    "explanation": "The 10-year minus 2-year Treasury spread (T10Y2Y) is the classic and most reliable indicator of yield curve inversion. When this spread goes negative, it signals that short-term rates exceed long-term rates, which historically has been one of the most accurate predictors of economic recession. The 2-year Treasury is particularly sensitive to Fed policy expectations, while the 10-year reflects longer-term economic growth and inflation expectations."
+    "explanation": "**THE MECHANISM:** When 2-year yields exceed 10-year yields (negative spread), it means markets expect the Fed's aggressive rate hikes will eventually force rate CUTS—typically because they expect the tight policy to cause a recession. The 2-year is sensitive to Fed policy; the 10-year reflects growth/inflation outlook.\n\n**TRACK RECORD:** Preceded every recession since 1970 with a 12-18 month lead time.\n\n**2022-2024 EXCEPTION:** The curve inverted in July 2022 and stayed inverted for nearly 2 years—the longest since the 1980s. Yet as of early 2025, no recession materialized. Strong jobs, excess savings, and fiscal stimulus may have broken the historical pattern."
   },
   "10-year vs 2-year treasury": {
     "series": [
