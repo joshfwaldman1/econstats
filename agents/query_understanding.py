@@ -22,8 +22,8 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any
 from urllib.request import urlopen, Request
 
-# API Key
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+# API Key - check both GEMINI_API_KEY and GOOGLE_API_KEY for compatibility
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get("GOOGLE_API_KEY", "")
 
 # Cache for query understanding results (1-hour TTL)
 # This avoids repeated expensive Gemini calls for similar queries

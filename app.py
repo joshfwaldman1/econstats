@@ -6922,6 +6922,29 @@ def summary_to_bullets(text):
 
 
 def main():
+    # Startup diagnostics - helps debug Railway deployments
+    print("=" * 60)
+    print("EconStats Starting Up")
+    print("=" * 60)
+    print(f"FRED_API_KEY: {'set' if os.environ.get('FRED_API_KEY') else 'MISSING'}")
+    print(f"ANTHROPIC_API_KEY: {'set' if os.environ.get('ANTHROPIC_API_KEY') else 'MISSING'}")
+    print(f"GEMINI/GOOGLE_API_KEY: {'set' if (os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')) else 'MISSING'}")
+    print(f"ALPHAVANTAGE_API_KEY: {'set' if os.environ.get('ALPHAVANTAGE_API_KEY') else 'MISSING'}")
+    print(f"EIA_API_KEY: {'set' if os.environ.get('EIA_API_KEY') else 'optional (not set)'}")
+    print("-" * 60)
+    print(f"JUDGMENT_LAYER_AVAILABLE: {JUDGMENT_LAYER_AVAILABLE}")
+    print(f"ALPHAVANTAGE_AVAILABLE: {ALPHAVANTAGE_AVAILABLE}")
+    print(f"SHILLER_AVAILABLE: {SHILLER_AVAILABLE}")
+    print(f"RECESSION_SCORECARD_AVAILABLE: {RECESSION_SCORECARD_AVAILABLE}")
+    print(f"POLYMARKET_AVAILABLE: {POLYMARKET_AVAILABLE}")
+    print(f"PREMIUM_ANALYSIS_AVAILABLE: {PREMIUM_ANALYSIS_AVAILABLE}")
+    print(f"HEALTH_CHECK_AVAILABLE: {HEALTH_CHECK_AVAILABLE}")
+    print(f"DBNOMICS_AVAILABLE: {DBNOMICS_AVAILABLE}")
+    print(f"ZILLOW_AVAILABLE: {ZILLOW_AVAILABLE}")
+    print(f"EIA_AVAILABLE: {EIA_AVAILABLE}")
+    print(f"SEP_AVAILABLE: {SEP_AVAILABLE}")
+    print("=" * 60)
+
     # Clean up expired cache entries to prevent memory bloat
     _clear_expired_cache()
 

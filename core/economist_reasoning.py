@@ -21,8 +21,8 @@ import re
 from typing import Optional
 from urllib.request import urlopen, Request
 
-# API Keys
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+# API Keys - check both GEMINI_API_KEY and GOOGLE_API_KEY for compatibility
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get("GOOGLE_API_KEY", "")
 
 # =============================================================================
 # DIRECT DATA MAPPINGS
