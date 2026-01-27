@@ -515,6 +515,8 @@ def _rule_based_understanding(query: str) -> Dict:
     demographic_patterns = {
         'black': [r'\bblack\b', r'\bafrican american\b', r'\bafrican-american\b'],
         'hispanic': [r'\bhispanic\b', r'\blatino\b', r'\blatina\b'],
+        'asian': [r'\basian\b', r'\basian american\b'],
+        'white': [r'\bwhite\b', r'\bcaucasian\b'],
         'women': [r'\bwomen\b', r'\bfemale\b', r'\bwoman\b'],
         'men': [r'\bmen\b', r'\bmale\b', r'\bman\b'],
         'youth': [r'\byouth\b', r'\byoung workers\b', r'\bteen\b', r'\bteenage\b'],
