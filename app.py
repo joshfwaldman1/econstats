@@ -3992,9 +3992,12 @@ def suggest_chart_groups(series_ids: list) -> list:
     # Categorize series by type
     rates_quarterly = []  # Quarterly GDP rates (SAAR)
     rates_annual = []     # Annual/YoY GDP rates
-    rates_unemployment = []  # Unemployment rates (LNS14xxx)
-    rates_lfpr = []  # Labor force participation rates (LNS113xxx)
-    rates_epop = []  # Employment-population ratios (LNS123xxx)
+    rates_unemployment_prime = []  # Prime-age unemployment rates (25-54)
+    rates_unemployment_all = []    # All-ages unemployment rates (16+)
+    rates_lfpr_prime = []  # Prime-age LFPR (25-54)
+    rates_lfpr_all = []    # All-ages LFPR (16+)
+    rates_epop_prime = []  # Prime-age EPOP (25-54)
+    rates_epop_all = []    # All-ages EPOP (16+)
     rates_other = []  # Other rates (interest rates, etc.)
     levels_employment = []
     levels_other = []
@@ -4004,24 +4007,45 @@ def suggest_chart_groups(series_ids: list) -> list:
     QUARTERLY_GDP = {'A191RL1Q225SBEA', 'PB0000031Q225SBEA', 'GDPNOW'}
     ANNUAL_GDP = {'A191RO1Q156NBEA', 'A191RL1A225NBEA'}
 
+    # Prime-age series typically have '60' or '62' suffix (25-54 age group)
+    def is_prime_age(series_id, name):
+        if '25-54' in name or 'prime' in name.lower():
+            return True
+        # LNS series: xxx60 = prime-age both, xxx62 = prime-age women, etc.
+        if series_id.startswith('LNS') and len(series_id) >= 10:
+            suffix = series_id[-2:]
+            if suffix in ('60', '62', '64', '66'):  # Prime-age suffixes
+                return True
+        return False
+
     for sid in series_ids:
         info = SERIES_DB.get(sid, {})
         unit = info.get('unit', '').lower()
         dtype = info.get('data_type', 'unknown')
         name = info.get('name', sid)
+        prime_age = is_prime_age(sid, name)
 
         if sid in QUARTERLY_GDP:
             rates_quarterly.append((sid, name))
         elif sid in ANNUAL_GDP:
             rates_annual.append((sid, name))
         # IRON LAW: Never combine unemployment, LFPR, and EPOP on same chart
-        # They're conceptually different even though all are percentages
+        # IRON LAW: Never combine prime-age (25-54) with all-ages (16+)
         elif sid.startswith('LNS140') or 'unemployment' in name.lower():
-            rates_unemployment.append((sid, name))
+            if prime_age:
+                rates_unemployment_prime.append((sid, name))
+            else:
+                rates_unemployment_all.append((sid, name))
         elif sid.startswith('LNS113') or 'participation' in name.lower():
-            rates_lfpr.append((sid, name))
+            if prime_age:
+                rates_lfpr_prime.append((sid, name))
+            else:
+                rates_lfpr_all.append((sid, name))
         elif sid.startswith('LNS123') or 'employment-population' in name.lower() or 'employment ratio' in name.lower():
-            rates_epop.append((sid, name))
+            if prime_age:
+                rates_epop_prime.append((sid, name))
+            else:
+                rates_epop_all.append((sid, name))
         elif dtype == 'rate' or dtype == 'growth_rate' or 'percent' in unit:
             rates_other.append((sid, name))
         elif 'index' in unit:
@@ -4040,24 +4064,27 @@ def suggest_chart_groups(series_ids: list) -> list:
         groups.append({"series": [sid], "title": name, "combine": False})
 
     # IRON LAW: Unemployment, LFPR, and EPOP are different concepts - separate charts
-    # Can combine same-type series (e.g., multiple unemployment rates)
-    if rates_unemployment:
-        if len(rates_unemployment) >= 2:
-            groups.append({"series": [s[0] for s in rates_unemployment], "title": "Unemployment Rates", "combine": True})
-        else:
-            groups.append({"series": [rates_unemployment[0][0]], "title": rates_unemployment[0][1], "combine": False})
+    # IRON LAW: Prime-age (25-54) and all-ages (16+) are different populations - separate charts
+    # Can combine same-type AND same-age-group series
 
-    if rates_lfpr:
-        if len(rates_lfpr) >= 2:
-            groups.append({"series": [s[0] for s in rates_lfpr], "title": "Labor Force Participation Rates", "combine": True})
-        else:
-            groups.append({"series": [rates_lfpr[0][0]], "title": rates_lfpr[0][1], "combine": False})
+    # Helper to add group
+    def add_group(series_list, title):
+        if len(series_list) >= 2:
+            groups.append({"series": [s[0] for s in series_list], "title": title, "combine": True})
+        elif len(series_list) == 1:
+            groups.append({"series": [series_list[0][0]], "title": series_list[0][1], "combine": False})
 
-    if rates_epop:
-        if len(rates_epop) >= 2:
-            groups.append({"series": [s[0] for s in rates_epop], "title": "Employment-Population Ratios", "combine": True})
-        else:
-            groups.append({"series": [rates_epop[0][0]], "title": rates_epop[0][1], "combine": False})
+    # Unemployment - separate prime-age from all-ages
+    add_group(rates_unemployment_prime, "Unemployment Rates (Prime-Age 25-54)")
+    add_group(rates_unemployment_all, "Unemployment Rates")
+
+    # LFPR - separate prime-age from all-ages
+    add_group(rates_lfpr_prime, "Labor Force Participation (Prime-Age 25-54)")
+    add_group(rates_lfpr_all, "Labor Force Participation Rates")
+
+    # EPOP - separate prime-age from all-ages
+    add_group(rates_epop_prime, "Employment-Population Ratio (Prime-Age 25-54)")
+    add_group(rates_epop_all, "Employment-Population Ratios")
 
     # Group other rates together (interest rates, etc.) - these CAN be combined
     if len(rates_other) >= 2:
