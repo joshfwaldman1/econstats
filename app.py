@@ -3992,7 +3992,10 @@ def suggest_chart_groups(series_ids: list) -> list:
     # Categorize series by type
     rates_quarterly = []  # Quarterly GDP rates (SAAR)
     rates_annual = []     # Annual/YoY GDP rates
-    rates_other = []      # Other rates (unemployment, etc.)
+    rates_unemployment = []  # Unemployment rates (LNS14xxx)
+    rates_lfpr = []  # Labor force participation rates (LNS113xxx)
+    rates_epop = []  # Employment-population ratios (LNS123xxx)
+    rates_other = []  # Other rates (interest rates, etc.)
     levels_employment = []
     levels_other = []
     indexes = []
@@ -4011,6 +4014,14 @@ def suggest_chart_groups(series_ids: list) -> list:
             rates_quarterly.append((sid, name))
         elif sid in ANNUAL_GDP:
             rates_annual.append((sid, name))
+        # IRON LAW: Never combine unemployment, LFPR, and EPOP on same chart
+        # They're conceptually different even though all are percentages
+        elif sid.startswith('LNS140') or 'unemployment' in name.lower():
+            rates_unemployment.append((sid, name))
+        elif sid.startswith('LNS113') or 'participation' in name.lower():
+            rates_lfpr.append((sid, name))
+        elif sid.startswith('LNS123') or 'employment-population' in name.lower() or 'employment ratio' in name.lower():
+            rates_epop.append((sid, name))
         elif dtype == 'rate' or dtype == 'growth_rate' or 'percent' in unit:
             rates_other.append((sid, name))
         elif 'index' in unit:
@@ -4023,33 +4034,36 @@ def suggest_chart_groups(series_ids: list) -> list:
     groups = []
 
     # IRON LAW: Never combine quarterly and annual GDP on same chart
-    # Each GDP series gets its own chart
     for sid, name in rates_quarterly:
-        groups.append({
-            "series": [sid],
-            "title": name,
-            "combine": False
-        })
+        groups.append({"series": [sid], "title": name, "combine": False})
     for sid, name in rates_annual:
-        groups.append({
-            "series": [sid],
-            "title": name,
-            "combine": False
-        })
+        groups.append({"series": [sid], "title": name, "combine": False})
 
-    # Group other rates together (unemployment, interest rates, etc.)
+    # IRON LAW: Unemployment, LFPR, and EPOP are different concepts - separate charts
+    # Can combine same-type series (e.g., multiple unemployment rates)
+    if rates_unemployment:
+        if len(rates_unemployment) >= 2:
+            groups.append({"series": [s[0] for s in rates_unemployment], "title": "Unemployment Rates", "combine": True})
+        else:
+            groups.append({"series": [rates_unemployment[0][0]], "title": rates_unemployment[0][1], "combine": False})
+
+    if rates_lfpr:
+        if len(rates_lfpr) >= 2:
+            groups.append({"series": [s[0] for s in rates_lfpr], "title": "Labor Force Participation Rates", "combine": True})
+        else:
+            groups.append({"series": [rates_lfpr[0][0]], "title": rates_lfpr[0][1], "combine": False})
+
+    if rates_epop:
+        if len(rates_epop) >= 2:
+            groups.append({"series": [s[0] for s in rates_epop], "title": "Employment-Population Ratios", "combine": True})
+        else:
+            groups.append({"series": [rates_epop[0][0]], "title": rates_epop[0][1], "combine": False})
+
+    # Group other rates together (interest rates, etc.) - these CAN be combined
     if len(rates_other) >= 2:
-        groups.append({
-            "series": [s[0] for s in rates_other],
-            "title": "Rates (%)",
-            "combine": True
-        })
+        groups.append({"series": [s[0] for s in rates_other], "title": "Rates (%)", "combine": True})
     elif len(rates_other) == 1:
-        groups.append({
-            "series": [rates_other[0][0]],
-            "title": rates_other[0][1],
-            "combine": False
-        })
+        groups.append({"series": [rates_other[0][0]], "title": rates_other[0][1], "combine": False})
 
     # Group indexes together
     if len(indexes) >= 2:

@@ -6,8 +6,31 @@
       "LNS11300002"
     ],
     "show_yoy": false,
-    "combine_chart": true,
-    "explanation": "These three series provide the complete picture of women's labor market status: LNS14000002 shows the unemployment rate for women 16+, LNS12300062 shows the employment-population ratio for prime-age women 25-54 (the best measure of labor market health), and LNS11300002 shows women's labor force participation rate. Together they reveal employment levels, job-seeking activity, and overall workforce engagement among women."
+    "combine_chart": false,
+    "explanation": "Women's labor market metrics shown separately:\n\n\u2022 **Prime-Age Employment-Population Ratio (25-54)**: THE key measure - share of prime working-age women who are employed. Avoids distortions from students and retirees. Hit all-time high of 75.3% in 2024.\n\n\u2022 **Unemployment Rate**: Share of women in labor force who are jobless. Different concept than EPOP.\n\n\u2022 **Labor Force Participation**: Share of women either working or looking for work. Structural measure that changes slowly.",
+    "chart_groups": [
+      {
+        "series": [
+          "LNS12300062"
+        ],
+        "title": "Prime-Age Women Employment-Population Ratio (25-54)",
+        "show_yoy": false
+      },
+      {
+        "series": [
+          "LNS14000002"
+        ],
+        "title": "Women's Unemployment Rate",
+        "show_yoy": false
+      },
+      {
+        "series": [
+          "LNS11300002"
+        ],
+        "title": "Women's Labor Force Participation Rate",
+        "show_yoy": false
+      }
+    ]
   },
   "women employment": {
     "series": [
@@ -17,7 +40,30 @@
     ],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "For women's employment, I'm using three key demographic-specific series: LNS12300062 (employment-population ratio for prime-age women 25-54, which is the best single measure of labor market health), LNS14000002 (unemployment rate for women 16+), and LNS11300002 (labor force participation rate for women). These three metrics together provide a comprehensive view of women's employment situation - how many are working relative to the population, how many are unemployed, and how many are participating in the labor force overall."
+    "explanation": "For women's employment, I'm using three key demographic-specific series: LNS12300062 (employment-population ratio for prime-age women 25-54, which is the best single measure of labor market health), LNS14000002 (unemployment rate for women 16+), and LNS11300002 (labor force participation rate for women). These three metrics together provide a comprehensive view of women's employment situation - how many are working relative to the population, how many are unemployed, and how many are participating in the labor force overall.",
+    "chart_groups": [
+      {
+        "series": [
+          "LNS12300062"
+        ],
+        "title": "Prime-Age Women Employment-Population Ratio (25-54)",
+        "show_yoy": false
+      },
+      {
+        "series": [
+          "LNS14000002"
+        ],
+        "title": "Women's Unemployment Rate",
+        "show_yoy": false
+      },
+      {
+        "series": [
+          "LNS11300002"
+        ],
+        "title": "Women's Labor Force Participation Rate",
+        "show_yoy": false
+      }
+    ]
   },
   "women unemployment": {
     "series": [
