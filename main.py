@@ -522,13 +522,11 @@ def normalize_query(query: str) -> str:
     return q
 
 
-def classify_query_intent(query: str, available_topics: list) -> str:
-    """Use LLM to understand what topic the user is asking about.
+def classify_query_intent(query: str, available_topics: list) -> dict:
+    """Use LLM to understand query intent AND how to display data.
 
-    This runs FIRST to intelligently route queries based on semantic understanding,
-    not just pattern matching. This is the "smart" layer.
-
-    Returns the best matching topic from available_topics, or None.
+    This runs FIRST to intelligently route queries based on semantic understanding.
+    Returns dict with 'topic' and 'show_yoy' recommendation.
     """
     if not ANTHROPIC_API_KEY:
         return None
@@ -541,34 +539,43 @@ def classify_query_intent(query: str, available_topics: list) -> str:
 
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=50,
+            max_tokens=100,
             messages=[{
                 "role": "user",
-                "content": f"""You route economic data queries to the right topic. Pick the BEST match.
+                "content": f"""You route economic data queries. Pick the best topic AND decide how to display data.
 
 Question: "{query}"
 
 Available topics: {topics_str}
 
-ROUTING RULES:
-- "rents", "rent prices", "how have rents changed" → "rent prices" or "rents"
-- "US vs Europe", "US v. eurozone", "compare US and Europe" → "us vs europe" or "us vs eurozone"
-- "housing", "home prices", "real estate" → "housing" or "home prices"
-- "stocks", "S&P", "market" → look for stock-related topics
-- International queries (Europe, China, UK, Japan) → look for country-specific topics
+DISPLAY RULES (show_yoy):
+- RATES (unemployment %, interest rates, P/E ratios, CAPE ratio) → show_yoy: false (already meaningful)
+- INDEXES (CPI, home price index) → show_yoy: true (raw index meaningless, show inflation rate)
+- LEVELS (GDP dollars, employment count, stock prices) → show_yoy: false usually (actual value matters)
+- GROWTH questions ("how fast", "growth rate") → show_yoy: true
 
-Reply with ONLY the exact topic name from the list, or "none" if nothing fits."""
+Reply in format: topic_name|show_yoy
+Examples: "inflation|true" or "cape ratio|false" or "unemployment|false" or "none|false" """
             }]
         )
 
         result = response.content[0].text.strip().lower()
-        print(f"[Intent] Query '{query}' -> classified as '{result}'")
+        print(f"[Intent] Query '{query}' -> '{result}'")
 
-        if result != "none" and result in [t.lower() for t in available_topics]:
+        # Parse response
+        if "|" in result:
+            parts = result.split("|")
+            topic = parts[0].strip()
+            show_yoy = parts[1].strip() == "true" if len(parts) > 1 else None
+        else:
+            topic = result.strip()
+            show_yoy = None
+
+        if topic != "none" and topic in [t.lower() for t in available_topics]:
             # Find the original casing
-            for topic in available_topics:
-                if topic.lower() == result:
-                    return topic
+            for t in available_topics:
+                if t.lower() == topic:
+                    return {"topic": t, "show_yoy": show_yoy}
         return None
 
     except Exception as e:
@@ -580,10 +587,11 @@ def find_query_plan(query: str):
     """Find matching query plan using LLM-first routing.
 
     Architecture: LLM understands intent FIRST, then routes intelligently.
+    LLM also decides whether to show YoY based on data type.
 
     Priority order:
     1. Exact match (fast path for common queries like "jobs", "inflation")
-    2. LLM intent classification (smart path - understands semantic meaning)
+    2. LLM intent classification (smart path - understands semantic meaning + display mode)
     3. Fuzzy match (fallback)
     """
     normalized = normalize_query(query)
@@ -610,14 +618,23 @@ def find_query_plan(query: str):
 
     # =================================================================
     # SMART PATH: LLM intent classification (for complex/novel queries)
-    # This is the KEY difference - LLM runs EARLY, not as last resort
+    # LLM decides BOTH the topic AND whether to show YoY
     # =================================================================
     all_topics = list(all_plans.keys())
-    classified_topic = classify_query_intent(query, all_topics)
+    classification = classify_query_intent(query, all_topics)
 
-    if classified_topic and classified_topic in all_plans:
-        print(f"[Router] LLM classified '{query}' -> '{classified_topic}'")
-        return all_plans[classified_topic]
+    if classification and classification.get("topic") in all_plans:
+        topic = classification["topic"]
+        plan = all_plans[topic].copy()  # Copy to avoid mutating original
+
+        # LLM can override show_yoy if it has a recommendation
+        if classification.get("show_yoy") is not None:
+            print(f"[Router] LLM classified '{query}' -> '{topic}' with show_yoy={classification['show_yoy']}")
+            plan["show_yoy"] = classification["show_yoy"]
+        else:
+            print(f"[Router] LLM classified '{query}' -> '{topic}'")
+
+        return plan
 
     # =================================================================
     # FALLBACK: Fuzzy match (catches typos, close variations)

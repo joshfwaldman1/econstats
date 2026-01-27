@@ -159,10 +159,21 @@
     </div>
     {% endif %}
 
-    <!-- Source -->
+    <!-- Source with links -->
     <div class="px-6 py-3 bg-slate-50 border-t border-slate-100">
         <p class="text-xs text-slate-400">
-            {{ chart.name }}{% if chart.sa %}, Seasonally Adjusted{% endif %}, {{ chart.source }} via FRED.
+            {{ chart.name }}{% if chart.sa %}, Seasonally Adjusted{% endif %}.
+            {% if chart.source == 'Robert Shiller, Yale University' %}
+                Source: <a href="http://www.econ.yale.edu/~shiller/data.htm" target="_blank" class="text-primary-500 hover:underline">Robert Shiller, Yale University</a>
+            {% elif chart.source == 'Zillow' %}
+                Source: <a href="https://www.zillow.com/research/data/" target="_blank" class="text-primary-500 hover:underline">Zillow Research</a>
+            {% elif chart.source == 'Alpha Vantage' %}
+                Source: <a href="https://www.alphavantage.co/" target="_blank" class="text-primary-500 hover:underline">Alpha Vantage</a>
+            {% elif chart.source == 'EIA' or 'Energy Information' in chart.source %}
+                Source: <a href="https://www.eia.gov/" target="_blank" class="text-primary-500 hover:underline">U.S. Energy Information Administration</a>
+            {% else %}
+                Source: <a href="https://fred.stlouisfed.org/series/{{ chart.series_id }}" target="_blank" class="text-primary-500 hover:underline">{{ chart.source }}</a> via <a href="https://fred.stlouisfed.org/" target="_blank" class="text-primary-500 hover:underline">FRED</a>
+            {% endif %}
         </p>
     </div>
 </div>
