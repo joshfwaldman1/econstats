@@ -117,6 +117,66 @@ except Exception as e:
     print(f"Health check not available: {e}")
     HEALTH_CHECK_AVAILABLE = False
 
+# =============================================================================
+# ADVANCED AGENT MODULES (ported from Streamlit)
+# =============================================================================
+
+# Query Understanding - deep semantic analysis of user intent
+try:
+    from agents.query_understanding import understand_query, get_routing_recommendation, validate_series_for_query
+    QUERY_UNDERSTANDING_AVAILABLE = True
+except Exception as e:
+    print(f"Query understanding not available: {e}")
+    QUERY_UNDERSTANDING_AVAILABLE = False
+
+# Query Router - handles comparisons and multi-region queries
+try:
+    from agents.query_router import smart_route_query, is_comparison_query, route_comparison_query
+    QUERY_ROUTER_AVAILABLE = True
+except Exception as e:
+    print(f"Query router not available: {e}")
+    QUERY_ROUTER_AVAILABLE = False
+
+# Series RAG - embedding-based series retrieval
+try:
+    from agents.series_rag import rag_query_plan, retrieve_relevant_series
+    RAG_AVAILABLE = True
+except Exception as e:
+    print(f"Series RAG not available: {e}")
+    RAG_AVAILABLE = False
+
+# Stocks module - market queries
+try:
+    from agents.stocks import find_market_plan, is_market_query, MARKET_SERIES
+    STOCKS_AVAILABLE = True
+except Exception as e:
+    print(f"Stocks module not available: {e}")
+    STOCKS_AVAILABLE = False
+
+# Fed SEP - Federal Reserve projections
+try:
+    from agents.fed_sep import is_fed_related_query, is_sep_query, get_fed_guidance_for_query, get_sep_data, get_current_fed_funds_rate
+    FED_SEP_AVAILABLE = True
+except Exception as e:
+    print(f"Fed SEP not available: {e}")
+    FED_SEP_AVAILABLE = False
+
+# Judgment Layer - interpretive queries with web search
+try:
+    from agents.judgment_layer import is_judgment_query, process_judgment_query
+    JUDGMENT_AVAILABLE = True
+except Exception as e:
+    print(f"Judgment layer not available: {e}")
+    JUDGMENT_AVAILABLE = False
+
+# Agent Ensemble - multi-model query planning
+try:
+    from agents.agent_ensemble import call_ensemble_for_app, generate_ensemble_description
+    ENSEMBLE_AVAILABLE = True
+except Exception as e:
+    print(f"Agent ensemble not available: {e}")
+    ENSEMBLE_AVAILABLE = False
+
 # Startup diagnostics
 print("=" * 60)
 print("EconStats FastAPI Starting Up")
@@ -126,14 +186,24 @@ print(f"ANTHROPIC_API_KEY: {'SET' if ANTHROPIC_API_KEY else 'NOT SET'}")
 print(f"GOOGLE_API_KEY: {'SET' if GOOGLE_API_KEY else 'NOT SET'}")
 print(f"ALPHAVANTAGE_API_KEY: {'SET' if ALPHAVANTAGE_API_KEY else 'NOT SET'}")
 print("-" * 60)
-print(f"ALPHAVANTAGE_AVAILABLE: {ALPHAVANTAGE_AVAILABLE}")
-print(f"SHILLER_AVAILABLE: {SHILLER_AVAILABLE}")
-print(f"POLYMARKET_AVAILABLE: {POLYMARKET_AVAILABLE}")
-print(f"RECESSION_SCORECARD_AVAILABLE: {RECESSION_SCORECARD_AVAILABLE}")
-print(f"ZILLOW_AVAILABLE: {ZILLOW_AVAILABLE}")
-print(f"EIA_AVAILABLE: {EIA_AVAILABLE}")
-print(f"DBNOMICS_AVAILABLE: {DBNOMICS_AVAILABLE}")
-print(f"HEALTH_CHECK_AVAILABLE: {HEALTH_CHECK_AVAILABLE}")
+print("Data Sources:")
+print(f"  ALPHAVANTAGE: {ALPHAVANTAGE_AVAILABLE}")
+print(f"  SHILLER: {SHILLER_AVAILABLE}")
+print(f"  POLYMARKET: {POLYMARKET_AVAILABLE}")
+print(f"  RECESSION_SCORECARD: {RECESSION_SCORECARD_AVAILABLE}")
+print(f"  ZILLOW: {ZILLOW_AVAILABLE}")
+print(f"  EIA: {EIA_AVAILABLE}")
+print(f"  DBNOMICS: {DBNOMICS_AVAILABLE}")
+print(f"  HEALTH_CHECK: {HEALTH_CHECK_AVAILABLE}")
+print("-" * 60)
+print("Agent Modules:")
+print(f"  QUERY_UNDERSTANDING: {QUERY_UNDERSTANDING_AVAILABLE}")
+print(f"  QUERY_ROUTER: {QUERY_ROUTER_AVAILABLE}")
+print(f"  RAG: {RAG_AVAILABLE}")
+print(f"  STOCKS: {STOCKS_AVAILABLE}")
+print(f"  FED_SEP: {FED_SEP_AVAILABLE}")
+print(f"  JUDGMENT: {JUDGMENT_AVAILABLE}")
+print(f"  ENSEMBLE: {ENSEMBLE_AVAILABLE}")
 print("=" * 60)
 
 # Load query plans from existing JSON files
@@ -476,10 +546,53 @@ QUERY_MAP = {
     # Trade & Commodities
     'oil': {'series': ['DCOILWTICO', 'DCOILBRENTEU'], 'combine': True},
     'oil prices': {'series': ['DCOILWTICO', 'DCOILBRENTEU'], 'combine': True},
-    'china': {'series': ['IMPCH'], 'combine': False},
-    'china trade': {'series': ['IMPCH'], 'combine': False},
-    'trade': {'series': ['BOPGSTB'], 'combine': False},
-    'trade deficit': {'series': ['BOPGSTB'], 'combine': False},
+
+    # Trade Overview - show balance, imports, and exports together
+    'trade': {'series': ['BOPGSTB', 'IMPGS', 'EXPGS'], 'combine': False, 'show_yoy': False},
+    'trade balance': {'series': ['BOPGSTB', 'IMPGS', 'EXPGS'], 'combine': False, 'show_yoy': False},
+    'trade deficit': {'series': ['BOPGSTB', 'IMPGS', 'EXPGS'], 'combine': False, 'show_yoy': False},
+    'trade surplus': {'series': ['BOPGSTB', 'IMPGS', 'EXPGS'], 'combine': False, 'show_yoy': False},
+    'imports': {'series': ['IMPGS', 'BOPGSTB'], 'combine': False, 'show_yoy': False},
+    'exports': {'series': ['EXPGS', 'BOPGSTB'], 'combine': False, 'show_yoy': False},
+    'imports and exports': {'series': ['IMPGS', 'EXPGS', 'BOPGSTB'], 'combine': False, 'show_yoy': False},
+
+    # Trade by Category - Goods vs Services
+    'goods trade': {'series': ['BOPGTB', 'IMGION', 'EXGION'], 'combine': False, 'show_yoy': False},
+    'services trade': {'series': ['BOPSTB', 'BOPSTXSVCS', 'BOPSTMSVCS'], 'combine': False, 'show_yoy': False},
+    'trade by category': {'series': ['BOPGTB', 'BOPSTB', 'BOPGSTB'], 'combine': False, 'show_yoy': False},
+
+    # China Trade (bilateral)
+    'china': {'series': ['IMPCH', 'EXPCH', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'china trade': {'series': ['IMPCH', 'EXPCH', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'trade with china': {'series': ['IMPCH', 'EXPCH', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'us china trade': {'series': ['IMPCH', 'EXPCH', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'imports from china': {'series': ['IMPCH'], 'combine': False, 'show_yoy': False},
+    'exports to china': {'series': ['EXPCH'], 'combine': False, 'show_yoy': False},
+
+    # Mexico Trade
+    'mexico trade': {'series': ['IMPMX', 'EXPMX', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'trade with mexico': {'series': ['IMPMX', 'EXPMX', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'imports from mexico': {'series': ['IMPMX'], 'combine': False, 'show_yoy': False},
+    'exports to mexico': {'series': ['EXPMX'], 'combine': False, 'show_yoy': False},
+
+    # Canada Trade
+    'canada trade': {'series': ['IMPCA', 'EXPCA', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'trade with canada': {'series': ['IMPCA', 'EXPCA', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'imports from canada': {'series': ['IMPCA'], 'combine': False, 'show_yoy': False},
+    'exports to canada': {'series': ['EXPCA'], 'combine': False, 'show_yoy': False},
+
+    # Japan Trade
+    'japan trade': {'series': ['IMPJP', 'EXPJP', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'trade with japan': {'series': ['IMPJP', 'EXPJP', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+
+    # EU Trade
+    'eu trade': {'series': ['IMPEU', 'EXPEU', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'trade with europe': {'series': ['IMPEU', 'EXPEU', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+    'trade with eu': {'series': ['IMPEU', 'EXPEU', 'BOPGTB'], 'combine': False, 'show_yoy': False},
+
+    # Major Trading Partners Overview
+    'trading partners': {'series': ['IMPCH', 'IMPMX', 'IMPCA', 'IMPEU'], 'combine': False, 'show_yoy': False},
+    'top trading partners': {'series': ['IMPCH', 'IMPMX', 'IMPCA', 'IMPEU'], 'combine': False, 'show_yoy': False},
 
     # Wages
     'wages': {'series': ['CES0500000003'], 'combine': False},
@@ -520,6 +633,510 @@ def normalize_query(query: str) -> str:
         q = re.sub(filler, ' ', q)
     q = ' '.join(q.split()).strip()
     return q
+
+
+# =============================================================================
+# TEMPORAL FILTERING - Extract date ranges from queries
+# =============================================================================
+
+def extract_temporal_filter(query: str) -> dict:
+    """
+    Extract temporal references from a query and return date filter parameters.
+
+    Handles:
+    - Year references: "inflation in 2022", "gdp during 2019"
+    - Relative references: "last year", "this year", "past 2 years"
+    - Period references: "pre-covid", "during the recession", "before 2020"
+
+    Returns dict with filter params or None if no temporal reference found.
+    """
+    import re
+    q = query.lower().strip()
+    now = datetime.now()
+    current_year = now.year
+
+    # === Specific year reference ===
+    if match := re.search(r'\b(?:in|during|for|from)?\s*((?:19|20)\d{2})\b', q):
+        year = int(match.group(1))
+        if 1950 <= year <= current_year:
+            return {
+                'temporal_focus': f'{year}',
+                'filter_start_date': f'{year}-01-01',
+                'filter_end_date': f'{year}-12-31',
+                'years_override': max(2, current_year - year + 2),
+                'explanation': f'Showing data for {year}.',
+            }
+        elif year > current_year:
+            return {
+                'temporal_focus': f'{year} (future)',
+                'invalid_temporal': True,
+                'explanation': f'Note: {year} is in the future. Showing latest available data.',
+            }
+
+    # === Year range ===
+    if match := re.search(r'\b(?:from|between)\s*((?:19|20)\d{2})\s*(?:to|and|-)\s*((?:19|20)\d{2})\b', q):
+        start_year = int(match.group(1))
+        end_year = int(match.group(2))
+        if start_year > end_year:
+            start_year, end_year = end_year, start_year
+        end_year = min(end_year, current_year)
+        if 1950 <= start_year <= current_year:
+            return {
+                'temporal_focus': f'{start_year}-{end_year}',
+                'filter_start_date': f'{start_year}-01-01',
+                'filter_end_date': f'{end_year}-12-31',
+                'years_override': max(2, current_year - start_year + 2),
+                'explanation': f'Showing data from {start_year} to {end_year}.',
+            }
+
+    # === Relative year references ===
+    if re.search(r'\blast\s+year\b', q):
+        last_year = current_year - 1
+        return {
+            'temporal_focus': f'{last_year}',
+            'filter_start_date': f'{last_year}-01-01',
+            'filter_end_date': f'{last_year}-12-31',
+            'years_override': 3,
+            'explanation': f'Showing data for {last_year}.',
+        }
+
+    if re.search(r'\bthis\s+year\b', q):
+        return {
+            'temporal_focus': f'{current_year}',
+            'filter_start_date': f'{current_year}-01-01',
+            'years_override': 2,
+            'explanation': f'Showing data for {current_year} so far.',
+        }
+
+    # "past/last N years"
+    if match := re.search(r'\b(?:past|last)\s+(\d+)\s+years?\b', q):
+        n_years = int(match.group(1))
+        return {
+            'temporal_focus': f'past {n_years} years',
+            'years_override': n_years,
+            'explanation': f'Showing data for the past {n_years} years.',
+        }
+
+    # === Period references ===
+    if re.search(r'\b(pre[\s-]?(covid|pandemic|2020)|before\s+(covid|pandemic|the\s+pandemic|2020))\b', q):
+        return {
+            'temporal_focus': 'pre-COVID',
+            'filter_end_date': '2020-02-29',
+            'years_override': current_year - 2017 + 1,
+            'explanation': 'Showing pre-COVID data (through February 2020).',
+        }
+
+    if re.search(r'\b(during\s+(covid|pandemic|the\s+pandemic)|covid\s+era|pandemic\s+period)\b', q):
+        return {
+            'temporal_focus': 'COVID period',
+            'filter_start_date': '2020-03-01',
+            'filter_end_date': '2021-12-31',
+            'years_override': 5,
+            'explanation': 'Showing COVID pandemic period (March 2020 - December 2021).',
+        }
+
+    if re.search(r'\b(post[\s-]?(covid|pandemic)|after\s+(covid|pandemic|the\s+pandemic)|recovery\s+period)\b', q):
+        return {
+            'temporal_focus': 'post-COVID',
+            'filter_start_date': '2022-01-01',
+            'years_override': 4,
+            'explanation': 'Showing post-COVID recovery period (2022 onward).',
+        }
+
+    if re.search(r'\b(great\s+recession|during\s+(?:the\s+)?recession|2008\s+(?:recession|crisis)|financial\s+crisis)\b', q):
+        return {
+            'temporal_focus': 'Great Recession',
+            'filter_start_date': '2007-12-01',
+            'filter_end_date': '2009-06-30',
+            'years_override': current_year - 2007 + 1,
+            'explanation': 'Showing Great Recession period (December 2007 - June 2009).',
+        }
+
+    return None
+
+
+def get_smart_date_range(query: str, default_years: int = 8) -> int:
+    """
+    Determine smart date range based on query content.
+    Queries about historical events need more data; most queries benefit from focused recent data.
+    """
+    q = query.lower()
+
+    # Queries that should show ALL available data
+    if any(pattern in q for pattern in [
+        'all time', 'all data', 'full history', 'max data', 'complete history',
+        'since 1950', 'since 1960', 'since 1970', 'since 1980',
+        'historical trend', 'long-term trend', 'long term trend',
+        'over the decades', 'over decades',
+    ]):
+        return None  # All data
+
+    # Queries that need more context (15-20 years)
+    if any(pattern in q for pattern in [
+        'great recession', '2008', 'financial crisis', 'housing crisis',
+        'compared to', 'comparison', 'vs pre-pandemic', 'before covid',
+        'over the years', 'historically', 'history of',
+        'long-run', 'long run', 'long-term', 'long term', 'secular trend',
+    ]):
+        return 20
+
+    return default_years
+
+
+# =============================================================================
+# GEOGRAPHIC SCOPE DETECTION
+# =============================================================================
+
+US_STATES = {
+    'alabama', 'alaska', 'arizona', 'arkansas', 'california', 'colorado',
+    'connecticut', 'delaware', 'florida', 'georgia', 'hawaii', 'idaho',
+    'illinois', 'indiana', 'iowa', 'kansas', 'kentucky', 'louisiana',
+    'maine', 'maryland', 'massachusetts', 'michigan', 'minnesota',
+    'mississippi', 'missouri', 'montana', 'nebraska', 'nevada',
+    'new hampshire', 'new jersey', 'new mexico', 'new york',
+    'north carolina', 'north dakota', 'ohio', 'oklahoma', 'oregon',
+    'pennsylvania', 'rhode island', 'south carolina', 'south dakota',
+    'tennessee', 'texas', 'utah', 'vermont', 'virginia', 'washington',
+    'west virginia', 'wisconsin', 'wyoming'
+}
+
+US_REGIONS = {'midwest', 'northeast', 'south', 'west', 'pacific', 'mountain', 'southeast', 'southwest'}
+
+
+def detect_geographic_scope(query: str) -> dict:
+    """
+    Detect if query asks about a specific state or region.
+    Returns dict with type ('national', 'state', 'region') and name.
+    """
+    query_lower = query.lower()
+
+    for state in US_STATES:
+        if state in query_lower:
+            if state == 'georgia' and 'country' in query_lower:
+                continue
+            return {'type': 'state', 'name': state}
+
+    for region in US_REGIONS:
+        if region in query_lower:
+            return {'type': 'region', 'name': region}
+
+    return {'type': 'national', 'name': 'US'}
+
+
+# =============================================================================
+# ECONOMIC EVENTS - For chart annotations
+# =============================================================================
+
+ECONOMIC_EVENTS = [
+    # Fed Policy Changes
+    {'date': '2022-03-17', 'label': 'Fed hikes begin', 'type': 'fed'},
+    {'date': '2020-03-15', 'label': 'Emergency cut to 0%', 'type': 'fed'},
+    {'date': '2019-07-31', 'label': 'Fed cuts rates', 'type': 'fed'},
+    {'date': '2015-12-16', 'label': 'First hike since 2008', 'type': 'fed'},
+    {'date': '2008-12-16', 'label': 'Fed cuts to zero', 'type': 'fed'},
+    {'date': '2024-09-18', 'label': 'Fed starts cutting', 'type': 'fed'},
+
+    # Major Crises & Peaks
+    {'date': '2022-06-01', 'label': 'Inflation peaks 9.1%', 'type': 'crisis'},
+    {'date': '2020-04-01', 'label': 'Unemployment hits 14.7%', 'type': 'crisis'},
+    {'date': '2020-03-11', 'label': 'COVID pandemic', 'type': 'crisis'},
+    {'date': '2023-03-10', 'label': 'SVB collapse', 'type': 'crisis'},
+    {'date': '2008-09-15', 'label': 'Lehman collapse', 'type': 'crisis'},
+
+    # Policy Milestones
+    {'date': '2017-12-22', 'label': 'Tax Cuts Act', 'type': 'policy'},
+    {'date': '2021-03-11', 'label': 'ARP stimulus', 'type': 'policy'},
+    {'date': '2022-08-16', 'label': 'IRA signed', 'type': 'policy'},
+]
+
+
+# =============================================================================
+# DYNAMIC AI BULLETS - AI-generated chart insights
+# =============================================================================
+
+_dynamic_bullet_cache = {}
+
+
+def generate_dynamic_ai_bullets(series_id: str, dates: list, values: list, info: dict, user_query: str = None) -> list:
+    """Generate dynamic AI-powered bullets using Claude.
+
+    Creates contextual, data-aware bullets that:
+    1. Reference actual current values and trends
+    2. Are tailored to the user's specific question
+    3. Provide timely economic context
+    """
+    if not ANTHROPIC_API_KEY or not values or len(values) < 2:
+        db_info = SERIES_DB.get(series_id, {})
+        return db_info.get('bullets', [])
+
+    db_info = SERIES_DB.get(series_id, {})
+    name = info.get('name', info.get('title', series_id))
+    unit = info.get('unit', info.get('units', ''))
+    latest = values[-1]
+    latest_date = dates[-1]
+    frequency = db_info.get('frequency', 'monthly')
+
+    # Format date
+    try:
+        latest_date_obj = datetime.strptime(latest_date, '%Y-%m-%d')
+        if frequency == 'quarterly':
+            quarter = (latest_date_obj.month - 1) // 3 + 1
+            date_str = f"Q{quarter} {latest_date_obj.year}"
+        else:
+            date_str = latest_date_obj.strftime('%B %Y')
+    except:
+        date_str = latest_date
+
+    # Calculate trends
+    trend_info = ""
+    if len(values) >= 13:
+        year_ago = values[-13] if frequency == 'monthly' else values[-5] if frequency == 'quarterly' else values[-2]
+        yoy_change = latest - year_ago
+        if year_ago != 0:
+            yoy_pct = ((latest - year_ago) / abs(year_ago)) * 100
+            trend_info = f"Year-over-year change: {yoy_change:+.2f} ({yoy_pct:+.1f}%)"
+
+    recent_trend = ""
+    if len(values) >= 4:
+        three_mo_ago = values[-4]
+        if three_mo_ago != 0:
+            recent_change = ((latest - three_mo_ago) / abs(three_mo_ago)) * 100
+            if recent_change > 2:
+                recent_trend = "Rising over past 3 months"
+            elif recent_change < -2:
+                recent_trend = "Falling over past 3 months"
+            else:
+                recent_trend = "Roughly flat over past 3 months"
+
+    historical_context = ""
+    if len(values) >= 60:
+        five_yr_high = max(values[-60:])
+        five_yr_low = min(values[-60:])
+        historical_context = f"5-year range: {five_yr_low:.2f} to {five_yr_high:.2f}"
+
+    static_bullets = db_info.get('bullets', [])
+    static_guidance = "\n".join([f"- {b}" for b in static_bullets]) if static_bullets else ""
+
+    prompt = f"""Generate 2 insightful bullet points that INTERPRET what this economic data means.
+
+SERIES: {name} ({series_id})
+CURRENT VALUE: {latest:.2f} {unit} as of {date_str}
+{trend_info}
+{recent_trend}
+{historical_context}
+
+{f"DOMAIN CONTEXT: {static_guidance}" if static_guidance else ""}
+{f"USER QUESTION: {user_query}" if user_query else ""}
+
+Write 2 bullets that:
+1. INTERPRET what the trend means (e.g., "wages rising faster than inflation means workers gaining purchasing power")
+2. Explain the "SO WHAT" - what this means for workers, consumers, or the economy
+3. Keep each bullet to 1 sentence max
+
+Format: Return ONLY a JSON array of strings, like: ["First bullet.", "Second bullet."]"""
+
+    try:
+        client = Anthropic(api_key=ANTHROPIC_API_KEY)
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=300,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = response.content[0].text
+
+        if '[' in text and ']' in text:
+            start = text.index('[')
+            end = text.rindex(']') + 1
+            bullets = json.loads(text[start:end])
+            if isinstance(bullets, list) and len(bullets) > 0:
+                return bullets[:2]
+    except Exception as e:
+        print(f"[DynamicBullets] Error: {e}")
+
+    return static_bullets[:2] if static_bullets else []
+
+
+def get_dynamic_bullets(series_id: str, dates: list, values: list, info: dict, user_query: str = None, use_ai: bool = True) -> list:
+    """Get bullets for a chart, using AI if enabled or falling back to static. Caches results."""
+    if not use_ai:
+        db_info = SERIES_DB.get(series_id, {})
+        return db_info.get('bullets', [])
+
+    cache_key = f"{series_id}_{values[-1] if values else 'empty'}_{user_query or ''}"
+
+    if cache_key in _dynamic_bullet_cache:
+        return _dynamic_bullet_cache[cache_key]
+
+    bullets = generate_dynamic_ai_bullets(series_id, dates, values, info, user_query)
+    _dynamic_bullet_cache[cache_key] = bullets
+
+    if len(_dynamic_bullet_cache) > 100:
+        keys = list(_dynamic_bullet_cache.keys())
+        for k in keys[:50]:
+            del _dynamic_bullet_cache[k]
+
+    return bullets
+
+
+# =============================================================================
+# DERIVED SERIES CALCULATIONS
+# =============================================================================
+
+def calculate_derived_series(series_data: dict, formula: str, name: str = "Derived Series", unit: str = "") -> tuple:
+    """
+    Calculate a derived series from multiple input series using pandas.
+
+    Args:
+        series_data: Dict mapping series_id -> (dates, values) tuples
+        formula: Pandas-compatible formula string, e.g., "B235RC1Q027SBEA / IMPGS * 100"
+        name: Display name for the derived series
+        unit: Unit label for the derived series
+
+    Returns:
+        Tuple of (dates, values, info_dict) for the derived series,
+        or (None, None, None) if calculation fails
+    """
+    import re
+    try:
+        import pandas as pd
+    except ImportError:
+        print("[DerivedSeries] pandas not available")
+        return None, None, None
+
+    if not series_data or not formula:
+        return None, None, None
+
+    try:
+        dfs = []
+        for series_id, (dates, values) in series_data.items():
+            if dates and values:
+                df = pd.DataFrame({
+                    'date': pd.to_datetime(dates),
+                    series_id: values
+                }).set_index('date')
+                dfs.append(df)
+
+        if len(dfs) < 2:
+            return None, None, None
+
+        combined = dfs[0]
+        for df in dfs[1:]:
+            combined = combined.join(df, how='outer')
+
+        combined = combined.dropna()
+
+        if combined.empty:
+            return None, None, None
+
+        formula_series = re.findall(r'[A-Z][A-Z0-9_]+', formula)
+        for sid in formula_series:
+            if sid not in combined.columns:
+                return None, None, None
+
+        result = combined.eval(formula)
+
+        dates = result.index.strftime('%Y-%m-%d').tolist()
+        values = result.tolist()
+
+        info = {
+            'name': name,
+            'unit': unit,
+            'is_derived': True,
+            'formula': formula,
+            'source_series': list(series_data.keys()),
+        }
+
+        return dates, values, info
+
+    except Exception as e:
+        print(f"[DerivedSeries] Error: {e}")
+        return None, None, None
+
+
+# =============================================================================
+# ECONOMIST REVIEWER - Second-pass AI review of explanations
+# =============================================================================
+
+def call_economist_reviewer(query: str, series_data: list, original_summary: str) -> str:
+    """Call a second Claude agent to review and improve the explanation.
+
+    This agent sees actual data values to explain not just WHAT is happening but WHY.
+    """
+    if not ANTHROPIC_API_KEY or not series_data:
+        return original_summary
+
+    # Build data summary for the reviewer
+    data_summary = []
+    for series_id, dates, values, info in series_data:
+        if not values:
+            continue
+        name = info.get('name', info.get('title', series_id))
+        unit = info.get('unit', info.get('units', ''))
+        latest = values[-1]
+        latest_date = dates[-1]
+
+        yoy_change = None
+        if len(values) >= 12:
+            yoy_change = latest - values[-12]
+
+        recent_vals = values[-60:] if len(values) >= 60 else values
+
+        summary = {
+            'name': name,
+            'latest_value': round(latest, 2),
+            'latest_date': latest_date,
+            'unit': unit,
+            'yoy_change': round(yoy_change, 2) if yoy_change else None,
+            'recent_min': round(min(recent_vals), 2),
+            'recent_max': round(max(recent_vals), 2),
+        }
+
+        if yoy_change is not None:
+            if yoy_change > 0.01:
+                summary['yoy_direction'] = 'UP from year ago'
+            elif yoy_change < -0.01:
+                summary['yoy_direction'] = 'DOWN from year ago'
+            else:
+                summary['yoy_direction'] = 'UNCHANGED from year ago'
+
+        data_summary.append(summary)
+
+    if not data_summary:
+        return original_summary
+
+    prompt = f"""You are reviewing an economic data explanation. Improve it to be clearer and more insightful.
+
+USER'S QUESTION: "{query}"
+
+ACTUAL DATA:
+{json.dumps(data_summary, indent=2)}
+
+ORIGINAL EXPLANATION:
+{original_summary}
+
+Improve the explanation to:
+1. Reference specific numbers from the data
+2. Explain what the trends MEAN (not just describe them)
+3. Connect to broader economic context
+4. Keep it concise (2-3 sentences max)
+5. Use plain language, avoid jargon
+
+Return ONLY the improved explanation, no preamble."""
+
+    try:
+        client = Anthropic(api_key=ANTHROPIC_API_KEY)
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=300,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        improved = response.content[0].text.strip()
+        if len(improved) > 50:  # Sanity check
+            return improved
+    except Exception as e:
+        print(f"[EconomistReviewer] Error: {e}")
+
+    return original_summary
 
 
 def classify_query_intent(query: str, available_topics: list) -> dict:
@@ -584,30 +1201,68 @@ Examples: "inflation|true" or "cape ratio|false" or "unemployment|false" or "non
 
 
 def find_query_plan(query: str):
-    """Find matching query plan using LLM-first routing.
+    """Find matching query plan using LLM-FIRST routing architecture.
 
-    Architecture: LLM understands intent FIRST, then routes intelligently.
-    LLM also decides whether to show YoY based on data type.
+    This is the master router that:
+    1. Understands query intent via LLM FIRST
+    2. Routes to specialized modules based on query type
+    3. Falls back to pattern matching for simple queries
 
     Priority order:
-    1. Exact match (fast path for common queries like "jobs", "inflation")
-    2. LLM intent classification (smart path - understands semantic meaning + display mode)
-    3. Fuzzy match (fallback)
+    1. Fed SEP queries (Fed projections, rate decisions)
+    2. Market queries (stocks, indices)
+    3. Comparison queries (US vs Europe, demographics)
+    4. Quick exact match (common queries)
+    5. LLM deep understanding + RAG (complex queries)
+    6. Fuzzy match (typos)
+    7. Agentic search (last resort)
     """
     normalized = normalize_query(query)
     original_lower = query.lower().strip()
 
-    # Get international plans if available
+    # Get all available plans
     intl_plans = INTERNATIONAL_QUERY_PLANS if DBNOMICS_AVAILABLE else {}
-
-    # Build combined lookup for all plans
     all_plans = {}
-    all_plans.update(QUERY_MAP)  # Base layer
-    all_plans.update(intl_plans)  # International layer
-    all_plans.update(QUERY_PLANS)  # JSON plans override (richest data)
+    all_plans.update(QUERY_MAP)
+    all_plans.update(intl_plans)
+    all_plans.update(QUERY_PLANS)
 
     # =================================================================
-    # FAST PATH: Exact match (for common single-word queries)
+    # STEP 1: FED SEP QUERIES (takes priority - real-time Fed data)
+    # =================================================================
+    if FED_SEP_AVAILABLE and is_fed_related_query(query):
+        print(f"[Router] Fed-related query detected: '{query}'")
+        fed_guidance = get_fed_guidance_for_query(query)
+        if fed_guidance:
+            print(f"[Router] Using Fed SEP guidance")
+            return {
+                'series': fed_guidance.get('series', ['FEDFUNDS']),
+                'show_yoy': False,
+                'fed_guidance': fed_guidance,  # Pass through for display
+            }
+
+    # =================================================================
+    # STEP 2: MARKET QUERIES (stocks, indices)
+    # =================================================================
+    if STOCKS_AVAILABLE and is_market_query(query):
+        print(f"[Router] Market query detected: '{query}'")
+        market_plan = find_market_plan(query)
+        if market_plan:
+            print(f"[Router] Using market plan: {market_plan.get('series', [])}")
+            return market_plan
+
+    # =================================================================
+    # STEP 3: COMPARISON QUERIES (US vs Europe, demographics)
+    # =================================================================
+    if QUERY_ROUTER_AVAILABLE and is_comparison_query(query):
+        print(f"[Router] Comparison query detected: '{query}'")
+        comparison_plan = route_comparison_query(query)
+        if comparison_plan:
+            print(f"[Router] Using comparison plan: {comparison_plan.get('series', [])}")
+            return comparison_plan
+
+    # =================================================================
+    # STEP 4: FAST PATH - Exact match (common single-word queries)
     # =================================================================
     if original_lower in all_plans:
         print(f"[Router] Exact match: '{original_lower}'")
@@ -617,17 +1272,47 @@ def find_query_plan(query: str):
         return all_plans[normalized]
 
     # =================================================================
-    # SMART PATH: LLM intent classification (for complex/novel queries)
-    # LLM decides BOTH the topic AND whether to show YoY
+    # STEP 5: LLM DEEP UNDERSTANDING (complex/novel queries)
+    # Use query_understanding module if available, else our simpler classifier
     # =================================================================
+    understanding = None
+    if QUERY_UNDERSTANDING_AVAILABLE:
+        try:
+            understanding = understand_query(query)
+            if understanding:
+                print(f"[Router] Query understanding: {understanding.get('query_type', 'unknown')}")
+
+                # Get routing recommendation from understanding
+                routing = get_routing_recommendation(understanding)
+                if routing and routing.get('suggested_topic'):
+                    topic = routing['suggested_topic']
+                    if topic in all_plans:
+                        plan = all_plans[topic].copy()
+                        if routing.get('show_yoy') is not None:
+                            plan['show_yoy'] = routing['show_yoy']
+                        print(f"[Router] Understanding routed to '{topic}'")
+                        return plan
+        except Exception as e:
+            print(f"[Router] Query understanding error: {e}")
+
+    # Try RAG-based retrieval for complex queries
+    if RAG_AVAILABLE and not understanding:
+        try:
+            rag_plan = rag_query_plan(query)
+            if rag_plan and rag_plan.get('series'):
+                print(f"[Router] RAG found series: {rag_plan.get('series', [])[:3]}")
+                return rag_plan
+        except Exception as e:
+            print(f"[Router] RAG error: {e}")
+
+    # Simpler LLM classification as fallback
     all_topics = list(all_plans.keys())
     classification = classify_query_intent(query, all_topics)
 
     if classification and classification.get("topic") in all_plans:
         topic = classification["topic"]
-        plan = all_plans[topic].copy()  # Copy to avoid mutating original
+        plan = all_plans[topic].copy()
 
-        # LLM can override show_yoy if it has a recommendation
         if classification.get("show_yoy") is not None:
             print(f"[Router] LLM classified '{query}' -> '{topic}' with show_yoy={classification['show_yoy']}")
             plan["show_yoy"] = classification["show_yoy"]
@@ -637,7 +1322,7 @@ def find_query_plan(query: str):
         return plan
 
     # =================================================================
-    # FALLBACK: Fuzzy match (catches typos, close variations)
+    # STEP 6: FUZZY MATCH (catches typos, close variations)
     # =================================================================
     import difflib
     matches = difflib.get_close_matches(normalized, all_topics, n=1, cutoff=0.7)
@@ -647,6 +1332,13 @@ def find_query_plan(query: str):
 
     print(f"[Router] No match found for '{query}'")
     return None
+
+
+def is_judgment_needed(query: str) -> bool:
+    """Check if query needs interpretive judgment (not just facts)."""
+    if JUDGMENT_AVAILABLE:
+        return is_judgment_query(query)
+    return False
 
 
 def search_fred(query: str, limit: int = 10) -> list:
@@ -742,7 +1434,7 @@ def get_series_via_claude(query: str) -> dict:
 
 AVAILABLE DATA SOURCES (not just FRED!):
 1. **FRED** - Federal Reserve Economic Data (search_fred tool)
-   - Employment, GDP, inflation, interest rates, international data
+   - Employment, GDP, inflation, interest rates, international data, TRADE DATA
    - Use series IDs like: UNRATE, PAYEMS, CPIAUCSL, FEDFUNDS, GDP
 
 2. **Zillow** - Real-time housing data (use series IDs starting with "zillow_")
@@ -762,6 +1454,30 @@ AVAILABLE DATA SOURCES (not just FRED!):
    - eia_gasoline_price: Retail gas prices
    - eia_crude_oil: Crude oil prices
 
+6. **Trade Data** - FRED has comprehensive US trade data:
+   BALANCES:
+   - BOPGSTB: Total Trade Balance (goods + services) - THE KEY METRIC
+   - BOPGTB: Goods Trade Balance only
+   - BOPSTB: Services Trade Balance only
+
+   TOTALS:
+   - IMPGS: Total Imports (goods + services)
+   - EXPGS: Total Exports (goods + services)
+
+   BY COUNTRY - IMPORTS:
+   - IMPCH: Imports from China (largest source)
+   - IMPMX: Imports from Mexico
+   - IMPCA: Imports from Canada
+   - IMPJP: Imports from Japan
+   - IMPEU: Imports from EU
+
+   BY COUNTRY - EXPORTS:
+   - EXPCH: Exports to China
+   - EXPMX: Exports to Mexico
+   - EXPCA: Exports to Canada
+   - EXPJP: Exports to Japan
+   - EXPEU: Exports to EU
+
 WORKFLOW:
 1. Call search_fred to find FRED series (if needed)
 2. Call select_series with your chosen series - can include zillow_*, av_*, eia_* IDs directly!
@@ -771,11 +1487,13 @@ SEARCH TIPS for FRED:
 - Home prices: "case shiller" (CSUSHPINSA) - OR use zillow_zhvi_national for real-time
 - Wages: "average hourly earnings"
 - Manufacturing: "industrial production"
+- Trade: Use the specific series above - don't search, just use them directly!
 
 CRITICAL - show_yoy rules:
 - show_yoy=True for price INDEXES (CPI, home prices, rent CPI) - raw index values are meaningless
 - show_yoy=True for LEVELS (GDP dollars, employment counts, production indexes)
 - show_yoy=False for RATES (unemployment %, interest rates, inflation rates that are already %)
+- show_yoy=False for TRADE BALANCES and flows ($ billions - already meaningful)
 - When showing Zillow YoY series (zillow_rent_yoy, zillow_home_value_yoy), show_yoy=False (already YoY)
 
 CRITICAL - display_names: Keep short but precise. Include country for international data."""
@@ -1208,12 +1926,14 @@ def get_recessions_in_range(min_date: str, max_date: str) -> list:
     return recessions
 
 
-def format_chart_data(series_data: list, payems_show_level: bool = False) -> list:
+def format_chart_data(series_data: list, payems_show_level: bool = False, user_query: str = None, use_dynamic_bullets: bool = True) -> list:
     """Format series data for Plotly.js on the frontend.
 
     Args:
         series_data: List of (series_id, dates, values, info) tuples
         payems_show_level: If True, show PAYEMS as total employment level instead of monthly changes
+        user_query: Optional user query for contextual dynamic bullets
+        use_dynamic_bullets: If True, generate AI-powered contextual bullets
     """
     charts = []
 
@@ -1330,7 +2050,12 @@ def format_chart_data(series_data: list, payems_show_level: bool = False) -> lis
         db_info = SERIES_DB.get(sid, {})
         source = db_info.get('source', 'FRED')
         sa = db_info.get('sa', False)
-        bullets = db_info.get('bullets', [])
+
+        # Generate dynamic AI bullets if enabled, otherwise use static
+        if use_dynamic_bullets and ANTHROPIC_API_KEY:
+            bullets = get_dynamic_bullets(sid, dates, values, info, user_query, use_ai=True)
+        else:
+            bullets = db_info.get('bullets', [])
 
         # Get FRED notes for educational content (fallback if no bullets)
         notes = info.get('notes', '')
@@ -1395,6 +2120,24 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
                 conversation_history = json.loads(history)
             except json.JSONDecodeError:
                 pass
+
+        # =================================================================
+        # TEMPORAL FILTERING: Extract date ranges from query
+        # =================================================================
+        temporal_filter = extract_temporal_filter(query)
+        years_override = None
+        if temporal_filter:
+            years_override = temporal_filter.get('years_override')
+            print(f"[Temporal] Detected: {temporal_filter.get('temporal_focus', 'none')} -> years={years_override}")
+
+        # Smart date range based on query content
+        if not years_override:
+            years_override = get_smart_date_range(query, default_years=8)
+
+        # Detect geographic scope (for future regional support)
+        geo_scope = detect_geographic_scope(query)
+        if geo_scope['type'] != 'national':
+            print(f"[Geographic] Detected {geo_scope['type']}: {geo_scope['name']}")
 
         # Special data for enhanced responses
         polymarket_html = None
@@ -1501,6 +2244,68 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
                 print(f"[Polymarket] Error: {e}")
 
         # =================================================================
+        # ROUTE 5: Fed SEP (Federal Reserve Projections)
+        # =================================================================
+        fed_sep_html = None
+        if FED_SEP_AVAILABLE and is_fed_related_query(query):
+            try:
+                fed_data = get_sep_data()
+                fed_rate = get_current_fed_funds_rate()
+
+                if fed_data and fed_rate:
+                    current_rate = fed_rate.get('current_rate', 'N/A')
+                    rate_decision = fed_rate.get('last_decision', '')
+                    projections = fed_data.get('projections', {})
+
+                    # Build Fed SEP display box
+                    fed_sep_html = f"""
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mb-6 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-slate-900">Federal Reserve Outlook</h3>
+                                    <p class="text-sm text-slate-500">FOMC Summary of Economic Projections</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">{rate_decision}</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 text-center px-6 py-4">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Fed Funds Rate</p>
+                                <p class="text-2xl font-bold text-slate-900">{current_rate}</p>
+                                <p class="text-xs text-slate-400">Current Target</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">GDP Growth</p>
+                                <p class="text-2xl font-bold text-emerald-600">{projections.get('gdp_2024', 'N/A')}</p>
+                                <p class="text-xs text-slate-400">2024 Median</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Unemployment</p>
+                                <p class="text-2xl font-bold text-blue-600">{projections.get('unemployment_2024', 'N/A')}</p>
+                                <p class="text-xs text-slate-400">2024 Median</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Core PCE</p>
+                                <p class="text-2xl font-bold text-amber-600">{projections.get('core_pce_2024', 'N/A')}</p>
+                                <p class="text-xs text-slate-400">2024 Median</p>
+                            </div>
+                        </div>
+                        <div class="px-6 py-3 bg-slate-50 border-t border-slate-100">
+                            <p class="text-sm text-slate-600">Source: Federal Reserve FOMC Summary of Economic Projections</p>
+                        </div>
+                    </div>
+                    """
+                    print(f"[FedSEP] Added Fed projections box, rate: {current_rate}")
+            except Exception as e:
+                print(f"[FedSEP] Error: {e}")
+
+        # Track if this is a judgment query (needs interpretive context)
+        judgment_context = None
+        if JUDGMENT_AVAILABLE and is_judgment_query(query):
+            print(f"[Judgment] Query requires interpretive context: '{query}'")
+
+        # =================================================================
         # STANDARD ROUTING: Query Plans or Agentic Search
         # =================================================================
         # Check if we already have series from health check routing
@@ -1586,8 +2391,39 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
         if fallback_mode:
             summary = f"I wasn't able to find data specifically about \"{query}\" in FRED. Here are some key indicators showing the current state of the U.S. economy: {summary}"
 
-        # Format for frontend
-        charts = format_chart_data(series_data, payems_show_level=payems_show_level)
+        # =================================================================
+        # JUDGMENT LAYER: Add interpretive context for judgment queries
+        # =================================================================
+        if JUDGMENT_AVAILABLE and is_judgment_query(query):
+            try:
+                # Get the series IDs we're displaying
+                displayed_series = [sd[0] for sd in series_data]
+                judgment_result = process_judgment_query(
+                    query=query,
+                    series_ids=displayed_series,
+                    data_summary=summary
+                )
+                if judgment_result:
+                    # Enhance summary with judgment context
+                    summary = judgment_result
+                    print(f"[Judgment] Enhanced summary with interpretive context")
+            except Exception as e:
+                print(f"[Judgment] Error processing: {e}")
+
+        # =================================================================
+        # ECONOMIST REVIEWER: Second-pass review for quality
+        # =================================================================
+        if ANTHROPIC_API_KEY and series_data and len(summary) < 500:
+            try:
+                improved_summary = call_economist_reviewer(query, series_data, summary)
+                if improved_summary and improved_summary != summary:
+                    summary = improved_summary
+                    print(f"[EconomistReviewer] Enhanced summary")
+            except Exception as e:
+                print(f"[EconomistReviewer] Error: {e}")
+
+        # Format for frontend with dynamic AI bullets
+        charts = format_chart_data(series_data, payems_show_level=payems_show_level, user_query=query, use_dynamic_bullets=True)
 
         # Add Claude's descriptions to each chart
         for chart in charts:
@@ -1612,6 +2448,9 @@ async def search(request: Request, query: str = Form(...), history: str = Form(d
             "polymarket_html": polymarket_html,
             "cape_html": cape_html,
             "recession_html": recession_html,
+            "fed_sep_html": fed_sep_html,
+            # Temporal context
+            "temporal_context": temporal_filter.get('explanation') if temporal_filter else None,
         }
 
         if is_htmx:

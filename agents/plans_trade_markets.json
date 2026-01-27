@@ -1,52 +1,159 @@
 {
   "trade": {
-    "series": [
-      "BOPGSTB"
-    ],
+    "series": ["BOPGSTB", "IMPGS", "EXPGS"],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "BOPGSTB (trade balance for goods & services) is the most comprehensive measure of US trade performance. A negative value indicates a trade deficit, which is the standard metric economists and policymakers focus on when discussing 'trade' broadly."
+    "explanation": "The full picture of US trade: BOPGSTB (trade balance) shows the net position - negative means we import more than we export. IMPGS (total imports) and EXPGS (total exports) show the absolute flows. The US typically runs a goods deficit but a services surplus."
   },
   "trade deficit": {
-    "series": [
-      "BOPGSTB"
-    ],
+    "series": ["BOPGSTB", "IMPGS", "EXPGS"],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "BOPGSTB is the trade balance for goods and services, where negative values indicate a trade deficit. This is the primary measure that captures what people mean when they refer to the 'trade deficit' - the amount by which imports exceed exports."
+    "explanation": "The trade deficit is captured by BOPGSTB (trade balance) - negative values indicate a deficit. Showing imports (IMPGS) and exports (EXPGS) alongside reveals what's driving the deficit - typically a large goods deficit partially offset by services surplus."
   },
   "trade balance": {
-    "series": [
-      "BOPGSTB"
-    ],
+    "series": ["BOPGSTB", "IMPGS", "EXPGS"],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "BOPGSTB is the comprehensive trade balance covering both goods and services, which is the standard measure when people ask about 'trade balance'. Negative values indicate a trade deficit (imports exceed exports), while positive values indicate a trade surplus. This series provides the most complete picture of the US trade position."
+    "explanation": "BOPGSTB is the comprehensive trade balance (goods + services). Negative = deficit, positive = surplus. Showing imports and exports alongside provides context for what's driving the balance."
+  },
+  "trade surplus": {
+    "series": ["BOPGSTB", "BOPSTB", "EXPGS"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "The US runs an overall trade deficit (BOPGSTB) but a services surplus (BOPSTB). Total exports (EXPGS) shows what we sell to the world. The services surplus from tech, finance, and tourism partially offsets the goods deficit."
   },
   "imports": {
-    "series": [
-      "IMPGS"
-    ],
+    "series": ["IMPGS", "BOPGSTB"],
     "show_yoy": false,
     "combine_chart": false,
-    "explanation": "IMPGS (Imports of goods & services) is the comprehensive measure of total U.S. imports, covering both physical goods and services. This provides the broadest view of import activity and trade flows into the United States."
+    "explanation": "IMPGS (total imports of goods & services) shows what the US buys from the world, measured in billions. The trade balance (BOPGSTB) provides context - when imports rise faster than exports, the deficit widens."
   },
   "exports": {
-    "series": [
-      "EXPGS"
-    ],
-    "show_yoy": true,
+    "series": ["EXPGS", "BOPGSTB"],
+    "show_yoy": false,
     "combine_chart": false,
-    "explanation": "EXPGS measures total U.S. exports of goods and services, which directly answers the query about exports. Year-over-year transformation is appropriate to show export growth trends and remove seasonal patterns that are common in trade data."
+    "explanation": "EXPGS (total exports of goods & services) shows what the US sells to the world, measured in billions. The trade balance (BOPGSTB) shows whether exports are keeping pace with imports."
+  },
+  "imports and exports": {
+    "series": ["IMPGS", "EXPGS", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Complete trade picture: imports (IMPGS), exports (EXPGS), and the resulting balance (BOPGSTB). The gap between imports and exports is the trade deficit."
   },
   "china trade": {
-    "series": [
-      "IMPCH",
-      "EXPCH"
-    ],
+    "series": ["IMPCH", "EXPCH", "BOPGSTB"],
     "show_yoy": false,
-    "combine_chart": true,
-    "explanation": "For China trade, showing both US imports from China (IMPCH) and US exports to China (EXPCH) provides the complete bilateral trade picture. Imports from China are typically much larger and get more attention in trade discussions, but exports show the full relationship. Combining them on one chart makes it easy to see the trade balance and trends in both directions."
+    "combine_chart": false,
+    "explanation": "US-China bilateral trade: IMPCH (imports from China, ~$500B/year) dwarfs EXPCH (exports to China, ~$150B/year). This ~$350B bilateral deficit is the largest with any single country. The overall trade balance (BOPGSTB) provides context."
+  },
+  "trade with china": {
+    "series": ["IMPCH", "EXPCH", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-China trade relationship: imports from China (IMPCH) far exceed exports to China (EXPCH), creating a large bilateral deficit. Overall trade balance (BOPGSTB) shows China's contribution to the total deficit."
+  },
+  "us china trade": {
+    "series": ["IMPCH", "EXPCH", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-China trade: IMPCH (imports from China) and EXPCH (exports to China) show the bilateral flows. China is typically the largest source of US imports. The overall balance (BOPGSTB) provides context."
+  },
+  "imports from china": {
+    "series": ["IMPCH", "IMPGS"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "IMPCH shows US imports from China in billions. Comparing to total imports (IMPGS) reveals China's share of US import market - typically 15-20%."
+  },
+  "exports to china": {
+    "series": ["EXPCH", "EXPGS"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "EXPCH shows US exports to China in billions. Comparing to total exports (EXPGS) shows China's importance as an export destination - typically 7-8% of US exports."
+  },
+  "mexico trade": {
+    "series": ["IMPMX", "EXPMX", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-Mexico bilateral trade: Mexico is often the #1 US trading partner (swapping with China and Canada). IMPMX and EXPMX are much more balanced than China trade, reflecting integrated North American supply chains. USMCA (formerly NAFTA) governs this relationship."
+  },
+  "trade with mexico": {
+    "series": ["IMPMX", "EXPMX", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-Mexico trade flows: imports (IMPMX) and exports (EXPMX) are relatively balanced, reflecting deep supply chain integration. Auto parts, machinery, and agricultural goods dominate. Overall balance (BOPGSTB) for context."
+  },
+  "canada trade": {
+    "series": ["IMPCA", "EXPCA", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-Canada bilateral trade: Our largest trading partner by total volume. Trade is relatively balanced (IMPCA vs EXPCA). Energy, autos, and manufacturing dominate. USMCA governs this relationship."
+  },
+  "trade with canada": {
+    "series": ["IMPCA", "EXPCA", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-Canada trade: imports (IMPCA) and exports (EXPCA) are relatively balanced. Canada is often our #1 trading partner by total volume. Oil, auto parts, and manufactured goods dominate."
+  },
+  "japan trade": {
+    "series": ["IMPJP", "EXPJP", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-Japan bilateral trade: historically one of our largest trading relationships. Japan exports autos and electronics to the US; we export agricultural products and machinery. The deficit has narrowed since the 1980s-90s."
+  },
+  "trade with japan": {
+    "series": ["IMPJP", "EXPJP", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-Japan trade flows: IMPJP (imports from Japan) and EXPJP (exports to Japan). Japan remains a major trading partner though less dominant than in the 1980s-90s."
+  },
+  "eu trade": {
+    "series": ["IMPEU", "EXPEU", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-EU trade: as a bloc, the EU is one of America's largest trading partners. Trade is relatively balanced. Major categories include machinery, pharmaceuticals, and vehicles."
+  },
+  "trade with europe": {
+    "series": ["IMPEU", "EXPEU", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-Europe trade flows: IMPEU (imports from EU) and EXPEU (exports to EU). The EU as a bloc is among our largest trading partners with relatively balanced flows."
+  },
+  "trade with eu": {
+    "series": ["IMPEU", "EXPEU", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "US-EU bilateral trade: imports (IMPEU) and exports (EXPEU) with the European Union. Trade is relatively balanced, covering machinery, pharmaceuticals, vehicles, and services."
+  },
+  "trading partners": {
+    "series": ["IMPCH", "IMPMX", "IMPCA", "IMPEU"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Top US import sources: China (IMPCH), Mexico (IMPMX), Canada (IMPCA), and EU (IMPEU). These four account for the majority of US imports. Rankings shift year-to-year, but these are consistently the largest."
+  },
+  "top trading partners": {
+    "series": ["IMPCH", "IMPMX", "IMPCA", "IMPEU"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Imports from top US trading partners: China, Mexico, Canada, and EU. These four dominate US trade. Note: this shows imports only - export patterns differ (e.g., Canada and Mexico receive more US exports than China does)."
+  },
+  "goods trade": {
+    "series": ["BOPGTB", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "BOPGTB is the goods-only trade balance (physical merchandise). The US runs a large goods deficit. BOPGSTB (total balance including services) shows how services surplus partially offsets the goods deficit."
+  },
+  "services trade": {
+    "series": ["BOPSTB", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "BOPSTB is the services trade balance - the US runs a SURPLUS in services (tech, finance, tourism, IP royalties). This surplus partially offsets the goods deficit. BOPGSTB shows the overall position."
+  },
+  "trade by category": {
+    "series": ["BOPGTB", "BOPSTB", "BOPGSTB"],
+    "show_yoy": false,
+    "combine_chart": false,
+    "explanation": "Trade split by category: BOPGTB (goods balance - deficit), BOPSTB (services balance - surplus), and BOPGSTB (total). The US imports more goods than it exports but exports more services than it imports."
   },
   "tariffs impact": {
     "series": [
