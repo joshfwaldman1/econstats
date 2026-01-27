@@ -578,12 +578,19 @@ def _rule_based_understanding(query: str) -> Dict:
     market_keywords = [
         'stock market', 'stocks', 's&p', 's&p 500', 'sp500', 'nasdaq',
         'dow jones', 'dow', 'djia', 'russell', 'small cap', 'spy', 'qqq',
-        'vix', 'volatility index', 'stock index', 'equity market', 'equities'
+        'vix', 'volatility index', 'stock index', 'equity market', 'equities',
+        # Magnificent 7 / Big Tech
+        'mag7', 'mag 7', 'magnificent 7', 'magnificent seven', 'big tech',
+        'faang', 'tech stocks', 'tech giants', 'megacap', 'mega cap',
+        'apple stock', 'microsoft stock', 'google stock', 'nvidia stock',
+        'tesla stock', 'amazon stock', 'meta stock',
     ]
     if any(kw in query_lower for kw in market_keywords):
         # Add Alpha Vantage as secondary - FRED has SP500, DJIA too
         if 'alphavantage' not in result['routing']['secondary_sources']:
             result['routing']['secondary_sources'].append('alphavantage')
+        # Mark as stock-related for validation layer
+        result['routing']['is_stock_query'] = True
 
     # Detect housing/rent queries -> add Zillow (FRED has CPI shelter, permits, etc.)
     housing_keywords = [
@@ -697,6 +704,10 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
         'consumer': ['UMCSENT', 'PCE', 'RSXFS'],
         'credit': ['TOTALSL', 'REVOLSL', 'NONREVSL'],
         'debt': ['GFDEBTN', 'HDTGPDUSQ163N', 'TDSP'],
+        # Stock market / Mag7
+        'stocks': ['SP500', 'NASDAQCOM', 'DJIA', 'VIXCLS'],
+        'mag7': ['SP500', 'NASDAQCOM', 'CP'],  # Corporate profits as proxy
+        'tech stocks': ['NASDAQCOM', 'SP500'],
     }
 
     # Generic series that should NOT be used for specific queries
@@ -745,6 +756,30 @@ def validate_series_for_query(query_understanding: Dict, proposed_series: list) 
                         'entity_type': 'sector',
                         'entity_name': sector
                     }
+
+    # =================================================================
+    # CHECK STOCK/MARKET QUERIES
+    # =================================================================
+    # If query is about stocks/Mag7 but we're returning employment data, override
+    STOCK_SERIES = {'SP500', 'NASDAQCOM', 'DJIA', 'VIXCLS', 'CP'}
+    STOCK_KEYWORDS = ['mag7', 'mag 7', 'magnificent', 'stock', 'nasdaq', 's&p',
+                      'tech stock', 'big tech', 'faang', 'megacap']
+
+    query_lower_check = query_understanding.get('intent', {}).get('core_question', '').lower()
+    is_stock_query = routing.get('is_stock_query', False) or any(kw in query_lower_check for kw in STOCK_KEYWORDS)
+
+    if is_stock_query:
+        has_stock_series = bool(STOCK_SERIES & proposed_set)
+        has_employment = bool({'USINFO', 'CES5000000001', 'PAYEMS'} & proposed_set)
+
+        if not has_stock_series and (has_employment or not proposed_set):
+            return {
+                'valid': False,
+                'corrected_series': ['SP500', 'NASDAQCOM', 'CP'],
+                'reason': "Query is about stocks/Mag7 but routing returned employment data. Using market indices and corporate profits.",
+                'entity_type': 'market',
+                'entity_name': 'stocks'
+            }
 
     # =================================================================
     # CHECK DATA REQUIREMENTS FROM GEMINI

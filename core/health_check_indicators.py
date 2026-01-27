@@ -57,8 +57,8 @@ HEALTH_CHECK_ENTITIES: Dict[str, HealthCheckConfig] = {
     # CORPORATE / BUSINESS
     # =========================================================================
     "megacap_firms": HealthCheckConfig(
-        name="Large US Corporations",
-        description="Performance of megacap and large-cap US companies",
+        name="Large US Corporations / Magnificent 7",
+        description="Performance of megacap tech stocks and large-cap US companies",
         primary_series=["SP500", "NASDAQCOM", "CP", "INDPRO"],
         secondary_series=["DJIA", "BUSLOANS", "PNFI"],
         show_yoy=[False, False, True, True],  # Stock indices as levels, profits/production as YoY
@@ -66,8 +66,12 @@ HEALTH_CHECK_ENTITIES: Dict[str, HealthCheckConfig] = {
             "megacap", "mega cap", "large cap", "big companies", "large companies",
             "corporations", "corporate", "big firms", "large firms", "us firms",
             "american companies", "fortune 500", "blue chip",
+            # Magnificent 7 / Big Tech
+            "mag7", "mag 7", "magnificent 7", "magnificent seven", "big tech",
+            "faang", "tech stocks", "tech giants", "apple microsoft google",
+            "nvidia", "tesla stock", "meta stock", "amazon stock",
         ],
-        explanation="Stock indices (S&P 500, NASDAQ) show market valuation; corporate profits show earnings health; industrial production shows output."
+        explanation="Stock indices (S&P 500, NASDAQ) show market valuation; corporate profits show earnings health. Note: For individual stock performance, we show index-level data as a proxy."
     ),
 
     "small_business": HealthCheckConfig(
